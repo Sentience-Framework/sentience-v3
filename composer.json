@@ -1,0 +1,21 @@
+{
+    "name": "uniforcemusic/sentience",
+    "description": "A lightweight api framework for developing back-end applications",
+    "authors": [
+        {
+            "name": "uniforcemusic"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "": "./"
+        },
+        "files": [
+            "src/functions/sentience.php",
+            "src/functions/custom.php"
+        ]
+    },
+    "require": {
+        "php": "^8.2"
+    }
+}
