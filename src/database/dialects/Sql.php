@@ -25,7 +25,6 @@ class Sql implements DialectInterface
 {
     public const TABLE_OR_COLUMN_ESCAPE = '"';
     public const STRING_ESCAPE = "'";
-    public const ANSI_ESCAPE = true;
     public const DATETIME_FORMAT = 'Y-m-d H:i:s.u';
     public const REGEX_FUNCTION = 'REGEXP';
     public const NOT_REGEX_FUNCTION = 'NOT REGEXP';
@@ -772,7 +771,7 @@ class Sql implements DialectInterface
 
     protected function escape(string $string, string $char): string
     {
-        $escapedString = $this::ANSI_ESCAPE
+        $escapedString = env('DB_ANSI_ESCAPE', true)
             ? escape_chars($string, [$char], '$0$0', '/%s/')
             : escape_chars($string, ['\\', $char]);
 

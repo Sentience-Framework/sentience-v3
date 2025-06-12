@@ -125,7 +125,7 @@ class ExampleController extends Controller
             ->whereEndsWith('column2', 'z')
             ->whereEmpty('empty_column')
             ->whereNotEmpty('not_empty_column')
-            ->whereRegex('column6', 'file|read|write|open')
+            ->whereRegex('column6', 'file|read|write|open \'escaped\'')
             ->whereNotRegex('column6', 'error')
             ->groupBy([
                 ['table', 'column'],

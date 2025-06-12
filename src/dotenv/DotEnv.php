@@ -128,7 +128,7 @@ class DotEnv
             return $this->parseNullValue($value);
         }
 
-        return $value;
+        return rtrim($value);
     }
 
     protected function parseArrayValue(string $value, array $parsedVariables): array
