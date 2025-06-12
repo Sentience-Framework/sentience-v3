@@ -3,10 +3,13 @@
 namespace src\database\dialects;
 
 use DateTime;
-use src\database\queries\containers\Raw;
+use src\database\queries\objects\Raw;
 
 class Pgsql extends Sql implements DialectInterface
 {
+    public const REGEX_FUNCTION = '~';
+    public const NOT_REGEX_FUNCTION = '!~';
+
     public function addOnConflict(string &$query, array &$params, null|string|array $conflict, ?array $conflictUpdates, ?string $primaryKey, array $insertValues): void
     {
         if (is_null($conflict)) {
@@ -86,7 +89,7 @@ class Pgsql extends Sql implements DialectInterface
             'int' => 'INT8',
             'float' => 'FLOAT8',
             'string' => 'TEXT',
-            'DateTime' => 'TIMESTAMP',
+            'DateTime' => 'TIMESTAMP'
         ][$type];
     }
 }

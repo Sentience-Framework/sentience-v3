@@ -3,8 +3,8 @@
 namespace src\database\queries\traits;
 
 use src\database\queries\enums\OrderByDirection;
-use src\database\queries\containers\OrderBy as OrderByContainer;
-use src\database\queries\containers\Raw;
+use src\database\queries\objects\OrderBy as OrderByObject;
+use src\database\queries\objects\Raw;
 
 trait OrderBy
 {
@@ -26,6 +26,6 @@ trait OrderBy
 
     protected function addOrderBy(string|array|Raw $column, OrderByDirection $direction): void
     {
-        $this->orderBy[] = new OrderByContainer($column, $direction);
+        $this->orderBy[] = new OrderByObject($column, $direction);
     }
 }

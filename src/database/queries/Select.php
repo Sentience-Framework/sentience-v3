@@ -2,7 +2,8 @@
 
 namespace src\database\queries;
 
-use src\database\queries\containers\Raw;
+use src\database\queries\objects\QueryWithParams;
+use src\database\queries\objects\Raw;
 use src\database\queries\traits\Columns;
 use src\database\queries\traits\Distinct;
 use src\database\queries\traits\GroupBy;
@@ -14,7 +15,7 @@ use src\database\queries\traits\OrderBy;
 use src\database\queries\traits\Table;
 use src\database\queries\traits\Where;
 
-class Select extends Query implements QueryInterface
+class Select extends Query
 {
     use Columns;
     use Distinct;
@@ -27,19 +28,16 @@ class Select extends Query implements QueryInterface
     use Table;
     use Where;
 
-    public function build(): array
+    public function build(): QueryWithParams
     {
         return $this->dialect->select([
-            'table' => $this->table,
             'distinct' => $this->distinct,
             'columns' => $this->columns,
+            'table' => $this->table,
             'joins' => $this->joins,
             'where' => $this->where,
             'groupBy' => $this->groupBy,
-            'having' => [
-                'expression' => $this->havingExpression,
-                'values' => $this->havingValues,
-            ],
+            'having' => $this->having,
             'orderBy' => $this->orderBy,
             'limit' => $this->limit,
             'offset' => $this->offset
@@ -54,7 +52,7 @@ class Select extends Query implements QueryInterface
         $this->distinct = false;
 
         $countExpression = !is_null($column)
-            ? $this->dialect->escapeIdentifier($column)
+            ? ($previousDistinct ? 'DISTINCT ' : '') . $this->dialect->escapeIdentifier($column)
             : '*';
 
         $this->columns([
@@ -62,14 +60,14 @@ class Select extends Query implements QueryInterface
                 Query::raw(
                     sprintf(
                         'COUNT(%s)',
-                        ($previousDistinct ? 'DISTINCT ' : '') . $countExpression
+                        $countExpression
                     )
                 ),
                 'count'
             )
         ]);
 
-        $count = (int) $this->execute()->fetch()->count;
+        $count = (int) $this->execute()->fetch()->count ?? 0;
 
         $this->columns = $previousColumns;
         $this->distinct = $previousDistinct;

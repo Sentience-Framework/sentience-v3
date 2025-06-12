@@ -6,9 +6,6 @@ use src\sentience\Argv;
 
 class CliRouter
 {
-    /**
-     * @var Command[] $commands
-     */
     public array $commands = [];
 
     public function __construct()
@@ -41,10 +38,11 @@ class CliRouter
         $flags = [];
 
         foreach ($args as $arg) {
-            $isSyntaxMatch = preg_match('/--(.[^=]*)=?(.*)/', $arg, $matches);
+            $isMatch = preg_match('/\-\-(.[^\=]*)\=?(.*)/', $arg, $matches);
 
-            if (!$isSyntaxMatch) {
+            if (!$isMatch) {
                 $words[] = $arg;
+
                 continue;
             }
 

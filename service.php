@@ -16,11 +16,13 @@ use src\utils\Terminal;
  * A good use case would be putting the database connection variable here
  */
 
-return new class {
+return new class () {
     public function database(): Database
     {
         $debugCallback = env('DB_DEBUG', false)
-            ? function (string $query, ?float $startTime, ?float $endTime, ?string $error): void {
+            ? function (string $query, float $startTime, ?string $error = null): void {
+                $endTime = microtime(true);
+
                 $terminalWidth = Terminal::getWidth();
 
                 $equalSigns = ($terminalWidth - 5) / 2 - 1;
@@ -33,10 +35,7 @@ return new class {
 
                 Stdio::errorFLn('Timestamp : %s', date('Y-m-d H:i:s'));
                 Stdio::errorFLn('Query     : %s', $query);
-
-                if ($startTime && $endTime) {
-                    Stdio::errorFLn('Time      : %s ms', round(($endTime - $startTime) * 1000, 2));
-                }
+                Stdio::errorFLn('Time      : %.2f ms', ($endTime - $startTime) * 1000);
 
                 if ($error) {
                     Stdio::errorFLn('Error     : %s', $error);
@@ -44,7 +43,7 @@ return new class {
 
                 Stdio::errorLn(str_repeat('=', $terminalWidth));
             }
-            : null;
+        : null;
 
         $dsn = env('DB_DSN');
 

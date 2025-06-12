@@ -5,15 +5,16 @@ namespace src\database;
 use Closure;
 use PDO;
 use Throwable;
-use src\database\queries\containers\Alias;
-use src\database\queries\containers\Raw;
 use src\database\dialects\DialectFactory;
 use src\database\dialects\DialectInterface;
 use src\database\queries\AlterTable;
 use src\database\queries\CreateTable;
-use src\database\queries\DropTable;
 use src\database\queries\Delete;
+use src\database\queries\DropTable;
 use src\database\queries\Insert;
+use src\database\queries\objects\Alias;
+use src\database\queries\objects\QueryWithParams;
+use src\database\queries\objects\Raw;
 use src\database\queries\Select;
 use src\database\queries\Update;
 use src\exceptions\SqlException;
@@ -29,7 +30,8 @@ class Database
     {
         $options = [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
-            PDO::ATTR_STRINGIFY_FETCHES => false,
+            PDO::ATTR_EMULATE_PREPARES => false,
+            PDO::ATTR_STRINGIFY_FETCHES => false
         ];
 
         $this->debug = $debug;
@@ -43,6 +45,24 @@ class Database
 
         $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
 
+        if ($driver == DialectFactory::PDO_DRIVER_SQLITE) {
+            if (method_exists($this->pdo, 'sqliteCreateFunction')) {
+                $this->pdo->sqliteCreateFunction(
+                    'REGEXP',
+                    function (string $pattern, string $value): bool {
+                        return preg_match(
+                            sprintf(
+                                '/%s/u',
+                                escape_chars($pattern, ['/'])
+                            ),
+                            $value
+                        );
+                    },
+                    2
+                );
+            }
+        }
+
         $this->dialect = DialectFactory::fromDriver($driver);
     }
 
@@ -52,20 +72,18 @@ class Database
 
         $affected = $this->pdo->exec($query);
 
-        $endTime = microtime(true);
-
         if (is_bool($affected)) {
             $error = implode(' ', $this->pdo->errorInfo());
 
             if ($this->debug) {
-                ($this->debug)($query, null, null, $error);
+                ($this->debug)($query, $startTime, $error);
             }
 
             throw new SqlException($error);
         }
 
         if ($this->debug) {
-            ($this->debug)($query, $startTime, $endTime, null);
+            ($this->debug)($query, $startTime);
         }
 
         return $affected;
@@ -73,7 +91,9 @@ class Database
 
     public function safe(string $query, array $params = []): Results
     {
-        $rawQuery = $this->dialect->toRawQuery($query, $params);
+        $queryWithParams = new QueryWithParams($query, $params);
+
+        $rawQuery = $queryWithParams->toRawQuery($this->dialect);
 
         $startTime = microtime(true);
 
@@ -83,7 +103,7 @@ class Database
             $error = implode(' ', $this->pdo->errorInfo());
 
             if ($this->debug) {
-                ($this->debug)($rawQuery, null, null, $error);
+                ($this->debug)($rawQuery, $startTime, $error);
             }
 
             throw new SqlException($error);
@@ -102,22 +122,20 @@ class Database
             $error = implode(' ', $pdoStatement->errorInfo());
 
             if ($this->debug) {
-                ($this->debug)($rawQuery, null, null, $error);
+                ($this->debug)($rawQuery, $startTime, $error);
             }
 
             throw new SqlException($error);
         }
 
-        $endTime = microtime(true);
-
         if ($this->debug) {
-            ($this->debug)($rawQuery, $startTime, $endTime, null);
+            ($this->debug)($rawQuery, $startTime);
         }
 
         return new Results(
             $this,
             $pdoStatement,
-            $rawQuery,
+            $rawQuery
         );
     }
 

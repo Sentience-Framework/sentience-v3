@@ -7,13 +7,8 @@ use src\routers\Route;
 use src\routers\RouteGroup;
 use src\sentience\Request;
 use src\sentience\Response;
-use src\sentience\Sentience;
 
-/**
- * @var Sentience $sentience
- */
-
-$routes = [
+return [
     Route::create('/healthcheck')
         ->setMiddleware([
             [CORSMiddleware::class, 'addHeaders']
@@ -50,9 +45,5 @@ $routes = [
     Route::create('/{country}-{language}')
         ->setCallback(function (Request $request): void {
             Response::ok($request->pathVars);
-        }),
+        })
 ];
-
-foreach ($routes as $route) {
-    $sentience->bindRoute($route);
-}

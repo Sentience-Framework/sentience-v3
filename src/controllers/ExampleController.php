@@ -2,8 +2,8 @@
 
 namespace src\controllers;
 
-use src\database\queries\Query;
 use src\database\Database;
+use src\database\queries\Query;
 use src\sentience\Request;
 use src\sentience\Response;
 use src\sentience\Stdio;
@@ -81,7 +81,7 @@ class ExampleController extends Controller
                 Query::alias(
                     Query::raw('column2'),
                     'col2'
-                ),
+                )
             ])
             ->leftJoin(
                 Query::alias('table2', 'jt'),
@@ -121,6 +121,12 @@ class ExampleController extends Controller
                 return $group;
             })
             ->whereIn('column2', [])
+            ->whereStartsWith('column2', 'a')
+            ->whereEndsWith('column2', 'z')
+            ->whereEmpty('empty_column')
+            ->whereNotEmpty('not_empty_column')
+            ->whereRegex('column6', 'file|read|write|open')
+            ->whereNotRegex('column6', 'error')
             ->groupBy([
                 ['table', 'column'],
                 'column2',
@@ -154,7 +160,7 @@ class ExampleController extends Controller
                 'column1' => Query::now(),
                 'column2' => true,
                 'column3' => false,
-                'column4' => Query::raw('column1 + 1'),
+                'column4' => Query::raw('column1 + 1')
             ])
             ->returning(['id'])
             ->rawQuery();

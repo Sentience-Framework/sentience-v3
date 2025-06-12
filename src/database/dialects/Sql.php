@@ -3,32 +3,34 @@
 namespace src\database\dialects;
 
 use DateTime;
-use src\database\queries\containers\Alias;
-use src\database\queries\containers\Join;
-use src\database\queries\containers\OrderBy;
-use src\database\queries\containers\Raw;
-use src\database\queries\containers\Condition;
-use src\database\queries\containers\ConditionGroup;
-use src\database\queries\definitions\AddColumn;
-use src\database\queries\definitions\AddForeignKeyConstraint;
-use src\database\queries\definitions\AddUniqueConstraint;
-use src\database\queries\definitions\AlterColumn;
-use src\database\queries\definitions\Column;
-use src\database\queries\definitions\DropColumn;
-use src\database\queries\definitions\DropConstraint;
-use src\database\queries\definitions\ForeignKeyConstraint;
-use src\database\queries\definitions\RenameColumn;
-use src\database\queries\definitions\UniqueConstraint;
-use src\database\queries\enums\WhereOperator;
-use src\exceptions\QueryException;
+use src\database\queries\enums\WhereType;
+use src\database\queries\objects\AddColumn;
+use src\database\queries\objects\AddForeignKeyConstraint;
+use src\database\queries\objects\AddUniqueConstraint;
+use src\database\queries\objects\Alias;
+use src\database\queries\objects\AlterColumn;
+use src\database\queries\objects\Column;
+use src\database\queries\objects\Condition;
+use src\database\queries\objects\ConditionGroup;
+use src\database\queries\objects\DropColumn;
+use src\database\queries\objects\DropConstraint;
+use src\database\queries\objects\ForeignKeyConstraint;
+use src\database\queries\objects\OrderBy;
+use src\database\queries\objects\QueryWithParams;
+use src\database\queries\objects\Raw;
+use src\database\queries\objects\RenameColumn;
+use src\database\queries\objects\UniqueConstraint;
 
 class Sql implements DialectInterface
 {
     public const TABLE_OR_COLUMN_ESCAPE = '"';
     public const STRING_ESCAPE = "'";
+    public const ANSI_ESCAPE = true;
     public const DATETIME_FORMAT = 'Y-m-d H:i:s.u';
+    public const REGEX_FUNCTION = 'REGEXP';
+    public const NOT_REGEX_FUNCTION = 'NOT REGEXP';
 
-    public function select(array $config): array
+    public function select(array $config): QueryWithParams
     {
         $query = '';
         $params = [];
@@ -70,17 +72,17 @@ class Sql implements DialectInterface
         $this->addJoins($query, $config['joins']);
         $this->addWhere($query, $params, $config['where']);
         $this->addGroupBy($query, $config['groupBy']);
-        $this->addHaving($query, $params, $config['having']['expression'], $config['having']['values']);
+        $this->addHaving($query, $params, $config['having']);
         $this->addOrderBy($query, $config['orderBy']);
         $this->addLimit($query, $config['limit']);
         $this->addOffset($query, $config['limit'], $config['offset']);
 
         $query .= ';';
 
-        return [$query, $params];
+        return new QueryWithParams($query, $params);
     }
 
-    public function insert(array $config): array
+    public function insert(array $config): QueryWithParams
     {
         $query = '';
         $params = [];
@@ -141,10 +143,10 @@ class Sql implements DialectInterface
 
         $query .= ';';
 
-        return [$query, $params];
+        return new QueryWithParams($query, $params);
     }
 
-    public function update(array $config): array
+    public function update(array $config): QueryWithParams
     {
         $query = '';
         $params = [];
@@ -154,7 +156,6 @@ class Sql implements DialectInterface
         $this->addTable($query, $config['table']);
 
         $query .= ' SET ';
-
         $query .= implode(
             ', ',
             array_map(
@@ -182,10 +183,10 @@ class Sql implements DialectInterface
 
         $query .= ';';
 
-        return [$query, $params];
+        return new QueryWithParams($query, $params);
     }
 
-    public function delete(array $config): array
+    public function delete(array $config): QueryWithParams
     {
         $query = '';
         $params = [];
@@ -198,10 +199,10 @@ class Sql implements DialectInterface
 
         $query .= ';';
 
-        return [$query, $params];
+        return new QueryWithParams($query, $params);
     }
 
-    public function createTable(array $config): array
+    public function createTable(array $config): QueryWithParams
     {
         $query = '';
         $params = [];
@@ -244,10 +245,10 @@ class Sql implements DialectInterface
         $query .= sprintf(' (%s)', implode(', ', $definitions));
         $query .= ';';
 
-        return [$query, $params];
+        return new QueryWithParams($query, $params);
     }
 
-    public function alterTable(array $config): array
+    public function alterTable(array $config): QueryWithParams
     {
         $query = '';
         $params = [];
@@ -315,10 +316,10 @@ class Sql implements DialectInterface
 
         $query .= implode(' ', $queries);
 
-        return [$query, $params];
+        return new QueryWithParams($query, $params);
     }
 
-    public function dropTable(array $config): array
+    public function dropTable(array $config): QueryWithParams
     {
         $query = '';
         $params = [];
@@ -333,7 +334,7 @@ class Sql implements DialectInterface
 
         $query .= ';';
 
-        return [$query, $params];
+        return new QueryWithParams($query, $params);
     }
 
     protected function addTable(string &$query, string|array|Alias|Raw $table): void
@@ -342,11 +343,13 @@ class Sql implements DialectInterface
 
         if ($table instanceof Alias) {
             $query .= $this->escapeIdentifierWithAlias($table->name, $table->alias);
+
             return;
         }
 
         if ($table instanceof Raw) {
             $query .= $table->expression;
+
             return;
         }
 
@@ -361,9 +364,6 @@ class Sql implements DialectInterface
 
         $query .= ' ';
 
-        /**
-         * @var Join|Raw[] $joins
-         */
         foreach ($joins as $index => $join) {
             if ($index > 0) {
                 $query .= ' ';
@@ -371,6 +371,7 @@ class Sql implements DialectInterface
 
             if ($join instanceof Raw) {
                 $query .= $join->expression;
+
                 continue;
             }
 
@@ -381,7 +382,7 @@ class Sql implements DialectInterface
                 $this->escapeIdentifier($join->joinTableAlias ?? $join->joinTable),
                 $this->escapeIdentifier($join->joinTableColumn),
                 $this->escapeIdentifier($join->onTable),
-                $this->escapeIdentifier($join->onTableColumn),
+                $this->escapeIdentifier($join->onTableColumn)
             );
         }
     }
@@ -394,9 +395,6 @@ class Sql implements DialectInterface
 
         $query .= ' WHERE ';
 
-        /**
-         * @var Condition|ConditionGroup[] $where
-         */
         foreach ($where as $index => $condition) {
             if ($condition instanceof Condition) {
                 $this->addCondition($query, $params, $index, $condition);
@@ -414,7 +412,7 @@ class Sql implements DialectInterface
             $query .= sprintf(' %s ', $condition->chain->value);
         }
 
-        if ($condition->type == WhereOperator::RAW) {
+        if ($condition->type == WhereType::RAW) {
             $query .= sprintf('(%s)', $condition->expression);
 
             array_push($params, ...$condition->value);
@@ -423,18 +421,16 @@ class Sql implements DialectInterface
         }
 
         if (is_null($condition->value)) {
-            $comparator = ($condition->type == WhereOperator::EQUALS) ? 'IS NULL' : 'IS NOT NULL';
-
             $query .= sprintf(
                 '(%s %s)',
                 $this->escapeIdentifier($condition->expression),
-                $comparator
+                ($condition->type == WhereType::EQUALS) ? 'IS NULL' : 'IS NOT NULL'
             );
 
             return;
         }
 
-        if (in_array($condition->type, [WhereOperator::BETWEEN, WhereOperator::NOT_BETWEEN])) {
+        if (in_array($condition->type, [WhereType::BETWEEN, WhereType::NOT_BETWEEN])) {
             $query .= sprintf(
                 '(%s %s ? AND ?)',
                 $this->escapeIdentifier($condition->expression),
@@ -461,6 +457,18 @@ class Sql implements DialectInterface
             return;
         }
 
+        if (in_array($condition->type, [WhereType::REGEX, WhereType::NOT_REGEX])) {
+            $query .= sprintf(
+                '(%s %s ?)',
+                $this->escapeIdentifier($condition->expression),
+                ($condition->type == WhereType::REGEX) ? $this::REGEX_FUNCTION : $this::NOT_REGEX_FUNCTION
+            );
+
+            array_push($params, $condition->value);
+
+            return;
+        }
+
         $query .= sprintf(
             '(%s %s ?)',
             $this->escapeIdentifier($condition->expression),
@@ -480,9 +488,6 @@ class Sql implements DialectInterface
 
         $query .= '(';
 
-        /**
-         * @var Condition|ConditionGroup[] $conditions
-         */
         foreach ($conditions as $index => $condition) {
             if ($condition instanceof Condition) {
                 $this->addCondition($query, $params, $index, $condition);
@@ -516,15 +521,15 @@ class Sql implements DialectInterface
         );
     }
 
-    protected function addHaving(string &$query, array &$params, ?string $having, array $values): void
+    protected function addHaving(string &$query, array &$params, ?QueryWithParams $having): void
     {
         if (is_null($having)) {
             return;
         }
 
-        $query .= ' HAVING ' . $having;
+        $query .= ' HAVING ' . $having->expression;
 
-        array_push($params, ...$values);
+        array_push($params, ...$having->params);
     }
 
     protected function addOrderBy(string &$query, array $orderBy): void
@@ -765,15 +770,13 @@ class Sql implements DialectInterface
         return $this->escape($string, $this::STRING_ESCAPE);
     }
 
-    protected function escape(string $string, string $character): string
+    protected function escape(string $string, string $char): string
     {
-        $escapedString = escape_chars(
-            $string,
-            ['\\', $character],
-            '$0$0'
-        );
+        $escapedString = $this::ANSI_ESCAPE
+            ? escape_chars($string, [$char], '$0$0', '/%s/')
+            : escape_chars($string, ['\\', $char]);
 
-        return $character . $escapedString . $character;
+        return $char . $escapedString . $char;
     }
 
     public function castToDriver(mixed $value): mixed
@@ -859,49 +862,7 @@ class Sql implements DialectInterface
             'int' => 'INT',
             'float' => 'FLOAT',
             'string' => 'TEXT',
-            'DateTime' => 'DATETIME',
+            'DateTime' => 'DATETIME'
         ][$type];
-    }
-
-    public function toRawQuery(string $query, array $params): string
-    {
-        if (count($params) == 0) {
-            return $query;
-        }
-
-        $params = array_map(
-            function (mixed $param): mixed {
-                return $this->castToQuery($param);
-            },
-            $params
-        );
-
-        $stringEscape = $this::STRING_ESCAPE;
-
-        $regex = sprintf(
-            '/(?<!\\\)(\?)(?=(?:[^%s]|%s[^%s]*%s)*$)/',
-            $stringEscape,
-            $stringEscape,
-            $stringEscape,
-            $stringEscape,
-        );
-
-        $index = 0;
-
-        return preg_replace_callback(
-            $regex,
-            function () use ($params, &$index): mixed {
-                if (!key_exists($index, $params)) {
-                    throw new QueryException('placeholder and value count do not match');
-                }
-
-                $param = $params[$index];
-
-                $index++;
-
-                return $param;
-            },
-            $query
-        );
     }
 }

@@ -8,12 +8,12 @@ use ReflectionFunction;
 use ReflectionMethod;
 use Throwable;
 use src\controllers\Controller;
-use src\middleware\Middleware;
 use src\exceptions\CallbackException;
 use src\exceptions\DeprecatedException;
 use src\exceptions\FatalErrorException;
 use src\exceptions\NoticeException;
 use src\exceptions\WarningException;
+use src\middleware\Middleware;
 use src\routers\CliRouter;
 use src\routers\Command;
 use src\routers\HttpRouter;
@@ -63,7 +63,7 @@ class Sentience
 
                 $message = $error['message'];
                 $severity = $error['type'];
-                $file = $error['type'];
+                $file = $error['file'];
                 $line = $error['line'];
 
                 $exception = new FatalErrorException($message, 0, $severity, $file, $line);
@@ -197,10 +197,10 @@ class Sentience
         $middlewareArgs = $callback(...$filteredArgs);
 
         if (!is_array($middlewareArgs)) {
-            return $args;
+            return [...$args, ...$filteredArgs];
         }
 
-        return [...$args, ...$middlewareArgs];
+        return [...$args, ...$filteredArgs, ...$middlewareArgs];
     }
 
     protected function validateCallback(string|array|callable $callback): void
@@ -274,7 +274,7 @@ class Sentience
         Stdio::errorFLn('- Text  : %s', $exception->getMessage());
         Stdio::errorFLn('- Type  : %s', Reflector::getShortName($exception));
         Stdio::errorFLn('- File  : %s', $exception->getFile());
-        Stdio::errorFLn('- Line  : %s', $exception->getLine());
+        Stdio::errorFLn('- Line  : %d', $exception->getLine());
 
         if (env('APP_STACK_TRACE', false)) {
             $stackTrace = array_values(
@@ -312,7 +312,7 @@ class Sentience
                     );
 
                     Stdio::errorFLn(
-                        '      %s : %s:%s %s(%s)',
+                        '      %d : %s:%d %s(%s)',
                         $index + 1,
                         $file,
                         $line,
@@ -333,7 +333,7 @@ class Sentience
         $response = [
             'error' => [
                 'type' => Reflector::getShortName($exception),
-                'message' => $exception->getMessage(),
+                'message' => $exception->getMessage()
             ]
         ];
 

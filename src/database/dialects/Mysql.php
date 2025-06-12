@@ -2,26 +2,30 @@
 
 namespace src\database\dialects;
 
-use src\database\queries\containers\Raw;
-use src\database\queries\definitions\AlterColumn;
-use src\database\queries\definitions\Column;
-use src\database\queries\definitions\DropConstraint;
+use src\database\queries\objects\AlterColumn;
+use src\database\queries\objects\Column;
+use src\database\queries\objects\DropConstraint;
+use src\database\queries\objects\QueryWithParams;
+use src\database\queries\objects\Raw;
 use src\database\queries\Query;
 
 class Mysql extends Sql implements DialectInterface
 {
     public const TABLE_OR_COLUMN_ESCAPE = '`';
     public const STRING_ESCAPE = '"';
+    public const ANSI_ESCAPE = false;
 
-    public function createTable(array $config): array
+    public function createTable(array $config): QueryWithParams
     {
-        [$query, $params] = parent::createTable($config);
+        $queryWithParams = parent::createTable($config);
 
-        $query = substr($query, 0, -1);
+        $queryWithParams->expression = substr_replace(
+            $queryWithParams->expression,
+            ' ENGINE=InnoDB;',
+            -1
+        );
 
-        $query .= ' ENGINE=InnoDB;';
-
-        return [$query, $params];
+        return $queryWithParams;
     }
 
     public function addOnConflict(string &$query, array &$params, null|string|array $conflict, ?array $conflictUpdates, ?string $primaryKey, array $insertValues): void
@@ -115,7 +119,7 @@ class Mysql extends Sql implements DialectInterface
             'int' => 'INT',
             'float' => 'FLOAT',
             'string' => 'LONGTEXT',
-            'DateTime' => 'DATETIME(6)',
+            'DateTime' => 'DATETIME(6)'
         ][$type];
     }
 }

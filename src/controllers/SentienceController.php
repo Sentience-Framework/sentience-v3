@@ -2,9 +2,10 @@
 
 namespace src\controllers;
 
-use src\dotenv\DotEnv;
-use src\database\queries\Query;
+use Throwable;
 use src\database\Database;
+use src\database\queries\Query;
+use src\dotenv\DotEnv;
 use src\exceptions\BuiltInWebServerException;
 use src\exceptions\MigrationException;
 use src\exceptions\TerminalException;
@@ -12,6 +13,7 @@ use src\migrations\MigrationFactory;
 use src\models\Migration;
 use src\sentience\Stdio;
 use src\utils\Filesystem;
+use src\utils\Reflector;
 use src\utils\Terminal;
 
 class SentienceController extends Controller
@@ -21,7 +23,7 @@ class SentienceController extends Controller
         $terminalWidth = Terminal::getWidth();
 
         if ($terminalWidth < 40) {
-            throw new TerminalException('terminal width of %s is too small. minimum width of 40 required', $terminalWidth);
+            throw new TerminalException('terminal width of %d is too small. minimum width of 40 required', $terminalWidth);
         }
 
         $dir = escapeshellarg(Filesystem::path(SENTIENCE_DIR, 'public'));
@@ -29,11 +31,17 @@ class SentienceController extends Controller
         $host = env('SERVER_HOST', 'localhost');
         $port = env('SERVER_PORT', 8000);
 
-        $command = sprintf('cd %s && %s -S %s:%s', $dir, $bin, $host, $port);
+        $command = sprintf('cd %s && %s -S %s:%d', $dir, $bin, $host, $port);
+
+        if (PHP_OS_FAMILY == 'Windows') {
+            passthru($command);
+
+            return;
+        }
 
         Terminal::stream(
             $command,
-            function ($stdout, $stderr) use ($terminalWidth, $host, $port, &$startTime, &$endTime, &$path): void {
+            function ($stdout, $stderr) use ($terminalWidth, &$startTime, &$endTime, &$path): void {
                 if (empty($stderr)) {
                     return;
                 }
@@ -49,7 +57,7 @@ class SentienceController extends Controller
                         throw new BuiltInWebServerException($matches[1]);
                     }
 
-                    if (preg_match('/^\[.*?\] PHP/', $line)) {
+                    if (preg_match('/^\[.*?\]\sPHP/', $line)) {
                         $equalSigns = ($terminalWidth - 28) / 2 - 1;
 
                         Stdio::printFLn(
@@ -61,7 +69,7 @@ class SentienceController extends Controller
                         continue;
                     }
 
-                    if (preg_match('/^\[.*?\]\s.*\:\d+ (\w+)/', $line, $matches)) {
+                    if (preg_match('/^\[.*?\]\s.*\:\d+\s(\w+)/', $line, $matches)) {
                         $status = $matches[1];
 
                         if ($status == 'Accepted') {
@@ -76,7 +84,7 @@ class SentienceController extends Controller
                             Stdio::errorFLn(
                                 '%s (%.2f ms) %s',
                                 date('Y-m-d H:i:s'),
-                                round(($endTime - $startTime) * 1000, 2),
+                                ($endTime - $startTime) * 1000,
                                 $path
                             );
 
@@ -86,7 +94,7 @@ class SentienceController extends Controller
                         continue;
                     }
 
-                    if (preg_match('/^\[.*?\] .*\:\d+ \[\d+\]\: \w+ (.*)/', $line, $matches)) {
+                    if (preg_match('/^\[.*?\]\s.*\:\d+\s\[\d+\]\:\s\w+\s(.*)/', $line, $matches)) {
                         $path = $matches[1];
 
                         continue;
@@ -121,7 +129,7 @@ class SentienceController extends Controller
                     return false;
                 }
 
-                if (!preg_match('/(.[^\D+$]*)/', $path)) {
+                if (!preg_match('/[0-9]{14}[\-|\_][a-zA-Z0-9]+\.php$/', $path)) {
                     return false;
                 }
 
@@ -131,6 +139,7 @@ class SentienceController extends Controller
 
         if (count($migrations) == 0) {
             Stdio::printLn('No migrations found');
+
             return;
         }
 
@@ -158,6 +167,7 @@ class SentienceController extends Controller
 
             if ($alreadyApplied) {
                 Stdio::printFLn('Migration %s already applied', $filename);
+
                 continue;
             }
 
@@ -188,7 +198,7 @@ class SentienceController extends Controller
                     return false;
                 }
 
-                if (!preg_match('/(.[^\D+$]*)/', $path)) {
+                if (!preg_match('/[0-9]{14}[\-|\_][a-zA-Z0-9]+\.php$/', $path)) {
                     return false;
                 }
 
@@ -198,6 +208,7 @@ class SentienceController extends Controller
 
         if (count($migrations) == 0) {
             Stdio::printLn('No migrations found');
+
             return;
         }
 
@@ -215,6 +226,7 @@ class SentienceController extends Controller
 
         if ($highestBatch == 0) {
             Stdio::printLn('No migrations found to rollback');
+
             return;
         }
 
@@ -254,6 +266,7 @@ class SentienceController extends Controller
 
         if (is_null($name)) {
             Stdio::errorLn('Please provide a name for the migration');
+
             return;
         }
 
@@ -276,17 +289,21 @@ class SentienceController extends Controller
 
     public function initModel(Database $database, array $words, array $flags): void
     {
-        $classShortName = $flags['model'] ?? $words[0] ?? null;
+        $class = $flags['model'] ?? $words[0] ?? null;
 
-        if (!$classShortName) {
+        if (!$class) {
             Stdio::errorLn('No model set');
+
             return;
         }
 
-        $class = sprintf('\\src\\models\\%s', $classShortName);
+        $class = !str_contains('\\', $class)
+            ? $class = sprintf('\\src\\models\\%s', $class)
+            : $class;
 
         if (!class_exists($class)) {
             Stdio::errorFLn('Model %s does not exist', $class);
+
             return;
         }
 
@@ -315,9 +332,15 @@ class SentienceController extends Controller
 
         $migration = include $migrationFilepath;
 
-        $database->transactionInCallback(function (Database $database) use ($migration): void {
-            $migration->apply($database);
-        });
+        try {
+            $database->transactionInCallback(function (Database $database) use ($migration): void {
+                $migration->apply($database);
+            });
+        } catch (Throwable $exception) {
+            unlink($migrationFilepath);
+
+            throw $exception;
+        }
 
         $highestBatch = $database->select()
             ->table(Migration::getTable())
@@ -339,22 +362,26 @@ class SentienceController extends Controller
         $migrationModel->appliedAt = Query::now();
         $migrationModel->insert();
 
-        Stdio::printFLn('Migration for model %s created successfully', $classShortName);
+        Stdio::printFLn('Migration for model %s created successfully', Reflector::getShortName($model));
     }
 
     public function resetModel(Database $database, array $words, array $flags): void
     {
-        $classShortName = $flags['model'] ?? $words[0] ?? null;
+        $class = $flags['model'] ?? $words[0] ?? null;
 
-        if (!$classShortName) {
+        if (!$class) {
             Stdio::errorLn('No model set');
+
             return;
         }
 
-        $class = sprintf('\\src\\models\\%s', $classShortName);
+        $class = !str_contains('\\', $class)
+            ? $class = sprintf('\\src\\models\\%s', $class)
+            : $class;
 
         if (!class_exists($class)) {
             Stdio::errorFLn('Model %s does not exist', $class);
+
             return;
         }
 
@@ -380,9 +407,15 @@ class SentienceController extends Controller
 
         $migration = include $migrationFilepath;
 
-        $database->transactionInCallback(function (Database $database) use ($migration): void {
-            $migration->apply($database);
-        });
+        try {
+            $database->transactionInCallback(function (Database $database) use ($migration): void {
+                $migration->apply($database);
+            });
+        } catch (Throwable $exception) {
+            unlink($migrationFilepath);
+
+            throw $exception;
+        }
 
         $highestBatch = $database->select()
             ->table(Migration::getTable())
@@ -404,7 +437,7 @@ class SentienceController extends Controller
         $migrationModel->appliedAt = Query::now();
         $migrationModel->insert();
 
-        Stdio::printFLn('Migration for model %s created successfully', $classShortName);
+        Stdio::printFLn('Migration for model %s created successfully', Reflector::getShortName($model));
     }
 
     public function fixDotEnv(array $words, array $flags): void
@@ -415,8 +448,11 @@ class SentienceController extends Controller
         $dotEnvFilepath = Filesystem::path(SENTIENCE_DIR, $dotEnv);
         $dotEnvExampleFilepath = Filesystem::path(SENTIENCE_DIR, $dotEnvExample);
 
-        $dotEnvVariables = DotEnv::parseFileRaw($dotEnvFilepath);
-        $dotEnvExampleVariables = DotEnv::parseFileRaw($dotEnvExampleFilepath);
+        $dotEnv = new DotEnv($dotEnvFilepath);
+        $dotEnvExample = new DotEnv($dotEnvExampleFilepath);
+
+        $dotEnvVariables = $dotEnv->parseFileRaw();
+        $dotEnvExampleVariables = $dotEnvExample->parseFileRaw();
 
         $missingVariables = [];
 
@@ -433,12 +469,13 @@ class SentienceController extends Controller
                 '%s is up to date',
                 $dotEnv
             );
+
             return;
         }
 
         $dotEnvFileContents = file_get_contents($dotEnvFilepath);
 
-        $lines = preg_split("/(\r\n|\n|\r)/", $dotEnvFileContents);
+        $lines = preg_split('/[\r\n|\n|\r]/', $dotEnvFileContents);
 
         if (!empty(end($lines))) {
             $lines[] = '';

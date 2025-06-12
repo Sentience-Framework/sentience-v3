@@ -3,6 +3,7 @@
 namespace src\sentience;
 
 use ReflectionFunctionAbstract;
+use src\exceptions\DependencyInjectionException;
 
 class DependencyInjector
 {
@@ -55,24 +56,33 @@ class DependencyInjector
                 continue;
             }
 
-            if ($functionParameter->isVariadic()) {
-                $parameters[$name] = array_filter(
-                    $parameters,
-                    function (string $parameter) use ($parameters): bool {
-                        return !key_exists($parameter, $parameters);
-                    },
-                    ARRAY_FILTER_USE_KEY
-                );
-                continue;
-            }
-
             if ($functionParameter->isDefaultValueAvailable()) {
                 $parameters[$name] = $functionParameter->getDefaultValue();
 
                 continue;
             }
 
-            $parameters[$name] = null;
+            if ($functionParameter->isVariadic()) {
+                $parameters = [
+                    ...$parameters,
+                    ...array_filter(
+                        $injectables,
+                        function (string $injectable) use ($parameters): bool {
+                            return !key_exists($injectable, $parameters);
+                        },
+                        ARRAY_FILTER_USE_KEY
+                    )
+                ];
+                continue;
+            }
+
+            if ($functionParameter->allowsNull()) {
+                $parameters[$name] = null;
+
+                continue;
+            }
+
+            throw new DependencyInjectionException('%s is not a valid injectable parameter', $name);
         }
 
         return $parameters;

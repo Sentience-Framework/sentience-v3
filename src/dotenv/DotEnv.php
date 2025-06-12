@@ -2,9 +2,20 @@
 
 namespace src\dotenv;
 
+use src\exceptions\DotEnvException;
+
 class DotEnv
 {
-    public static function loadEnv(bool $parseBooleans = false, bool $parseDirectoryArrays = false): void
+    protected string $filepath;
+    protected ?string $exampleFilepath;
+
+    public function __construct(string $filepath, ?string $exampleFilepath = null)
+    {
+        $this->filepath = $filepath;
+        $this->exampleFilepath = $exampleFilepath;
+    }
+
+    public function loadEnv(bool $parseBooleans = false, bool $parseDirectoryArrays = false): void
     {
         $env = getenv();
 
@@ -14,11 +25,13 @@ class DotEnv
                     '0' => false,
                     '1' => true
                 ][$value];
+
                 continue;
             }
 
             if ($parseDirectoryArrays && str_contains($value, DIRECTORY_SEPARATOR) && str_contains($value, PATH_SEPARATOR)) {
                 $_ENV[$key] = explode(':', $value);
+
                 continue;
             }
 
@@ -26,65 +39,62 @@ class DotEnv
         }
     }
 
-    public static function loadFile(string $filepath, ?string $exampleFilepath = null, array $variables = []): void
+    public function loadFile(array $variables = []): void
     {
-        $parsedVariables = static::parseFile($filepath, $exampleFilepath, $variables);
+        $parsedVariables = $this->parseFile($variables);
 
         foreach ($parsedVariables as $key => $value) {
             $_ENV[$key] = $value;
         }
     }
 
-    public static function parseFile(string $filepath, ?string $exampleFilepath = null, array $variables = []): array
+    public function parseFile(array $variables = []): array
     {
-        $rawVariables = static::parseFileRaw($filepath, $exampleFilepath);
+        $rawVariables = $this->parseFileRaw();
 
-        $parsedVariables = $variables;
+        $parsedVariables = [
+            ...$_ENV,
+            ...$variables
+        ];
 
         foreach ($rawVariables as $key => $value) {
-            $parsedVariables[$key] = static::parseVariable($value, $parsedVariables);
+            $parsedVariables[$key] = $this->parseVariable($value, $parsedVariables);
         }
 
         return $parsedVariables;
     }
 
-    public static function parseFileRaw(string $filepath, ?string $exampleFilepath = null): array
+    public function parseFileRaw(): array
     {
-        if (!file_exists($filepath)) {
-            static::createFile($filepath, $exampleFilepath);
+        if (!file_exists($this->filepath)) {
+            $this->createFile($this->filepath, $this->exampleFilepath);
         }
 
-        $fileContents = file_get_contents($filepath);
+        $fileContents = file_get_contents($this->filepath);
 
-        return static::parseDotEnvString($fileContents);
+        return $this->parseDotEnvString($fileContents);
     }
 
-    protected static function createFile(string $filepath, ?string $exampleFilepath): void
+    protected function createFile(string $filepath, ?string $exampleFilepath): void
     {
         (bool) $exampleFilepath
             ? copy($exampleFilepath, $filepath)
             : file_put_contents($filepath, '');
     }
 
-    protected static function parseDotEnvString(string $string): array
+    protected function parseDotEnvString(string $string): array
     {
-        $lines = preg_split('/(\r\n|\n|\r)/', $string) ?? [$string];
+        $isMatch = preg_match_all('/^(?!\#)\s*([A-Z0-9_]+)\s*=\s*(?|(\'.*?\')|(\".*?\")|(\`{3}[\s\S]*?\`{3})|([^#\r\n]*))\s*(?=[\r\n]|$|\#)/m', $string, $matches);
+
+        if (!$isMatch) {
+            throw new DotEnvException('parsing error');
+        }
 
         $variables = [];
 
-        foreach ($lines as $line) {
-            $dotEnvRegex = '/(?:^|^)\s*(?:export\s+)?([\w.-]+)(?:\s*=\s*?|:\s+?)(\s*\'(?:\\\'|[^\'])*\'|\s*"(?:(?:\\")|[^"])*"|`(?:\\`|[^`])*`|[^#\r\n]+)?\s*(?:#.*)?(?:$|$)/';
-            $isMatch = preg_match($dotEnvRegex, $line, $matches);
-            if (!$isMatch) {
-                continue;
-            }
-
-            if (count($matches) < 3) {
-                continue;
-            }
-
-            $key = trim($matches[1]);
-            $value = trim($matches[2]);
+        foreach ($matches[0] as $index => $variable) {
+            $key = $matches[1][$index];
+            $value = $matches[2][$index];
 
             $variables[$key] = $value;
         }
@@ -92,72 +102,68 @@ class DotEnv
         return $variables;
     }
 
-    protected static function parseVariable(string $value, array $parsedVariables): mixed
+    protected function parseVariable(string $value, array $parsedVariables): mixed
     {
-        $trimmedValue = trim($value);
-
-        if (substr($trimmedValue, 0, 1) == '[') {
-            return static::parseArrayValue($trimmedValue, $parsedVariables);
+        if (str_starts_with($value, '[')) {
+            return $this->parseArrayValue($value, $parsedVariables);
         }
 
-        if (substr($trimmedValue, 0, 1) == '"') {
-            return static::parseTemplateValue($trimmedValue, $parsedVariables);
+        if (in_array(substr($value, 0, 1), ['"', "'", '`'])) {
+            return $this->parseQuotedValue($value, $parsedVariables);
         }
 
-        if (substr($trimmedValue, 0, 1) == "'") {
-            return static::parseStringValue($trimmedValue, "'");
+        if (preg_match('/^\-{1}?[0-9]+$/', $value)) {
+            return $this->parseIntValue($value);
         }
 
-        if (str_contains($trimmedValue, '.')) {
-            return static::parseFloatValue($trimmedValue);
+        if (is_numeric($value)) {
+            return $this->parseFloatValue($value);
         }
 
-        if (preg_match('/.*[0-9].*/', $trimmedValue)) {
-            return static::parseIntValue($trimmedValue);
+        if (preg_match('/^false|true$/', $value)) {
+            return $this->parseBoolValue($value);
         }
 
-        if (in_array(strtolower($trimmedValue), ['true', 'false'])) {
-            return static::parseBoolValue($trimmedValue);
+        if ($value == 'null') {
+            return $this->parseNullValue($value);
         }
 
-        if ($trimmedValue == 'null') {
-            return static::parseNullValue($trimmedValue);
-        }
-
-        return null;
+        return $value;
     }
 
-    protected static function parseArrayValue(string $value, array $parsedVariables): array
+    protected function parseArrayValue(string $value, array $parsedVariables): array
     {
-        $jsonRegex = '/(\"(.*?)\")|(\'(.*?)\')|[-\w.]+/';
-
         $values = [];
 
-        $isMatch = preg_match_all($jsonRegex, $value, $matches, PREG_UNMATCHED_AS_NULL);
+        $isMatch = preg_match_all('/(\"(.*?)\")|(\'(.*?)\')|[\-\w.]+/', $value, $matches, PREG_UNMATCHED_AS_NULL);
+
         if (!$isMatch) {
             return $values;
         }
 
         return array_map(
             function (string $value) use ($parsedVariables): mixed {
-                return static::parseVariable($value, $parsedVariables);
+                return $this->parseVariable($value, $parsedVariables);
             },
             $matches[0]
         );
     }
 
-    protected static function parseTemplateValue(string $value, array $parsedVariables): string
+    protected function parseQuotedValue(string $value, array $parsedVariables): string
     {
-        $string = static::parseStringValue($value, '"');
+        return match (substr($value, 0, 1)) {
+            '"' => $this->parseTemplateValue($value, '"', $parsedVariables),
+            "'" => $this->parseStringValue($value, "'"),
+            '`' => $this->parseTemplateValue($value, '```', $parsedVariables)
+        };
+    }
 
-        $envTemplateRegex = '/\$\{(.[^\}]*)\}/';
-        $isMatch = preg_match_all($envTemplateRegex, $string, $matches);
-        if (!$isMatch) {
-            return $string;
-        }
+    protected function parseTemplateValue(string $value, string $quote, array $parsedVariables): string
+    {
+        $string = $this->parseStringValue($value, $quote);
 
         return preg_replace_callback(
-            $envTemplateRegex,
+            '/\$\{(.[^\}]*)\}/',
             function (array $matches) use ($parsedVariables): mixed {
                 [$original, $key] = $matches;
 
@@ -171,36 +177,47 @@ class DotEnv
         );
     }
 
-    protected static function parseStringValue(string $value, string $quote): string
+    protected function parseStringValue(string $value, string $quote): string
     {
-        $quoteTrim = substr($value, 1, -1);
+        $quoteLength = strlen($quote);
+
+        $valueWithoutQuotes = trim(
+            substr(
+                $value,
+                $quoteLength,
+                $quoteLength * -1
+            ),
+            "\r\n"
+        );
+
+        $quoteChar = substr($quote, 0, 1);
 
         return str_replace(
-            sprintf('\\%s', $quote),
-            $quote,
-            $quoteTrim
+            sprintf('\\%s', $quoteChar),
+            $quoteChar,
+            $valueWithoutQuotes
         );
     }
 
-    protected static function parseFloatValue(string $value): float
+    protected function parseFloatValue(string $value): float
     {
         return (float) $value;
     }
 
-    protected static function parseIntValue(string $value): int
+    protected function parseIntValue(string $value): int
     {
         return (int) $value;
     }
 
-    protected static function parseBoolValue(string $value): bool
+    protected function parseBoolValue(string $value): bool
     {
-        return match (strtolower($value)) {
-            'true' => true,
+        return match ($value) {
             'false' => false,
+            'true' => true
         };
     }
 
-    protected static function parseNullValue(string $value): mixed
+    protected function parseNullValue(string $value): mixed
     {
         return null;
     }

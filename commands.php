@@ -1,15 +1,11 @@
 <?php
 
+use src\controllers\DevToolsController;
 use src\controllers\ExampleController;
 use src\controllers\SentienceController;
 use src\routers\Command;
-use src\sentience\Sentience;
 
-/**
- * @var Sentience $sentience
- */
-
-$commands = [
+return [
     Command::create('server:start')
         ->setCallback([SentienceController::class, 'startServer']),
 
@@ -34,13 +30,18 @@ $commands = [
     Command::create('dotenv:fix')
         ->setCallback([SentienceController::class, 'fixDotEnv']),
 
+    Command::create('dev-tools:sort-imports')
+        ->setCallback([DevToolsController::class, 'sortImports']),
+
+    Command::create('dev-tools:remove-trailing-commas')
+        ->setCallback([DevToolsController::class, 'removeTrailingCommas']),
+
+    Command::create('dev-tools:remove-excessive-whitespace')
+        ->setCallback([DevToolsController::class, 'removeExcessiveWhitespace']),
+
     Command::create('example')
         ->setCallback([ExampleController::class, 'cliExample']),
 
     Command::create('query')
-        ->setCallback([ExampleController::class, 'query']),
+        ->setCallback([ExampleController::class, 'query'])
 ];
-
-foreach ($commands as $command) {
-    $sentience->bindCommand($command);
-}
