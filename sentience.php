@@ -8,13 +8,15 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 define('SENTIENCE_DIR', __DIR__);
 
-$dotEnv = new DotEnv(
+DotEnv::loadEnv();
+DotEnv::loadFile(
     Filesystem::path(SENTIENCE_DIR, '.env'),
-    Filesystem::path(SENTIENCE_DIR, '.env.example')
+    Filesystem::path(SENTIENCE_DIR, '.env.example'),
+    [
+        'SENTIENCE_DIR' => SENTIENCE_DIR,
+        ...$_ENV
+    ]
 );
-
-$dotEnv->loadEnv();
-$dotEnv->loadFile(['SENTIENCE_DIR' => SENTIENCE_DIR]);
 
 $commands = require Filesystem::path(SENTIENCE_DIR, 'commands.php');
 $routes = require Filesystem::path(SENTIENCE_DIR, 'routes.php');

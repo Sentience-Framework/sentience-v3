@@ -27,7 +27,7 @@ class DevToolsController extends Controller
 
         $importRegexPattern = '/^use\s+[^;]+;/m';
 
-        $files = Filesystem::scandir(SENTIENCE_DIR, -1);
+        $files = Filesystem::scandir(SENTIENCE_DIR, PHP_INT_MAX);
 
         $excludedDirectories = [
             Filesystem::path(SENTIENCE_DIR, 'vendor')
@@ -111,7 +111,7 @@ class DevToolsController extends Controller
             str_repeat('=', floor($equalSigns))
         );
 
-        $files = Filesystem::scandir(SENTIENCE_DIR, -1);
+        $files = Filesystem::scandir(SENTIENCE_DIR, PHP_INT_MAX);
 
         $excludedDirectories = [
             Filesystem::path(SENTIENCE_DIR, 'vendor')
@@ -135,7 +135,7 @@ class DevToolsController extends Controller
             $fileContents = file_get_contents($file);
 
             $modifiedFileContents = preg_replace(
-                '/,(?=\\s*(?=[\\)\\]\\}])(?:[^\'\"\`\\\\]|\'(?:\\\\.|[^\\\\\'])*\'|\"(?:\\\\.|[^\\\\\"])*\"|\`(?:\\\\.|[^\\\\\`])*\`)*$)/m',
+                '/,(?=\s*(?=[\)\]\}])(?:[^\'\"\`\\\\]|\'(?:\\\\.|[^\\\\\'])*\'|\"(?:\\\\.|[^\\\\\"])*\"|\`(?:\\\\.|[^\\\\\`])*\`)*$)/m',
                 '',
                 $fileContents
             );
@@ -164,7 +164,7 @@ class DevToolsController extends Controller
             str_repeat('=', floor($equalSigns))
         );
 
-        $files = Filesystem::scandir(SENTIENCE_DIR, -1);
+        $files = Filesystem::scandir(SENTIENCE_DIR, PHP_INT_MAX);
 
         $excludedDirectories = [
             Filesystem::path(SENTIENCE_DIR, 'vendor')

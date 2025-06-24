@@ -2,6 +2,8 @@
 
 namespace src\utils;
 
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use src\exceptions\FilesystemException;
 
 class Filesystem
@@ -17,7 +19,9 @@ class Filesystem
 
         $chars = static::WINDOWS_DIRECTORY_SEPARATOR . static::UNIX_DIRECTORY_SEPARATOR;
 
-        $dir = rtrim($dir, $chars);
+        $dir = preg_match('/^\/|\\\\\\\\$/', $dir)
+            ? rtrim($dir, $chars)
+            : $dir;
 
         $components = array_filter(
             array_map(
@@ -47,49 +51,25 @@ class Filesystem
             throw new FilesystemException('directory %s does not exist', $path);
         }
 
-        $items = scandir($path);
-
-        if (is_bool($items)) {
-            return [];
-        }
-
-        $items = array_filter(
-            $items,
-            function (string $item): bool {
-                return !in_array($item, ['.', '..']);
-            }
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator(
+                $path,
+                RecursiveDirectoryIterator::SKIP_DOTS
+            ),
+            RecursiveIteratorIterator::SELF_FIRST
         );
-
-        if (count($items) == 0) {
-            return [];
-        }
-
-        $items = array_map(
-            function (string $item) use ($path): string {
-                return static::path($path, $item);
-            },
-            $items
-        );
-
-        natcasesort($items);
 
         $paths = [];
 
-        foreach ($items as $item) {
-            if (is_file($item)) {
-                $paths[] = $item;
+        foreach ($iterator as $splFileInfo) {
+            if ($iterator->getDepth() > $depth) {
+                continue;
             }
 
-            if (is_dir($item)) {
-                $paths[] = $item;
-
-                if ($depth == 0) {
-                    continue;
-                }
-
-                array_push($paths, ...static::scandir($item, $depth - 1));
-            }
+            $paths[] = $splFileInfo->getPathname();
         }
+
+        natcasesort($paths);
 
         return array_values($paths);
     }

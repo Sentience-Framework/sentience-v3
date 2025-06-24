@@ -448,11 +448,8 @@ class SentienceController extends Controller
         $dotEnvFilepath = Filesystem::path(SENTIENCE_DIR, $dotEnv);
         $dotEnvExampleFilepath = Filesystem::path(SENTIENCE_DIR, $dotEnvExample);
 
-        $dotEnv = new DotEnv($dotEnvFilepath);
-        $dotEnvExample = new DotEnv($dotEnvExampleFilepath);
-
-        $dotEnvVariables = $dotEnv->parseFileRaw();
-        $dotEnvExampleVariables = $dotEnvExample->parseFileRaw();
+        $dotEnvVariables = DotEnv::parseFileRaw($dotEnvFilepath);
+        $dotEnvExampleVariables = DotEnv::parseFileRaw($dotEnvExampleFilepath);
 
         $missingVariables = [];
 

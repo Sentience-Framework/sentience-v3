@@ -45,14 +45,19 @@ trait Where
         return $this->endsWith($column, $value, $escapeBackslash, Chain::AND);
     }
 
-    public function whereIn(string|array $column, array $values, bool $preventSqlSyntaxError = true): static
+    public function whereContains(string|array $column, string $value, bool $escapeBackslash = false): static
     {
-        return $this->in($column, $values, $preventSqlSyntaxError, Chain::AND);
+        return $this->contains($column, $value, $escapeBackslash, Chain::AND);
     }
 
-    public function whereNotIn(string|array $column, array $values, bool $preventSqlSyntaxError = true): static
+    public function whereIn(string|array $column, array $values): static
     {
-        return $this->notIn($column, $values, $preventSqlSyntaxError, Chain::AND);
+        return $this->in($column, $values, Chain::AND);
+    }
+
+    public function whereNotIn(string|array $column, array $values): static
+    {
+        return $this->notIn($column, $values, Chain::AND);
     }
 
     public function whereLessThan(string|array $column, int|float|string|DateTime $value): static
@@ -115,12 +120,12 @@ trait Where
         return $this->notRegex($column, $pattern, Chain::AND);
     }
 
-    public function whereGroup(callable $callback, bool $preventSqlSyntaxError = true): static
+    public function whereGroup(callable $callback): static
     {
-        return $this->group($callback, $preventSqlSyntaxError, Chain::AND);
+        return $this->group($callback, Chain::AND);
     }
 
-    public function where(string $expression, bool|int|float|string|DateTime ...$values): static
+    public function where(string $expression, null|bool|int|float|string|DateTime ...$values): static
     {
         return $this->rawExpression($expression, $values, Chain::AND);
     }
@@ -155,14 +160,19 @@ trait Where
         return $this->endsWith($column, $value, $escapeBackslash, Chain::OR);
     }
 
-    public function orWhereIn(string|array $column, array $values, bool $preventSqlSyntaxError = true): static
+    public function orWhereContains(string|array $column, string $value, bool $escapeBackslash = false): static
     {
-        return $this->in($column, $values, $preventSqlSyntaxError, Chain::OR);
+        return $this->contains($column, $value, $escapeBackslash, Chain::OR);
     }
 
-    public function orWhereNotIn(string|array $column, array $values, bool $preventSqlSyntaxError = true): static
+    public function orWhereIn(string|array $column, array $values): static
     {
-        return $this->notIn($column, $values, $preventSqlSyntaxError, Chain::OR);
+        return $this->in($column, $values, Chain::OR);
+    }
+
+    public function orWhereNotIn(string|array $column, array $values): static
+    {
+        return $this->notIn($column, $values, Chain::OR);
     }
 
     public function orWhereLessThan(string|array $column, int|float|string|DateTime $value): static
@@ -225,12 +235,12 @@ trait Where
         return $this->notRegex($column, $pattern, Chain::OR);
     }
 
-    public function orWhereGroup(callable $callback, bool $preventSqlSyntaxError = true): static
+    public function orWhereGroup(callable $callback): static
     {
-        return $this->group($callback, $preventSqlSyntaxError, Chain::OR);
+        return $this->group($callback, Chain::OR);
     }
 
-    public function orWhere(string $expression, bool|int|float|string|DateTime ...$values): static
+    public function orWhere(string $expression, null|bool|int|float|string|DateTime ...$values): static
     {
         return $this->rawExpression($expression, $values, Chain::OR);
     }
@@ -277,23 +287,22 @@ trait Where
         return $this;
     }
 
-    protected function in(string|array $column, array $values, bool $preventSqlSyntaxError, Chain $chain): static
+    protected function contains(string|array $column, string $value, bool $escapeBackslash, Chain $chain): static
     {
-        if ($preventSqlSyntaxError && count($values) == 0) {
-            return $this;
-        }
+        $this->like($column, '%' . Query::escapeLikeChars($value, $escapeBackslash) . '%', $chain);
 
+        return $this;
+    }
+
+    protected function in(string|array $column, array $values, Chain $chain): static
+    {
         $this->addCondition(WhereType::IN, $column, $values, $chain);
 
         return $this;
     }
 
-    protected function notIn(string|array $column, array $values, bool $preventSqlSyntaxError, Chain $chain): static
+    protected function notIn(string|array $column, array $values, Chain $chain): static
     {
-        if ($preventSqlSyntaxError && count($values) == 0) {
-            return $this;
-        }
-
         $this->addCondition(WhereType::NOT_IN, $column, $values, $chain);
 
         return $this;
@@ -364,7 +373,6 @@ trait Where
                     ->orWhereEquals($column, 0)
                     ->orWhereEquals($column, '');
             },
-            false,
             $chain
         );
     }
@@ -378,7 +386,6 @@ trait Where
                     ->whereNotEquals($column, 0)
                     ->whereNotEquals($column, '');
             },
-            false,
             $chain
         );
     }
@@ -397,7 +404,7 @@ trait Where
         return $this;
     }
 
-    protected function group(callable $callback, bool $preventSqlSyntaxError, Chain $chain): static
+    protected function group(callable $callback, Chain $chain): static
     {
         $conditionGroup = new ConditionGroup($chain);
 
@@ -407,7 +414,7 @@ trait Where
             throw new QueryException('callback must return %s', Reflector::getShortName(ConditionGroup::class));
         }
 
-        if ($preventSqlSyntaxError && count($conditionGroup->getConditions()) == 0) {
+        if (count($conditionGroup->getConditions()) == 0) {
             return $this;
         }
 

@@ -61,15 +61,18 @@ class HttpRouter
         $keys = [];
 
         $pattern = preg_replace_callback(
-            '/{(.[^\}]*)}/',
+            '/\{([^\:\}]+)(?:\:([^\}]+))?\}/',
             function (array $matches) use (&$keys): string {
-                $keys[] = $matches[1];
+                $key = $matches[1];
+                $type = $matches[2] ?? 'string';
+
+                $keys[] = [$key, $type];
 
                 return '(.[^\/]*)';
             },
             sprintf(
                 '/^%s$/',
-                escape_chars($route, ['.', '/', '+', '*', '?', '^', '[', ']', '$', '(', ')', '=', '!', '<', '>', '|', ':', '-'])
+                escape_chars($route, ['.', '/', '+', '*', '?', '^', '[', ']', '$', '(', ')', '=', '!', '<', '>', '|', '-'])
             )
         );
 
@@ -79,16 +82,19 @@ class HttpRouter
             return [false, null];
         }
 
-        $values = array_splice($matches, 1);
+        $values = array_slice($matches, 1);
 
-        $values = array_map(
-            function (string $value): string {
-                return urldecode($value);
-            },
-            $values
-        );
+        $pathVars = [];
 
-        $pathVars = array_combine($keys, $values);
+        foreach ($values as $index => $value) {
+            [$key, $type] = $keys[$index];
+
+            $pathVars[$key] = match ($type) {
+                'int' => (int) $value,
+                'float' => (float) $value,
+                default => urldecode($value)
+            };
+        }
 
         return [true, $pathVars];
     }
@@ -109,51 +115,20 @@ class HttpRouter
         $mappedRoutes = [];
 
         foreach ($this->routes as $route) {
-            if (!key_exists($route->route, $mappedRoutes)) {
-                $mappedRoutes[$route->route] = [];
-            }
-
-            if ($route instanceof Route) {
-                foreach ($route->methods as $method) {
-                    $mappedRoutes[$route->route][$method] = $route;
-                }
-
-                continue;
-            }
-
-            if ($route instanceof RouteGroup) {
-                $mappedRouteGroupRoutes = $this->mapRouteGroup($route, [], []);
-
-                foreach ($mappedRouteGroupRoutes as $mappedRouteGroupRoute => $methods) {
-                    if (key_exists($mappedRouteGroupRoute, $mappedRoutes)) {
-                        $existingMethods = $mappedRoutes[$mappedRouteGroupRoute];
-
-                        $mappedRoutes[$mappedRouteGroupRoute] = [
-                            ...$existingMethods,
-                            ...$methods
-                        ];
-
-                        continue;
-                    }
-
-                    $mappedRoutes = [...$mappedRoutes, $mappedRouteGroupRoute => $methods];
-                }
-            }
-
-            if (count($mappedRoutes[$route->route]) == 0) {
-                unset($mappedRoutes[$route->route]);
-            }
+            $route instanceof Route
+                ? $this->addToMap($mappedRoutes, $route)
+                : $this->mapRouteGroup($mappedRoutes, $route, [], []);
         }
+
+        ksort($mappedRoutes);
 
         return $mappedRoutes;
     }
 
-    protected function mapRouteGroup(RouteGroup $routeGroup, array $prefixes, array $middleware): array
+    protected function mapRouteGroup(array &$mappedRoutes, RouteGroup $routeGroup, array $prefixes, array $middleware): array
     {
-        $prefixes[] = $routeGroup->route;
+        $prefixes = [...$prefixes, $routeGroup->route];
         $middleware = [...$middleware, ...$routeGroup->middleware];
-
-        $mappedRoutes = [];
 
         foreach ($routeGroup->routes as $route) {
             $routeWithPrefixes = implode(
@@ -164,49 +139,29 @@ class HttpRouter
                 ])
             );
 
-            if (!key_exists($routeWithPrefixes, $mappedRoutes)) {
-                $mappedRoutes[$routeWithPrefixes] = [];
-            }
-
-            if ($route instanceof Route) {
-                $routeMiddleware = $route->middleware;
-
-                $route->setMiddleware([
-                    ...$middleware,
-                    ...$routeMiddleware
-                ]);
-
-                foreach ($route->methods as $method) {
-                    $mappedRoutes[$routeWithPrefixes][$method] = $route;
-                }
-
-                continue;
-            }
-
-            if ($route instanceof RouteGroup) {
-                $mappedRouteGroupRoutes = $this->mapRouteGroup($route, $prefixes, $middleware);
-
-                foreach ($mappedRouteGroupRoutes as $mappedRouteGroupRoute => $methods) {
-                    if (key_exists($mappedRouteGroupRoute, $mappedRoutes)) {
-                        $existingMethods = $mappedRoutes[$mappedRouteGroupRoute];
-
-                        $mappedRoutes[$mappedRouteGroupRoute] = [
-                            ...$existingMethods,
-                            ...$methods
-                        ];
-
-                        continue;
-                    }
-
-                    $mappedRoutes = [...$mappedRoutes, $mappedRouteGroupRoute => $methods];
-                }
-            }
-
-            if (count($mappedRoutes[$routeWithPrefixes]) == 0) {
-                unset($mappedRoutes[$routeWithPrefixes]);
-            }
+            $route instanceof Route
+                ? $this->addToMap($mappedRoutes, $route, $middleware, $routeWithPrefixes)
+                : $this->mapRouteGroup($mappedRoutes, $route, $prefixes, $middleware);
         }
 
         return $mappedRoutes;
+    }
+
+    protected function addToMap(array &$mappedRoutes, Route $route, array $middleware = [], ?string $routeWithPrefixes = null): void
+    {
+        $key = $routeWithPrefixes ?? $route->route;
+
+        if (!key_exists($key, $mappedRoutes)) {
+            $mappedRoutes[$key] = [];
+        }
+
+        $route->setMiddleware([
+            ...$middleware,
+            ...$route->middleware
+        ]);
+
+        foreach ($route->methods as $method) {
+            $mappedRoutes[$key][$method] = $route;
+        }
     }
 }

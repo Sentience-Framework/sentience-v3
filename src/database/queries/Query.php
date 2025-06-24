@@ -52,7 +52,7 @@ abstract class Query implements QueryInterface
         }
     }
 
-    public function rawQuery(): string
+    public function toRawQuery(): string
     {
         return $this->build()->toRawQuery($this->dialect);
     }
@@ -81,10 +81,5 @@ abstract class Query implements QueryInterface
         }
 
         return escape_chars($string, $chars);
-    }
-
-    public static function wildcard(string $string, bool $escapeBackslash = false): string
-    {
-        return '%' . static::escapeLikeChars($string, $escapeBackslash) . '%';
     }
 }

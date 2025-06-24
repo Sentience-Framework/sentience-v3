@@ -1,14 +1,6 @@
 <?php
 
-use src\controllers\ExampleController;
-use src\middleware\CORSMiddleware;
-use src\middleware\ExampleMiddleware;
-use src\routers\Route;
-use src\routers\RouteGroup;
-use src\sentience\Request;
-use src\sentience\Response;
-
-return [
+$routes = [
     Route::register(
         '/healthcheck',
         function (): void {
@@ -37,7 +29,7 @@ return [
                 ->bind(Route::register('/', [ExampleController::class, 'getContacts'])->setMethods(['GET']))
                 ->bind(Route::register('/', [ExampleController::class, 'createContact'])->setMethods(['POST']))
                 ->bind(
-                    RouteGroup::register('/{contactId:int}')
+                    RouteGroup::register('/{contactId}')
                         ->bind(Route::register('/', [ExampleController::class, 'getContact'])->setMethods(['GET']))
                         ->bind(Route::register('/', [ExampleController::class, 'updateContact'])->setMethods(['PUT']))
                 )

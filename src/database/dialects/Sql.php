@@ -23,8 +23,9 @@ use src\database\queries\objects\UniqueConstraint;
 
 class Sql implements DialectInterface
 {
-    public const TABLE_OR_COLUMN_ESCAPE = '"';
+    public const IDENTIFIER_ESCAPE = '"';
     public const STRING_ESCAPE = "'";
+    public const ANSI_ESCAPE = true;
     public const DATETIME_FORMAT = 'Y-m-d H:i:s.u';
     public const REGEX_FUNCTION = 'REGEXP';
     public const NOT_REGEX_FUNCTION = 'NOT REGEXP';
@@ -249,9 +250,6 @@ class Sql implements DialectInterface
 
     public function alterTable(array $config): QueryWithParams
     {
-        $query = '';
-        $params = [];
-
         $alters = [];
 
         foreach ($config['alters'] as $alter) {
@@ -313,9 +311,9 @@ class Sql implements DialectInterface
             $alters
         );
 
-        $query .= implode(' ', $queries);
+        $query = implode(' ', $queries);
 
-        return new QueryWithParams($query, $params);
+        return new QueryWithParams($query);
     }
 
     public function dropTable(array $config): QueryWithParams
@@ -395,13 +393,9 @@ class Sql implements DialectInterface
         $query .= ' WHERE ';
 
         foreach ($where as $index => $condition) {
-            if ($condition instanceof Condition) {
-                $this->addCondition($query, $params, $index, $condition);
-            }
-
-            if ($condition instanceof ConditionGroup) {
-                $this->addConditionGroup($query, $params, $index, $condition);
-            }
+            $condition instanceof Condition
+                ? $this->addCondition($query, $params, $index, $condition)
+                : $this->addConditionGroup($query, $params, $index, $condition);
         }
     }
 
@@ -423,7 +417,7 @@ class Sql implements DialectInterface
             $query .= sprintf(
                 '(%s %s)',
                 $this->escapeIdentifier($condition->expression),
-                ($condition->type == WhereType::EQUALS) ? 'IS NULL' : 'IS NOT NULL'
+                $condition->type == WhereType::EQUALS ? 'IS NULL' : 'IS NOT NULL'
             );
 
             return;
@@ -444,6 +438,12 @@ class Sql implements DialectInterface
         }
 
         if (is_array($condition->value)) {
+            if (count($condition->value) == 0) {
+                $query .= $condition->type == WhereType::IN ? '(1 <> 1)' : '(1 = 1)';
+
+                return;
+            }
+
             $query .= sprintf(
                 '(%s %s (%s))',
                 $this->escapeIdentifier($condition->expression),
@@ -460,7 +460,7 @@ class Sql implements DialectInterface
             $query .= sprintf(
                 '(%s %s ?)',
                 $this->escapeIdentifier($condition->expression),
-                ($condition->type == WhereType::REGEX) ? $this::REGEX_FUNCTION : $this::NOT_REGEX_FUNCTION
+                $condition->type == WhereType::REGEX ? $this::REGEX_FUNCTION : $this::NOT_REGEX_FUNCTION
             );
 
             array_push($params, $condition->value);
@@ -488,13 +488,9 @@ class Sql implements DialectInterface
         $query .= '(';
 
         foreach ($conditions as $index => $condition) {
-            if ($condition instanceof Condition) {
-                $this->addCondition($query, $params, $index, $condition);
-            }
-
-            if ($condition instanceof ConditionGroup) {
-                $this->addConditionGroup($query, $params, $index, $condition);
-            }
+            $condition instanceof Condition
+                ? $this->addCondition($query, $params, $index, $condition)
+                : $this->addConditionGroup($query, $params, $index, $condition);
         }
 
         $query .= ')';
@@ -761,7 +757,7 @@ class Sql implements DialectInterface
                     $identifier
                 )
             )
-            : $this->escape($identifier, $this::TABLE_OR_COLUMN_ESCAPE);
+            : $this->escape($identifier, $this::IDENTIFIER_ESCAPE);
     }
 
     public function escapeString(string $string): string
@@ -771,7 +767,7 @@ class Sql implements DialectInterface
 
     protected function escape(string $string, string $char): string
     {
-        $escapedString = env('DB_ANSI_ESCAPE', true)
+        $escapedString = $this::ANSI_ESCAPE
             ? escape_chars($string, [$char], '$0$0', '/%s/')
             : escape_chars($string, ['\\', $char]);
 
@@ -828,7 +824,7 @@ class Sql implements DialectInterface
 
     public function parseBool(mixed $value): bool
     {
-        return ($value == 1) ? true : false;
+        return $value == 1 ? true : false;
     }
 
     public function parseDateTime(?string $dateTimeString): ?DateTime
@@ -856,12 +852,13 @@ class Sql implements DialectInterface
 
     public function phpTypeToColumnType(string $type, bool $isAutoIncrement, bool $isPrimaryKey, bool $inConstraint): string
     {
-        return [
+        return match ($type) {
             'bool' => 'INT',
             'int' => 'INT',
             'float' => 'FLOAT',
             'string' => 'TEXT',
-            'DateTime' => 'DATETIME'
-        ][$type];
+            'DateTime' => 'DATETIME',
+            default => 'TEXT'
+        };
     }
 }
