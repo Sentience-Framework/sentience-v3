@@ -6,6 +6,7 @@ use DateTime;
 use src\database\queries\enums\WhereType;
 use src\database\queries\objects\AddColumn;
 use src\database\queries\objects\AddForeignKeyConstraint;
+use src\database\queries\objects\AddPrimaryKeys;
 use src\database\queries\objects\AddUniqueConstraint;
 use src\database\queries\objects\Alias;
 use src\database\queries\objects\AlterColumn;
@@ -20,6 +21,7 @@ use src\database\queries\objects\QueryWithParams;
 use src\database\queries\objects\Raw;
 use src\database\queries\objects\RenameColumn;
 use src\database\queries\objects\UniqueConstraint;
+use src\exceptions\QueryException;
 
 class Sql implements DialectInterface
 {
@@ -32,6 +34,10 @@ class Sql implements DialectInterface
 
     public function select(array $config): QueryWithParams
     {
+        if (!$config['table']) {
+            throw new QueryException('no table specified');
+        }
+
         $query = '';
         $params = [];
 
@@ -84,6 +90,14 @@ class Sql implements DialectInterface
 
     public function insert(array $config): QueryWithParams
     {
+        if (!$config['table']) {
+            throw new QueryException('no table specified');
+        }
+
+        if (count($config['values']) == 0) {
+            throw new QueryException('no insert values specified');
+        }
+
         $query = '';
         $params = [];
 
@@ -148,6 +162,14 @@ class Sql implements DialectInterface
 
     public function update(array $config): QueryWithParams
     {
+        if (!$config['table']) {
+            throw new QueryException('no table specified');
+        }
+
+        if (count($config['values']) == 0) {
+            throw new QueryException('no update values specified');
+        }
+
         $query = '';
         $params = [];
 
@@ -188,6 +210,10 @@ class Sql implements DialectInterface
 
     public function delete(array $config): QueryWithParams
     {
+        if (!$config['table']) {
+            throw new QueryException('no table specified');
+        }
+
         $query = '';
         $params = [];
 
@@ -204,6 +230,18 @@ class Sql implements DialectInterface
 
     public function createTable(array $config): QueryWithParams
     {
+        if (!$config['table']) {
+            throw new QueryException('no table specified');
+        }
+
+        if (count($config['columns']) == 0) {
+            throw new QueryException('no table columns specified');
+        }
+
+        if (count($config['primaryKeys']) == 0) {
+            throw new QueryException('no table primary key(s) specified');
+        }
+
         $query = '';
         $params = [];
 
@@ -250,6 +288,14 @@ class Sql implements DialectInterface
 
     public function alterTable(array $config): QueryWithParams
     {
+        if (!$config['table']) {
+            throw new QueryException('no table specified');
+        }
+
+        if (count($config['alters']) == 0) {
+            throw new QueryException('no table alters specified');
+        }
+
         $alters = [];
 
         foreach ($config['alters'] as $alter) {
@@ -273,6 +319,12 @@ class Sql implements DialectInterface
 
             if ($alter instanceof DropColumn) {
                 $alters[] = $this->stringifyAlterTableDropColumn($alter);
+
+                continue;
+            }
+
+            if ($alter instanceof AddPrimaryKeys) {
+                $alters[] = $this->stringifyAlterTableAddPrimaryKeys($alter);
 
                 continue;
             }
@@ -318,6 +370,10 @@ class Sql implements DialectInterface
 
     public function dropTable(array $config): QueryWithParams
     {
+        if (!$config['table']) {
+            throw new QueryException('no table specified');
+        }
+
         $query = '';
         $params = [];
 
@@ -615,7 +671,7 @@ class Sql implements DialectInterface
             $stringifiedColumn .= ' NOT NULL';
         }
 
-        if ($column->defaultValue && !$column->autoIncrement) {
+        if (!is_null($column->defaultValue) && !$column->autoIncrement) {
             $defaultValue = preg_match('/^.*\(.*\)$/', $column->defaultValue)
                 ? $column->defaultValue
                 : $this->escapeString($column->defaultValue);
@@ -703,6 +759,22 @@ class Sql implements DialectInterface
         return sprintf(
             'DROP COLUMN %s',
             $this->escapeIdentifier($dropColumn->column)
+        );
+    }
+
+    protected function stringifyAlterTableAddPrimaryKeys(AddPrimaryKeys $addPrimaryKeys): string
+    {
+        return sprintf(
+            'ADD PRIMARY KEY (%s)',
+            implode(
+                ', ',
+                array_map(
+                    function (string|array|Raw $column): string {
+                        return $this->escapeIdentifier($column);
+                    },
+                    $addPrimaryKeys->columns
+                )
+            )
         );
     }
 
