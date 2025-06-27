@@ -32,6 +32,13 @@ class Sql implements DialectInterface
     public const REGEX_FUNCTION = 'REGEXP';
     public const NOT_REGEX_FUNCTION = 'NOT REGEXP';
 
+    protected string $version;
+
+    public function __construct(string $version)
+    {
+        $this->version = $version;
+    }
+
     public function select(array $config): QueryWithParams
     {
         if (!$config['table']) {
