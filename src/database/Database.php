@@ -63,7 +63,7 @@ class Database
             }
         }
 
-        $this->dialect = DialectFactory::fromDriver($driver);
+        $this->dialect = DialectFactory::fromDatabase($this);
     }
 
     public function unsafe(string $query): int
