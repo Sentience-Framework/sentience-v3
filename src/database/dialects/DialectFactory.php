@@ -13,19 +13,16 @@ class DialectFactory
 
     public static function fromDatabase(Database $database): DialectInterface
     {
-        return static::fromDriver(
-            $database->getPDOAttribute(PDO::ATTR_DRIVER_NAME),
-            $database->getPDOAttribute(PDO::ATTR_SERVER_VERSION)
-        );
+        return static::fromDriver($database->getPDOAttribute(PDO::ATTR_DRIVER_NAME));
     }
 
-    public static function fromDriver(string $driver, string $version): DialectInterface
+    public static function fromDriver(string $driver): DialectInterface
     {
         return match ($driver) {
-            static::PDO_DRIVER_MYSQL => new Mysql($version),
-            static::PDO_DRIVER_PGSQL => new Pgsql($version),
-            static::PDO_DRIVER_SQLITE => new Sqlite($version),
-            default => new Sql('')
+            static::PDO_DRIVER_MYSQL => new Mysql(),
+            static::PDO_DRIVER_PGSQL => new Pgsql(),
+            static::PDO_DRIVER_SQLITE => new Sqlite(),
+            default => new Sql()
         };
     }
 }

@@ -32,13 +32,6 @@ class Sql implements DialectInterface
     public const REGEX_FUNCTION = 'REGEXP';
     public const NOT_REGEX_FUNCTION = 'NOT REGEXP';
 
-    protected string $version;
-
-    public function __construct(string $version)
-    {
-        $this->version = $version;
-    }
-
     public function select(array $config): QueryWithParams
     {
         if (!$config['table']) {
@@ -478,7 +471,7 @@ class Sql implements DialectInterface
 
         if (is_null($condition->value)) {
             $query .= sprintf(
-                '(%s %s)',
+                '%s %s',
                 $this->escapeIdentifier($condition->expression),
                 $condition->type == WhereType::EQUALS ? 'IS NULL' : 'IS NOT NULL'
             );
@@ -488,7 +481,7 @@ class Sql implements DialectInterface
 
         if (in_array($condition->type, [WhereType::BETWEEN, WhereType::NOT_BETWEEN])) {
             $query .= sprintf(
-                '(%s %s ? AND ?)',
+                '%s %s ? AND ?',
                 $this->escapeIdentifier($condition->expression),
                 $condition->type->value,
                 $condition->value[0],
@@ -502,13 +495,13 @@ class Sql implements DialectInterface
 
         if (is_array($condition->value)) {
             if (count($condition->value) == 0) {
-                $query .= $condition->type == WhereType::IN ? '(1 <> 1)' : '(1 = 1)';
+                $query .= $condition->type == WhereType::IN ? '1 <> 1' : '1 = 1';
 
                 return;
             }
 
             $query .= sprintf(
-                '(%s %s (%s))',
+                '%s %s (%s)',
                 $this->escapeIdentifier($condition->expression),
                 $condition->type->value,
                 implode(', ', array_fill(0, count($condition->value), '?'))
@@ -521,7 +514,7 @@ class Sql implements DialectInterface
 
         if (in_array($condition->type, [WhereType::REGEX, WhereType::NOT_REGEX])) {
             $query .= sprintf(
-                '(%s %s ?)',
+                '%s %s ?',
                 $this->escapeIdentifier($condition->expression),
                 $condition->type == WhereType::REGEX ? $this::REGEX_FUNCTION : $this::NOT_REGEX_FUNCTION
             );
@@ -532,7 +525,7 @@ class Sql implements DialectInterface
         }
 
         $query .= sprintf(
-            '(%s %s ?)',
+            '%s %s ?',
             $this->escapeIdentifier($condition->expression),
             $condition->type->value
         );
@@ -906,12 +899,8 @@ class Sql implements DialectInterface
         return $value == 1 ? true : false;
     }
 
-    public function parseDateTime(?string $dateTimeString): ?DateTime
+    public function parseDateTime(string $dateTimeString): ?DateTime
     {
-        if (!$dateTimeString) {
-            return null;
-        }
-
         $dateTime = DateTime::createFromFormat($this::DATETIME_FORMAT, $dateTimeString);
 
         if ($dateTime) {
@@ -924,9 +913,13 @@ class Sql implements DialectInterface
             return null;
         }
 
+        $hasMicroseconds = preg_match('/\.([0-9]+)[\+\-]?/', $dateTimeString, $matches);
+
+        $microseconds = $hasMicroseconds ? (int) $matches[1] : 0;
+
         $dateTime = new DateTime();
 
-        return $dateTime->setTimestamp($timestamp);
+        return $dateTime->setTimestamp($timestamp)->setMicrosecond($microseconds);
     }
 
     public function phpTypeToColumnType(string $type, bool $isAutoIncrement, bool $isPrimaryKey, bool $inConstraint): string

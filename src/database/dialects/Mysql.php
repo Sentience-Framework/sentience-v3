@@ -15,25 +15,6 @@ class Mysql extends Sql implements DialectInterface
     public const STRING_ESCAPE = '"';
     public const ANSI_ESCAPE = false;
 
-    protected bool $supportsReturning = false;
-
-    public function __construct(string $version)
-    {
-        parent::__construct($version);
-
-        $version = extract_chars($version, ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.']);
-
-        $versionParts = explode('.', $version);
-
-        $versionNr = 0;
-
-        foreach (array_reverse($versionParts) as $iteration => $subVersion) {
-            $versionNr += $subVersion * pow(100, $iteration);
-        }
-
-        $this->supportsReturning = $versionNr > 100500;
-    }
-
     public function createTable(array $config): QueryWithParams
     {
         $queryWithParams = parent::createTable($config);
@@ -101,9 +82,7 @@ class Mysql extends Sql implements DialectInterface
 
     public function addReturning(string &$query, ?array $returning): void
     {
-        if ($this->supportsReturning) {
-            parent::addReturning($query, $returning);
-        }
+        return;
     }
 
     public function stringifyColumnDefinition(Column $column): string
