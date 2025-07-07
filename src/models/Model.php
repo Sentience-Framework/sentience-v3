@@ -120,7 +120,7 @@ abstract class Model
 
     public function selectRelation(string $property, ?callable $modifyQuery = null): static
     {
-        if (!key_exists($property, $this->relations)) {
+        if (!array_key_exists($property, $this->relations)) {
             throw new RelationException('relation %s not defined in model', $property);
         }
 
@@ -260,7 +260,7 @@ abstract class Model
         return $this;
     }
 
-    public function createTable(bool $ifNotExists = false, ?callable $modifyQuery = null): string
+    public function createTable(bool $ifNotExists = false, bool $returnQuery = false, ?callable $modifyQuery = null): string
     {
         if (count($this->columns) == 0) {
             return '';
@@ -319,6 +319,10 @@ abstract class Model
             $query = $modifyQuery($query);
         }
 
+        if ($returnQuery) {
+            return $query->toRawQuery();
+        }
+
         $query->execute();
 
         $this->onCreate();
@@ -326,7 +330,7 @@ abstract class Model
         return $query->toRawQuery();
     }
 
-    public function alterTable(?callable $modifyQuery = null): string
+    public function alterTable(bool $returnQuery = false, ?callable $modifyQuery = null): string
     {
         $columnsInModel = array_flip($this->columns);
 
@@ -348,7 +352,7 @@ abstract class Model
         }
 
         foreach ($columnsInDatabase as $column) {
-            if (key_exists($column, $columnsInModel)) {
+            if (array_key_exists($column, $columnsInModel)) {
                 continue;
             }
 
@@ -406,6 +410,10 @@ abstract class Model
             $query = $modifyQuery($query);
         }
 
+        if ($returnQuery) {
+            return $query->toRawQuery();
+        }
+
         $query->execute();
 
         $this->onAlter();
@@ -413,7 +421,7 @@ abstract class Model
         return $query->toRawQuery();
     }
 
-    public function dropTable(bool $ifExists = false, ?callable $modifyQuery = null): string
+    public function dropTable(bool $ifExists = false, bool $returnQuery = false, ?callable $modifyQuery = null): string
     {
         $query = $this->database->dropTable()
             ->table($this->table);
@@ -424,6 +432,10 @@ abstract class Model
 
         if ($modifyQuery) {
             $query = $modifyQuery($query);
+        }
+
+        if ($returnQuery) {
+            return $query->toRawQuery();
         }
 
         $query->execute();

@@ -31,14 +31,14 @@ class HttpRouter
                 continue;
             }
 
-            if (key_exists('*', $methods)) {
+            if (!array_key_exists($method, $methods)) {
+                if (array_key_exists('*', $methods)) {
+                    return [null, null, 405];
+                }
+
                 $route = $methods['*'];
 
                 return [$route, $pathVars, null];
-            }
-
-            if (!key_exists($method, $methods)) {
-                return [null, null, 405];
             }
 
             $route = $methods[$method];
@@ -58,6 +58,10 @@ class HttpRouter
             return [true, null];
         }
 
+        if (!$this->doComponentsMatch($path, $route)) {
+            return [false, null];
+        }
+
         $keys = [];
 
         $pattern = preg_replace_callback(
@@ -72,7 +76,7 @@ class HttpRouter
             },
             sprintf(
                 '/^%s$/',
-                escape_chars($route, ['.', '/', '+', '*', '?', '^', '[', ']', '$', '(', ')', '=', '!', '<', '>', '|', '-'])
+                escape_chars($route, ['-', '+', '*', '/', '^', '=', '!', '?', '$', '.', '|', '<', '>', '[', ']', '(', ')'])
             )
         );
 
@@ -97,6 +101,28 @@ class HttpRouter
         }
 
         return [true, $pathVars];
+    }
+
+    protected function doComponentsMatch(string $path, string $route): bool
+    {
+        $pathComponents = explode('/', $path);
+        $routeComponents = explode('/', $route);
+
+        if (count($pathComponents) != count($routeComponents)) {
+            return false;
+        }
+
+        foreach ($routeComponents as $index => $routeComponent) {
+            if (str_contains($routeComponent, '{')) {
+                continue;
+            }
+
+            if ($routeComponent != $pathComponents[$index]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     protected function mapRoutes(): array
@@ -140,18 +166,18 @@ class HttpRouter
             );
 
             $route instanceof Route
-                ? $this->addToMap($mappedRoutes, $route, $middleware, $routeWithPrefixes)
+                ? $this->addToMap($mappedRoutes, $route, $routeWithPrefixes, $middleware)
                 : $this->mapRouteGroup($mappedRoutes, $route, $prefixes, $middleware);
         }
 
         return $mappedRoutes;
     }
 
-    protected function addToMap(array &$mappedRoutes, Route $route, array $middleware = [], ?string $routeWithPrefixes = null): void
+    protected function addToMap(array &$mappedRoutes, Route $route, ?string $routeWithPrefixes = null, array $middleware = []): void
     {
         $key = $routeWithPrefixes ?? $route->route;
 
-        if (!key_exists($key, $mappedRoutes)) {
+        if (!array_key_exists($key, $mappedRoutes)) {
             $mappedRoutes[$key] = [];
         }
 

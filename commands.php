@@ -2,6 +2,8 @@
 
 use src\controllers\DevToolsController;
 use src\controllers\ExampleController;
+use src\controllers\MigrationController;
+use src\controllers\ModelController;
 use src\controllers\SentienceController;
 use src\routers\Command;
 
@@ -13,37 +15,37 @@ return [
 
     Command::register(
         'migrations:init',
-        [SentienceController::class, 'initMigrations']
+        [MigrationController::class, 'initMigrations']
     ),
 
     Command::register(
         'migrations:apply',
-        [SentienceController::class, 'applyMigrations']
+        [MigrationController::class, 'applyMigrations']
     ),
 
     Command::register(
         'migrations:rollback',
-        [SentienceController::class, 'rollbackMigrations']
+        [MigrationController::class, 'rollbackMigrations']
     ),
 
     Command::register(
         'migrations:create',
-        [SentienceController::class, 'createMigration']
+        [MigrationController::class, 'createMigration']
     ),
 
     Command::register(
         'models:init',
-        [SentienceController::class, 'initModel']
+        [ModelController::class, 'initModel']
     ),
 
     Command::register(
         'models:update',
-        [SentienceController::class, 'updateModel']
+        [ModelController::class, 'updateModel']
     ),
 
     Command::register(
         'models:reset',
-        [SentienceController::class, 'resetModel']
+        [ModelController::class, 'resetModel']
     ),
 
     Command::register(
