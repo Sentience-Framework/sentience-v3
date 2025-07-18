@@ -4,6 +4,7 @@ namespace src\controllers;
 
 use src\database\Database;
 use src\database\queries\Query;
+use src\models\Migration;
 use src\sentience\Request;
 use src\sentience\Response;
 use src\sentience\Stdio;
@@ -69,6 +70,8 @@ class ExampleController extends Controller
     public function query(Database $database): void
     {
         $startTime = microtime(true);
+
+        $migration = new Migration($database);
 
         $queries = [];
 

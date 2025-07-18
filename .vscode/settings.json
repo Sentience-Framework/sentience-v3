@@ -1,0 +1,8 @@
+{
+    "php.problems.scope": "all",
+    "php.problems.exclude": {
+        "docs/": true,
+        "vendor/": true
+    },
+    "php.version": "8.2"
+}

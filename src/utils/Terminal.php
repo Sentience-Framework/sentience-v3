@@ -4,6 +4,8 @@ namespace src\utils;
 
 class Terminal
 {
+    protected static ?int $width = null;
+
     public static function exec(string $command, &$stdout = null, &$stderr = null, float $interval = 1000): int
     {
         $pipes = [];
@@ -120,11 +122,17 @@ class Terminal
 
     public static function getWidth(): int
     {
-        if (PHP_OS_FAMILY == 'Windows') {
-            return static::getWidthCommandPrompt();
+        if (self::$width) {
+            return self::$width;
         }
 
-        return static::getWidthTerminal();
+        $width = PHP_OS_FAMILY == 'Windows'
+            ? static::getWidthCommandPrompt()
+            : static::getWidthTerminal();
+
+        self::$width = $width;
+
+        return $width;
     }
 
     protected static function getWidthCommandPrompt(): int

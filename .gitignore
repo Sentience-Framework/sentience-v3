@@ -5,5 +5,5 @@
 !/sqlite/.gitkeep
 
 .idea
-.vscode
+# .vscode
 .DS_Store
