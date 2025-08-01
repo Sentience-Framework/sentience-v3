@@ -5,8 +5,8 @@ use src\middleware\CORSMiddleware;
 use src\middleware\ExampleMiddleware;
 use src\routers\Route;
 use src\routers\RouteGroup;
-use src\sentience\Request;
-use src\sentience\Response;
+use sentience\Sentience\Request;
+use sentience\Sentience\Response;
 
 return [
     Route::register(
