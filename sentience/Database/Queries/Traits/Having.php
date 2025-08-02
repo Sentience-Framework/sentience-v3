@@ -1,9 +1,11 @@
 <?php
 
-namespace sentience\Database\queries\traits;
+declare(strict_types=1);
+
+namespace sentience\Database\Queries\Traits;
 
 use DateTime;
-use sentience\Database\queries\objects\QueryWithParams;
+use sentience\Database\Queries\Objects\QueryWithParams;
 
 trait Having
 {

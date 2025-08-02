@@ -1,10 +1,12 @@
 <?php
 
-namespace sentience\Database\queries\traits;
+declare(strict_types=1);
 
-use sentience\Database\queries\enums\OrderByDirection;
-use sentience\Database\queries\objects\OrderBy as OrderByObject;
-use sentience\Database\queries\objects\Raw;
+namespace sentience\Database\Queries\Traits;
+
+use sentience\Database\Queries\Enums\OrderByDirection;
+use sentience\Database\Queries\Objects\OrderBy as OrderByObject;
+use sentience\Database\Queries\Objects\Raw;
 
 trait OrderBy
 {

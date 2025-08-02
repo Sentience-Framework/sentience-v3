@@ -1,6 +1,8 @@
 <?php
 
-namespace sentience\Database\queries\enums;
+declare(strict_types=1);
+
+namespace sentience\Database\Queries\Enums;
 
 enum WhereType: string
 {

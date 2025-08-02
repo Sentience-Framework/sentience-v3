@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace sentience\Routers;
 
 use sentience\Sentience\Argv;
@@ -38,7 +40,7 @@ class CliRouter
         $flags = [];
 
         foreach ($args as $arg) {
-            $isMatch = preg_match('/\-\-(.[^\=]*)\=?(.*)/', $arg, $matches);
+            $isMatch = preg_match('/\-\-(.[^\=]*)\=?(.*)/', (string) $arg, $matches);
 
             if (!$isMatch) {
                 $words[] = $arg;

@@ -1,8 +1,10 @@
 <?php
 
-namespace sentience\Database\queries;
+declare(strict_types=1);
 
-use sentience\Database\queries\objects\QueryWithParams;
+namespace sentience\Database\Queries;
+
+use sentience\Database\Queries\Objects\QueryWithParams;
 use sentience\Database\Results;
 
 interface QueryInterface

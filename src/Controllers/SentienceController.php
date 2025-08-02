@@ -1,21 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace src\controllers;
 
+use Throwable;
 use sentience\Abstracts\Controller;
 use sentience\Database\Database;
-use sentience\Database\queries\Query;
-use sentience\Environment\Environment;
-use sentience\Sentience\Stdio;
-use Throwable;
+use sentience\Database\Queries\Query;
+use sentience\Env\Env;
 use sentience\Exceptions\BuiltInWebServerException;
 use sentience\Exceptions\MigrationException;
 use sentience\Exceptions\TerminalException;
-use src\migrations\MigrationFactory;
-use src\models\Migration;
 use sentience\Helpers\Filesystem;
 use sentience\Helpers\Reflector;
 use sentience\Helpers\Terminal;
+use sentience\Sentience\Stdio;
+use src\migrations\MigrationFactory;
+use src\models\Migration;
 
 class SentienceController extends Controller
 {
@@ -63,8 +65,8 @@ class SentienceController extends Controller
 
                         Stdio::printFLn(
                             '%s Sentience development server %s',
-                            str_repeat('=', ceil($equalSigns)),
-                            str_repeat('=', floor($equalSigns))
+                            str_repeat('=', (int) ceil($equalSigns)),
+                            str_repeat('=', (int) floor($equalSigns))
                         );
 
                         continue;
@@ -159,7 +161,7 @@ class SentienceController extends Controller
         $nextBatch = $highestBatch + 1;
 
         foreach ($migrations as $filepath) {
-            $filename = basename($filepath);
+            $filename = basename((string) $filepath);
 
             $alreadyApplied = $database->select()
                 ->table(Migration::getTable())
@@ -298,7 +300,7 @@ class SentienceController extends Controller
             return;
         }
 
-        $class = !str_contains('\\', $class)
+        $class = !str_contains('\\', (string) $class)
             ? $class = sprintf('\\src\\models\\%s', $class)
             : $class;
 
@@ -376,7 +378,7 @@ class SentienceController extends Controller
             return;
         }
 
-        $class = !str_contains('\\', $class)
+        $class = !str_contains('\\', (string) $class)
             ? $class = sprintf('\\src\\models\\%s', $class)
             : $class;
 
@@ -454,7 +456,7 @@ class SentienceController extends Controller
             return;
         }
 
-        $class = !str_contains('\\', $class)
+        $class = !str_contains('\\', (string) $class)
             ? $class = sprintf('\\src\\models\\%s', $class)
             : $class;
 
@@ -527,8 +529,8 @@ class SentienceController extends Controller
         $dotEnvFilepath = Filesystem::path(SENTIENCE_DIR, $dotEnv);
         $dotEnvExampleFilepath = Filesystem::path(SENTIENCE_DIR, $dotEnvExample);
 
-        $dotEnvVariables = Environment::parseFileRaw($dotEnvFilepath);
-        $dotEnvExampleVariables = Environment::parseFileRaw($dotEnvExampleFilepath);
+        $dotEnvVariables = Env::parseFileRaw($dotEnvFilepath);
+        $dotEnvExampleVariables = Env::parseFileRaw($dotEnvExampleFilepath);
 
         $missingVariables = [];
 

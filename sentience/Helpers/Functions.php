@@ -1,12 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
+use sentience\Env\Env;
+
 function env(string $key, mixed $default = null): mixed
 {
-    if (!array_key_exists($key, $_ENV)) {
-        return $default;
-    }
-
-    return $_ENV[$key];
+    return Env::get($key, $default);
 }
 
 function is_cli(): bool

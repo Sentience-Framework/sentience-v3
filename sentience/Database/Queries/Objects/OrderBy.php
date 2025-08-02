@@ -1,17 +1,14 @@
 <?php
 
-namespace sentience\Database\queries\objects;
+declare(strict_types=1);
 
-use sentience\Database\queries\enums\OrderByDirection;
+namespace sentience\Database\Queries\Objects;
+
+use sentience\Database\Queries\Enums\OrderByDirection;
 
 class OrderBy
 {
-    public string|array|Raw $column;
-    public OrderByDirection $direction;
-
-    public function __construct(string|array|Raw $column, OrderByDirection $direction)
+    public function __construct(public string|array|Raw $column, public OrderByDirection $direction)
     {
-        $this->column = $column;
-        $this->direction = $direction;
     }
 }

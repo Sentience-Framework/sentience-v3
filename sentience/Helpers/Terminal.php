@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace sentience\Helpers;
 
 class Terminal
 {
-    public const DEFAULT_WIDTH = static::DEFAULT_WIDTH;
+    public const DEFAULT_WIDTH = 80;
 
     protected static ?int $width = null;
 
@@ -51,7 +53,7 @@ class Terminal
                 return (int) $status['exitcode'];
             }
 
-            usleep($interval * 1000);
+            usleep((int) $interval * 1000);
         }
 
         return 1;
@@ -116,7 +118,7 @@ class Terminal
                 return (int) $status['exitcode'];
             }
 
-            usleep($interval * 1000);
+            usleep((int) $interval * 1000);
         }
 
         return 1;
@@ -145,7 +147,7 @@ class Terminal
             return static::DEFAULT_WIDTH;
         }
 
-        $isMatch = preg_match('/Columns\:\s+([0-9]+)/', $stdout, $matches);
+        $isMatch = preg_match('/Columns\:\s+([0-9]+)/', (string) $stdout, $matches);
 
         if (!$isMatch) {
             return static::DEFAULT_WIDTH;
@@ -158,7 +160,7 @@ class Terminal
     {
         $exitCode = static::exec('stty size < /dev/tty', $stdout, $stderr, 0);
 
-        if (preg_match('/(\d+)\s(\d+)/', $stdout, $matches)) {
+        if (preg_match('/(\d+)\s(\d+)/', (string) $stdout, $matches)) {
             [$height, $width] = array_slice($matches, 1);
 
             return (int) $width;

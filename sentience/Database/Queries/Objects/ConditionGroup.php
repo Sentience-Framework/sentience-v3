@@ -1,19 +1,18 @@
 <?php
 
-namespace sentience\Database\queries\objects;
+declare(strict_types=1);
 
-use sentience\Database\queries\enums\Chain;
-use sentience\Database\queries\traits\Where;
+namespace sentience\Database\Queries\Objects;
+
+use sentience\Database\Queries\Enums\Chain;
+use sentience\Database\Queries\Traits\Where;
 
 class ConditionGroup
 {
     use Where;
 
-    public Chain $chain;
-
-    public function __construct(Chain $chain)
+    public function __construct(public Chain $chain)
     {
-        $this->chain = $chain;
     }
 
     public function getConditions(): array

@@ -1,22 +1,15 @@
 <?php
 
-namespace sentience\Database\queries\objects;
+declare(strict_types=1);
 
-use sentience\Database\queries\enums\Chain;
-use sentience\Database\queries\enums\WhereType;
+namespace sentience\Database\Queries\Objects;
+
+use sentience\Database\Queries\Enums\Chain;
+use sentience\Database\Queries\Enums\WhereType;
 
 class Condition
 {
-    public WhereType $type;
-    public string|array $expression;
-    public mixed $value;
-    public Chain $chain;
-
-    public function __construct(WhereType $type, string|array $expression, mixed $value, Chain $chain)
+    public function __construct(public WhereType $type, public string|array $expression, public mixed $value, public Chain $chain)
     {
-        $this->type = $type;
-        $this->expression = $expression;
-        $this->value = $value;
-        $this->chain = $chain;
     }
 }

@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace sentience\Models;
 
+use sentience\Helpers\Arrays;
 use src\Models\Attributes\Column;
 use src\Models\Attributes\Table;
-use src\Models\Exceptions\NoTableException;
+use src\Models\Exceptions\TableException;
 use src\Traits\HasAttributes;
 
 class Model
@@ -15,8 +18,8 @@ class Model
     {
         $attributes = static::getClassAttributes(Table::class);
 
-        if (count($attributes) == 0) {
-            throw new NoTableException('no table attribute specified on model %s', static::class);
+        if (Arrays::empty($attributes)) {
+            throw new TableException('no table attribute specified on model %s', static::class);
         }
 
         return $attributes[0]->newInstance()->table;
@@ -26,7 +29,7 @@ class Model
     {
         $attributes = static::getPropertyAttributes($property, Column::class);
 
-        if (count($attributes) == 0) {
+        if (Arrays::empty($attributes)) {
             return $property;
         }
 

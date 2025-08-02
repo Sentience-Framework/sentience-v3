@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace sentience\Helpers;
 
 use SimpleXMLElement;

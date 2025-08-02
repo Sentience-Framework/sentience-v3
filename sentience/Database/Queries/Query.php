@@ -1,27 +1,25 @@
 <?php
 
-namespace sentience\Database\queries;
+declare(strict_types=1);
+
+namespace sentience\Database\Queries;
 
 use DateTime;
-use sentience\Helpers\Strings;
 use Throwable;
 use sentience\Database\Database;
-use sentience\Database\dialects\DialectInterface;
-use sentience\Database\queries\objects\Alias;
-use sentience\Database\queries\objects\Raw;
+use sentience\Database\Dialects\DialectInterface;
+use sentience\Database\Queries\Objects\Alias;
+use sentience\Database\Queries\Objects\Raw;
 use sentience\Database\Results;
+use sentience\Helpers\Strings;
 
 abstract class Query implements QueryInterface
 {
-    protected Database $database;
-    protected DialectInterface $dialect;
     protected string $query;
     protected array $params;
 
-    public function __construct(Database $database, DialectInterface $dialect)
+    public function __construct(protected Database $database, protected DialectInterface $dialect)
     {
-        $this->database = $database;
-        $this->dialect = $dialect;
     }
 
     public function execute(): ?Results
@@ -29,12 +27,12 @@ abstract class Query implements QueryInterface
         $queryWithParams = $this->build();
 
         if (preg_match('/^CREATE|ALTER|DROP/', $queryWithParams->expression)) {
-            $this->database->unsafe($queryWithParams->expression);
+            $this->database->exec($queryWithParams->expression);
 
             return null;
         }
 
-        return $this->database->safe(
+        return $this->database->prepared(
             $queryWithParams->expression,
             $queryWithParams->params
         );

@@ -1,13 +1,15 @@
 <?php
 
-namespace sentience\Database\dialects;
+declare(strict_types=1);
 
-use sentience\Database\queries\objects\AlterColumn;
-use sentience\Database\queries\objects\Column;
-use sentience\Database\queries\objects\DropConstraint;
-use sentience\Database\queries\objects\QueryWithParams;
-use sentience\Database\queries\objects\Raw;
-use sentience\Database\queries\Query;
+namespace sentience\Database\Dialects;
+
+use sentience\Database\Queries\Objects\AlterColumn;
+use sentience\Database\Queries\Objects\Column;
+use sentience\Database\Queries\Objects\DropConstraint;
+use sentience\Database\Queries\Objects\QueryWithParams;
+use sentience\Database\Queries\Objects\Raw;
+use sentience\Database\Queries\Query;
 
 class Mysql extends Sql implements DialectInterface
 {

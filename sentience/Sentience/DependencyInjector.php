@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace sentience\Sentience;
 
 use ReflectionFunctionAbstract;
@@ -7,13 +9,8 @@ use sentience\Exceptions\DependencyInjectionException;
 
 class DependencyInjector
 {
-    protected array $injectables;
-    protected ?object $service;
-
-    public function __construct(array $injectables, ?object $service = null)
+    public function __construct(protected array $injectables, protected ?object $service = null)
     {
-        $this->injectables = $injectables;
-        $this->service = $service;
     }
 
     public function getFunctionParameters(ReflectionFunctionAbstract $reflectionFunctionAbstract, array $injectables = []): array
@@ -67,9 +64,7 @@ class DependencyInjector
                     ...$parameters,
                     ...array_filter(
                         $injectables,
-                        function (string $injectable) use ($parameters): bool {
-                            return !array_key_exists($injectable, $parameters);
-                        },
+                        fn(string $injectable): bool => !array_key_exists($injectable, $parameters),
                         ARRAY_FILTER_USE_KEY
                     )
                 ];

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace sentience\Routers;
 
 class Route
@@ -37,9 +39,7 @@ class Route
     public function setMethods(array $methods): static
     {
         $this->methods = array_map(
-            function (string $method): string {
-                return strtoupper($method);
-            },
+            fn(string $method): string => strtoupper($method),
             $methods
         );
 

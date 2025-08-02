@@ -1,12 +1,14 @@
 <?php
 
-namespace sentience\Database\queries\traits;
+declare(strict_types=1);
 
-use sentience\Database\queries\enums\JoinType;
-use sentience\Database\queries\objects\Alias;
-use sentience\Database\queries\objects\Join;
-use sentience\Database\queries\objects\Raw;
-use sentience\Database\queries\Query;
+namespace sentience\Database\Queries\Traits;
+
+use sentience\Database\Queries\Enums\JoinType;
+use sentience\Database\Queries\Objects\Alias;
+use sentience\Database\Queries\Objects\Join;
+use sentience\Database\Queries\Objects\Raw;
+use sentience\Database\Queries\Query;
 
 trait Joins
 {

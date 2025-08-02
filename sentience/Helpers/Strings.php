@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace sentience\Helpers;
 
 class Strings
@@ -10,10 +12,10 @@ class Strings
             $string = preg_replace(
                 sprintf(
                     $pattern,
-                    preg_quote($char, '/')
+                    preg_quote((string) $char, '/')
                 ),
                 $replacement,
-                $string
+                (string) $string
             );
         }
 

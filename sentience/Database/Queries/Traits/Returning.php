@@ -1,6 +1,8 @@
 <?php
 
-namespace sentience\Database\queries\traits;
+declare(strict_types=1);
+
+namespace sentience\Database\Queries\Traits;
 
 trait Returning
 {

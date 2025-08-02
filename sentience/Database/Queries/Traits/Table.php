@@ -1,9 +1,11 @@
 <?php
 
-namespace sentience\Database\queries\traits;
+declare(strict_types=1);
 
-use sentience\Database\queries\objects\Alias;
-use sentience\Database\queries\objects\Raw;
+namespace sentience\Database\Queries\Traits;
+
+use sentience\Database\Queries\Objects\Alias;
+use sentience\Database\Queries\Objects\Raw;
 
 trait Table
 {

@@ -1,13 +1,15 @@
 <?php
 
-namespace sentience\Database\dialects;
+declare(strict_types=1);
 
-use sentience\Database\queries\objects\AddForeignKeyConstraint;
-use sentience\Database\queries\objects\AddPrimaryKeys;
-use sentience\Database\queries\objects\AddUniqueConstraint;
-use sentience\Database\queries\objects\AlterColumn;
-use sentience\Database\queries\objects\DropConstraint;
-use sentience\Database\queries\objects\Raw;
+namespace sentience\Database\Dialects;
+
+use sentience\Database\Queries\Objects\AddForeignKeyConstraint;
+use sentience\Database\Queries\Objects\AddPrimaryKeys;
+use sentience\Database\Queries\Objects\AddUniqueConstraint;
+use sentience\Database\Queries\Objects\AlterColumn;
+use sentience\Database\Queries\Objects\DropConstraint;
+use sentience\Database\Queries\Objects\Raw;
 use sentience\Exceptions\QueryException;
 
 class Sqlite extends Sql implements DialectInterface
@@ -27,9 +29,7 @@ class Sqlite extends Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    function (string $column): string {
-                        return $this->escapeIdentifier($column);
-                    },
+                    fn(string $column): string => $this->escapeIdentifier($column),
                     $conflict
                 )
             )

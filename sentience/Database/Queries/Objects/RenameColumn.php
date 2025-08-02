@@ -1,15 +1,12 @@
 <?php
 
-namespace sentience\Database\queries\objects;
+declare(strict_types=1);
+
+namespace sentience\Database\Queries\Objects;
 
 class RenameColumn
 {
-    public string $oldName;
-    public string $newName;
-
-    public function __construct(string $oldName, string $newName)
+    public function __construct(public string $oldName, public string $newName)
     {
-        $this->oldName = $oldName;
-        $this->newName = $newName;
     }
 }

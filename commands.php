@@ -3,8 +3,6 @@
 use sentience\Routers\Command;
 use src\controllers\DevToolsController;
 use src\controllers\ExampleController;
-use src\controllers\MigrationController;
-use src\controllers\ModelController;
 use src\controllers\SentienceController;
 
 return [
@@ -15,37 +13,37 @@ return [
 
     Command::register(
         'migrations:init',
-        [MigrationController::class, 'initMigrations']
+        [SentienceController::class, 'initMigrations']
     ),
 
     Command::register(
         'migrations:apply',
-        [MigrationController::class, 'applyMigrations']
+        [SentienceController::class, 'applyMigrations']
     ),
 
     Command::register(
         'migrations:rollback',
-        [MigrationController::class, 'rollbackMigrations']
+        [SentienceController::class, 'rollbackMigrations']
     ),
 
     Command::register(
         'migrations:create',
-        [MigrationController::class, 'createMigration']
+        [SentienceController::class, 'createMigration']
     ),
 
     Command::register(
         'models:init',
-        [ModelController::class, 'initModel']
+        [SentienceController::class, 'initModel']
     ),
 
     Command::register(
         'models:update',
-        [ModelController::class, 'updateModel']
+        [SentienceController::class, 'updateModel']
     ),
 
     Command::register(
         'models:reset',
-        [ModelController::class, 'resetModel']
+        [SentienceController::class, 'resetModel']
     ),
 
     Command::register(

@@ -1,15 +1,12 @@
 <?php
 
-namespace sentience\Database\queries\objects;
+declare(strict_types=1);
+
+namespace sentience\Database\Queries\Objects;
 
 class UniqueConstraint
 {
-    public array $columns;
-    public ?string $name;
-
-    public function __construct(array $columns, ?string $name = null)
+    public function __construct(public array $columns, public ?string $name = null)
     {
-        $this->columns = $columns;
-        $this->name = $name;
     }
 }

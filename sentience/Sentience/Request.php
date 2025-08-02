@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace sentience\Sentience;
 
+use SimpleXMLElement;
 use sentience\Abstracts\Singleton;
 use sentience\Helpers\Json;
 use sentience\Helpers\UrlEncoding;
 use sentience\Helpers\Xml;
-use SimpleXMLElement;
 
 class Request extends Singleton
 {
@@ -14,7 +16,7 @@ class Request extends Singleton
     {
         $url = (array_key_exists('HTTPS', $_SERVER) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $path = (string) strtok($_SERVER['REQUEST_URI'], '?');
-        $method = strtoupper($_SERVER['REQUEST_METHOD']);
+        $method = strtoupper((string) $_SERVER['REQUEST_METHOD']);
         $headers = array_change_key_case(getallheaders(), CASE_LOWER);
         $queryString = (string) strtok($_SERVER['QUERY_STRING'] ?? '', '#');
         $queryParams = UrlEncoding::decode($queryString, false);
@@ -32,7 +34,7 @@ class Request extends Singleton
         public string $queryString,
         public array $queryParams,
         public array $cookies,
-        public string $body,
+        public string $body
     ) {
     }
 

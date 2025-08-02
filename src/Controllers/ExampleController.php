@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace src\controllers;
 
 use sentience\Abstracts\Controller;
 use sentience\Database\Database;
-use sentience\Database\queries\Query;
+use sentience\Database\Queries\Query;
 use sentience\Helpers\Json;
 use sentience\Sentience\Request;
 use sentience\Sentience\Response;
@@ -12,11 +14,8 @@ use sentience\Sentience\Stdio;
 
 class ExampleController extends Controller
 {
-    protected ?Request $request;
-
-    public function __construct(?Request $request)
+    public function __construct(protected ?Request $request)
     {
-        $this->request = $request;
     }
 
     public function cliExample(array $words, array $flags): void
@@ -109,18 +108,12 @@ class ExampleController extends Controller
             )
             ->join('RIGHT JOIN table2 jt ON jt.column1 = table1.column1 AND jt.column2 = table2.column2')
             ->whereEquals('column1', 10)
-            ->whereGroup(function ($group) {
-                return $group->whereGreaterThanOrEquals('column2', 20)
-                    ->orwhereIsNull('column3');
-            })
+            ->whereGroup(fn($group) => $group->whereGreaterThanOrEquals('column2', 20)
+                ->orwhereIsNull('column3'))
             ->where('DATE(`created_at`) > now()')
-            ->whereGroup(function ($group) {
-                return $group->whereIn('column4', [1, 2, 3, 4])
-                    ->whereNotEquals('column5', 'test string');
-            })
-            ->whereGroup(function ($group) {
-                return $group;
-            })
+            ->whereGroup(fn($group) => $group->whereIn('column4', [1, 2, 3, 4])
+                ->whereNotEquals('column5', 'test string'))
+            ->whereGroup(fn($group) => $group)
             ->whereIn('column2', [])
             ->whereNotIn('column2', [])
             ->whereStartsWith('column2', 'a')

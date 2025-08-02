@@ -1,14 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace sentience\Sentience;
 
 use Closure;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionMethod;
+use Throwable;
 use sentience\Abstracts\Controller;
 use sentience\Abstracts\Middleware;
-use Throwable;
+use sentience\Exceptions\CallbackException;
+use sentience\Exceptions\DeprecatedException;
+use sentience\Exceptions\FatalErrorException;
+use sentience\Exceptions\NoticeException;
+use sentience\Exceptions\ParseException;
+use sentience\Exceptions\WarningException;
 use sentience\Helpers\Reflector;
 use sentience\Helpers\Terminal;
 use sentience\Routers\CliRouter;
@@ -16,12 +24,6 @@ use sentience\Routers\Command;
 use sentience\Routers\HttpRouter;
 use sentience\Routers\Route;
 use sentience\Routers\RouteGroup;
-use sentience\Exceptions\CallbackException;
-use sentience\Exceptions\DeprecatedException;
-use sentience\Exceptions\FatalErrorException;
-use sentience\Exceptions\NoticeException;
-use sentience\Exceptions\ParseException;
-use sentience\Exceptions\WarningException;
 
 class Sentience
 {
@@ -38,9 +40,9 @@ class Sentience
 
         Stdio::printFLn(
             '%s %s %s',
-            str_repeat('=', ceil($equalSigns)),
+            str_repeat('=', (int) ceil($equalSigns)),
             $message,
-            str_repeat('=', floor($equalSigns))
+            str_repeat('=', (int) floor($equalSigns))
         );
 
         foreach ($lines as $line) {
@@ -52,22 +54,27 @@ class Sentience
 
     public static function logStderr(string $message, array $lines): void
     {
-        $terminalWidth = Terminal::getWidth();
+        try {
+            $terminalWidth = Terminal::getWidth();
 
-        $equalSigns = ($terminalWidth - strlen($message)) / 2 - 1;
+            $equalSigns = ($terminalWidth - strlen($message)) / 2 - 1;
 
-        Stdio::errorFLn(
-            '%s %s %s',
-            str_repeat('=', ceil($equalSigns)),
-            $message,
-            str_repeat('=', floor($equalSigns))
-        );
+            Stdio::errorFLn(
+                '%s %s %s',
+                str_repeat('=', (int) ceil($equalSigns)),
+                $message,
+                str_repeat('=', (int) floor($equalSigns))
+            );
 
-        foreach ($lines as $line) {
-            Stdio::errorLn($line);
+            foreach ($lines as $line) {
+                Stdio::errorLn($line);
+            }
+
+            Stdio::errorLn(str_repeat('=', $terminalWidth));
+        } catch (\Throwable $th) {
+            echo $th->getMessage();
         }
 
-        Stdio::errorLn(str_repeat('=', $terminalWidth));
     }
 
     public function __construct()
@@ -200,14 +207,10 @@ class Sentience
             }
         }
 
-        if ($pathVars) {
-            $request->pathVars = $pathVars;
-        }
-
-        $this->executeCallback(callback: $route->callback, middleware: $route->middleware, request: $request);
+        $this->executeCallback(callback: $route->callback, middleware: $route->middleware, request: $request, pathVars: $pathVars);
     }
 
-    protected function executeCallback(string|array|callable $callback, array $middleware, array $words = [], array $flags = [], ?Request $request = null): void
+    protected function executeCallback(string|array|callable $callback, array $middleware, array $words = [], array $flags = [], ?Request $request = null, array $pathVars = []): void
     {
         $this->validateCallback($callback);
 
@@ -215,7 +218,8 @@ class Sentience
             [
                 'words' => $words,
                 'flags' => $flags,
-                'request' => $request
+                'request' => $request,
+                ...$pathVars
             ]
         );
 
@@ -338,9 +342,7 @@ class Sentience
             $stackTrace = array_values(
                 array_filter(
                     $exception->getTrace(),
-                    function (array $frame): bool {
-                        return array_key_exists('file', $frame);
-                    }
+                    fn(array $frame): bool => array_key_exists('file', $frame)
                 )
             );
 
@@ -358,9 +360,7 @@ class Sentience
                     $args = implode(
                         ', ',
                         array_map(
-                            function (mixed $arg): string {
-                                return get_debug_type($arg);
-                            },
+                            fn(mixed $arg): string => get_debug_type($arg),
                             $frame['args'] ?? []
                         )
                     );
@@ -411,9 +411,7 @@ class Sentience
                                 : $frame['function'];
 
                             $args = array_map(
-                                function (mixed $arg): string {
-                                    return get_debug_type($arg);
-                                },
+                                fn(mixed $arg): string => get_debug_type($arg),
                                 $frame['args'] ?? []
                             );
 
@@ -440,9 +438,7 @@ class Sentience
     protected function cliNotFound(Argv $argv): void
     {
         $lines = array_map(
-            function (Command $command): string {
-                return sprintf('- %s', $command->command);
-            },
+            fn(Command $command): string => sprintf('- %s', $command->command),
             $this->cliRouter->commands
         );
 

@@ -1,17 +1,19 @@
 <?php
 
-namespace sentience\Database\queries;
+declare(strict_types=1);
 
-use sentience\Database\queries\objects\AddColumn;
-use sentience\Database\queries\objects\AddForeignKeyConstraint;
-use sentience\Database\queries\objects\AddPrimaryKeys;
-use sentience\Database\queries\objects\AddUniqueConstraint;
-use sentience\Database\queries\objects\AlterColumn;
-use sentience\Database\queries\objects\DropColumn;
-use sentience\Database\queries\objects\DropConstraint;
-use sentience\Database\queries\objects\QueryWithParams;
-use sentience\Database\queries\objects\RenameColumn;
-use sentience\Database\queries\traits\Table;
+namespace sentience\Database\Queries;
+
+use sentience\Database\Queries\Objects\AddColumn;
+use sentience\Database\Queries\Objects\AddForeignKeyConstraint;
+use sentience\Database\Queries\Objects\AddPrimaryKeys;
+use sentience\Database\Queries\Objects\AddUniqueConstraint;
+use sentience\Database\Queries\Objects\AlterColumn;
+use sentience\Database\Queries\Objects\DropColumn;
+use sentience\Database\Queries\Objects\DropConstraint;
+use sentience\Database\Queries\Objects\QueryWithParams;
+use sentience\Database\Queries\Objects\RenameColumn;
+use sentience\Database\Queries\Traits\Table;
 
 class AlterTable extends Query
 {

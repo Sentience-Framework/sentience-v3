@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace src\controllers;
 
 use sentience\Abstracts\Controller;
-use sentience\Sentience\Stdio;
 use sentience\Helpers\Filesystem;
 use sentience\Helpers\Terminal;
+use sentience\Sentience\Stdio;
 
 class DevToolsController extends Controller
 {
@@ -17,8 +19,8 @@ class DevToolsController extends Controller
 
         Stdio::errorFLn(
             '%s Development tools %s',
-            str_repeat('=', ceil($equalSigns)),
-            str_repeat('=', floor($equalSigns))
+            str_repeat('=', (int) ceil($equalSigns)),
+            str_repeat('=', (int) floor($equalSigns))
         );
 
         $importRegexPattern = '/^use\s+[^;]+;/m';
@@ -35,12 +37,12 @@ class DevToolsController extends Controller
             }
 
             foreach ($excludedDirectories as $excludedDirectory) {
-                if (str_starts_with($file, $excludedDirectory)) {
+                if (str_starts_with((string) $file, $excludedDirectory)) {
                     continue 2;
                 }
             }
 
-            if (!str_ends_with($file, '.php')) {
+            if (!str_ends_with((string) $file, '.php')) {
                 continue;
             }
 
@@ -103,8 +105,8 @@ class DevToolsController extends Controller
 
         Stdio::errorFLn(
             '%s Development tools %s',
-            str_repeat('=', ceil($equalSigns)),
-            str_repeat('=', floor($equalSigns))
+            str_repeat('=', (int) ceil($equalSigns)),
+            str_repeat('=', (int) floor($equalSigns))
         );
 
         $files = Filesystem::scandir(SENTIENCE_DIR, PHP_INT_MAX);
@@ -119,12 +121,12 @@ class DevToolsController extends Controller
             }
 
             foreach ($excludedDirectories as $excludedDirectory) {
-                if (str_starts_with($file, $excludedDirectory)) {
+                if (str_starts_with((string) $file, $excludedDirectory)) {
                     continue 2;
                 }
             }
 
-            if (!str_ends_with($file, '.php')) {
+            if (!str_ends_with((string) $file, '.php')) {
                 continue;
             }
 
@@ -156,8 +158,8 @@ class DevToolsController extends Controller
 
         Stdio::errorFLn(
             '%s Development tools %s',
-            str_repeat('=', ceil($equalSigns)),
-            str_repeat('=', floor($equalSigns))
+            str_repeat('=', (int) ceil($equalSigns)),
+            str_repeat('=', (int) floor($equalSigns))
         );
 
         $files = Filesystem::scandir(SENTIENCE_DIR, PHP_INT_MAX);
@@ -172,12 +174,12 @@ class DevToolsController extends Controller
             }
 
             foreach ($excludedDirectories as $excludedDirectory) {
-                if (str_starts_with($file, $excludedDirectory)) {
+                if (str_starts_with((string) $file, $excludedDirectory)) {
                     continue 2;
                 }
             }
 
-            if (!str_ends_with($file, '.php')) {
+            if (!str_ends_with((string) $file, '.php')) {
                 continue;
             }
 

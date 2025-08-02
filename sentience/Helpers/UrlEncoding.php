@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace sentience\Helpers;
 
 use sentience\Exceptions\UrlEncodingException;
@@ -37,7 +39,7 @@ class UrlEncoding
             $encoded[] = sprintf(
                 '%s=%s',
                 urlencode($key),
-                urlencode($value)
+                urlencode((string) $value)
             );
         }
 
@@ -72,9 +74,7 @@ class UrlEncoding
 
         if ($unique) {
             return array_map(
-                function (array $values): mixed {
-                    return end($values);
-                },
+                fn(array $values): mixed => end($values),
                 $decoded
             );
         }

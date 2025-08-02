@@ -1,13 +1,12 @@
 <?php
 
-namespace sentience\Database\queries\objects;
+declare(strict_types=1);
+
+namespace sentience\Database\Queries\Objects;
 
 class DropConstraint
 {
-    public string $constraint;
-
-    public function __construct(string $constraint)
+    public function __construct(public string $constraint)
     {
-        $this->constraint = $constraint;
     }
 }

@@ -1,21 +1,12 @@
 <?php
 
-namespace sentience\Database\queries\objects;
+declare(strict_types=1);
+
+namespace sentience\Database\Queries\Objects;
 
 class Column
 {
-    public string $name;
-    public string $type;
-    public bool $notNull;
-    public mixed $defaultValue;
-    public bool $autoIncrement;
-
-    public function __construct(string $name, string $type, bool $notNull = false, mixed $defaultValue = null, bool $autoIncrement = false)
+    public function __construct(public string $name, public string $type, public bool $notNull = false, public mixed $defaultValue = null, public bool $autoIncrement = false)
     {
-        $this->name = $name;
-        $this->type = $type;
-        $this->notNull = $notNull;
-        $this->defaultValue = $defaultValue;
-        $this->autoIncrement = $autoIncrement;
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 $database->update()
     ->table('table_1')
     ->values([

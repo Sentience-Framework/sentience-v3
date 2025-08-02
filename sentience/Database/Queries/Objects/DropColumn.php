@@ -1,13 +1,12 @@
 <?php
 
-namespace sentience\Database\queries\objects;
+declare(strict_types=1);
+
+namespace sentience\Database\Queries\Objects;
 
 class DropColumn
 {
-    public string $column;
-
-    public function __construct(string $column)
+    public function __construct(public string $column)
     {
-        $this->column = $column;
     }
 }

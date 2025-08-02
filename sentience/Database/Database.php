@@ -1,27 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
 namespace sentience\Database;
 
 use Closure;
 use PDO;
 use PDOException;
+use Throwable;
 use sentience\Abstracts\Singleton;
+use sentience\Database\Dialects\DialectFactory;
+use sentience\Database\Dialects\DialectInterface;
+use sentience\Database\Queries\AlterTable;
+use sentience\Database\Queries\CreateTable;
+use sentience\Database\Queries\Delete;
+use sentience\Database\Queries\DropTable;
+use sentience\Database\Queries\Insert;
+use sentience\Database\Queries\Objects\Alias;
+use sentience\Database\Queries\Objects\QueryWithParams;
+use sentience\Database\Queries\Objects\Raw;
+use sentience\Database\Queries\Select;
+use sentience\Database\Queries\Update;
 use sentience\Exceptions\DatabaseException;
 use sentience\Helpers\Strings;
 use sentience\Sentience\Sentience;
-use Throwable;
-use sentience\Database\dialects\DialectFactory;
-use sentience\Database\dialects\DialectInterface;
-use sentience\Database\queries\AlterTable;
-use sentience\Database\queries\CreateTable;
-use sentience\Database\queries\Delete;
-use sentience\Database\queries\DropTable;
-use sentience\Database\queries\Insert;
-use sentience\Database\queries\objects\Alias;
-use sentience\Database\queries\objects\QueryWithParams;
-use sentience\Database\queries\objects\Raw;
-use sentience\Database\queries\Select;
-use sentience\Database\queries\Update;
 
 class Database extends Singleton
 {
@@ -82,24 +84,22 @@ class Database extends Singleton
             if (method_exists($this->pdo, 'sqliteCreateFunction')) {
                 $this->pdo->sqliteCreateFunction(
                     'REGEXP',
-                    function (string $pattern, string $value): bool {
-                        return preg_match(
-                            sprintf(
-                                '/%s/u',
-                                Strings::escapeChars($pattern, ['/'])
-                            ),
-                            $value
-                        );
-                    },
+                    fn(string $pattern, string $value): bool => preg_match(
+                        sprintf(
+                            '/%s/u',
+                            Strings::escapeChars($pattern, ['/'])
+                        ),
+                        $value
+                    ),
                     2
                 );
             }
         }
 
-        $this->dialect = DialectFactory::fromDriver($driver);
+        $this->dialect = DialectFactory::fromPDODriver($driver);
     }
 
-    public function unsafe(string $query): int
+    public function exec(string $query): int
     {
         $startTime = microtime(true);
 
@@ -122,7 +122,7 @@ class Database extends Singleton
         return $affected;
     }
 
-    public function safe(string $query, array $params = []): Results
+    public function prepared(string $query, array $params = []): Results
     {
         $queryWithParams = new QueryWithParams($query, $params);
 
@@ -233,7 +233,7 @@ class Database extends Singleton
     {
         $lastInsertId = $this->pdo->lastInsertId($sequence);
 
-        if (!$lastInsertId) {
+        if (is_bool($lastInsertId)) {
             return null;
         }
 

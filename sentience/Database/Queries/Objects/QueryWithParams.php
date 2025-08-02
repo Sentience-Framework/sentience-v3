@@ -1,20 +1,17 @@
 <?php
 
-namespace sentience\Database\queries\objects;
+declare(strict_types=1);
 
-use sentience\Database\dialects\DialectInterface;
+namespace sentience\Database\Queries\Objects;
+
+use sentience\Database\Dialects\DialectInterface;
 use sentience\Exceptions\RawQueryException;
 use src\exceptions\QueryException;
 
 class QueryWithParams
 {
-    public string $expression;
-    public array $params;
-
-    public function __construct(string $expression, array $params = [])
+    public function __construct(public string $expression, public array $params = [])
     {
-        $this->expression = $expression;
-        $this->params = $params;
     }
 
     public function toRawQuery(DialectInterface $dialect): string
@@ -24,9 +21,7 @@ class QueryWithParams
         }
 
         $params = array_map(
-            function (mixed $param) use ($dialect): mixed {
-                return $dialect->castToQuery($param);
-            },
+            fn(mixed $param): mixed => $dialect->castToQuery($param),
             $this->params
         );
 

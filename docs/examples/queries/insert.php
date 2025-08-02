@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 $database->insert()
     ->table(Query::alias('table_1', 'table1'))
     ->values([

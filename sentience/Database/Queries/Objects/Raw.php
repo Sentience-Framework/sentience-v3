@@ -1,13 +1,12 @@
 <?php
 
-namespace sentience\Database\queries\objects;
+declare(strict_types=1);
+
+namespace sentience\Database\Queries\Objects;
 
 class Raw
 {
-    public string $expression;
-
-    public function __construct(string $expression)
+    public function __construct(public string $expression)
     {
-        $this->expression = $expression;
     }
 }

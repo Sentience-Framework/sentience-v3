@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 $database->delete()
     ->table('table_1')
     ->whereBetween('column2', 10, 20)

@@ -1,5 +1,5 @@
 {
-    "name": "uniforcemusic/sentience",
+    "name": "uniforcemusic/sentience-v3",
     "description": "A lightweight api framework for developing back-end applications",
     "authors": [
         {
@@ -11,8 +11,7 @@
             "": "./"
         },
         "files": [
-            "src/functions/sentience.php",
-            "src/functions/custom.php"
+            "sentience/Helpers/Functions.php"
         ]
     },
     "require": {

@@ -1,9 +1,11 @@
 <?php
 
-namespace sentience\Database\dialects;
+declare(strict_types=1);
+
+namespace sentience\Database\Dialects;
 
 use DateTime;
-use sentience\Database\queries\objects\Raw;
+use sentience\Database\Queries\Objects\Raw;
 
 class Pgsql extends Sql implements DialectInterface
 {
@@ -23,9 +25,7 @@ class Pgsql extends Sql implements DialectInterface
                 implode(
                     ', ',
                     array_map(
-                        function (string $column): string {
-                            return $this->escapeIdentifier($column);
-                        },
+                        fn(string $column): string => $this->escapeIdentifier($column),
                         $conflict
                     )
                 )

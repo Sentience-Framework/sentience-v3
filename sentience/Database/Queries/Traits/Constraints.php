@@ -1,9 +1,11 @@
 <?php
 
-namespace sentience\Database\queries\traits;
+declare(strict_types=1);
 
-use sentience\Database\queries\objects\ForeignKeyConstraint;
-use sentience\Database\queries\objects\UniqueConstraint;
+namespace sentience\Database\Queries\Traits;
+
+use sentience\Database\Queries\Objects\ForeignKeyConstraint;
+use sentience\Database\Queries\Objects\UniqueConstraint;
 
 trait Constraints
 {

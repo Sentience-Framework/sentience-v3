@@ -1,13 +1,15 @@
 <?php
 
-namespace sentience\Database\queries;
+declare(strict_types=1);
 
-use sentience\Database\queries\objects\QueryWithParams;
-use sentience\Database\queries\traits\Limit;
-use sentience\Database\queries\traits\Returning;
-use sentience\Database\queries\traits\Table;
-use sentience\Database\queries\traits\Values;
-use sentience\Database\queries\traits\Where;
+namespace sentience\Database\Queries;
+
+use sentience\Database\Queries\Objects\QueryWithParams;
+use sentience\Database\Queries\Traits\Limit;
+use sentience\Database\Queries\Traits\Returning;
+use sentience\Database\Queries\Traits\Table;
+use sentience\Database\Queries\Traits\Values;
+use sentience\Database\Queries\Traits\Where;
 
 class Update extends Query
 {

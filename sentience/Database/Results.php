@@ -1,10 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace sentience\Database;
 
 use PDO;
 use PDOStatement;
-use sentience\Database\dialects\DialectInterface;
 
 class Results
 {

@@ -1,26 +1,28 @@
 <?php
 
-namespace sentience\Database\dialects;
+declare(strict_types=1);
+
+namespace sentience\Database\Dialects;
 
 use DateTime;
-use sentience\Database\queries\enums\WhereType;
-use sentience\Database\queries\objects\AddColumn;
-use sentience\Database\queries\objects\AddForeignKeyConstraint;
-use sentience\Database\queries\objects\AddPrimaryKeys;
-use sentience\Database\queries\objects\AddUniqueConstraint;
-use sentience\Database\queries\objects\Alias;
-use sentience\Database\queries\objects\AlterColumn;
-use sentience\Database\queries\objects\Column;
-use sentience\Database\queries\objects\Condition;
-use sentience\Database\queries\objects\ConditionGroup;
-use sentience\Database\queries\objects\DropColumn;
-use sentience\Database\queries\objects\DropConstraint;
-use sentience\Database\queries\objects\ForeignKeyConstraint;
-use sentience\Database\queries\objects\OrderBy;
-use sentience\Database\queries\objects\QueryWithParams;
-use sentience\Database\queries\objects\Raw;
-use sentience\Database\queries\objects\RenameColumn;
-use sentience\Database\queries\objects\UniqueConstraint;
+use sentience\Database\Queries\Enums\WhereType;
+use sentience\Database\Queries\Objects\AddColumn;
+use sentience\Database\Queries\Objects\AddForeignKeyConstraint;
+use sentience\Database\Queries\Objects\AddPrimaryKeys;
+use sentience\Database\Queries\Objects\AddUniqueConstraint;
+use sentience\Database\Queries\Objects\Alias;
+use sentience\Database\Queries\Objects\AlterColumn;
+use sentience\Database\Queries\Objects\Column;
+use sentience\Database\Queries\Objects\Condition;
+use sentience\Database\Queries\Objects\ConditionGroup;
+use sentience\Database\Queries\Objects\DropColumn;
+use sentience\Database\Queries\Objects\DropConstraint;
+use sentience\Database\Queries\Objects\ForeignKeyConstraint;
+use sentience\Database\Queries\Objects\OrderBy;
+use sentience\Database\Queries\Objects\QueryWithParams;
+use sentience\Database\Queries\Objects\Raw;
+use sentience\Database\Queries\Objects\RenameColumn;
+use sentience\Database\Queries\Objects\UniqueConstraint;
 use sentience\Exceptions\QueryException;
 use sentience\Helpers\Strings;
 
@@ -265,9 +267,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    function (string|Raw $column): string {
-                        return $this->escapeIdentifier($column);
-                    },
+                    fn(string|Raw $column): string => $this->escapeIdentifier($column),
                     $config['primaryKeys']
                 )
             )
@@ -564,9 +564,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    function (string|array|Raw $column): string {
-                        return $this->escapeIdentifier($column);
-                    },
+                    fn(string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $groupBy
                 )
             )
@@ -595,13 +593,11 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    function (OrderBy $orderBy): string {
-                        return sprintf(
-                            '%s %s',
-                            $this->escapeIdentifier($orderBy->column),
-                            $orderBy->direction->value
-                        );
-                    },
+                    fn(OrderBy $orderBy): string => sprintf(
+                        '%s %s',
+                        $this->escapeIdentifier($orderBy->column),
+                        $orderBy->direction->value
+                    ),
                     $orderBy
                 )
             )
@@ -650,9 +646,7 @@ class Sql implements DialectInterface
             : implode(
                 ', ',
                 array_map(
-                    function (string $column): string {
-                        return $this->escapeIdentifier($column);
-                    },
+                    fn(string $column): string => $this->escapeIdentifier($column),
                     $returning
                 )
             );
@@ -690,9 +684,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    function (string $column): string {
-                        return $this->escapeIdentifier($column);
-                    },
+                    fn(string $column): string => $this->escapeIdentifier($column),
                     $uniqueConstraint->columns
                 )
             )
@@ -770,9 +762,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    function (string|array|Raw $column): string {
-                        return $this->escapeIdentifier($column);
-                    },
+                    fn(string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $addPrimaryKeys->columns
                 )
             )
@@ -824,9 +814,7 @@ class Sql implements DialectInterface
             ? implode(
                 '.',
                 array_map(
-                    function (string|Raw $identifier): string {
-                        return $this->escapeIdentifier($identifier);
-                    },
+                    fn(string|Raw $identifier): string => $this->escapeIdentifier($identifier),
                     $identifier
                 )
             )

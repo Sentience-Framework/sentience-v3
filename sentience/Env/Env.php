@@ -1,20 +1,27 @@
 <?php
 
-namespace sentience\Environment;
+declare(strict_types=1);
+
+namespace sentience\Env;
 
 use sentience\Exceptions\DotEnvException;
 
-class Environment
+class Env
 {
-    protected array $env = [];
+    protected static array $env = [];
 
-    public static function get(string $key, mixed $default): mixed
+    public static function get(string $key, mixed $default = null): mixed
     {
         if (!array_key_exists($key, self::$env)) {
             return $default;
         }
 
         return self::$env[$key];
+    }
+
+    public static function set(string $key, mixed $value): mixed
+    {
+        return self::$env[$key] = $value;
     }
 
     public static function loadEnv(?callable $parseValue = null): void
@@ -134,9 +141,7 @@ class Environment
         }
 
         return array_map(
-            function (string $value) use ($parsedVariables): mixed {
-                return static::parseVariable($value, $parsedVariables);
-            },
+            fn(string $value): mixed => static::parseVariable($value, $parsedVariables),
             $matches[0]
         );
     }

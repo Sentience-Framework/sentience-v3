@@ -1,13 +1,12 @@
 <?php
 
-namespace sentience\Database\queries\objects;
+declare(strict_types=1);
+
+namespace sentience\Database\Queries\Objects;
 
 class AddPrimaryKeys
 {
-    public array $columns;
-
-    public function __construct(array $columns)
+    public function __construct(public array $columns)
     {
-        $this->columns = $columns;
     }
 }

@@ -1,12 +1,12 @@
 <?php
 
+use sentience\Routers\Route;
+use sentience\Routers\RouteGroup;
+use sentience\Sentience\Request;
+use sentience\Sentience\Response;
 use src\controllers\ExampleController;
 use src\middleware\CORSMiddleware;
 use src\middleware\ExampleMiddleware;
-use src\routers\Route;
-use src\routers\RouteGroup;
-use sentience\Sentience\Request;
-use sentience\Sentience\Response;
 
 return [
     Route::register(
@@ -43,7 +43,7 @@ return [
                 )
         ),
 
-    Route::register('/{country}-{language}', function (Request $request): void {
-        Response::ok($request->pathVars);
+    Route::register('/{country}-{language}', function (Request $request, ...$pathVars): void {
+        Response::ok($pathVars);
     })
 ];

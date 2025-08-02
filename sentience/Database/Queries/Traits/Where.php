@@ -1,13 +1,15 @@
 <?php
 
-namespace sentience\Database\queries\traits;
+declare(strict_types=1);
+
+namespace sentience\Database\Queries\Traits;
 
 use DateTime;
-use sentience\Database\queries\enums\Chain;
-use sentience\Database\queries\enums\WhereType;
-use sentience\Database\queries\objects\Condition;
-use sentience\Database\queries\objects\ConditionGroup;
-use sentience\Database\queries\Query;
+use sentience\Database\Queries\Enums\Chain;
+use sentience\Database\Queries\Enums\WhereType;
+use sentience\Database\Queries\Objects\Condition;
+use sentience\Database\Queries\Objects\ConditionGroup;
+use sentience\Database\Queries\Query;
 use sentience\Exceptions\QueryException;
 use sentience\Helpers\Reflector;
 
@@ -384,12 +386,10 @@ trait Where
     protected function empty(string|array $column, Chain $chain): static
     {
         return $this->group(
-            function (ConditionGroup $conditionGroup) use ($column): ConditionGroup {
-                return $conditionGroup
-                    ->orWhereIsNull($column)
-                    ->orWhereEquals($column, 0)
-                    ->orWhereEquals($column, '');
-            },
+            fn(ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup
+                ->orWhereIsNull($column)
+                ->orWhereEquals($column, 0)
+                ->orWhereEquals($column, ''),
             $chain
         );
     }
@@ -397,12 +397,10 @@ trait Where
     protected function notEmpty(string|array $column, Chain $chain): static
     {
         return $this->group(
-            function (ConditionGroup $conditionGroup) use ($column): ConditionGroup {
-                return $conditionGroup
-                    ->whereIsNotNull($column)
-                    ->whereNotEquals($column, 0)
-                    ->whereNotEquals($column, '');
-            },
+            fn(ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup
+                ->whereIsNotNull($column)
+                ->whereNotEquals($column, 0)
+                ->whereNotEquals($column, ''),
             $chain
         );
     }

@@ -1,12 +1,14 @@
 <?php
 
-namespace sentience\Database\queries;
+declare(strict_types=1);
 
-use sentience\Database\queries\objects\Column;
-use sentience\Database\queries\objects\QueryWithParams;
-use sentience\Database\queries\traits\Constraints;
-use sentience\Database\queries\traits\IfNotExists;
-use sentience\Database\queries\traits\Table;
+namespace sentience\Database\Queries;
+
+use sentience\Database\Queries\Objects\Column;
+use sentience\Database\Queries\Objects\QueryWithParams;
+use sentience\Database\Queries\Traits\Constraints;
+use sentience\Database\Queries\Traits\IfNotExists;
+use sentience\Database\Queries\Traits\Table;
 
 class CreateTable extends Query
 {

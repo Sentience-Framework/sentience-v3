@@ -1,6 +1,8 @@
 <?php
 
-namespace sentience\Database\dialects;
+declare(strict_types=1);
+
+namespace sentience\Database\Dialects;
 
 use PDO;
 use sentience\Database\Database;
@@ -11,12 +13,12 @@ class DialectFactory
     public const PDO_DRIVER_PGSQL = 'pgsql';
     public const PDO_DRIVER_SQLITE = 'sqlite';
 
-    public static function fromDatabase(Database $database): DialectInterface
+    public static function fromDatabase(): DialectInterface
     {
-        return static::fromDriver($database->getPDOAttribute(PDO::ATTR_DRIVER_NAME));
+        return static::fromPDODriver(Database::getInstance()->getPDOAttribute(PDO::ATTR_DRIVER_NAME));
     }
 
-    public static function fromDriver(string $driver): DialectInterface
+    public static function fromPDODriver(string $driver): DialectInterface
     {
         return match ($driver) {
             static::PDO_DRIVER_MYSQL => new Mysql(),

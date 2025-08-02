@@ -1,10 +1,12 @@
 <?php
 
-namespace sentience\Database\queries;
+declare(strict_types=1);
 
-use sentience\Database\queries\objects\QueryWithParams;
-use sentience\Database\queries\traits\IfExists;
-use sentience\Database\queries\traits\Table;
+namespace sentience\Database\Queries;
+
+use sentience\Database\Queries\Objects\QueryWithParams;
+use sentience\Database\Queries\Traits\IfExists;
+use sentience\Database\Queries\Traits\Table;
 
 class DropTable extends Query
 {

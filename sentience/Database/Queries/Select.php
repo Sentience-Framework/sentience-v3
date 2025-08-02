@@ -1,19 +1,21 @@
 <?php
 
-namespace sentience\Database\queries;
+declare(strict_types=1);
 
-use sentience\Database\queries\objects\QueryWithParams;
-use sentience\Database\queries\objects\Raw;
-use sentience\Database\queries\traits\Columns;
-use sentience\Database\queries\traits\Distinct;
-use sentience\Database\queries\traits\GroupBy;
-use sentience\Database\queries\traits\Having;
-use sentience\Database\queries\traits\Joins;
-use sentience\Database\queries\traits\Limit;
-use sentience\Database\queries\traits\Offset;
-use sentience\Database\queries\traits\OrderBy;
-use sentience\Database\queries\traits\Table;
-use sentience\Database\queries\traits\Where;
+namespace sentience\Database\Queries;
+
+use sentience\Database\Queries\Objects\QueryWithParams;
+use sentience\Database\Queries\Objects\Raw;
+use sentience\Database\Queries\Traits\Columns;
+use sentience\Database\Queries\Traits\Distinct;
+use sentience\Database\Queries\Traits\GroupBy;
+use sentience\Database\Queries\Traits\Having;
+use sentience\Database\Queries\Traits\Joins;
+use sentience\Database\Queries\Traits\Limit;
+use sentience\Database\Queries\Traits\Offset;
+use sentience\Database\Queries\Traits\OrderBy;
+use sentience\Database\Queries\Traits\Table;
+use sentience\Database\Queries\Traits\Where;
 
 class Select extends Query
 {

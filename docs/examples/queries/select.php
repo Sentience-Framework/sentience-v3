@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 $database->select()
     ->table(Query::alias(['public', 'table_1'], 'table1'))
     ->distinct()
@@ -36,15 +38,11 @@ $database->select()
     )
     ->join('LEFT JOIN (RAW)table2 jt ON jt.column1 = table1 AND jt.column2 = table2')
     ->whereEquals('column1', 10)
-    ->whereGroup(function ($group) {
-        return $group->whereGreaterThanOrEquals('column2', 20)
-            ->orwhereIsNull('column3');
-    })
+    ->whereGroup(fn($group) => $group->whereGreaterThanOrEquals('column2', 20)
+        ->orwhereIsNull('column3'))
     ->where('DATE(`created_at`) > now()')
-    ->whereGroup(function ($group) {
-        return $group->whereIn('column4', [1, 2, 3, 4])
-            ->whereNotEquals('column5', 'test string');
-    })
+    ->whereGroup(fn($group) => $group->whereIn('column4', [1, 2, 3, 4])
+        ->whereNotEquals('column5', 'test string'))
     ->whereIn('column2', [])
     ->whereNotIn('column2', [])
     ->whereStartsWith('column2', 'a')
