@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace sentience\Sentience;
 
 use ReflectionFunctionAbstract;
+use sentience\Abstracts\Singleton;
 use sentience\Exceptions\DependencyInjectionException;
+use sentience\Helpers\Reflector;
 
 class DependencyInjector
 {
@@ -34,6 +36,7 @@ class DependencyInjector
 
         foreach ($functionParameters as $functionParameter) {
             $name = $functionParameter->getName();
+            $type = (string) $functionParameter->getType();
 
             if (array_key_exists($name, $injectables)) {
                 $parameters[$name] = $injectables[$name];
@@ -71,6 +74,12 @@ class DependencyInjector
                 continue;
             }
 
+            if ($this->isInjectable($type)) {
+                $parameters[$name] = $type::getInstance();
+
+                continue;
+            }
+
             if ($functionParameter->allowsNull()) {
                 $parameters[$name] = null;
 
@@ -81,5 +90,14 @@ class DependencyInjector
         }
 
         return $parameters;
+    }
+
+    protected function isInjectable(string $class): bool
+    {
+        if (!class_exists($class)) {
+            return false;
+        }
+
+        return Reflector::isSubClassOf($class, Singleton::class);
     }
 }

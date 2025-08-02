@@ -12,25 +12,21 @@ class Json
     {
         $json = json_encode($value, $flags, $depth);
 
-        $error = json_last_error_msg();
-
-        if ($error == 'No error') {
+        if (json_last_error() == JSON_ERROR_NONE) {
             return $json;
         }
 
-        throw new JsonException($error);
+        throw new JsonException(json_last_error_msg());
     }
 
     public static function decode(string $json, bool $associative = true, int $depth = 512, int $flags = 0): mixed
     {
         $value = json_decode($json, $associative, $depth, $flags);
 
-        $error = json_last_error_msg();
-
-        if ($error == 'No error') {
+        if (json_last_error() == JSON_ERROR_NONE) {
             return $value;
         }
 
-        throw new JsonException($error);
+        throw new JsonException(json_last_error_msg());
     }
 }

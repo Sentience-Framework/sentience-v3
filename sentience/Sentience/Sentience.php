@@ -32,13 +32,13 @@ class Sentience
     protected ?Closure $handleFatalError = null;
     protected ?Closure $handleThrowable = null;
 
-    public static function logStdout(string $message, array $lines): void
+    public static function log(string $message, array $lines): void
     {
         $terminalWidth = Terminal::getWidth();
 
         $equalSigns = ($terminalWidth - strlen($message)) / 2 - 1;
 
-        Stdio::printFLn(
+        Stdio::errorFLn(
             '%s %s %s',
             str_repeat('=', (int) ceil($equalSigns)),
             $message,
@@ -46,35 +46,10 @@ class Sentience
         );
 
         foreach ($lines as $line) {
-            Stdio::printLn($line);
+            Stdio::errorLn($line);
         }
 
-        Stdio::printLn(str_repeat('=', $terminalWidth));
-    }
-
-    public static function logStderr(string $message, array $lines): void
-    {
-        try {
-            $terminalWidth = Terminal::getWidth();
-
-            $equalSigns = ($terminalWidth - strlen($message)) / 2 - 1;
-
-            Stdio::errorFLn(
-                '%s %s %s',
-                str_repeat('=', (int) ceil($equalSigns)),
-                $message,
-                str_repeat('=', (int) floor($equalSigns))
-            );
-
-            foreach ($lines as $line) {
-                Stdio::errorLn($line);
-            }
-
-            Stdio::errorLn(str_repeat('=', $terminalWidth));
-        } catch (\Throwable $th) {
-            echo $th->getMessage();
-        }
-
+        Stdio::errorLn(str_repeat('=', $terminalWidth));
     }
 
     public function __construct()
@@ -377,7 +352,7 @@ class Sentience
             }
         }
 
-        static::logStderr('Exception', $lines);
+        static::log('Exception', $lines);
 
         exit;
     }
@@ -442,7 +417,7 @@ class Sentience
             $this->cliRouter->commands
         );
 
-        static::logStderr('Command not found', $lines);
+        static::log('Command not found', $lines);
 
         exit;
     }

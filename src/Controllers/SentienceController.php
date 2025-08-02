@@ -8,7 +8,7 @@ use Throwable;
 use sentience\Abstracts\Controller;
 use sentience\Database\Database;
 use sentience\Database\Queries\Query;
-use sentience\Env\Env;
+use sentience\Environment\Environment;
 use sentience\Exceptions\BuiltInWebServerException;
 use sentience\Exceptions\MigrationException;
 use sentience\Exceptions\TerminalException;
@@ -529,8 +529,8 @@ class SentienceController extends Controller
         $dotEnvFilepath = Filesystem::path(SENTIENCE_DIR, $dotEnv);
         $dotEnvExampleFilepath = Filesystem::path(SENTIENCE_DIR, $dotEnvExample);
 
-        $dotEnvVariables = Env::parseFileRaw($dotEnvFilepath);
-        $dotEnvExampleVariables = Env::parseFileRaw($dotEnvExampleFilepath);
+        $dotEnvVariables = Environment::parseFileRaw($dotEnvFilepath);
+        $dotEnvExampleVariables = Environment::parseFileRaw($dotEnvExampleFilepath);
 
         $missingVariables = [];
 

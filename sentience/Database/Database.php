@@ -28,31 +28,14 @@ use sentience\Sentience\Sentience;
 class Database extends Singleton
 {
     protected string $dsn;
-    protected ?Closure $debug;
+    protected bool $debug;
     protected PDO $pdo;
     public DialectInterface $dialect;
 
     protected static function createInstance(): static
     {
-        $debug = env('DB_DEBUG', false)
-            ? function (string $query, float $startTime, ?string $error = null): void {
-                $endTime = microtime(true);
-
-                $lines = [
-                    sprintf('Timestamp : %s', date('Y-m-d H:i:s')),
-                    sprintf('Query     : %s', $query),
-                    sprintf('Time      : %.2f ms', ($endTime - $startTime) * 1000)
-                ];
-
-                if ($error) {
-                    $lines[] = sprintf('Error     : %s', $error);
-                }
-
-                Sentience::logStderr('Query', $lines);
-            }
-            : null;
-
         $dsn = env('DB_DSN');
+        $debug = env('DB_DEBUG');
 
         if (!$dsn) {
             throw new DatabaseException('no DB_DSN defined in environment', $dsn);
@@ -61,12 +44,13 @@ class Database extends Singleton
         return new static($dsn, $debug);
     }
 
-    public function __construct(string $dsn, ?callable $debug = null, ?string $username = null, ?string $password = null)
+    public function __construct(string $dsn, bool $debug, ?string $username = null, ?string $password = null, array $options = [])
     {
         $options = [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
             PDO::ATTR_EMULATE_PREPARES => false,
-            PDO::ATTR_STRINGIFY_FETCHES => false
+            PDO::ATTR_STRINGIFY_FETCHES => false,
+            ...$options
         ];
 
         $this->debug = $debug;
@@ -108,16 +92,12 @@ class Database extends Singleton
         if (is_bool($affected)) {
             $error = implode(' ', $this->pdo->errorInfo());
 
-            if ($this->debug) {
-                ($this->debug)($query, $startTime, $error);
-            }
+            $this->debug($query, $startTime, $error);
 
             throw new PDOException($error);
         }
 
-        if ($this->debug) {
-            ($this->debug)($query, $startTime);
-        }
+        $this->debug($query, $startTime);
 
         return $affected;
     }
@@ -135,9 +115,7 @@ class Database extends Singleton
         if (is_bool($pdoStatement)) {
             $error = implode(' ', $this->pdo->errorInfo());
 
-            if ($this->debug) {
-                ($this->debug)($rawQuery, $startTime, $error);
-            }
+            $this->debug($rawQuery, $startTime, $error);
 
             throw new PDOException($error);
         }
@@ -164,16 +142,12 @@ class Database extends Singleton
         if (!$success) {
             $error = implode(' ', $pdoStatement->errorInfo());
 
-            if ($this->debug) {
-                ($this->debug)($rawQuery, $startTime, $error);
-            }
+            $this->debug($rawQuery, $startTime, $error);
 
             throw new PDOException($error);
         }
 
-        if ($this->debug) {
-            ($this->debug)($rawQuery, $startTime);
-        }
+        $this->debug($rawQuery, $startTime);
 
         return new Results($pdoStatement, $rawQuery);
     }
@@ -325,5 +299,26 @@ class Database extends Singleton
         }
 
         return $query;
+    }
+
+    protected function debug(string $query, float $startTime, ?string $error = null): void
+    {
+        if (!$this->debug) {
+            return;
+        }
+
+        $endTime = microtime(true);
+
+        $lines = [
+            sprintf('Timestamp : %s', date('Y-m-d H:i:s')),
+            sprintf('Query     : %s', $query),
+            sprintf('Time      : %.2f ms', ($endTime - $startTime) * 1000)
+        ];
+
+        if ($error) {
+            $lines[] = sprintf('Error     : %s', $error);
+        }
+
+        Sentience::log('Query', $lines);
     }
 }

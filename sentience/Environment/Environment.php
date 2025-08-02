@@ -2,26 +2,26 @@
 
 declare(strict_types=1);
 
-namespace sentience\Env;
+namespace sentience\Environment;
 
 use sentience\Exceptions\DotEnvException;
 
-class Env
+class Environment
 {
     protected static array $env = [];
 
     public static function get(string $key, mixed $default = null): mixed
     {
-        if (!array_key_exists($key, self::$env)) {
+        if (!array_key_exists($key, static::$env)) {
             return $default;
         }
 
-        return self::$env[$key];
+        return static::$env[$key];
     }
 
     public static function set(string $key, mixed $value): mixed
     {
-        return self::$env[$key] = $value;
+        return static::$env[$key] = $value;
     }
 
     public static function loadEnv(?callable $parseValue = null): void
@@ -29,7 +29,7 @@ class Env
         $env = getenv();
 
         foreach ($env as $key => $value) {
-            self::$env[$key] = $parseValue ? $parseValue($value, $key) : $value;
+            static::$env[$key] = $parseValue ? $parseValue($value, $key) : $value;
         }
     }
 
@@ -39,13 +39,13 @@ class Env
             $filepath,
             $exampleFilepath,
             [
-                ...self::$env,
-                $variables
+                ...static::$env,
+                ...$variables
             ]
         );
 
         foreach ($parsedVariables as $key => $value) {
-            self::$env[$key] = $value;
+            static::$env[$key] = $value;
         }
     }
 

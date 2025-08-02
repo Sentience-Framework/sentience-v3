@@ -11,10 +11,10 @@ abstract class Singleton
     public static function getInstance(): static
     {
         if (!static::$instance) {
-            self::$instance = static::createInstance();
+            static::$instance = static::createInstance();
         }
 
-        return self::$instance;
+        return static::$instance;
     }
 
     protected static function createInstance(): static

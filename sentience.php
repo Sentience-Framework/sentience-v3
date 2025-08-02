@@ -1,6 +1,6 @@
 <?php
 
-use sentience\Env\Env;
+use sentience\Environment\Environment;
 use sentience\Helpers\Filesystem;
 use sentience\Sentience\Sentience;
 
@@ -8,8 +8,8 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 define('SENTIENCE_DIR', __DIR__);
 
-Env::loadEnv();
-Env::loadFile(
+Environment::loadEnv();
+Environment::loadFile(
     Filesystem::path(SENTIENCE_DIR, '.env'),
     Filesystem::path(SENTIENCE_DIR, '.env.example'),
     ['SENTIENCE_DIR' => SENTIENCE_DIR]

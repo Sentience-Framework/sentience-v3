@@ -126,15 +126,15 @@ class Terminal
 
     public static function getWidth(): int
     {
-        if (self::$width) {
-            return self::$width;
+        if (static::$width) {
+            return static::$width;
         }
 
         $width = PHP_OS_FAMILY == 'Windows'
             ? static::getWidthCommandPrompt()
             : static::getWidthTerminal();
 
-        self::$width = $width;
+        static::$width = $width;
 
         return $width;
     }
