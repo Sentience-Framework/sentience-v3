@@ -1,11 +1,11 @@
 <?php
 
+use sentience\Routers\Command;
 use src\controllers\DevToolsController;
 use src\controllers\ExampleController;
 use src\controllers\MigrationController;
 use src\controllers\ModelController;
 use src\controllers\SentienceController;
-use src\routers\Command;
 
 return [
     Command::register(
