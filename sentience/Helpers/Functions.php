@@ -3,8 +3,6 @@
 declare(strict_types=1);
 
 use sentience\Env\Env;
-use sentience\Helpers\Console;
-use sentience\Sentience\Stdio;
 
 function env(string $key, mixed $default = null): mixed
 {

@@ -18,7 +18,7 @@ Env::loadFile(
 $commands = require Filesystem::path(SENTIENCE_DIR, 'commands.php');
 $routes = require Filesystem::path(SENTIENCE_DIR, 'routes.php');
 
-$sentience = new Sentience();
+$sentience = Sentience::getInstance();
 
 foreach ($commands as $command) {
     $sentience->bindCommand($command);

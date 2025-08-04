@@ -7,7 +7,6 @@ namespace sentience\Sentience;
 use ReflectionFunctionAbstract;
 use ReflectionNamedType;
 use ReflectionParameter;
-use ReflectionUnionType;
 use sentience\Abstracts\Singleton;
 use sentience\Exceptions\DependencyInjectionException;
 use sentience\Helpers\Reflector;
@@ -109,7 +108,7 @@ class DependencyInjector
         return Reflector::isSubClassOf($type, Singleton::class);
     }
 
-    protected function createInjectableInstance(ReflectionParameter $reflectionParameter): bool
+    protected function createInjectableInstance(ReflectionParameter $reflectionParameter): Singleton
     {
         $type = $this->getType($reflectionParameter);
 

@@ -6,15 +6,15 @@ namespace sentience\Abstracts;
 
 abstract class Singleton
 {
-    protected static $instance = null;
+    protected static array $instances = [];
 
     public static function getInstance(): static
     {
-        if (!static::$instance) {
-            static::$instance = static::createInstance();
+        if (!array_key_exists(static::class, static::$instances)) {
+            static::$instances[static::class] = static::createInstance();
         }
 
-        return static::$instance;
+        return static::$instances[static::class];
     }
 
     protected static function createInstance(): static

@@ -130,7 +130,7 @@ class Sentience extends Singleton
 
     protected function executeCli(): void
     {
-        $argv = new Argv();
+        $argv = Argv::getInstance();
 
         [$command, $words, $flags] = $this->cliRouter->match($argv);
 

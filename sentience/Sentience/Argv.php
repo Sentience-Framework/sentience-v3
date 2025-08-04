@@ -4,22 +4,25 @@ declare(strict_types=1);
 
 namespace sentience\Sentience;
 
-class Argv
-{
-    public string $file;
-    public string $command;
-    public array $args;
+use sentience\Abstracts\Singleton;
 
-    public function __construct()
+class Argv extends Singleton
+{
+    protected static function createInstance(): static
     {
         $argv = $GLOBALS['argv'];
 
-        $this->file = $argv[0];
+        $file = $argv[0];
+        $command = $argv[1] ?? '';
+        $args = array_slice($argv, 2);
 
-        $this->command = $argv[1] ?? '';
+        return new static($file, $command, $args);
+    }
 
-        $this->args = count($argv) > 2
-            ? array_slice($argv, 2)
-            : [];
+    public function __construct(
+        public string $file,
+        public string $command,
+        public array $args
+    ) {
     }
 }
