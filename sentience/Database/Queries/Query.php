@@ -9,6 +9,7 @@ use Throwable;
 use sentience\Database\Database;
 use sentience\Database\Dialects\DialectInterface;
 use sentience\Database\Queries\Objects\Alias;
+use sentience\Database\Queries\Objects\QueryWithParams;
 use sentience\Database\Queries\Objects\Raw;
 use sentience\Database\Queries\Objects\TableWithColumn;
 use sentience\Database\Results;
@@ -23,15 +24,9 @@ abstract class Query implements QueryInterface
     {
     }
 
-    public function execute(): ?Results
+    public function execute(): array|Results
     {
         $queryWithParams = $this->build();
-
-        if (preg_match('/^CREATE|ALTER|DROP/', $queryWithParams->expression)) {
-            $this->database->exec($queryWithParams->expression);
-
-            return null;
-        }
 
         return $this->database->prepared(
             $queryWithParams->expression,
@@ -39,22 +34,18 @@ abstract class Query implements QueryInterface
         );
     }
 
-    public function tryCatch(?callable $handleException = null): ?Results
+    public function toRawQuery(): string|array
     {
-        try {
-            return $this->execute();
-        } catch (Throwable $exception) {
-            if ($handleException) {
-                $handleException($exception);
-            }
+        $build = $this->build();
 
-            return null;
+        if (is_array($build)) {
+            return array_map(
+                fn(QueryWithParams $queryWithParams): string => $queryWithParams->toRawQuery($this->dialect),
+                $build
+            );
         }
-    }
 
-    public function toRawQuery(): string
-    {
-        return $this->build()->toRawQuery($this->dialect);
+        return $build->toRawQuery($this->dialect);
     }
 
     public static function alias(string|array|Raw $name, string $alias): Alias

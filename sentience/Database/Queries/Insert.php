@@ -9,6 +9,7 @@ use sentience\Database\Queries\Traits\OnConflict;
 use sentience\Database\Queries\Traits\Returning;
 use sentience\Database\Queries\Traits\Table;
 use sentience\Database\Queries\Traits\Values;
+use sentience\Database\Results;
 
 class Insert extends Query
 {
@@ -29,5 +30,10 @@ class Insert extends Query
             ],
             'returning' => $this->returning
         ]);
+    }
+
+    public function execute(): Results
+    {
+        return parent::execute();
     }
 }

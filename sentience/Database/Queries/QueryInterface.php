@@ -9,8 +9,7 @@ use sentience\Database\Results;
 
 interface QueryInterface
 {
-    public function build(): QueryWithParams;
-    public function execute(): ?Results;
-    public function tryCatch(): ?Results;
-    public function toRawQuery(): string;
+    public function build(): array|QueryWithParams;
+    public function execute(): array|Results;
+    public function toRawQuery(): string|array;
 }

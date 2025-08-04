@@ -8,6 +8,7 @@ use sentience\Database\Queries\Objects\QueryWithParams;
 use sentience\Database\Queries\Traits\Returning;
 use sentience\Database\Queries\Traits\Table;
 use sentience\Database\Queries\Traits\Where;
+use sentience\Database\Results;
 
 class Delete extends Query
 {
@@ -22,5 +23,10 @@ class Delete extends Query
             'where' => $this->where,
             'returning' => $this->returning
         ]);
+    }
+
+    public function execute(): Results
+    {
+        return parent::execute();
     }
 }

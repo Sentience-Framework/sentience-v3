@@ -15,7 +15,7 @@ interface DialectInterface
     public function update(array $config): QueryWithParams;
     public function delete(array $config): QueryWithParams;
     public function createTable(array $config): QueryWithParams;
-    public function alterTable(array $config): QueryWithParams;
+    public function alterTable(array $config): array;
     public function dropTable(array $config): QueryWithParams;
     public function escapeIdentifier(string|array|Raw $identifier): string;
     public function escapeString(string $string): string;

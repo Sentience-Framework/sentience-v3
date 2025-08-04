@@ -76,7 +76,7 @@ class Response
 
     public static function cookie(string $key, string $value = '', int $expiresOrOptions = 0, string $path = '', string $domain = '', bool $secure = false, bool $httpOnly = false): void
     {
-        setcookie($key, $value, $expiresOrOptions, $path, $domain, $secure, $httpOnly);
+        setcookie($key, $value, ['expires' => $expiresOrOptions, 'path' => $path, 'domain' => $domain, 'secure' => $secure, 'httponly' => $httpOnly]);
     }
 
     public static function ok(mixed $content = null, string $encoding = 'default'): void

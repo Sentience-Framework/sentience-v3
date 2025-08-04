@@ -9,6 +9,7 @@ use sentience\Database\Queries\Objects\QueryWithParams;
 use sentience\Database\Queries\Traits\Constraints;
 use sentience\Database\Queries\Traits\IfNotExists;
 use sentience\Database\Queries\Traits\Table;
+use sentience\Database\Results;
 
 class CreateTable extends Query
 {
@@ -31,6 +32,11 @@ class CreateTable extends Query
                 'foreignKey' => $this->foreignKeyConstraints
             ]
         ]);
+    }
+
+    public function execute(): Results
+    {
+        return parent::execute();
     }
 
     public function column(string $name, string $type, bool $notNull = false, mixed $defaultValue = null, bool $autoIncrement = false): static

@@ -10,6 +10,7 @@ use sentience\Database\Queries\Traits\Returning;
 use sentience\Database\Queries\Traits\Table;
 use sentience\Database\Queries\Traits\Values;
 use sentience\Database\Queries\Traits\Where;
+use sentience\Database\Results;
 
 class Update extends Query
 {
@@ -28,5 +29,10 @@ class Update extends Query
             'limit' => $this->limit,
             'returning' => $this->returning
         ]);
+    }
+
+    public function execute(): Results
+    {
+        return parent::execute();
     }
 }

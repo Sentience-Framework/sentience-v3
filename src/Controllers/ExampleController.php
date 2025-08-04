@@ -179,17 +179,20 @@ class ExampleController extends Controller
             ->foreignKeyConstraint('column1', 'table_2', 'reference_column', 'fk_table_1')
             ->toRawQuery();
 
-        $queries[] = $database->alterTable()
-            ->table('table_1')
-            ->addColumn('column3', 'INT')
-            // ->alterColumn('column3', 'TEXT')
-            ->renameColumn('column3', 'column4')
-            ->dropColumn('column4')
-            // ->addPrimaryKeys(['pk'])
-            // ->addUniqueConstraint(['column1', 'column2'], 'unique_constraint')
-            // ->addForeignKeyConstraint('column4', 'reference_table', 'reference_column')
-            // ->dropConstraint('unique_constraint')
-            ->toRawQuery();
+        $queries[] = implode(
+            ' ',
+            $database->alterTable()
+                ->table('table_1')
+                ->addColumn('column3', 'INT')
+                // ->alterColumn('column3', 'TEXT')
+                ->renameColumn('column3', 'column4')
+                ->dropColumn('column4')
+                // ->addPrimaryKeys(['pk'])
+                // ->addUniqueConstraint(['column1', 'column2'], 'unique_constraint')
+                // ->addForeignKeyConstraint('column4', 'reference_table', 'reference_column')
+                // ->dropConstraint('unique_constraint')
+                ->toRawQuery()
+        );
 
         $queries[] = $database->dropTable()
             ->table('table_1')

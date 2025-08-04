@@ -14,6 +14,7 @@ use sentience\Database\Queries\Objects\DropConstraint;
 use sentience\Database\Queries\Objects\QueryWithParams;
 use sentience\Database\Queries\Objects\RenameColumn;
 use sentience\Database\Queries\Traits\Table;
+use sentience\Database\Results;
 
 class AlterTable extends Query
 {
@@ -21,12 +22,25 @@ class AlterTable extends Query
 
     protected array $alters = [];
 
-    public function build(): QueryWithParams
+    public function build(): array
     {
         return $this->dialect->alterTable([
             'table' => $this->table,
             'alters' => $this->alters
         ]);
+    }
+
+    public function execute(): array
+    {
+        $queries = $this->build();
+
+        return array_map(
+            fn(QueryWithParams $queryWithParams): Results => $this->database->prepared(
+                $queryWithParams->expression,
+                $queryWithParams->params
+            ),
+            $queries
+        );
     }
 
     public function addColumn(string $name, string $type, bool $notNull = false, mixed $defaultValue = null, bool $autoIncrement = false): static

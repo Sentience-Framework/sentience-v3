@@ -12,10 +12,13 @@ use sentience\Database\Queries\Traits\GroupBy;
 use sentience\Database\Queries\Traits\Having;
 use sentience\Database\Queries\Traits\Joins;
 use sentience\Database\Queries\Traits\Limit;
+use sentience\Database\Queries\Traits\Model;
 use sentience\Database\Queries\Traits\Offset;
 use sentience\Database\Queries\Traits\OrderBy;
 use sentience\Database\Queries\Traits\Table;
 use sentience\Database\Queries\Traits\Where;
+use sentience\Database\Results;
+use sentience\Exceptions\QueryException;
 
 class Select extends Query
 {
@@ -25,6 +28,7 @@ class Select extends Query
     use Having;
     use Joins;
     use Limit;
+    use Model;
     use Offset;
     use OrderBy;
     use Table;
@@ -44,6 +48,30 @@ class Select extends Query
             'limit' => $this->limit,
             'offset' => $this->offset
         ]);
+    }
+
+    public function execute(): Results
+    {
+        return parent::execute();
+    }
+
+    public function select(): array
+    {
+        if (!$this->model) {
+            throw new QueryException('no model set');
+        }
+
+        $this->table($this->model::getTable());
+        $this->columns(array_keys($this->model::getColumns()));
+
+        $results = $this->execute();
+
+        return array_map(
+            function (array $row): object {
+                return $this->model::fromArray($row);
+            },
+            $results->fetchAllAssociative()
+        );
     }
 
     public function count(null|string|array|Raw $column = null): int

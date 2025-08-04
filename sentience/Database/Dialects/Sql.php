@@ -287,7 +287,7 @@ class Sql implements DialectInterface
         return new QueryWithParams($query, $params);
     }
 
-    public function alterTable(array $config): QueryWithParams
+    public function alterTable(array $config): array
     {
         if (!$config['table']) {
             throw new QueryException('no table specified');
@@ -297,76 +297,32 @@ class Sql implements DialectInterface
             throw new QueryException('no table alters specified');
         }
 
-        $alters = [];
-
-        foreach ($config['alters'] as $alter) {
-            if ($alter instanceof AddColumn) {
-                $alters[] = $this->stringifyAlterTableAddColumn($alter);
-
-                continue;
-            }
-
-            if ($alter instanceof AlterColumn) {
-                $alters[] = $this->stringifyAlterTableAlterColumn($alter);
-
-                continue;
-            }
-
-            if ($alter instanceof RenameColumn) {
-                $alters[] = $this->stringifyAlterTableRenameColumn($alter);
-
-                continue;
-            }
-
-            if ($alter instanceof DropColumn) {
-                $alters[] = $this->stringifyAlterTableDropColumn($alter);
-
-                continue;
-            }
-
-            if ($alter instanceof AddPrimaryKeys) {
-                $alters[] = $this->stringifyAlterTableAddPrimaryKeys($alter);
-
-                continue;
-            }
-
-            if ($alter instanceof AddUniqueConstraint) {
-                $alters[] = $this->stringifyAlterTableAddUniqueConstraint($alter);
-
-                continue;
-            }
-
-            if ($alter instanceof AddForeignKeyConstraint) {
-                $alters[] = $this->stringifyAlterTableAddForeignKeyConstraint($alter);
-
-                continue;
-            }
-
-            if ($alter instanceof DropConstraint) {
-                $alters[] = $this->stringifyAlterTableDropConstraint($alter);
-
-                continue;
-            }
-        }
-
-        $queries = array_map(
-            function (string $alter) use ($config): string {
+        return array_map(
+            function (object $alter) use ($config): QueryWithParams {
                 $query = 'ALTER TABLE';
 
                 $this->addTable($query, $config['table']);
 
                 $query .= ' ';
-                $query .= $alter;
+
+                $query .= match (true) {
+                    $alter instanceof AddColumn => $this->stringifyAlterTableAddColumn($alter),
+                    $alter instanceof AlterColumn => $this->stringifyAlterTableAlterColumn($alter),
+                    $alter instanceof RenameColumn => $this->stringifyAlterTableRenameColumn($alter),
+                    $alter instanceof DropColumn => $this->stringifyAlterTableDropColumn($alter),
+                    $alter instanceof AddPrimaryKeys => $this->stringifyAlterTableAddPrimaryKeys($alter),
+                    $alter instanceof AddUniqueConstraint => $this->stringifyAlterTableAddUniqueConstraint($alter),
+                    $alter instanceof AddForeignKeyConstraint => $this->stringifyAlterTableAddForeignKeyConstraint($alter),
+                    $alter instanceof DropConstraint => $this->stringifyAlterTableDropConstraint($alter),
+                    default => throw new QueryException('unsupported alter %s', $alter::class)
+                };
+
                 $query .= ';';
 
-                return $query;
+                return new QueryWithParams($query);
             },
-            $alters
+            $config['alters']
         );
-
-        $query = implode(' ', $queries);
-
-        return new QueryWithParams($query);
     }
 
     public function dropTable(array $config): QueryWithParams
