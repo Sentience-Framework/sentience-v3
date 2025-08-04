@@ -25,4 +25,9 @@ class Arrays
 
         return $flattened;
     }
+
+    public static function avg(array $array): float
+    {
+        return array_sum($array) / count($array);
+    }
 }

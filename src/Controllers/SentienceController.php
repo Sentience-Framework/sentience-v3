@@ -8,13 +8,13 @@ use Throwable;
 use sentience\Abstracts\Controller;
 use sentience\Database\Database;
 use sentience\Database\Queries\Query;
-use sentience\Environment\Environment;
+use sentience\Env\Env;
 use sentience\Exceptions\BuiltInWebServerException;
+use sentience\Exceptions\ConsoleException;
 use sentience\Exceptions\MigrationException;
-use sentience\Exceptions\TerminalException;
+use sentience\Helpers\Console;
 use sentience\Helpers\Filesystem;
 use sentience\Helpers\Reflector;
-use sentience\Helpers\Terminal;
 use sentience\Sentience\Stdio;
 use src\migrations\MigrationFactory;
 use src\models\Migration;
@@ -23,10 +23,10 @@ class SentienceController extends Controller
 {
     public function startServer(): void
     {
-        $terminalWidth = Terminal::getWidth();
+        $terminalWidth = Console::getWidth();
 
         if ($terminalWidth < 40) {
-            throw new TerminalException('terminal width of %d is too small. minimum width of 40 required', $terminalWidth);
+            throw new ConsoleException('terminal width of %d is too small. minimum width of 40 required', $terminalWidth);
         }
 
         $dir = escapeshellarg(Filesystem::path(SENTIENCE_DIR, 'public'));
@@ -42,7 +42,7 @@ class SentienceController extends Controller
             return;
         }
 
-        Terminal::stream(
+        Console::stream(
             $command,
             function ($stdout, $stderr) use ($terminalWidth, &$startTime, &$endTime, &$path): void {
                 if (empty($stderr)) {
@@ -529,8 +529,8 @@ class SentienceController extends Controller
         $dotEnvFilepath = Filesystem::path(SENTIENCE_DIR, $dotEnv);
         $dotEnvExampleFilepath = Filesystem::path(SENTIENCE_DIR, $dotEnvExample);
 
-        $dotEnvVariables = Environment::parseFileRaw($dotEnvFilepath);
-        $dotEnvExampleVariables = Environment::parseFileRaw($dotEnvExampleFilepath);
+        $dotEnvVariables = Env::parseFileRaw($dotEnvFilepath);
+        $dotEnvExampleVariables = Env::parseFileRaw($dotEnvExampleFilepath);
 
         $missingVariables = [];
 

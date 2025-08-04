@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
-use sentience\Environment\Environment;
+use sentience\Env\Env;
+use sentience\Helpers\Console;
+use sentience\Sentience\Stdio;
 
 function env(string $key, mixed $default = null): mixed
 {
-    return Environment::get($key, $default);
+    return Env::get($key, $default);
 }
 
 function is_cli(): bool

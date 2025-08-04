@@ -5,14 +5,16 @@ declare(strict_types=1);
 namespace sentience\Models;
 
 use sentience\Helpers\Arrays;
-use src\Models\Attributes\Column;
-use src\Models\Attributes\Table;
-use src\Models\Exceptions\TableException;
-use src\Traits\HasAttributes;
+use sentience\Models\Attributes\Column;
+use sentience\Models\Attributes\Table;
+use sentience\Models\Exceptions\TableException;
+use sentience\Traits\HasAttributes;
 
 class Model
 {
     use HasAttributes;
+
+    public int $id;
 
     public static function getTable(): string
     {

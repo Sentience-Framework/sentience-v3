@@ -11,7 +11,6 @@ use sentience\Database\Queries\Objects\Condition;
 use sentience\Database\Queries\Objects\ConditionGroup;
 use sentience\Database\Queries\Query;
 use sentience\Exceptions\QueryException;
-use sentience\Helpers\Reflector;
 
 trait Where
 {
@@ -426,7 +425,7 @@ trait Where
         $conditionGroup = $callback($conditionGroup);
 
         if (!($conditionGroup instanceof ConditionGroup)) {
-            throw new QueryException('callback must return %s', Reflector::getShortName(ConditionGroup::class));
+            throw new QueryException('callback must return %s', ConditionGroup::class);
         }
 
         if (count($conditionGroup->getConditions()) == 0) {

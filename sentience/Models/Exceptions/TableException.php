@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace src\Models\Exceptions;
+namespace sentience\Models\Exceptions;
 
 use sentience\Exceptions\CustomException;
 

@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace sentience\Sentience;
 
 use ReflectionFunctionAbstract;
+use ReflectionNamedType;
+use ReflectionParameter;
+use ReflectionUnionType;
 use sentience\Abstracts\Singleton;
 use sentience\Exceptions\DependencyInjectionException;
 use sentience\Helpers\Reflector;
@@ -36,7 +39,6 @@ class DependencyInjector
 
         foreach ($functionParameters as $functionParameter) {
             $name = $functionParameter->getName();
-            $type = (string) $functionParameter->getType();
 
             if (array_key_exists($name, $injectables)) {
                 $parameters[$name] = $injectables[$name];
@@ -74,8 +76,8 @@ class DependencyInjector
                 continue;
             }
 
-            if ($this->isInjectable($type)) {
-                $parameters[$name] = $type::getInstance();
+            if ($this->isInjectable($functionParameter)) {
+                $parameters[$name] = $this->createInjectableInstance($functionParameter);
 
                 continue;
             }
@@ -92,12 +94,36 @@ class DependencyInjector
         return $parameters;
     }
 
-    protected function isInjectable(string $class): bool
+    protected function isInjectable(ReflectionParameter $reflectionParameter): bool
     {
-        if (!class_exists($class)) {
+        $type = $this->getType($reflectionParameter);
+
+        if (!$type) {
             return false;
         }
 
-        return Reflector::isSubClassOf($class, Singleton::class);
+        if (!class_exists($type)) {
+            return false;
+        }
+
+        return Reflector::isSubClassOf($type, Singleton::class);
+    }
+
+    protected function createInjectableInstance(ReflectionParameter $reflectionParameter): bool
+    {
+        $type = $this->getType($reflectionParameter);
+
+        return $type::getInstance();
+    }
+
+    protected function getType(ReflectionParameter $reflectionParameter): ?string
+    {
+        $type = $reflectionParameter->getType();
+
+        if (!($type instanceof ReflectionNamedType)) {
+            return null;
+        }
+
+        return $type->getName();
     }
 }

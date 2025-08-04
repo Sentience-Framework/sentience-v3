@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace src\Models\Attributes;
+namespace sentience\Models\Attributes;
 
 class Table
 {
     public function __construct(
-        public string $table
+        public string $table,
+        public ?string $alias = null
     ) {
     }
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace sentience\Database;
 
-use Closure;
 use PDO;
 use PDOException;
 use Throwable;
@@ -22,13 +21,12 @@ use sentience\Database\Queries\Objects\Raw;
 use sentience\Database\Queries\Select;
 use sentience\Database\Queries\Update;
 use sentience\Exceptions\DatabaseException;
+use sentience\Helpers\Log;
 use sentience\Helpers\Strings;
-use sentience\Sentience\Sentience;
 
 class Database extends Singleton
 {
     protected string $dsn;
-    protected bool $debug;
     protected PDO $pdo;
     public DialectInterface $dialect;
 
@@ -44,7 +42,7 @@ class Database extends Singleton
         return new static($dsn, $debug);
     }
 
-    public function __construct(string $dsn, bool $debug, ?string $username = null, ?string $password = null, array $options = [])
+    public function __construct(string $dsn, protected bool $debug, ?string $username = null, ?string $password = null, array $options = [])
     {
         $options = [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
@@ -52,8 +50,6 @@ class Database extends Singleton
             PDO::ATTR_STRINGIFY_FETCHES => false,
             ...$options
         ];
-
-        $this->debug = $debug;
 
         $this->pdo = new PDO(
             $dsn,
@@ -319,6 +315,6 @@ class Database extends Singleton
             $lines[] = sprintf('Error     : %s', $error);
         }
 
-        Sentience::log('Query', $lines);
+        Log::stderrBetweenEqualSigns('Query', $lines);
     }
 }

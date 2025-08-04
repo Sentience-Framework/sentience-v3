@@ -6,16 +6,18 @@ namespace src\Middleware;
 
 use sentience\Abstracts\Middleware;
 use sentience\Sentience\Request;
+use sentience\Sentience\Response;
 
 class CORSMiddleware extends Middleware
 {
-    public function __construct(protected Request $request)
-    {
-    }
+    public const ACCESS_CONTROL_ALLOW_ORIGIN = 'Access-Control-Allow-Origin';
+    public const ACCESS_CONTROL_ALLOW_CREDENTIALS = 'Access-Control-Allow-Credentials';
+    public const ACCESS_CONTROL_ALLOW_METHODS = 'Access-Control-Allow-Methods';
+    public const ACCESS_CONTROL_ALLOW_HEADERS = 'Access-Control-Allow-Headers';
 
-    public function addHeaders(): void
+    public function addHeaders(Request $request): void
     {
-        $originHeader = $this->request->getHeader('origin');
+        $originHeader = $request->getHeader('origin');
         $originEnv = implode(', ', (array) env('ACCESS_CONTROL_ALLOW_ORIGIN', ['*']));
 
         $returnOrigin = env('ACCESS_CONTROL_RETURN_ORIGIN', true);
@@ -25,9 +27,9 @@ class CORSMiddleware extends Middleware
         $accessControlAllowMethods = implode(', ', (array) env('ACCESS_CONTROL_ALLOW_METHODS', ['*']));
         $accessControlAllowHeaders = implode(', ', (array) env('ACCESS_CONTROL_ALLOW_HEADERS', ['*']));
 
-        header('Access-Control-Allow-Origin: ' . $accessControlAllowOrigin);
-        header('Access-Control-Allow-Credentials: ' . $accessControlAllowCredentials);
-        header('Access-Control-Allow-Methods: ' . $accessControlAllowMethods);
-        header('Access-Control-Allow-Headers: ' . $accessControlAllowHeaders);
+        Response::header(static::ACCESS_CONTROL_ALLOW_ORIGIN, $accessControlAllowOrigin);
+        Response::header(static::ACCESS_CONTROL_ALLOW_CREDENTIALS, $accessControlAllowCredentials);
+        Response::header(static::ACCESS_CONTROL_ALLOW_METHODS, $accessControlAllowMethods);
+        Response::header(static::ACCESS_CONTROL_ALLOW_HEADERS, $accessControlAllowHeaders);
     }
 }

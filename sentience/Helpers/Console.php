@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace sentience\Helpers;
 
-class Terminal
+class Console
 {
     public const DEFAULT_WIDTH = 80;
 
@@ -124,9 +124,9 @@ class Terminal
         return 1;
     }
 
-    public static function getWidth(): int
+    public static function getWidth(bool $useCache = true): int
     {
-        if (static::$width) {
+        if ($useCache && static::$width) {
             return static::$width;
         }
 

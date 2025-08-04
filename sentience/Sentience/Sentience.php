@@ -8,6 +8,7 @@ use Closure;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionMethod;
+use sentience\Abstracts\Singleton;
 use Throwable;
 use sentience\Abstracts\Controller;
 use sentience\Abstracts\Middleware;
@@ -17,40 +18,20 @@ use sentience\Exceptions\FatalErrorException;
 use sentience\Exceptions\NoticeException;
 use sentience\Exceptions\ParseException;
 use sentience\Exceptions\WarningException;
+use sentience\Helpers\Log;
 use sentience\Helpers\Reflector;
-use sentience\Helpers\Terminal;
 use sentience\Routers\CliRouter;
 use sentience\Routers\Command;
 use sentience\Routers\HttpRouter;
 use sentience\Routers\Route;
 use sentience\Routers\RouteGroup;
 
-class Sentience
+class Sentience extends Singleton
 {
     protected CliRouter $cliRouter;
     protected HttpRouter $httpRouter;
     protected ?Closure $handleFatalError = null;
     protected ?Closure $handleThrowable = null;
-
-    public static function log(string $message, array $lines): void
-    {
-        $terminalWidth = Terminal::getWidth();
-
-        $equalSigns = ($terminalWidth - strlen($message)) / 2 - 1;
-
-        Stdio::errorFLn(
-            '%s %s %s',
-            str_repeat('=', (int) ceil($equalSigns)),
-            $message,
-            str_repeat('=', (int) floor($equalSigns))
-        );
-
-        foreach ($lines as $line) {
-            Stdio::errorLn($line);
-        }
-
-        Stdio::errorLn(str_repeat('=', $terminalWidth));
-    }
 
     public function __construct()
     {
@@ -352,7 +333,7 @@ class Sentience
             }
         }
 
-        static::log('Exception', $lines);
+        Log::stderrBetweenEqualSigns('Exception', $lines);
 
         exit;
     }
@@ -417,7 +398,7 @@ class Sentience
             $this->cliRouter->commands
         );
 
-        static::log('Command not found', $lines);
+        Log::stderrBetweenEqualSigns('Command not found', $lines);
 
         exit;
     }

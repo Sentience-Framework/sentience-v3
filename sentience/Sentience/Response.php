@@ -69,6 +69,16 @@ class Response
     public const NOT_EXTENDED = 510;
     public const NETWORK_AUTHENTICATION_REQUIRED = 511;
 
+    public static function header(string $key, string $value, bool $replace = true): void
+    {
+        header(sprintf('%s: %s', $key, $value), $replace);
+    }
+
+    public static function cookie(string $key, string $value = '', int $expiresOrOptions = 0, string $path = '', string $domain = '', bool $secure = false, bool $httpOnly = false): void
+    {
+        setcookie($key, $value, $expiresOrOptions, $path, $domain, $secure, $httpOnly);
+    }
+
     public static function ok(mixed $content = null, string $encoding = 'default'): void
     {
         static::respond(static::OK, $content, $encoding);

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace sentience\Environment;
+namespace sentience\Env;
 
 use sentience\Exceptions\DotEnvException;
 
-class Environment
+class Env
 {
     protected static array $env = [];
 

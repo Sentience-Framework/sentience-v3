@@ -10,6 +10,7 @@ use sentience\Database\Database;
 use sentience\Database\Dialects\DialectInterface;
 use sentience\Database\Queries\Objects\Alias;
 use sentience\Database\Queries\Objects\Raw;
+use sentience\Database\Queries\Objects\TableWithColumn;
 use sentience\Database\Results;
 use sentience\Helpers\Strings;
 
@@ -64,6 +65,11 @@ abstract class Query implements QueryInterface
     public static function raw(string $expression): Raw
     {
         return new Raw($expression);
+    }
+
+    public static function tableWithColumn(string|array|Alias|Raw $table, string|Alias|Raw $column): TableWithColumn
+    {
+        return new TableWithColumn($table, $column);
     }
 
     public static function now(): DateTime

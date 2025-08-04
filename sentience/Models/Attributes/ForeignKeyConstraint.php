@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace sentience\Models\Attributes;
 
-class Column
+class ForeignKeyConstraint
 {
     public function __construct(
-        public string $column,
-        public mixed $default = null
+        public string $model,
+        public string $referenceProperty
     ) {
     }
 }

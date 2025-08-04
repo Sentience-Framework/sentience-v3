@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace src\controllers;
 
 use sentience\Abstracts\Controller;
+use sentience\Helpers\Console;
 use sentience\Helpers\Filesystem;
-use sentience\Helpers\Terminal;
 use sentience\Sentience\Stdio;
 
 class DevToolsController extends Controller
 {
     public function sortImports(): void
     {
-        $terminalWidth = Terminal::getWidth();
+        $terminalWidth = Console::getWidth();
 
         $equalSigns = ($terminalWidth - 17) / 2 - 1;
 
@@ -99,7 +99,7 @@ class DevToolsController extends Controller
 
     public function removeTrailingCommas(): void
     {
-        $terminalWidth = Terminal::getWidth();
+        $terminalWidth = Console::getWidth();
 
         $equalSigns = ($terminalWidth - 17) / 2 - 1;
 
@@ -152,7 +152,7 @@ class DevToolsController extends Controller
 
     public function removeExcessiveWhitespace(): void
     {
-        $terminalWidth = Terminal::getWidth();
+        $terminalWidth = Console::getWidth();
 
         $equalSigns = ($terminalWidth - 17) / 2 - 1;
 

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace sentience\Models\Attributes;
 
-class Column
+class UniqueConstraint
 {
     public function __construct(
-        public string $column,
-        public mixed $default = null
+        public array $properties,
+        public ?string $name = null
     ) {
     }
 }
