@@ -73,8 +73,7 @@ class ExampleController extends Controller
 
         $queries = [];
 
-        $queries[] = $database->select()
-            ->table(Query::alias(['public', 'table_1'], 'table1'))
+        $queries[] = $database->select(Query::alias(['public', 'table_1'], 'table1'))
             ->distinct()
             ->columns([
                 'column1',
@@ -138,8 +137,7 @@ class ExampleController extends Controller
             ->offset(10)
             ->toRawQuery();
 
-        $queries[] = $database->insert()
-            ->table(Query::alias('table_1', 'table1'))
+        $queries[] = $database->insert(Query::alias('table_1', 'table1'))
             ->values([
                 'column1' => Query::now(),
                 'column2' => true,
@@ -151,8 +149,7 @@ class ExampleController extends Controller
             ->returning(['id'])
             ->toRawQuery();
 
-        $queries[] = $database->update()
-            ->table('table_1')
+        $queries[] = $database->update('table_1')
             ->values([
                 'column1' => Query::now(),
                 'column2' => true,
@@ -162,16 +159,14 @@ class ExampleController extends Controller
             ->returning(['id'])
             ->toRawQuery();
 
-        $queries[] = $database->delete()
-            ->table('table_1')
+        $queries[] = $database->delete('table_1')
             ->whereBetween('column2', 10, 20)
             ->orWhereNotBetween('column2', 70, 80)
             ->returning(['id'])
             ->toRawQuery();
 
-        $queries[] = $database->createTable()
+        $queries[] = $database->createTable('table_1')
             ->ifNotExists()
-            ->table('table_1')
             ->column('primary_key', 'int', true, null, true)
             ->column('column1', 'bigint', true)
             ->column('column2', 'varchar(255)')
@@ -182,8 +177,7 @@ class ExampleController extends Controller
 
         $queries[] = implode(
             ' ',
-            $database->alterTable()
-                ->table('table_1')
+            $database->alterTable('table_1')
                 ->addColumn('column3', 'INT')
                 // ->alterColumn('column3', 'TEXT')
                 ->renameColumn('column3', 'column4')
@@ -195,8 +189,7 @@ class ExampleController extends Controller
                 ->toRawQuery()
         );
 
-        $queries[] = $database->dropTable()
-            ->table('table_1')
+        $queries[] = $database->dropTable('table_1')
             ->ifExists()
             ->toRawQuery();
 
