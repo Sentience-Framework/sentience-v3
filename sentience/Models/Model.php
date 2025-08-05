@@ -34,8 +34,8 @@ class Model
 
             $property = $columns[$key];
 
-            if (!Reflector::hasSingularType(static::class, $property)) {
-                throw new MultipleTypesException('models cannot have union types');
+            if (!Reflector::IsNamedType(static::class, $property)) {
+                throw new MultipleTypesException('models cannot have mixed or union types');
             }
 
             $type = (string) (new ReflectionProperty(static::class, $property))->getType();

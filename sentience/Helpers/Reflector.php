@@ -49,7 +49,7 @@ class Reflector
         return $reflectionClass->isSubclassOf($parent);
     }
 
-    public static function hasSingularType(string|object $objectOrClass, string $property): bool
+    public static function IsNamedType(string|object $objectOrClass, string $property): bool
     {
         $reflectionProperty = new ReflectionProperty($objectOrClass, $property);
 

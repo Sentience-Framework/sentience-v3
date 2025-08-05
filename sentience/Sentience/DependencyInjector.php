@@ -13,7 +13,7 @@ use sentience\Helpers\Reflector;
 
 class DependencyInjector
 {
-    public function __construct(protected array $injectables, protected ?object $service = null)
+    public function __construct(protected array $injectables = [], protected ?object $service = null)
     {
     }
 
