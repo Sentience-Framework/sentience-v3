@@ -9,12 +9,5 @@ use sentience\Database\Queries\Objects\Raw;
 
 trait Table
 {
-    protected null|string|array|Alias|Raw $table = null;
-
-    public function table(string|array|Alias|Raw $table): static
-    {
-        $this->table = $table;
-
-        return $this;
-    }
+    protected string|array|Alias|Raw $table;
 }

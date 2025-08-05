@@ -4,27 +4,30 @@ declare(strict_types=1);
 
 namespace sentience\Database\Queries;
 
-use sentience\Database\Queries\Traits\Model;
-use sentience\Exceptions\QueryException;
+use sentience\Database\Database;
+use sentience\Database\Dialects\DialectInterface;
+use sentience\Database\Queries\Traits\Models;
 use sentience\Helpers\Reflector;
 use sentience\Models\Attributes\AutoIncrement;
+use sentience\Models\Model;
 
 class InsertModels extends Insert
 {
-    use Model;
+    use Models;
+
+    public function __construct(Database $database, DialectInterface $dialect, array|Model $models)
+    {
+        parent::__construct($database, $dialect, '');
+
+        $this->models = $models;
+    }
 
     public function execute(): array
     {
-        if (!$this->model) {
-            throw new QueryException('no model set');
-        }
-
-        $models = (array) $this->model;
-
-        foreach ($models as $model) {
+        foreach ((array) $this->models as $model) {
             $query = clone $this;
 
-            $query->table($model::getTable());
+            $query->table = $model::getTable();
 
             $columns = $model::getColumns();
 
@@ -69,6 +72,6 @@ class InsertModels extends Insert
             }
         }
 
-        return $models;
+        return $this->models;
     }
 }

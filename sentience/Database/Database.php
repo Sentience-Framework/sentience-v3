@@ -13,6 +13,7 @@ use sentience\Database\Dialects\DialectInterface;
 use sentience\Database\Queries\AlterTable;
 use sentience\Database\Queries\CreateTable;
 use sentience\Database\Queries\Delete;
+use sentience\Database\Queries\DeleteModels;
 use sentience\Database\Queries\DropTable;
 use sentience\Database\Queries\Insert;
 use sentience\Database\Queries\InsertModels;
@@ -22,9 +23,11 @@ use sentience\Database\Queries\Objects\Raw;
 use sentience\Database\Queries\Select;
 use sentience\Database\Queries\SelectModels;
 use sentience\Database\Queries\Update;
+use sentience\Database\Queries\UpdateModels;
 use sentience\Exceptions\DatabaseException;
 use sentience\Helpers\Log;
 use sentience\Helpers\Strings;
+use sentience\Models\Model;
 
 class Database extends Singleton
 {
@@ -222,99 +225,59 @@ class Database extends Singleton
         return $this->pdo->setAttribute($attribute, $value);
     }
 
-    public function select(null|string|array|Alias|Raw $table = null): Select
+    public function select(string|array|Alias|Raw $table): Select
     {
-        $query = new Select($this, $this->dialect);
-
-        if ($table) {
-            $query->table($table);
-        }
-
-        return $query;
+        return new Select($this, $this->dialect, $table);
     }
 
     public function selectModels(string $model): Select
     {
-        $query = new SelectModels($this, $this->dialect);
-
-        $query->model($model);
-
-        return $query;
+        return new SelectModels($this, $this->dialect, $model);
     }
 
-    public function insert(null|string|array|Alias|Raw $table = null): Insert
+    public function insert(string|array|Alias|Raw $table = null): Insert
     {
-        $query = new Insert($this, $this->dialect);
-
-        if ($table) {
-            $query->table($table);
-        }
-
-        return $query;
+        return new Insert($this, $this->dialect, $table);
     }
 
-    public function insertModels(array $model): InsertModels
+    public function insertModels(array|Model $models): InsertModels
     {
-        $query = new InsertModels($this, $this->dialect);
-
-        $query->model($model);
-
-        return $query;
+        return new InsertModels($this, $this->dialect, $models);
     }
 
-    public function update(null|string|array|Alias|Raw $table = null): Update
+    public function update(string|array|Alias|Raw $table = null): Update
     {
-        $query = new Update($this, $this->dialect);
-
-        if ($table) {
-            $query->table($table);
-        }
-
-        return $query;
+        return new Update($this, $this->dialect, $table);
     }
 
-    public function delete(null|string|array|Alias|Raw $table = null): Delete
+    public function updateModels(array|Model $models): UpdateModels
     {
-        $query = new Delete($this, $this->dialect);
-
-        if ($table) {
-            $query->table($table);
-        }
-
-        return $query;
+        return new UpdateModels($this, $this->dialect, $models);
     }
 
-    public function createTable(null|string|array|Alias|Raw $table = null): CreateTable
+    public function delete(string|array|Alias|Raw $table): Delete
     {
-        $query = new CreateTable($this, $this->dialect);
-
-        if ($table) {
-            $query->table($table);
-        }
-
-        return $query;
+        return new Delete($this, $this->dialect, $table);
     }
 
-    public function alterTable(null|string|array|Alias|Raw $table = null): AlterTable
+    public function deleteModels(array|Model $models): DeleteModels
     {
-        $query = new AlterTable($this, $this->dialect);
-
-        if ($table) {
-            $query->table($table);
-        }
-
-        return $query;
+        return new DeleteModels($this, $this->dialect, $models);
     }
 
-    public function dropTable(null|string|array|Alias|Raw $table = null): DropTable
+    public function createTable(string|array|Alias|Raw $table): CreateTable
     {
-        $query = new DropTable($this, $this->dialect);
+        return new CreateTable($this, $this->dialect, $table);
+    }
 
-        if ($table) {
-            $query->table($table);
-        }
+    public function alterTable(string|array|Alias|Raw $table): AlterTable
+    {
+        return new AlterTable($this, $this->dialect, $table);
+    }
 
-        return $query;
+    public function dropTable(string|array|Alias|Raw $table): DropTable
+    {
+        return new DropTable($this, $this->dialect, $table);
     }
 
     protected function debug(string $query, float $startTime, ?string $error = null): void
