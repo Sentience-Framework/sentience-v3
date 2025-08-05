@@ -60,23 +60,23 @@ class Results
         return $this->pdoStatement->fetchAll(PDO::FETCH_CLASS, $class);
     }
 
-    public function fetchAssociative(): ?array
+    public function fetchAssoc(): ?array
     {
-        $associative = $this->pdoStatement->fetch(PDO::FETCH_ASSOC);
+        $assoc = $this->pdoStatement->fetch(PDO::FETCH_ASSOC);
 
-        if (is_bool($associative)) {
+        if (is_bool($assoc)) {
             return null;
         }
 
-        return $associative;
+        return $assoc;
     }
 
-    public function fetchAllAssociative(): array
+    public function fetchAllAssoc(): array
     {
         return $this->pdoStatement->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function lastInsertId(?string $sequence = null): ?string
+    public function lastInsertId(?string $sequence = null): ?int
     {
         return Database::getInstance()->lastInsertId($sequence);
     }

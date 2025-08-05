@@ -6,9 +6,9 @@ namespace sentience\Database\Queries\Traits;
 
 trait Model
 {
-    protected ?string $model = null;
+    protected null|string|array $model = null;
 
-    public function model(string $class): static
+    public function model(string|array $class): static
     {
         $this->model = $class;
 

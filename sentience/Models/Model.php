@@ -10,6 +10,7 @@ use sentience\Database\Database;
 use sentience\Helpers\Arrays;
 use sentience\Helpers\Reflector;
 use sentience\Models\Attributes\Column;
+use sentience\Models\Attributes\PrimaryKeys;
 use sentience\Models\Attributes\Table;
 use sentience\Models\Exceptions\MultipleTypesException;
 use sentience\Models\Exceptions\TableException;
@@ -19,43 +20,41 @@ class Model
 {
     use HasAttributes;
 
-    public static function fromArray(array $associative): static
+    public function fromArray(array $assoc): static
     {
-        $model = new static();
-
         $columns = static::getColumns();
 
         $dialect = Database::getInstance()->dialect;
 
-        foreach ($associative as $key => $value) {
-            if (array_key_exists($key, $columns)) {
+        foreach ($assoc as $key => $value) {
+            if (!array_key_exists($key, $columns)) {
                 continue;
             }
 
             $property = $columns[$key];
 
-            if (!Reflector::IsNamedType(static::class, $property)) {
+            if (!Reflector::IsNamedType($this, $property)) {
                 throw new MultipleTypesException('models cannot have mixed or union types');
             }
 
-            $type = (string) (new ReflectionProperty(static::class, $property))->getType();
+            $type = (string) (new ReflectionProperty($this, $property))->getType();
 
-            $model->{$property} = match ($type) {
+            $this->{$property} = match ($type) {
                 '?bool', 'bool' => $dialect->parseBool($value),
                 '?int', 'int' => (int) $value,
                 '?float', 'float' => (float) $value,
                 '?string', 'string' => (string) $value,
-                '?DateTime', 'DateTime' => $dialect->parseBool($value),
+                '?DateTime', 'DateTime' => $dialect->parseDateTime($value),
                 default => $value
             };
         }
 
-        return $model;
+        return $this;
     }
 
-    public static function fromObject(object $data): static
+    public function fromObject(object $data): static
     {
-        return static::fromArray((array) $data);
+        return $this->fromArray((array) $data);
     }
 
     public static function getTable(): string
@@ -101,5 +100,23 @@ class Model
         }
 
         return $attributes[0]->newInstance()->column;
+    }
+
+    public static function getPrimaryKeys(): array
+    {
+        $primaryKeysAttribute = static::getClassAttributes(PrimaryKeys::class);
+
+        if (Arrays::empty($primaryKeysAttribute)) {
+            return [];
+        }
+
+        $columns = static::getColumns();
+
+        $primaryKeysAttributeInstance = $primaryKeysAttribute[0]->newInstance();
+
+        return array_filter(
+            $columns,
+            fn(string $property) => in_array($property, $primaryKeysAttributeInstance->properties)
+        );
     }
 }

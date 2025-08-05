@@ -65,9 +65,9 @@ class Request extends Singleton
         return $this->cookies[$key];
     }
 
-    public function getJson(bool $associative = true): mixed
+    public function getJson(bool $assoc = true): mixed
     {
-        return Json::decode($this->body, $associative);
+        return Json::decode($this->body, $assoc);
     }
 
     public function getXml(): ?SimpleXMLElement

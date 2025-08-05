@@ -11,6 +11,7 @@ use sentience\Helpers\Json;
 use sentience\Sentience\Request;
 use sentience\Sentience\Response;
 use sentience\Sentience\Stdio;
+use src\Models\Migration;
 
 class ExampleController extends Controller
 {
@@ -207,5 +208,37 @@ class ExampleController extends Controller
         $endTime = microtime(true);
 
         Stdio::printFLn('Time: %f', $endTime - $startTime);
+    }
+
+    public function select(Database $database): void
+    {
+        $start = microtime(true);
+
+        // $models = $database->selectModels(Migration::class)
+        //     ->whereGreaterThanOrEquals('id', 10)
+        //     ->execute();
+
+        $migration = new Migration();
+        $migration->batch = 1;
+        $migration->filename = 'migration1' . microtime();
+        $migration->appliedAt = Query::now();
+
+        $migration2 = new Migration();
+        $migration2->batch = 1;
+        $migration2->filename = 'migration2' . microtime();
+        $migration2->appliedAt = Query::now();
+
+        $models = [
+            $migration,
+            $migration2
+        ];
+
+        $database->insertModels($models)->execute();
+
+        print_r($models);
+
+        $end = microtime(true);
+
+        Stdio::printFLn('Time: %.2f ms', ($end - $start) * 1000);
     }
 }

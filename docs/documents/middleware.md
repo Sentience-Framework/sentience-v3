@@ -20,7 +20,7 @@ function (): array;
 
 ## 3. Return values
 
-Middleware can pass values to the next middleware, or final callback, by returning an associative array.
+Middleware can pass values to the next middleware, or final callback, by returning an assoc array.
 
 If a middleware checks which user is authenticated, and returns a user, then the following middlewares and final callback can include `user` in their arguments, and the User class will be passed in.
 ```

@@ -74,5 +74,10 @@ return [
     Command::register(
         'query',
         [ExampleController::class, 'query']
+    ),
+
+    Command::register(
+        'select',
+        [ExampleController::class, 'select']
     )
 ];

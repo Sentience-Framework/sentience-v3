@@ -24,12 +24,12 @@ abstract class Query implements QueryInterface
     {
     }
 
-    public function execute(): array|Results
+    public function execute(): mixed
     {
         $queryWithParams = $this->build();
 
         return $this->database->prepared(
-            $queryWithParams->expression,
+            $queryWithParams->query,
             $queryWithParams->params
         );
     }

@@ -8,15 +8,15 @@ use sentience\Exceptions\UrlEncodingException;
 
 class UrlEncoding
 {
-    public static function encode(array $associative): string
+    public static function encode(array $assoc): string
     {
-        if (empty($associative)) {
+        if (empty($assoc)) {
             return '';
         }
 
         $encoded = [];
 
-        foreach ($associative as $key => $value) {
+        foreach ($assoc as $key => $value) {
             if (is_array($value)) {
                 array_walk(
                     $value,

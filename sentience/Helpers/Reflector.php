@@ -71,4 +71,18 @@ class Reflector
 
         return true;
     }
+
+    public static function classHasAttribute(string|object $objectOrClass, string $attribute): bool
+    {
+        $reflectionClass = new ReflectionClass($objectOrClass);
+
+        return !Arrays::empty($reflectionClass->getAttributes($attribute));
+    }
+
+    public static function propertyHasAttribute(string|object $objectOrClass, string $property, string $attribute): bool
+    {
+        $reflectionProperty = new ReflectionProperty($objectOrClass, $property);
+
+        return !Arrays::empty($reflectionProperty->getAttributes($attribute));
+    }
 }

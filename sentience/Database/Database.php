@@ -15,10 +15,12 @@ use sentience\Database\Queries\CreateTable;
 use sentience\Database\Queries\Delete;
 use sentience\Database\Queries\DropTable;
 use sentience\Database\Queries\Insert;
+use sentience\Database\Queries\InsertModels;
 use sentience\Database\Queries\Objects\Alias;
 use sentience\Database\Queries\Objects\QueryWithParams;
 use sentience\Database\Queries\Objects\Raw;
 use sentience\Database\Queries\Select;
+use sentience\Database\Queries\SelectModels;
 use sentience\Database\Queries\Update;
 use sentience\Exceptions\DatabaseException;
 use sentience\Helpers\Log;
@@ -199,7 +201,7 @@ class Database extends Singleton
         }
     }
 
-    public function lastInsertId(?string $sequence = null): ?string
+    public function lastInsertId(?string $sequence = null): ?int
     {
         $lastInsertId = $this->pdo->lastInsertId($sequence);
 
@@ -207,7 +209,7 @@ class Database extends Singleton
             return null;
         }
 
-        return $lastInsertId;
+        return (int) $lastInsertId;
     }
 
     public function getPDOAttribute(int $attribute): mixed
@@ -231,6 +233,15 @@ class Database extends Singleton
         return $query;
     }
 
+    public function selectModels(string $model): Select
+    {
+        $query = new SelectModels($this, $this->dialect);
+
+        $query->model($model);
+
+        return $query;
+    }
+
     public function insert(null|string|array|Alias|Raw $table = null): Insert
     {
         $query = new Insert($this, $this->dialect);
@@ -238,6 +249,15 @@ class Database extends Singleton
         if ($table) {
             $query->table($table);
         }
+
+        return $query;
+    }
+
+    public function insertModels(array $model): InsertModels
+    {
+        $query = new InsertModels($this, $this->dialect);
+
+        $query->model($model);
 
         return $query;
     }

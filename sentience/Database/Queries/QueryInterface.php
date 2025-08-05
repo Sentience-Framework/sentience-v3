@@ -10,6 +10,6 @@ use sentience\Database\Results;
 interface QueryInterface
 {
     public function build(): array|QueryWithParams;
-    public function execute(): array|Results;
+    public function execute(): mixed;
     public function toRawQuery(): string|array;
 }

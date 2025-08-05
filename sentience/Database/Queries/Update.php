@@ -30,9 +30,4 @@ class Update extends Query
             'returning' => $this->returning
         ]);
     }
-
-    public function execute(): Results
-    {
-        return parent::execute();
-    }
 }
