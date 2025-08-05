@@ -15,6 +15,8 @@ class InsertModels extends Insert
 {
     use Models;
 
+    protected ?bool $onDuplicateUpdate = null;
+
     public function __construct(Database $database, DialectInterface $dialect, array|Model $models)
     {
         parent::__construct($database, $dialect, '');
@@ -42,6 +44,14 @@ class InsertModels extends Insert
             }
 
             $query->values($values);
+
+            if (!is_null($this->onDuplicateUpdate)) {
+                $uniqueColumns = array_keys($model::getUniqueColumns());
+
+                $this->onDuplicateUpdate
+                    ? $query->onConflictUpdate($uniqueColumns)
+                    : $query->onConflictIgnore($uniqueColumns);
+            }
 
             $query->returning();
 
@@ -73,5 +83,19 @@ class InsertModels extends Insert
         }
 
         return $this->models;
+    }
+
+    public function onDuplicateIgnore(): static
+    {
+        $this->onDuplicateUpdate = false;
+
+        return $this;
+    }
+
+    public function onDuplicateUpdate(): static
+    {
+        $this->onDuplicateUpdate = true;
+
+        return $this;
     }
 }

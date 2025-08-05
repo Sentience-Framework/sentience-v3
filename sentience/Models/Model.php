@@ -12,6 +12,7 @@ use sentience\Helpers\Reflector;
 use sentience\Models\Attributes\Column;
 use sentience\Models\Attributes\PrimaryKeys;
 use sentience\Models\Attributes\Table;
+use sentience\Models\Attributes\UniqueConstraint;
 use sentience\Models\Exceptions\MultipleTypesException;
 use sentience\Models\Exceptions\TableException;
 use sentience\Traits\HasAttributes;
@@ -74,17 +75,38 @@ class Model
 
         $reflectionProperties = $reflectionClass->getProperties();
 
-        $properties = [];
+        $columns = [];
 
         foreach ($reflectionProperties as $reflectionProperty) {
             $property = $reflectionProperty->getName();
 
             $column = static::getColumn($property);
 
-            $properties[$column] = $property;
+            $columns[$column] = $property;
         }
 
-        return $properties;
+        return $columns;
+    }
+
+    public static function getUniqueColumns(): array
+    {
+        $attributes = static::getClassAttributes(UniqueConstraint::class);
+
+        if (Arrays::empty($attributes)) {
+            return [];
+        }
+
+        $properties = $attributes[0]->newInstance()->properties;
+
+        $columns = [];
+
+        foreach ($properties as $property) {
+            $column = static::getColumn($property);
+
+            $columns[$column] = $property;
+        }
+
+        return array_filter($columns);
     }
 
     public static function getColumn(string $property): ?string

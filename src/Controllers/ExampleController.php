@@ -214,31 +214,33 @@ class ExampleController extends Controller
     {
         $start = microtime(true);
 
-        $models = $database->selectModels(Migration::class)
-            ->whereGreaterThanOrEquals('id', 10)
+        // $models = $database->selectModels(Migration::class)
+        //     ->whereGreaterThanOrEquals('id', 10)
+        //     ->execute();
+
+        $migration = new Migration();
+        $migration->batch = 1;
+        $migration->filename = 'migration1';
+        $migration->appliedAt = Query::now();
+
+        $migration2 = new Migration();
+        $migration2->batch = 1;
+        $migration2->filename = 'migration2';
+        $migration2->appliedAt = Query::now();
+
+        $models = [$migration, $migration2];
+
+        $database->insertModels($models)
+            ->onDuplicateUpdate()
             ->execute();
 
-        // $migration = new Migration();
-        // $migration->batch = 1;
-        // $migration->filename = 'migration1' . microtime();
-        // $migration->appliedAt = Query::now();
+        // foreach ($models as $model) {
+        //     $model->filename = md5((string) $model->id);
+        // }
 
-        // $migration2 = new Migration();
-        // $migration2->batch = 1;
-        // $migration2->filename = 'migration2' . microtime();
-        // $migration2->appliedAt = Query::now();
-
-        // $models = [$migration, $migration2];
-
-        // $database->insertModels($models)->execute();
-
-        foreach ($models as $model) {
-            $model->filename = md5((string) $model->id);
-        }
-
-        $database->updateModels($models)
-            ->updateColumn('applied_at', Query::now())
-            ->execute();
+        // $database->updateModels($models)
+        //     ->updateColumn('applied_at', Query::now())
+        //     ->execute();
 
         print_r($models);
 
