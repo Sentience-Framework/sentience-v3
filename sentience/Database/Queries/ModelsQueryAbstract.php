@@ -8,6 +8,7 @@ use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Traits\Models;
 use Sentience\Exceptions\QueryException;
+use Sentience\Helpers\Arrays;
 use Sentience\Helpers\Reflector;
 use Sentience\Models\Model;
 
@@ -19,7 +20,7 @@ abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
     {
         parent::__construct($database, $dialect);
 
-        $this->models = $this->models = !is_array($models) ? [$models] : $models;
+        $this->models = Arrays::wrap($models);
     }
 
     protected function validateModel(mixed $model): void

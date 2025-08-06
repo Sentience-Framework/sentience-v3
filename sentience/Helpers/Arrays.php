@@ -28,6 +28,11 @@ class Arrays
         return $flattened;
     }
 
+    public static function wrap(mixed $value): array
+    {
+        return !is_array($value) ? [$value] : $value;
+    }
+
     public static function avg(array $array): float
     {
         return array_sum($array) / count($array);
