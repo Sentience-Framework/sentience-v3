@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Src\migrations;
+namespace Sentience\Migrations;
 
 class MigrationFactory
 {

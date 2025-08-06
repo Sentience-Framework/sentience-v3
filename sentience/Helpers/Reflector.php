@@ -7,6 +7,8 @@ namespace Sentience\Helpers;
 use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionProperty;
+use ReflectionType;
+use Stringable;
 
 class Reflector
 {
@@ -49,7 +51,7 @@ class Reflector
         return $reflectionClass->isSubclassOf($parent);
     }
 
-    public static function IsNamedType(string|object $objectOrClass, string $property): bool
+    public static function hasNamedType(string|object $objectOrClass, string $property): bool
     {
         $reflectionProperty = new ReflectionProperty($objectOrClass, $property);
 
@@ -84,5 +86,10 @@ class Reflector
         $reflectionProperty = new ReflectionProperty($objectOrClass, $property);
 
         return !Arrays::empty($reflectionProperty->getAttributes($attribute));
+    }
+
+    public static function toNamedType(string|Stringable $type): string
+    {
+        return ltrim((string) $type, '?');
     }
 }

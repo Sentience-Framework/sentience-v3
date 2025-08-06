@@ -6,11 +6,14 @@ namespace Sentience\Database;
 
 use PDO;
 use PDOException;
+use Sentience\Database\Queries\AlterModel;
+use Sentience\Database\Queries\DropModel;
 use Throwable;
 use Sentience\Abstracts\Singleton;
 use Sentience\Database\Dialects\DialectFactory;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\AlterTable;
+use Sentience\Database\Queries\CreateModel;
 use Sentience\Database\Queries\CreateTable;
 use Sentience\Database\Queries\Delete;
 use Sentience\Database\Queries\DeleteModels;
@@ -69,7 +72,7 @@ class Database extends Singleton
             if (method_exists($this->pdo, 'sqliteCreateFunction')) {
                 $this->pdo->sqliteCreateFunction(
                     'REGEXP',
-                    fn (string $pattern, string $value): bool => preg_match(
+                    fn(string $pattern, string $value): bool => preg_match(
                         sprintf(
                             '/%s/u',
                             Strings::escapeChars($pattern, ['/'])
@@ -270,14 +273,29 @@ class Database extends Singleton
         return new CreateTable($this, $this->dialect, $table);
     }
 
+    public function createModel(string $model): CreateModel
+    {
+        return new CreateModel($this, $this->dialect, $model);
+    }
+
     public function alterTable(string|array|Alias|Raw $table): AlterTable
     {
         return new AlterTable($this, $this->dialect, $table);
     }
 
+    public function alterModel(string $model): AlterModel
+    {
+        return new AlterModel($this, $this->dialect, $model);
+    }
+
     public function dropTable(string|array|Alias|Raw $table): DropTable
     {
         return new DropTable($this, $this->dialect, $table);
+    }
+
+    public function dropModel(string $model): DropModel
+    {
+        return new DropModel($this, $this->dialect, $model);
     }
 
     protected function debug(string $query, float $startTime, ?string $error = null): void

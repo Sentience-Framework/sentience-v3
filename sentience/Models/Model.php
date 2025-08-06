@@ -36,7 +36,7 @@ class Model
 
             $property = $columns[$key];
 
-            if (!Reflector::IsNamedType($this, $property)) {
+            if (!Reflector::hasNamedType($this, $property)) {
                 throw new MultipleTypesException('models cannot have mixed or union types');
             }
 
@@ -62,13 +62,13 @@ class Model
 
     public static function getTable(): string
     {
-        $attributes = static::getClassAttributes(Table::class);
+        $tableAttributes = static::getClassAttributes(Table::class);
 
-        if (Arrays::empty($attributes)) {
+        if (Arrays::empty($tableAttributes)) {
             throw new TableException('no table attribute specified on model %s', static::class);
         }
 
-        return $attributes[0]->newInstance()->table;
+        return $tableAttributes[0]->newInstance()->table;
     }
 
     public static function getColumns(): array
@@ -90,40 +90,19 @@ class Model
         return $columns;
     }
 
-    public static function getUniqueColumns(): array
-    {
-        $attributes = static::getClassAttributes(UniqueConstraint::class);
-
-        if (Arrays::empty($attributes)) {
-            return [];
-        }
-
-        $properties = $attributes[0]->newInstance()->properties;
-
-        $columns = [];
-
-        foreach ($properties as $property) {
-            $column = static::getColumn($property);
-
-            $columns[$column] = $property;
-        }
-
-        return array_filter($columns);
-    }
-
     public static function getColumn(string $property): ?string
     {
         if (!property_exists(static::class, $property)) {
             return null;
         }
 
-        $attributes = static::getPropertyAttributes($property, Column::class);
+        $columnAttributes = static::getPropertyAttributes($property, Column::class);
 
-        if (Arrays::empty($attributes)) {
+        if (Arrays::empty($columnAttributes)) {
             return $property;
         }
 
-        return $attributes[0]->newInstance()->column;
+        return $columnAttributes[0]->newInstance()->column;
     }
 
     public static function getPrimaryKeys(): array
@@ -142,5 +121,26 @@ class Model
             $columns,
             fn (string $property) => in_array($property, $primaryKeysAttributeInstance->properties)
         );
+    }
+
+    public static function getUniqueColumns(): array
+    {
+        $uniqueConstraintAttributes = static::getClassAttributes(UniqueConstraint::class);
+
+        if (Arrays::empty($uniqueConstraintAttributes)) {
+            return [];
+        }
+
+        $properties = $uniqueConstraintAttributes[0]->newInstance()->properties;
+
+        $columns = [];
+
+        foreach ($properties as $property) {
+            $column = static::getColumn($property);
+
+            $columns[$column] = $property;
+        }
+
+        return array_filter($columns);
     }
 }
