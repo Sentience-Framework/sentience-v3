@@ -26,6 +26,8 @@ class SelectModels extends ModelsQueryAbstract
     {
         $model = $this->models[0];
 
+        $this->validateModel($model);
+
         $select = $this->database->select($model::getTable());
 
         $select->columns(array_keys($model::getColumns()));
@@ -33,7 +35,7 @@ class SelectModels extends ModelsQueryAbstract
         $results = $select->execute();
 
         return array_map(
-            fn (array $row): object => (new $model())->fromArray($row),
+            fn(array $row): object => (new $model())->fromArray($row),
             $results->fetchAllAssoc()
         );
     }

@@ -18,6 +18,8 @@ class Arrays
         foreach ($array as $value) {
             if ($depth > 0 && is_array($value)) {
                 $flattened = array_merge($flattened, static::flatten($value, $depth - 1));
+
+                continue;
             }
 
             $flattened[] = $value;

@@ -18,6 +18,8 @@ class UpdateModels extends ModelsQueryAbstract
     public function execute(): array
     {
         foreach ($this->models as $model) {
+            $this->validateModel($model);
+
             $query = $this->database->update($model::getTable());
 
             $columns = $model::getColumns();

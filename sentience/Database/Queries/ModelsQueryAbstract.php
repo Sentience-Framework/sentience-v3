@@ -7,6 +7,8 @@ namespace Sentience\Database\Queries;
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Traits\Models;
+use Sentience\Exceptions\QueryException;
+use Sentience\Helpers\Reflector;
 use Sentience\Models\Model;
 
 abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
@@ -18,5 +20,16 @@ abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
         parent::__construct($database, $dialect);
 
         $this->models = $this->models = !is_array($models) ? [$models] : $models;
+    }
+
+    protected function validateModel(mixed $model): void
+    {
+        if (!is_string($model) && !is_object($model)) {
+            throw new QueryException('%s is not a valid type for a model', get_debug_type($model));
+        }
+
+        if (!Reflector::isSubclassOf($model, Model::class)) {
+            throw new QueryException('%s is not a model', $model::class);
+        }
     }
 }

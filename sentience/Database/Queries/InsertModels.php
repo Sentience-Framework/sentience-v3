@@ -15,6 +15,8 @@ class InsertModels extends ModelsQueryAbstract
     public function execute(): array
     {
         foreach ($this->models as $model) {
+            $this->validateModel($model);
+
             $query = $this->database->insert($model::getTable());
 
             $columns = $model::getColumns();

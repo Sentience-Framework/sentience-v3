@@ -13,6 +13,8 @@ class DeleteModels extends ModelsQueryAbstract
     public function execute(): array
     {
         foreach ($this->models as $model) {
+            $this->validateModel($model);
+
             $query = $this->database->delete($model::getTable());
 
             $primaryKeys = $model::getPrimaryKeys();
