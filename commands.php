@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Sentience\Routers\Command;
 use Src\Controllers\DevToolsController;
 use Src\Controllers\ExampleController;

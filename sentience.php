@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Sentience\Env\Env;
 use Sentience\Helpers\Filesystem;
 use Sentience\Sentience\Sentience;

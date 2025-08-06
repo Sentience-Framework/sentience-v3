@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Sentience\Routers\Route;
 use Sentience\Routers\RouteGroup;
 use Sentience\Sentience\Request;
