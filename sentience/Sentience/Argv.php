@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace sentience\Sentience;
+namespace Sentience\Sentience;
 
-use sentience\Abstracts\Singleton;
+use Sentience\Abstracts\Singleton;
 
 class Argv extends Singleton
 {

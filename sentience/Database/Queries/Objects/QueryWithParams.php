@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Queries\Objects;
+namespace Sentience\Database\Queries\Objects;
 
-use sentience\Database\Dialects\DialectInterface;
-use sentience\Exceptions\RawQueryException;
+use Sentience\Database\Dialects\DialectInterface;
+use Sentience\Exceptions\RawQueryException;
 
 class QueryWithParams
 {

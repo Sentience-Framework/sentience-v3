@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Queries\Objects;
+namespace Sentience\Database\Queries\Objects;
 
-use sentience\Database\Queries\Enums\Chain;
-use sentience\Database\Queries\Traits\Where;
+use Sentience\Database\Queries\Enums\Chain;
+use Sentience\Database\Queries\Traits\Where;
 
 class ConditionGroup
 {

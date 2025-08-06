@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Queries\Traits;
+namespace Sentience\Database\Queries\Traits;
 
-use sentience\Database\Queries\Enums\OrderByDirection;
-use sentience\Database\Queries\Objects\OrderBy as OrderByObject;
-use sentience\Database\Queries\Objects\Raw;
+use Sentience\Database\Queries\Enums\OrderByDirection;
+use Sentience\Database\Queries\Objects\OrderBy as OrderByObject;
+use Sentience\Database\Queries\Objects\Raw;
 
 trait OrderBy
 {

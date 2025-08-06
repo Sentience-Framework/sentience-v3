@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Queries\Traits;
+namespace Sentience\Database\Queries\Traits;
 
 use DateTime;
-use sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Queries\Objects\QueryWithParams;
 
 trait Having
 {

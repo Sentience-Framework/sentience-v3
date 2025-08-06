@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Queries;
+namespace Sentience\Database\Queries;
 
-use sentience\Database\Queries\Traits\Distinct;
-use sentience\Database\Queries\Traits\GroupBy;
-use sentience\Database\Queries\Traits\Having;
-use sentience\Database\Queries\Traits\Limit;
-use sentience\Database\Queries\Traits\Offset;
-use sentience\Database\Queries\Traits\OrderBy;
-use sentience\Database\Queries\Traits\Where;
+use Sentience\Database\Queries\Traits\Distinct;
+use Sentience\Database\Queries\Traits\GroupBy;
+use Sentience\Database\Queries\Traits\Having;
+use Sentience\Database\Queries\Traits\Limit;
+use Sentience\Database\Queries\Traits\Offset;
+use Sentience\Database\Queries\Traits\OrderBy;
+use Sentience\Database\Queries\Traits\Where;
 
 class SelectModels extends ModelsQueryAbstract
 {

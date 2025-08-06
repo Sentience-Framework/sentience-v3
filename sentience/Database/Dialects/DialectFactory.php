@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Dialects;
+namespace Sentience\Database\Dialects;
 
 use PDO;
-use sentience\Database\Database;
+use Sentience\Database\Database;
 
 class DialectFactory
 {

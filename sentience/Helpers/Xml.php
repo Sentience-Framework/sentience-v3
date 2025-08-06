@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace sentience\Helpers;
+namespace Sentience\Helpers;
 
 use SimpleXMLElement;
-use sentience\Exceptions\XmlException;
+use Sentience\Exceptions\XmlException;
 
 class Xml
 {

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Queries\Traits;
+namespace Sentience\Database\Queries\Traits;
 
-use sentience\Models\Model;
+use Sentience\Models\Model;
 
 trait Models
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace src\migrations;
+namespace Src\migrations;
 
 class MigrationFactory
 {
@@ -12,8 +12,8 @@ class MigrationFactory
 
         $lines[] = '<?php';
         $lines[] = '';
-        $lines[] = 'use sentience\Database\Database;';
-        $lines[] = 'use sentience\Migrations\MigrationInterface;';
+        $lines[] = 'use Sentience\Database\Database;';
+        $lines[] = 'use Sentience\Migrations\MigrationInterface;';
         $lines[] = '';
         $lines[] = 'return new class () implements MigrationInterface {';
         $lines[] = '    public function apply(Database $database): void';

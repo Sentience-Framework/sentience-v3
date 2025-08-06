@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Queries;
+namespace Sentience\Database\Queries;
 
 use DateTime;
-use sentience\Database\Database;
-use sentience\Database\Dialects\DialectInterface;
-use sentience\Database\Queries\Objects\Alias;
-use sentience\Database\Queries\Objects\Raw;
-use sentience\Database\Queries\Objects\TableWithColumn;
-use sentience\Helpers\Strings;
+use Sentience\Database\Database;
+use Sentience\Database\Dialects\DialectInterface;
+use Sentience\Database\Queries\Objects\Alias;
+use Sentience\Database\Queries\Objects\Raw;
+use Sentience\Database\Queries\Objects\TableWithColumn;
+use Sentience\Helpers\Strings;
 
 abstract class Query
 {

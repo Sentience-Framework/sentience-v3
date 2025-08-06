@@ -2,22 +2,22 @@
 
 declare(strict_types=1);
 
-namespace sentience\Migrations;
+namespace Src\Controllers;
 
 use Throwable;
-use sentience\Abstracts\Controller;
-use sentience\Database\Database;
-use sentience\Database\Queries\Query;
-use sentience\Env\Env;
-use sentience\Exceptions\BuiltInWebServerException;
-use sentience\Exceptions\ConsoleException;
-use sentience\Exceptions\MigrationException;
-use sentience\Helpers\Console;
-use sentience\Helpers\Filesystem;
-use sentience\Helpers\Reflector;
-use sentience\Sentience\Stdio;
-use src\migrations\MigrationFactory;
-use src\models\Migration;
+use Sentience\Abstracts\Controller;
+use Sentience\Database\Database;
+use Sentience\Database\Queries\Query;
+use Sentience\Env\Env;
+use Sentience\Exceptions\BuiltInWebServerException;
+use Sentience\Exceptions\ConsoleException;
+use Sentience\Exceptions\MigrationException;
+use Sentience\Helpers\Console;
+use Sentience\Helpers\Filesystem;
+use Sentience\Helpers\Reflector;
+use Sentience\Sentience\Stdio;
+use Src\Migrations\MigrationFactory;
+use Src\Models\Migration;
 
 class SentienceController extends Controller
 {

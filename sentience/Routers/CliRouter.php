@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace sentience\Routers;
+namespace Sentience\Routers;
 
-use sentience\Sentience\Argv;
+use Sentience\Sentience\Argv;
 
 class CliRouter
 {

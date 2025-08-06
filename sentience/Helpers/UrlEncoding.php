@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace sentience\Helpers;
+namespace Sentience\Helpers;
 
-use sentience\Exceptions\UrlEncodingException;
+use Sentience\Exceptions\UrlEncodingException;
 
 class UrlEncoding
 {

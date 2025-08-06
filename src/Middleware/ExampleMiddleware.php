@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace src\Middleware;
+namespace Src\Middleware;
 
-use sentience\Abstracts\Middleware;
-use sentience\Sentience\Request;
-use sentience\Sentience\Response;
+use Sentience\Abstracts\Middleware;
+use Sentience\Sentience\Request;
+use Sentience\Sentience\Response;
 
 class ExampleMiddleware extends Middleware
 {

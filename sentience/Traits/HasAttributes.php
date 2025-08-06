@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace sentience\Traits;
+namespace Sentience\Traits;
 
 use ReflectionClass;
 use ReflectionProperty;

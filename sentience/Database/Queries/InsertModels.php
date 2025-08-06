@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Queries;
+namespace Sentience\Database\Queries;
 
-use sentience\Helpers\Reflector;
-use sentience\Models\Attributes\AutoIncrement;
+use Sentience\Helpers\Reflector;
+use Sentience\Models\Attributes\AutoIncrement;
 
 class InsertModels extends ModelsQueryAbstract
 {

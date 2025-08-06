@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Queries\Objects;
+namespace Sentience\Database\Queries\Objects;
 
-use sentience\Database\Queries\Enums\OrderByDirection;
+use Sentience\Database\Queries\Enums\OrderByDirection;
 
 class OrderBy
 {

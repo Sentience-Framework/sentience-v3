@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace sentience\Sentience;
+namespace Sentience\Sentience;
 
 use SimpleXMLElement;
-use sentience\Abstracts\Singleton;
-use sentience\Helpers\Json;
-use sentience\Helpers\UrlEncoding;
-use sentience\Helpers\Xml;
+use Sentience\Abstracts\Singleton;
+use Sentience\Helpers\Json;
+use Sentience\Helpers\UrlEncoding;
+use Sentience\Helpers\Xml;
 
 class Request extends Singleton
 {

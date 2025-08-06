@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Queries\Objects;
+namespace Sentience\Database\Queries\Objects;
 
 class UniqueConstraint
 {

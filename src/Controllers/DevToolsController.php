@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace src\controllers;
+namespace Src\Controllers;
 
-use sentience\Abstracts\Controller;
-use sentience\Helpers\Console;
-use sentience\Helpers\Filesystem;
-use sentience\Sentience\Stdio;
+use Sentience\Abstracts\Controller;
+use Sentience\Helpers\Console;
+use Sentience\Helpers\Filesystem;
+use Sentience\Sentience\Stdio;
 
 class DevToolsController extends Controller
 {

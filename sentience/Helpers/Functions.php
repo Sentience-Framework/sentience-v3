@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use sentience\Env\Env;
+use Sentience\Env\Env;
 
 function env(string $key, mixed $default = null): mixed
 {

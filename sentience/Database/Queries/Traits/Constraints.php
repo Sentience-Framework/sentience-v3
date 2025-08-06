@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Queries\Traits;
+namespace Sentience\Database\Queries\Traits;
 
-use sentience\Database\Queries\Objects\ForeignKeyConstraint;
-use sentience\Database\Queries\Objects\UniqueConstraint;
+use Sentience\Database\Queries\Objects\ForeignKeyConstraint;
+use Sentience\Database\Queries\Objects\UniqueConstraint;
 
 trait Constraints
 {

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Queries;
+namespace Sentience\Database\Queries;
 
-use sentience\Database\Queries\Objects\QueryWithParams;
-use sentience\Database\Queries\Traits\Returning;
-use sentience\Database\Queries\Traits\Where;
-use sentience\Database\Results;
+use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Queries\Traits\Returning;
+use Sentience\Database\Queries\Traits\Where;
+use Sentience\Database\Results;
 
 class Delete extends ResultsQueryAbstract
 {
@@ -21,6 +21,11 @@ class Delete extends ResultsQueryAbstract
             'where' => $this->where,
             'returning' => $this->returning
         ]);
+    }
+
+    public function toRawQuery(): string
+    {
+        return parent::toRawQuery();
     }
 
     public function execute(): Results

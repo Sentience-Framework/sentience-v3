@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Queries;
+namespace Sentience\Database\Queries;
 
-use sentience\Database\Queries\Traits\Where;
+use Sentience\Database\Queries\Traits\Where;
 
 class DeleteModels extends ModelsQueryAbstract
 {

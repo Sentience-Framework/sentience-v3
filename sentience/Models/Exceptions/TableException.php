@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace sentience\Models\Exceptions;
+namespace Sentience\Models\Exceptions;
 
-use sentience\Exceptions\CustomException;
+use Sentience\Exceptions\CustomException;
 
 class TableException extends CustomException
 {

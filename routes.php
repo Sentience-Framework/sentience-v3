@@ -1,12 +1,12 @@
 <?php
 
-use sentience\Routers\Route;
-use sentience\Routers\RouteGroup;
-use sentience\Sentience\Request;
-use sentience\Sentience\Response;
-use src\controllers\ExampleController;
-use src\middleware\CORSMiddleware;
-use src\middleware\ExampleMiddleware;
+use Sentience\Routers\Route;
+use Sentience\Routers\RouteGroup;
+use Sentience\Sentience\Request;
+use Sentience\Sentience\Response;
+use Src\Controllers\ExampleController;
+use Src\Middleware\CORSMiddleware;
+use Src\Middleware\ExampleMiddleware;
 
 return [
     Route::register(

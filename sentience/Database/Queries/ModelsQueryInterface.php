@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Queries;
+namespace Sentience\Database\Queries;
 
 interface ModelsQueryInterface
 {

@@ -2,29 +2,29 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Dialects;
+namespace Sentience\Database\Dialects;
 
 use DateTime;
-use sentience\Database\Queries\Enums\WhereType;
-use sentience\Database\Queries\Objects\AddColumn;
-use sentience\Database\Queries\Objects\AddForeignKeyConstraint;
-use sentience\Database\Queries\Objects\AddPrimaryKeys;
-use sentience\Database\Queries\Objects\AddUniqueConstraint;
-use sentience\Database\Queries\Objects\Alias;
-use sentience\Database\Queries\Objects\AlterColumn;
-use sentience\Database\Queries\Objects\Column;
-use sentience\Database\Queries\Objects\Condition;
-use sentience\Database\Queries\Objects\ConditionGroup;
-use sentience\Database\Queries\Objects\DropColumn;
-use sentience\Database\Queries\Objects\DropConstraint;
-use sentience\Database\Queries\Objects\ForeignKeyConstraint;
-use sentience\Database\Queries\Objects\OrderBy;
-use sentience\Database\Queries\Objects\QueryWithParams;
-use sentience\Database\Queries\Objects\Raw;
-use sentience\Database\Queries\Objects\RenameColumn;
-use sentience\Database\Queries\Objects\UniqueConstraint;
-use sentience\Exceptions\QueryException;
-use sentience\Helpers\Strings;
+use Sentience\Database\Queries\Enums\WhereType;
+use Sentience\Database\Queries\Objects\AddColumn;
+use Sentience\Database\Queries\Objects\AddForeignKeyConstraint;
+use Sentience\Database\Queries\Objects\AddPrimaryKeys;
+use Sentience\Database\Queries\Objects\AddUniqueConstraint;
+use Sentience\Database\Queries\Objects\Alias;
+use Sentience\Database\Queries\Objects\AlterColumn;
+use Sentience\Database\Queries\Objects\Column;
+use Sentience\Database\Queries\Objects\Condition;
+use Sentience\Database\Queries\Objects\ConditionGroup;
+use Sentience\Database\Queries\Objects\DropColumn;
+use Sentience\Database\Queries\Objects\DropConstraint;
+use Sentience\Database\Queries\Objects\ForeignKeyConstraint;
+use Sentience\Database\Queries\Objects\OrderBy;
+use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Queries\Objects\Raw;
+use Sentience\Database\Queries\Objects\RenameColumn;
+use Sentience\Database\Queries\Objects\UniqueConstraint;
+use Sentience\Exceptions\QueryException;
+use Sentience\Helpers\Strings;
 
 class Sql implements DialectInterface
 {

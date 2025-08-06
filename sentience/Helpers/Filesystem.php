@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace sentience\Helpers;
+namespace Sentience\Helpers;
 
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use sentience\Exceptions\FilesystemException;
+use Sentience\Exceptions\FilesystemException;
 
 class Filesystem
 {

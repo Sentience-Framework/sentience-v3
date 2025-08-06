@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Queries;
+namespace Sentience\Database\Queries;
 
-use sentience\Database\Queries\Objects\QueryWithParams;
-use sentience\Database\Queries\Traits\IfExists;
-use sentience\Database\Results;
+use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Queries\Traits\IfExists;
+use Sentience\Database\Results;
 
 class DropTable extends ResultsQueryAbstract
 {
@@ -18,6 +18,11 @@ class DropTable extends ResultsQueryAbstract
             'ifExists' => $this->ifExists,
             'table' => $this->table
         ]);
+    }
+
+    public function toRawQuery(): string
+    {
+        return parent::toRawQuery();
     }
 
     public function execute(): Results

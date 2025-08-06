@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace sentience\Models\Attributes;
+namespace Sentience\Models\Attributes;
 
 use Attribute;
 

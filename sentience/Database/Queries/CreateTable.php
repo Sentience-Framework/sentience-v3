@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Queries;
+namespace Sentience\Database\Queries;
 
-use sentience\Database\Queries\Objects\Column;
-use sentience\Database\Queries\Objects\QueryWithParams;
-use sentience\Database\Queries\Traits\Constraints;
-use sentience\Database\Queries\Traits\IfNotExists;
-use sentience\Database\Results;
+use Sentience\Database\Queries\Objects\Column;
+use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Queries\Traits\Constraints;
+use Sentience\Database\Queries\Traits\IfNotExists;
+use Sentience\Database\Results;
 
 class CreateTable extends ResultsQueryAbstract
 {
@@ -30,6 +30,11 @@ class CreateTable extends ResultsQueryAbstract
                 'foreignKey' => $this->foreignKeyConstraints
             ]
         ]);
+    }
+
+    public function toRawQuery(): string
+    {
+        return parent::toRawQuery();
     }
 
     public function execute(): Results

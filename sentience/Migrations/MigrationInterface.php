@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace sentience\Migrations;
+namespace Sentience\Migrations;
 
-use sentience\Database\Database;
+use Sentience\Database\Database;
 
 interface MigrationInterface
 {

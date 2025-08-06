@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace sentience\Sentience;
+namespace Sentience\Sentience;
 
-use sentience\Exceptions\EncodingException;
-use sentience\Helpers\Json;
-use sentience\Helpers\UrlEncoding;
-use sentience\Helpers\Xml;
+use Sentience\Exceptions\EncodingException;
+use Sentience\Helpers\Json;
+use Sentience\Helpers\UrlEncoding;
+use Sentience\Helpers\Xml;
 
 class Response
 {

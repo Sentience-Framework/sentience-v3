@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace src\controllers;
+namespace Src\Controllers;
 
-use sentience\Abstracts\Controller;
-use sentience\Database\Database;
-use sentience\Database\Queries\Query;
-use sentience\Helpers\Json;
-use sentience\Sentience\Request;
-use sentience\Sentience\Response;
-use sentience\Sentience\Stdio;
-use src\Models\Migration;
+use Sentience\Abstracts\Controller;
+use Sentience\Database\Database;
+use Sentience\Database\Queries\Query;
+use Sentience\Helpers\Json;
+use Sentience\Sentience\Request;
+use Sentience\Sentience\Response;
+use Sentience\Sentience\Stdio;
+use Src\Models\Migration;
 
 class ExampleController extends Controller
 {

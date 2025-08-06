@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Queries;
+namespace Sentience\Database\Queries;
 
-use sentience\Database\Database;
-use sentience\Database\Dialects\DialectInterface;
-use sentience\Database\Queries\Objects\Alias;
-use sentience\Database\Queries\Objects\Raw;
-use sentience\Database\Queries\Traits\Table;
+use Sentience\Database\Database;
+use Sentience\Database\Dialects\DialectInterface;
+use Sentience\Database\Queries\Objects\Alias;
+use Sentience\Database\Queries\Objects\Raw;
+use Sentience\Database\Queries\Traits\Table;
 
 abstract class ResultsQueryAbstract extends Query implements ResultsQueryInterface
 {

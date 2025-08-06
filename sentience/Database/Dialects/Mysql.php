@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Dialects;
+namespace Sentience\Database\Dialects;
 
-use sentience\Database\Queries\Objects\AlterColumn;
-use sentience\Database\Queries\Objects\Column;
-use sentience\Database\Queries\Objects\DropConstraint;
-use sentience\Database\Queries\Objects\QueryWithParams;
-use sentience\Database\Queries\Objects\Raw;
-use sentience\Database\Queries\Query;
+use Sentience\Database\Queries\Objects\AlterColumn;
+use Sentience\Database\Queries\Objects\Column;
+use Sentience\Database\Queries\Objects\DropConstraint;
+use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Queries\Objects\Raw;
+use Sentience\Database\Queries\Query;
 
 class Mysql extends Sql implements DialectInterface
 {

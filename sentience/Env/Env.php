@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace sentience\Env;
+namespace Sentience\Env;
 
-use sentience\Exceptions\DotEnvException;
+use Sentience\Exceptions\DotEnvException;
 
 class Env
 {

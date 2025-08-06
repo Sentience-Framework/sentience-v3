@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace sentience\Helpers;
+namespace Sentience\Helpers;
 
 class Console
 {

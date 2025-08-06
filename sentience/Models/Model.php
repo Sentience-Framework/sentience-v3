@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace sentience\Models;
+namespace Sentience\Models;
 
 use ReflectionClass;
 use ReflectionProperty;
-use sentience\Database\Database;
-use sentience\Helpers\Arrays;
-use sentience\Helpers\Reflector;
-use sentience\Models\Attributes\Column;
-use sentience\Models\Attributes\PrimaryKeys;
-use sentience\Models\Attributes\Table;
-use sentience\Models\Attributes\UniqueConstraint;
-use sentience\Models\Exceptions\MultipleTypesException;
-use sentience\Models\Exceptions\TableException;
-use sentience\Traits\HasAttributes;
+use Sentience\Database\Database;
+use Sentience\Helpers\Arrays;
+use Sentience\Helpers\Reflector;
+use Sentience\Models\Attributes\Column;
+use Sentience\Models\Attributes\PrimaryKeys;
+use Sentience\Models\Attributes\Table;
+use Sentience\Models\Attributes\UniqueConstraint;
+use Sentience\Models\Exceptions\MultipleTypesException;
+use Sentience\Models\Exceptions\TableException;
+use Sentience\Traits\HasAttributes;
 
 class Model
 {

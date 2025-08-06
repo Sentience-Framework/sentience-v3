@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Queries;
+namespace Sentience\Database\Queries;
 
 use DateTime;
-use sentience\Database\Queries\Traits\Where;
-use sentience\Helpers\Reflector;
-use sentience\Models\Attributes\AutoIncrement;
+use Sentience\Database\Queries\Traits\Where;
+use Sentience\Helpers\Reflector;
+use Sentience\Models\Attributes\AutoIncrement;
 
 class UpdateModels extends ModelsQueryAbstract
 {

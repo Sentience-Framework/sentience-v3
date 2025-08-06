@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace src\Models;
+namespace Src\Models;
 
 use DateTime;
-use sentience\Models\Attributes\AutoIncrement;
-use sentience\Models\Attributes\Column;
-use sentience\Models\Attributes\PrimaryKeys;
-use sentience\Models\Attributes\Table;
-use sentience\Models\Attributes\UniqueConstraint;
-use sentience\Models\Model;
+use Sentience\Models\Attributes\AutoIncrement;
+use Sentience\Models\Attributes\Column;
+use Sentience\Models\Attributes\PrimaryKeys;
+use Sentience\Models\Attributes\Table;
+use Sentience\Models\Attributes\UniqueConstraint;
+use Sentience\Models\Model;
 
 #[Table('migrations')]
 #[PrimaryKeys(['id'])]

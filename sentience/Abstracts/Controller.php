@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace sentience\Abstracts;
+namespace Sentience\Abstracts;
 
 abstract class Controller
 {

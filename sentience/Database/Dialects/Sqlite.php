@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Dialects;
+namespace Sentience\Database\Dialects;
 
-use sentience\Database\Queries\Objects\AddForeignKeyConstraint;
-use sentience\Database\Queries\Objects\AddPrimaryKeys;
-use sentience\Database\Queries\Objects\AddUniqueConstraint;
-use sentience\Database\Queries\Objects\AlterColumn;
-use sentience\Database\Queries\Objects\DropConstraint;
-use sentience\Database\Queries\Objects\Raw;
-use sentience\Exceptions\QueryException;
+use Sentience\Database\Queries\Objects\AddForeignKeyConstraint;
+use Sentience\Database\Queries\Objects\AddPrimaryKeys;
+use Sentience\Database\Queries\Objects\AddUniqueConstraint;
+use Sentience\Database\Queries\Objects\AlterColumn;
+use Sentience\Database\Queries\Objects\DropConstraint;
+use Sentience\Database\Queries\Objects\Raw;
+use Sentience\Exceptions\QueryException;
 
 class Sqlite extends Sql implements DialectInterface
 {

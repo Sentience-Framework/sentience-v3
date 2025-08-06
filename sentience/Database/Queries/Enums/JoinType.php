@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Queries\Enums;
+namespace Sentience\Database\Queries\Enums;
 
 enum JoinType: string
 {

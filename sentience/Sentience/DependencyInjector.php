@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace sentience\Sentience;
+namespace Sentience\Sentience;
 
 use ReflectionFunctionAbstract;
 use ReflectionNamedType;
 use ReflectionParameter;
-use sentience\Abstracts\Singleton;
-use sentience\Exceptions\DependencyInjectionException;
-use sentience\Helpers\Reflector;
+use Sentience\Abstracts\Singleton;
+use Sentience\Exceptions\DependencyInjectionException;
+use Sentience\Helpers\Reflector;
 
 class DependencyInjector
 {

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Dialects;
+namespace Sentience\Database\Dialects;
 
 use DateTime;
-use sentience\Database\Queries\Objects\Raw;
+use Sentience\Database\Queries\Objects\Raw;
 
 class Pgsql extends Sql implements DialectInterface
 {

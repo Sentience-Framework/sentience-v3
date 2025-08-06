@@ -2,32 +2,32 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database;
+namespace Sentience\Database;
 
 use PDO;
 use PDOException;
 use Throwable;
-use sentience\Abstracts\Singleton;
-use sentience\Database\Dialects\DialectFactory;
-use sentience\Database\Dialects\DialectInterface;
-use sentience\Database\Queries\AlterTable;
-use sentience\Database\Queries\CreateTable;
-use sentience\Database\Queries\Delete;
-use sentience\Database\Queries\DeleteModels;
-use sentience\Database\Queries\DropTable;
-use sentience\Database\Queries\Insert;
-use sentience\Database\Queries\InsertModels;
-use sentience\Database\Queries\Objects\Alias;
-use sentience\Database\Queries\Objects\QueryWithParams;
-use sentience\Database\Queries\Objects\Raw;
-use sentience\Database\Queries\Select;
-use sentience\Database\Queries\SelectModels;
-use sentience\Database\Queries\Update;
-use sentience\Database\Queries\UpdateModels;
-use sentience\Exceptions\DatabaseException;
-use sentience\Helpers\Log;
-use sentience\Helpers\Strings;
-use sentience\Models\Model;
+use Sentience\Abstracts\Singleton;
+use Sentience\Database\Dialects\DialectFactory;
+use Sentience\Database\Dialects\DialectInterface;
+use Sentience\Database\Queries\AlterTable;
+use Sentience\Database\Queries\CreateTable;
+use Sentience\Database\Queries\Delete;
+use Sentience\Database\Queries\DeleteModels;
+use Sentience\Database\Queries\DropTable;
+use Sentience\Database\Queries\Insert;
+use Sentience\Database\Queries\InsertModels;
+use Sentience\Database\Queries\Objects\Alias;
+use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Queries\Objects\Raw;
+use Sentience\Database\Queries\Select;
+use Sentience\Database\Queries\SelectModels;
+use Sentience\Database\Queries\Update;
+use Sentience\Database\Queries\UpdateModels;
+use Sentience\Exceptions\DatabaseException;
+use Sentience\Helpers\Log;
+use Sentience\Helpers\Strings;
+use Sentience\Models\Model;
 
 class Database extends Singleton
 {

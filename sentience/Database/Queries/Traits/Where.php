@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Queries\Traits;
+namespace Sentience\Database\Queries\Traits;
 
 use DateTime;
-use sentience\Database\Queries\Enums\Chain;
-use sentience\Database\Queries\Enums\WhereType;
-use sentience\Database\Queries\Objects\Condition;
-use sentience\Database\Queries\Objects\ConditionGroup;
-use sentience\Database\Queries\Query;
-use sentience\Exceptions\QueryException;
+use Sentience\Database\Queries\Enums\Chain;
+use Sentience\Database\Queries\Enums\WhereType;
+use Sentience\Database\Queries\Objects\Condition;
+use Sentience\Database\Queries\Objects\ConditionGroup;
+use Sentience\Database\Queries\Query;
+use Sentience\Exceptions\QueryException;
 
 trait Where
 {

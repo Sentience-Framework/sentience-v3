@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace sentience\Routers;
+namespace Sentience\Routers;
 
-use sentience\Helpers\Strings;
-use sentience\Sentience\Request;
+use Sentience\Helpers\Strings;
+use Sentience\Sentience\Request;
 
 class HttpRouter
 {

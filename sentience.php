@@ -1,8 +1,8 @@
 <?php
 
-use sentience\Env\Env;
-use sentience\Helpers\Filesystem;
-use sentience\Sentience\Sentience;
+use Sentience\Env\Env;
+use Sentience\Helpers\Filesystem;
+use Sentience\Sentience\Sentience;
 
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/ini.php';

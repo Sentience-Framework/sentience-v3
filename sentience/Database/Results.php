@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database;
+namespace Sentience\Database;
 
 use PDO;
 use PDOStatement;

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Queries\Traits;
+namespace Sentience\Database\Queries\Traits;
 
-use sentience\Database\Queries\Enums\JoinType;
-use sentience\Database\Queries\Objects\Alias;
-use sentience\Database\Queries\Objects\Join;
-use sentience\Database\Queries\Objects\Raw;
-use sentience\Database\Queries\Query;
+use Sentience\Database\Queries\Enums\JoinType;
+use Sentience\Database\Queries\Objects\Alias;
+use Sentience\Database\Queries\Objects\Join;
+use Sentience\Database\Queries\Objects\Raw;
+use Sentience\Database\Queries\Query;
 
 trait Joins
 {

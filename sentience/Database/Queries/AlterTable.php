@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace sentience\Database\Queries;
+namespace Sentience\Database\Queries;
 
-use sentience\Database\Queries\Objects\AddColumn;
-use sentience\Database\Queries\Objects\AddForeignKeyConstraint;
-use sentience\Database\Queries\Objects\AddPrimaryKeys;
-use sentience\Database\Queries\Objects\AddUniqueConstraint;
-use sentience\Database\Queries\Objects\AlterColumn;
-use sentience\Database\Queries\Objects\DropColumn;
-use sentience\Database\Queries\Objects\DropConstraint;
-use sentience\Database\Queries\Objects\QueryWithParams;
-use sentience\Database\Queries\Objects\RenameColumn;
-use sentience\Database\Results;
+use Sentience\Database\Queries\Objects\AddColumn;
+use Sentience\Database\Queries\Objects\AddForeignKeyConstraint;
+use Sentience\Database\Queries\Objects\AddPrimaryKeys;
+use Sentience\Database\Queries\Objects\AddUniqueConstraint;
+use Sentience\Database\Queries\Objects\AlterColumn;
+use Sentience\Database\Queries\Objects\DropColumn;
+use Sentience\Database\Queries\Objects\DropConstraint;
+use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Queries\Objects\RenameColumn;
+use Sentience\Database\Results;
 
 class AlterTable extends ResultsQueryAbstract
 {

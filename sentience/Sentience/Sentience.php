@@ -2,29 +2,29 @@
 
 declare(strict_types=1);
 
-namespace sentience\Sentience;
+namespace Sentience\Sentience;
 
 use Closure;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionMethod;
 use Throwable;
-use sentience\Abstracts\Controller;
-use sentience\Abstracts\Middleware;
-use sentience\Abstracts\Singleton;
-use sentience\Exceptions\CallbackException;
-use sentience\Exceptions\DeprecatedException;
-use sentience\Exceptions\FatalErrorException;
-use sentience\Exceptions\NoticeException;
-use sentience\Exceptions\ParseException;
-use sentience\Exceptions\WarningException;
-use sentience\Helpers\Log;
-use sentience\Helpers\Reflector;
-use sentience\Routers\CliRouter;
-use sentience\Routers\Command;
-use sentience\Routers\HttpRouter;
-use sentience\Routers\Route;
-use sentience\Routers\RouteGroup;
+use Sentience\Abstracts\Controller;
+use Sentience\Abstracts\Middleware;
+use Sentience\Abstracts\Singleton;
+use Sentience\Exceptions\CallbackException;
+use Sentience\Exceptions\DeprecatedException;
+use Sentience\Exceptions\FatalErrorException;
+use Sentience\Exceptions\NoticeException;
+use Sentience\Exceptions\ParseException;
+use Sentience\Exceptions\WarningException;
+use Sentience\Helpers\Log;
+use Sentience\Helpers\Reflector;
+use Sentience\Routers\CliRouter;
+use Sentience\Routers\Command;
+use Sentience\Routers\HttpRouter;
+use Sentience\Routers\Route;
+use Sentience\Routers\RouteGroup;
 
 class Sentience extends Singleton
 {

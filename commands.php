@@ -1,9 +1,9 @@
 <?php
 
-use sentience\Routers\Command;
-use src\controllers\DevToolsController;
-use src\controllers\ExampleController;
-use src\controllers\SentienceController;
+use Sentience\Routers\Command;
+use Src\Controllers\DevToolsController;
+use Src\Controllers\ExampleController;
+use Src\Controllers\SentienceController;
 
 return [
     Command::register(
