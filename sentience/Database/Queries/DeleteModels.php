@@ -37,7 +37,7 @@ class DeleteModels extends Delete
 
             $query->returning();
 
-            $queryWithParams = $query->build();
+            $queryWithParams = $query->toQueryWithParams();
 
             $results = $this->database->prepared($queryWithParams->query, $queryWithParams->params);
 

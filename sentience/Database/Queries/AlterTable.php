@@ -33,7 +33,7 @@ class AlterTable extends Query
         $this->table = $table;
     }
 
-    public function build(): array
+    public function toQueryWithParams(): array
     {
         return $this->dialect->alterTable([
             'table' => $this->table,
@@ -41,9 +41,19 @@ class AlterTable extends Query
         ]);
     }
 
+    public function toRawQuery(): array
+    {
+        $queriesWithParams = $this->toQueryWithParams();
+
+        return array_map(
+            fn(QueryWithParams $queryWithParams): string => $queryWithParams->toRawQuery($this->dialect),
+            $queriesWithParams
+        );
+    }
+
     public function execute(): array
     {
-        $queries = $this->build();
+        $queries = $this->toQueryWithParams();
 
         return array_map(
             fn(QueryWithParams $queryWithParams): Results => $this->database->prepared(

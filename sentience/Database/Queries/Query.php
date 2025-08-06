@@ -12,7 +12,6 @@ use sentience\Database\Queries\Objects\Alias;
 use sentience\Database\Queries\Objects\QueryWithParams;
 use sentience\Database\Queries\Objects\Raw;
 use sentience\Database\Queries\Objects\TableWithColumn;
-use sentience\Database\Results;
 use sentience\Helpers\Strings;
 
 abstract class Query implements QueryInterface
@@ -24,28 +23,19 @@ abstract class Query implements QueryInterface
     {
     }
 
+    public function toRawQuery(): string|array
+    {
+        return $this->toQueryWithParams()->toRawQuery($this->dialect);
+    }
+
     public function execute(): mixed
     {
-        $queryWithParams = $this->build();
+        $queryWithParams = $this->toQueryWithParams();
 
         return $this->database->prepared(
             $queryWithParams->query,
             $queryWithParams->params
         );
-    }
-
-    public function toRawQuery(): string|array
-    {
-        $build = $this->build();
-
-        if (is_array($build)) {
-            return array_map(
-                fn(QueryWithParams $queryWithParams): string => $queryWithParams->toRawQuery($this->dialect),
-                $build
-            );
-        }
-
-        return $build->toRawQuery($this->dialect);
     }
 
     public static function alias(string|array|Raw $name, string $alias): Alias

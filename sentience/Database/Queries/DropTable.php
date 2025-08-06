@@ -25,7 +25,7 @@ class DropTable extends Query
         $this->table = $table;
     }
 
-    public function build(): QueryWithParams
+    public function toQueryWithParams(): QueryWithParams
     {
         return $this->dialect->dropTable([
             'ifExists' => $this->ifExists,

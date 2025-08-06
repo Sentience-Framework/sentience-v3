@@ -31,7 +31,7 @@ class CreateTable extends Query
         $this->table = $table;
     }
 
-    public function build(): QueryWithParams
+    public function toQueryWithParams(): QueryWithParams
     {
         return $this->dialect->createTable([
             'ifNotExists' => $this->ifNotExists,

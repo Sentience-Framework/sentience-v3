@@ -26,7 +26,7 @@ class Delete extends Query
         $this->table = $table;
     }
 
-    public function build(): QueryWithParams
+    public function toQueryWithParams(): QueryWithParams
     {
         return $this->dialect->delete([
             'table' => $this->table,

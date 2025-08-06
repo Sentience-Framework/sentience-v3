@@ -31,7 +31,7 @@ class Update extends Query
         $this->table = $table;
     }
 
-    public function build(): QueryWithParams
+    public function toQueryWithParams(): QueryWithParams
     {
         return $this->dialect->update([
             'table' => $this->table,

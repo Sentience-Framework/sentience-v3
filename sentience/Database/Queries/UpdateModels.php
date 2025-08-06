@@ -58,7 +58,7 @@ class UpdateModels extends Update
 
             $query->returning();
 
-            $queryWithParams = $query->build();
+            $queryWithParams = $query->toQueryWithParams();
 
             $results = $this->database->prepared($queryWithParams->query, $queryWithParams->params);
 
