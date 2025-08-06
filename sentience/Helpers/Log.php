@@ -10,9 +10,9 @@ class Log
 {
     public static function stderrBetweenEqualSigns(string $type, array $lines, bool $useCachedWidth = true): void
     {
-        $terminalWidth = Console::getWidth($useCachedWidth);
+        $consoleWidth = Console::getWidth($useCachedWidth);
 
-        $equalSigns = (($terminalWidth - strlen($type)) / 2) - 1;
+        $equalSigns = (($consoleWidth - strlen($type)) / 2) - 1;
 
         Stdio::errorFLn(
             '%s %s %s',
@@ -25,6 +25,6 @@ class Log
             Stdio::errorLn($line);
         }
 
-        Stdio::errorLn(str_repeat('=', $terminalWidth));
+        Stdio::errorLn(str_repeat('=', $consoleWidth));
     }
 }

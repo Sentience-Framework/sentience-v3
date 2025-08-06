@@ -21,14 +21,14 @@ class UpdateModels extends Update
     {
         parent::__construct($database, $dialect, '');
 
-        $this->models = $models;
+        $this->models = !is_array($models) ? [$models] : $models;
     }
 
     protected array $updates = [];
 
     public function execute(): array
     {
-        foreach ((array) $this->models as $model) {
+        foreach ($this->models as $model) {
             $query = clone $this;
 
             $query->table = $model::getTable();

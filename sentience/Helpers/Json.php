@@ -12,21 +12,24 @@ class Json
     {
         $json = json_encode($value, $flags, $depth);
 
-        if (json_last_error() == JSON_ERROR_NONE) {
-            return $json;
-        }
+        static::checkError();
 
-        throw new JsonException(json_last_error_msg());
+        return $json;
     }
 
     public static function decode(string $json, bool $associative = true, int $depth = 512, int $flags = 0): mixed
     {
         $value = json_decode($json, $associative, $depth, $flags);
 
-        if (json_last_error() == JSON_ERROR_NONE) {
-            return $value;
-        }
+        static::checkError();
 
-        throw new JsonException(json_last_error_msg());
+        return $value;
+    }
+
+    protected static function checkError(): void
+    {
+        if (json_last_error() == JSON_ERROR_NONE) {
+            throw new JsonException(json_last_error_msg());
+        }
     }
 }

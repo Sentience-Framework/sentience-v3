@@ -16,17 +16,18 @@ class InsertModels extends Insert
     use Models;
 
     protected ?bool $onDuplicateUpdate = null;
+    protected array $excludeColumnsOnUpdate = [];
 
     public function __construct(Database $database, DialectInterface $dialect, array|Model $models)
     {
         parent::__construct($database, $dialect, '');
 
-        $this->models = $models;
+        $this->models = !is_array($models) ? [$models] : $models;
     }
 
     public function execute(): array
     {
-        foreach ((array) $this->models as $model) {
+        foreach ($this->models as $model) {
             $query = clone $this;
 
             $query->table = $model::getTable();
@@ -48,9 +49,16 @@ class InsertModels extends Insert
             if (!is_null($this->onDuplicateUpdate)) {
                 $uniqueColumns = array_keys($model::getUniqueColumns());
 
-                $this->onDuplicateUpdate
-                    ? $query->onConflictUpdate($uniqueColumns)
-                    : $query->onConflictIgnore($uniqueColumns);
+                !$this->onDuplicateUpdate
+                    ? $query->onConflictIgnore($uniqueColumns)
+                    : $query->onConflictUpdate(
+                        $uniqueColumns,
+                        array_filter(
+                            $values,
+                            fn(string $column): bool => !in_array($column, $this->excludeColumnsOnUpdate),
+                            ARRAY_FILTER_USE_KEY
+                        )
+                    );
             }
 
             $query->returning();
@@ -92,9 +100,10 @@ class InsertModels extends Insert
         return $this;
     }
 
-    public function onDuplicateUpdate(): static
+    public function onDuplicateUpdate(array $excludeColumns = []): static
     {
         $this->onDuplicateUpdate = true;
+        $this->excludeColumnsOnUpdate = $excludeColumns;
 
         return $this;
     }

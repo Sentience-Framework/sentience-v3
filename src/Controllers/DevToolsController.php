@@ -13,9 +13,9 @@ class DevToolsController extends Controller
 {
     public function sortImports(): void
     {
-        $terminalWidth = Console::getWidth();
+        $consoleWidth = Console::getWidth();
 
-        $equalSigns = ($terminalWidth - 17) / 2 - 1;
+        $equalSigns = ($consoleWidth - 17) / 2 - 1;
 
         Stdio::errorFLn(
             '%s Development tools %s',
@@ -94,14 +94,14 @@ class DevToolsController extends Controller
             Stdio::printFLn('Sorted %d imports in: %s', count($sortedImports), $file);
         }
 
-        Stdio::printLn(str_repeat('=', $terminalWidth));
+        Stdio::printLn(str_repeat('=', $consoleWidth));
     }
 
     public function removeTrailingCommas(): void
     {
-        $terminalWidth = Console::getWidth();
+        $consoleWidth = Console::getWidth();
 
-        $equalSigns = ($terminalWidth - 17) / 2 - 1;
+        $equalSigns = ($consoleWidth - 17) / 2 - 1;
 
         Stdio::errorFLn(
             '%s Development tools %s',
@@ -147,14 +147,14 @@ class DevToolsController extends Controller
             Stdio::printFLn('Removed trailing commas in: %s', $file);
         }
 
-        Stdio::printLn(str_repeat('=', $terminalWidth));
+        Stdio::printLn(str_repeat('=', $consoleWidth));
     }
 
     public function removeExcessiveWhitespace(): void
     {
-        $terminalWidth = Console::getWidth();
+        $consoleWidth = Console::getWidth();
 
-        $equalSigns = ($terminalWidth - 17) / 2 - 1;
+        $equalSigns = ($consoleWidth - 17) / 2 - 1;
 
         Stdio::errorFLn(
             '%s Development tools %s',
@@ -200,6 +200,6 @@ class DevToolsController extends Controller
             Stdio::printFLn('Removed excessive whitespace in: %s', $file);
         }
 
-        Stdio::printLn(str_repeat('=', $terminalWidth));
+        Stdio::printLn(str_repeat('=', $consoleWidth));
     }
 }

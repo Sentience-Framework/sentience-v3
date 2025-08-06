@@ -23,12 +23,6 @@ class SentienceController extends Controller
 {
     public function startServer(): void
     {
-        $terminalWidth = Console::getWidth();
-
-        if ($terminalWidth < 40) {
-            throw new ConsoleException('terminal width of %d is too small. minimum width of 40 required', $terminalWidth);
-        }
-
         $dir = escapeshellarg(Filesystem::path(SENTIENCE_DIR, 'public'));
         $bin = escapeshellarg(defined(PHP_BINARY) ? PHP_BINARY : 'php');
         $host = env('SERVER_HOST', 'localhost');
@@ -42,9 +36,15 @@ class SentienceController extends Controller
             return;
         }
 
+        $consoleWidth = Console::getWidth();
+
+        if ($consoleWidth < 40) {
+            throw new ConsoleException('terminal width of %d is too small. minimum width of 40 required', $consoleWidth);
+        }
+
         Console::stream(
             $command,
-            function ($stdout, $stderr) use ($terminalWidth, &$startTime, &$endTime, &$path): void {
+            function ($stdout, $stderr) use ($consoleWidth, &$startTime, &$endTime, &$path): void {
                 if (empty($stderr)) {
                     return;
                 }
@@ -61,7 +61,7 @@ class SentienceController extends Controller
                     }
 
                     if (preg_match('/^\[.*?\]\sPHP/', $line)) {
-                        $equalSigns = ($terminalWidth - 28) / 2 - 1;
+                        $equalSigns = ($consoleWidth - 28) / 2 - 1;
 
                         Stdio::printFLn(
                             '%s Sentience development server %s',
@@ -147,7 +147,6 @@ class SentienceController extends Controller
         }
 
         $highestBatch = $database->select()
-            ->table(Migration::getTable())
             ->columns([
                 Query::alias(
                     Query::raw('MAX(batch)'),
@@ -163,8 +162,7 @@ class SentienceController extends Controller
         foreach ($migrations as $filepath) {
             $filename = basename((string) $filepath);
 
-            $alreadyApplied = $database->select()
-                ->table(Migration::getTable())
+            $alreadyApplied = $database->select(Migration::getTable())
                 ->whereEquals('filename', $filename)
                 ->exists();
 
@@ -215,8 +213,7 @@ class SentienceController extends Controller
             return;
         }
 
-        $highestBatch = $database->select()
-            ->table(Migration::getTable())
+        $highestBatch = $database->select(Migration::getTable())
             ->columns([
                 Query::alias(
                     Query::raw('MAX(batch)'),
@@ -233,8 +230,7 @@ class SentienceController extends Controller
             return;
         }
 
-        $migrationsToRevert = $database->select()
-            ->table(Migration::getTable())
+        $migrationsToRevert = $database->select(Migration::getTable())
             ->whereEquals('batch', $highestBatch)
             ->orderByDesc('applied_at')
             ->execute()
@@ -254,8 +250,7 @@ class SentienceController extends Controller
                 $migration->rollback($database);
             });
 
-            $database->delete()
-                ->table(Migration::getTable())
+            $database->delete(Migration::getTable())
                 ->whereEquals('id', $migrationToRevert->id)
                 ->execute();
 
