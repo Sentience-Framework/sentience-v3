@@ -4,31 +4,36 @@ declare(strict_types=1);
 
 namespace sentience\Database\Queries;
 
-use sentience\Database\Database;
-use sentience\Database\Dialects\DialectInterface;
-use sentience\Database\Queries\Traits\Models;
-use sentience\Exceptions\QueryException;
+use sentience\Database\Queries\Traits\Distinct;
+use sentience\Database\Queries\Traits\GroupBy;
+use sentience\Database\Queries\Traits\Having;
+use sentience\Database\Queries\Traits\Limit;
+use sentience\Database\Queries\Traits\Offset;
+use sentience\Database\Queries\Traits\OrderBy;
+use sentience\Database\Queries\Traits\Where;
 
-class SelectModels extends Select
+class SelectModels extends ModelsQueryAbstract
 {
-    use Models;
-
-    public function __construct(Database $database, DialectInterface $dialect, string $models)
-    {
-        parent::__construct($database, $dialect, '');
-
-        $this->models = $models;
-    }
+    use Distinct;
+    use GroupBy;
+    use Having;
+    use Limit;
+    use Offset;
+    use OrderBy;
+    use Where;
 
     public function execute(): array
     {
-        $this->table = $this->models::getTable();
-        $this->columns(array_keys($this->models::getColumns()));
+        $model = $this->models[0];
 
-        $results = parent::execute();
+        $select = $this->database->select($model::getTable());
+
+        $select->columns(array_keys($model::getColumns()));
+
+        $results = $select->execute();
 
         return array_map(
-            fn(array $row): object => (new $this->models)->fromArray($row),
+            fn (array $row): object => (new $model())->fromArray($row),
             $results->fetchAllAssoc()
         );
     }

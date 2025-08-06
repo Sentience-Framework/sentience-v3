@@ -6,7 +6,6 @@ namespace sentience\Database\Queries\Objects;
 
 use sentience\Database\Dialects\DialectInterface;
 use sentience\Exceptions\RawQueryException;
-use src\exceptions\QueryException;
 
 class QueryWithParams
 {
@@ -21,7 +20,7 @@ class QueryWithParams
         }
 
         $params = array_map(
-            fn(mixed $param): mixed => $dialect->castToQuery($param),
+            fn (mixed $param): mixed => $dialect->castToQuery($param),
             $this->params
         );
 

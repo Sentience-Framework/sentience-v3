@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use sentience\Database\Queries\Query;
 use sentience\Env\Env;
 
 function env(string $key, mixed $default = null): mixed

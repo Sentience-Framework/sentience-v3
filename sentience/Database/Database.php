@@ -69,7 +69,7 @@ class Database extends Singleton
             if (method_exists($this->pdo, 'sqliteCreateFunction')) {
                 $this->pdo->sqliteCreateFunction(
                     'REGEXP',
-                    fn(string $pattern, string $value): bool => preg_match(
+                    fn (string $pattern, string $value): bool => preg_match(
                         sprintf(
                             '/%s/u',
                             Strings::escapeChars($pattern, ['/'])
@@ -230,7 +230,7 @@ class Database extends Singleton
         return new Select($this, $this->dialect, $table);
     }
 
-    public function selectModels(string $model): Select
+    public function selectModels(string $model): SelectModels
     {
         return new SelectModels($this, $this->dialect, $model);
     }

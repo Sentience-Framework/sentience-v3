@@ -138,7 +138,7 @@ class Model
 
         return array_filter(
             $columns,
-            fn(string $property) => in_array($property, $primaryKeysAttributeInstance->properties)
+            fn (string $property) => in_array($property, $primaryKeysAttributeInstance->properties)
         );
     }
 }

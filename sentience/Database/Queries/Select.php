@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace sentience\Database\Queries;
 
-use sentience\Database\Database;
-use sentience\Database\Dialects\DialectInterface;
-use sentience\Database\Queries\Objects\Alias;
 use sentience\Database\Queries\Objects\QueryWithParams;
 use sentience\Database\Queries\Objects\Raw;
 use sentience\Database\Queries\Traits\Columns;
@@ -17,11 +14,10 @@ use sentience\Database\Queries\Traits\Joins;
 use sentience\Database\Queries\Traits\Limit;
 use sentience\Database\Queries\Traits\Offset;
 use sentience\Database\Queries\Traits\OrderBy;
-use sentience\Database\Queries\Traits\Table;
 use sentience\Database\Queries\Traits\Where;
 use sentience\Database\Results;
 
-class Select extends Query
+class Select extends ResultsQueryAbstract
 {
     use Columns;
     use Distinct;
@@ -31,15 +27,7 @@ class Select extends Query
     use Limit;
     use Offset;
     use OrderBy;
-    use Table;
     use Where;
-
-    public function __construct(Database $database, DialectInterface $dialect, string|array|Alias|Raw $table)
-    {
-        parent::__construct($database, $dialect);
-
-        $this->table = $table;
-    }
 
     public function toQueryWithParams(): QueryWithParams
     {
@@ -55,6 +43,11 @@ class Select extends Query
             'limit' => $this->limit,
             'offset' => $this->offset
         ]);
+    }
+
+    public function execute(): Results
+    {
+        return parent::execute();
     }
 
     public function count(null|string|array|Raw $column = null): int

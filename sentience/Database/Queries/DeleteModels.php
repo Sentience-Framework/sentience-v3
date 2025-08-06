@@ -4,30 +4,16 @@ declare(strict_types=1);
 
 namespace sentience\Database\Queries;
 
-use sentience\Database\Database;
-use sentience\Database\Dialects\DialectFactory;
-use sentience\Database\Dialects\DialectInterface;
-use sentience\Database\Queries\Traits\Models;
-use sentience\Exceptions\QueryException;
-use sentience\Models\Model;
+use sentience\Database\Queries\Traits\Where;
 
-class DeleteModels extends Delete
+class DeleteModels extends ModelsQueryAbstract
 {
-    use Models;
-
-    public function __construct(Database $database, DialectInterface $dialect, array|Model $models)
-    {
-        parent::__construct($database, $dialect, '');
-
-        $this->models = !is_array($models) ? [$models] : $models;
-    }
+    use Where;
 
     public function execute(): array
     {
         foreach ($this->models as $model) {
-            $query = clone $this;
-
-            $query->table = $model::getTable();
+            $query = $this->database->delete($model::getTable());
 
             $primaryKeys = $model::getPrimaryKeys();
 

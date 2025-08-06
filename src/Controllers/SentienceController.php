@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace src\controllers;
+namespace sentience\Migrations;
 
 use Throwable;
 use sentience\Abstracts\Controller;

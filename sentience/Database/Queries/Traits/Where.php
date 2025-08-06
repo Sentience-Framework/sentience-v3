@@ -385,7 +385,7 @@ trait Where
     protected function empty(string|array $column, Chain $chain): static
     {
         return $this->group(
-            fn(ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup
+            fn (ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup
                 ->orWhereIsNull($column)
                 ->orWhereEquals($column, 0)
                 ->orWhereEquals($column, ''),
@@ -396,7 +396,7 @@ trait Where
     protected function notEmpty(string|array $column, Chain $chain): static
     {
         return $this->group(
-            fn(ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup
+            fn (ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup
                 ->whereIsNotNull($column)
                 ->whereNotEquals($column, 0)
                 ->whereNotEquals($column, ''),

@@ -5,33 +5,20 @@ declare(strict_types=1);
 namespace sentience\Database\Queries;
 
 use DateTime;
-use sentience\Database\Database;
-use sentience\Database\Dialects\DialectInterface;
-use sentience\Database\Queries\Traits\Models;
-use sentience\Exceptions\QueryException;
-use sentience\Helpers\Arrays;
+use sentience\Database\Queries\Traits\Where;
 use sentience\Helpers\Reflector;
 use sentience\Models\Attributes\AutoIncrement;
 
-class UpdateModels extends Update
+class UpdateModels extends ModelsQueryAbstract
 {
-    use Models;
-
-    public function __construct(Database $database, DialectInterface $dialect, array|Models $models)
-    {
-        parent::__construct($database, $dialect, '');
-
-        $this->models = !is_array($models) ? [$models] : $models;
-    }
+    use Where;
 
     protected array $updates = [];
 
     public function execute(): array
     {
         foreach ($this->models as $model) {
-            $query = clone $this;
-
-            $query->table = $model::getTable();
+            $query = $this->database->update($model::getTable());
 
             $columns = $model::getColumns();
 

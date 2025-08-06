@@ -6,7 +6,7 @@ namespace sentience\Database\Queries;
 
 use sentience\Database\Queries\Objects\QueryWithParams;
 
-interface QueryInterface
+interface ResultsQueryInterface
 {
     public function toQueryWithParams(): array|QueryWithParams;
     public function toRawQuery(): string|array;

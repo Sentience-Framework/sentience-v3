@@ -39,7 +39,7 @@ class Route
     public function setMethods(array $methods): static
     {
         $this->methods = array_map(
-            fn(string $method): string => strtoupper($method),
+            fn (string $method): string => strtoupper($method),
             $methods
         );
 

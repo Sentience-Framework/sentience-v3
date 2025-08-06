@@ -4,33 +4,18 @@ declare(strict_types=1);
 
 namespace sentience\Database\Queries;
 
-use sentience\Database\Database;
-use sentience\Database\Dialects\DialectInterface;
-use sentience\Database\Queries\Traits\Models;
 use sentience\Helpers\Reflector;
 use sentience\Models\Attributes\AutoIncrement;
-use sentience\Models\Model;
 
-class InsertModels extends Insert
+class InsertModels extends ModelsQueryAbstract
 {
-    use Models;
-
     protected ?bool $onDuplicateUpdate = null;
     protected array $excludeColumnsOnUpdate = [];
-
-    public function __construct(Database $database, DialectInterface $dialect, array|Model $models)
-    {
-        parent::__construct($database, $dialect, '');
-
-        $this->models = !is_array($models) ? [$models] : $models;
-    }
 
     public function execute(): array
     {
         foreach ($this->models as $model) {
-            $query = clone $this;
-
-            $query->table = $model::getTable();
+            $query = $this->database->insert($model::getTable());
 
             $columns = $model::getColumns();
 
@@ -55,7 +40,7 @@ class InsertModels extends Insert
                         $uniqueColumns,
                         array_filter(
                             $values,
-                            fn(string $column): bool => !in_array($column, $this->excludeColumnsOnUpdate),
+                            fn (string $column): bool => !in_array($column, $this->excludeColumnsOnUpdate),
                             ARRAY_FILTER_USE_KEY
                         )
                     );

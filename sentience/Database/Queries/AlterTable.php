@@ -4,34 +4,20 @@ declare(strict_types=1);
 
 namespace sentience\Database\Queries;
 
-use sentience\Database\Database;
-use sentience\Database\Dialects\DialectInterface;
 use sentience\Database\Queries\Objects\AddColumn;
 use sentience\Database\Queries\Objects\AddForeignKeyConstraint;
 use sentience\Database\Queries\Objects\AddPrimaryKeys;
 use sentience\Database\Queries\Objects\AddUniqueConstraint;
-use sentience\Database\Queries\Objects\Alias;
 use sentience\Database\Queries\Objects\AlterColumn;
 use sentience\Database\Queries\Objects\DropColumn;
 use sentience\Database\Queries\Objects\DropConstraint;
 use sentience\Database\Queries\Objects\QueryWithParams;
-use sentience\Database\Queries\Objects\Raw;
 use sentience\Database\Queries\Objects\RenameColumn;
-use sentience\Database\Queries\Traits\Table;
 use sentience\Database\Results;
 
-class AlterTable extends Query
+class AlterTable extends ResultsQueryAbstract
 {
-    use Table;
-
     protected array $alters = [];
-
-    public function __construct(Database $database, DialectInterface $dialect, string|array|Alias|Raw $table)
-    {
-        parent::__construct($database, $dialect);
-
-        $this->table = $table;
-    }
 
     public function toQueryWithParams(): array
     {
@@ -46,7 +32,7 @@ class AlterTable extends Query
         $queriesWithParams = $this->toQueryWithParams();
 
         return array_map(
-            fn(QueryWithParams $queryWithParams): string => $queryWithParams->toRawQuery($this->dialect),
+            fn (QueryWithParams $queryWithParams): string => $queryWithParams->toRawQuery($this->dialect),
             $queriesWithParams
         );
     }
@@ -56,7 +42,7 @@ class AlterTable extends Query
         $queries = $this->toQueryWithParams();
 
         return array_map(
-            fn(QueryWithParams $queryWithParams): Results => $this->database->prepared(
+            fn (QueryWithParams $queryWithParams): Results => $this->database->prepared(
                 $queryWithParams->query,
                 $queryWithParams->params
             ),
