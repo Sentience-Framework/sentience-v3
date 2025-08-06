@@ -15,10 +15,12 @@ use Sentience\Models\Attributes\Table;
 use Sentience\Models\Attributes\UniqueConstraint;
 use Sentience\Models\Exceptions\MultipleTypesException;
 use Sentience\Models\Exceptions\TableException;
+use Sentience\Models\Traits\IsJsonSerializable;
 use Sentience\Traits\HasAttributes;
 
 class Model
 {
+    use IsJsonSerializable;
     use HasAttributes;
 
     public function fromArray(array $assoc): static

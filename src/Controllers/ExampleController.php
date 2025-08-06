@@ -237,7 +237,7 @@ class ExampleController extends Controller
 
         // $database->deleteModels($models)->execute();
 
-        print_r($models);
+        echo json_encode($models, JSON_PRETTY_PRINT);
 
         $end = microtime(true);
 

@@ -5,18 +5,22 @@ declare(strict_types=1);
 namespace Src\Models;
 
 use DateTime;
+use JsonSerializable;
 use Sentience\Models\Attributes\AutoIncrement;
 use Sentience\Models\Attributes\Column;
 use Sentience\Models\Attributes\PrimaryKeys;
 use Sentience\Models\Attributes\Table;
 use Sentience\Models\Attributes\UniqueConstraint;
 use Sentience\Models\Model;
+use Sentience\Models\Traits\IsJsonSerializable;
 
 #[Table('migrations')]
 #[PrimaryKeys(['id'])]
 #[UniqueConstraint(['filename'])]
-class Migration extends Model
+class Migration extends Model implements JsonSerializable
 {
+    use IsJsonSerializable;
+
     #[Column('id')]
     #[AutoIncrement]
     public int $id;
