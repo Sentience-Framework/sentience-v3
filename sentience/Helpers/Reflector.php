@@ -7,7 +7,6 @@ namespace Sentience\Helpers;
 use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionProperty;
-use ReflectionType;
 use Stringable;
 
 class Reflector

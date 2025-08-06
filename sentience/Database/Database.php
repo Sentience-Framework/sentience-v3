@@ -6,17 +6,17 @@ namespace Sentience\Database;
 
 use PDO;
 use PDOException;
-use Sentience\Database\Queries\AlterModel;
-use Sentience\Database\Queries\DropModel;
 use Throwable;
 use Sentience\Abstracts\Singleton;
 use Sentience\Database\Dialects\DialectFactory;
 use Sentience\Database\Dialects\DialectInterface;
+use Sentience\Database\Queries\AlterModel;
 use Sentience\Database\Queries\AlterTable;
 use Sentience\Database\Queries\CreateModel;
 use Sentience\Database\Queries\CreateTable;
 use Sentience\Database\Queries\Delete;
 use Sentience\Database\Queries\DeleteModels;
+use Sentience\Database\Queries\DropModel;
 use Sentience\Database\Queries\DropTable;
 use Sentience\Database\Queries\Insert;
 use Sentience\Database\Queries\InsertModels;
@@ -72,7 +72,7 @@ class Database extends Singleton
             if (method_exists($this->pdo, 'sqliteCreateFunction')) {
                 $this->pdo->sqliteCreateFunction(
                     'REGEXP',
-                    fn(string $pattern, string $value): bool => preg_match(
+                    fn (string $pattern, string $value): bool => preg_match(
                         sprintf(
                             '/%s/u',
                             Strings::escapeChars($pattern, ['/'])

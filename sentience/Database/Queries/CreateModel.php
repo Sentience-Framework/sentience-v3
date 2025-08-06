@@ -73,7 +73,7 @@ class CreateModel extends ModelsQueryAbstract
 
             $query->uniqueConstraint(
                 array_map(
-                    fn(string $property): string => $model::getColumn($property),
+                    fn (string $property): string => $model::getColumn($property),
                     $uniqueConstraint->properties
                 ),
                 $uniqueConstraint->name

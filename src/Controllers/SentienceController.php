@@ -15,8 +15,8 @@ use Sentience\Exceptions\MigrationException;
 use Sentience\Helpers\Console;
 use Sentience\Helpers\Filesystem;
 use Sentience\Helpers\Reflector;
-use Sentience\Sentience\Stdio;
 use Sentience\Migrations\MigrationFactory;
+use Sentience\Sentience\Stdio;
 use Src\Models\Migration;
 
 class SentienceController extends Controller
@@ -183,7 +183,7 @@ class SentienceController extends Controller
             $migrationModel->filename = $filename;
             $migrationModel->appliedAt = Query::now();
 
-            $database->insertModels($migration)->execute();
+            $database->insertModels($migrationModel)->execute();
 
             Stdio::printFLn('Migration %s applied', $filename);
         }
