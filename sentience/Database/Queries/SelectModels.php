@@ -28,11 +28,9 @@ class SelectModels extends ModelsQueryAbstract
 
         $this->validateModel($model);
 
-        $select = $this->database->select($model::getTable());
-
-        $select->columns(array_keys($model::getColumns()));
-
-        $results = $select->execute();
+        $results = $this->database->select($model::getTable())
+            ->columns(array_keys($model::getColumns()))
+            ->execute();
 
         return array_map(
             fn(array $row): object => (new $model())->fromArray($row),
