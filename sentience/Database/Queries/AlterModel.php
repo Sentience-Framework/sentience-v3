@@ -7,7 +7,7 @@ namespace Sentience\Database\Queries;
 use ReflectionProperty;
 use Sentience\Exceptions\ModelException;
 use Sentience\Helpers\Reflector;
-use Sentience\Models\Attributes\AutoIncrement;
+use Sentience\Models\Attributes\Columns\AutoIncrement;
 
 class AlterModel extends ModelsQueryAbstract
 {

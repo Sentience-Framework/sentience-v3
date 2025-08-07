@@ -6,11 +6,11 @@ namespace Src\Models;
 
 use DateTime;
 use JsonSerializable;
-use Sentience\Models\Attributes\AutoIncrement;
-use Sentience\Models\Attributes\Column;
-use Sentience\Models\Attributes\PrimaryKeys;
-use Sentience\Models\Attributes\Table;
-use Sentience\Models\Attributes\UniqueConstraint;
+use Sentience\Models\Attributes\Columns\AutoIncrement;
+use Sentience\Models\Attributes\Columns\Column;
+use Sentience\Models\Attributes\Table\PrimaryKeys;
+use Sentience\Models\Attributes\Table\Table;
+use Sentience\Models\Attributes\Table\UniqueConstraint;
 use Sentience\Models\Model;
 use Sentience\Models\Traits\IsJsonSerializable;
 

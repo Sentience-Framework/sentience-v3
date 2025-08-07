@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Sentience\Database\Queries;
 
 use Sentience\Helpers\Reflector;
-use Sentience\Models\Attributes\AutoIncrement;
+use Sentience\Models\Attributes\Columns\AutoIncrement;
 
 class InsertModels extends ModelsQueryAbstract
 {

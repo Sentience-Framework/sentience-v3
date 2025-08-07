@@ -7,7 +7,7 @@ namespace Sentience\Database\Queries;
 use DateTime;
 use Sentience\Database\Queries\Traits\Where;
 use Sentience\Helpers\Reflector;
-use Sentience\Models\Attributes\AutoIncrement;
+use Sentience\Models\Attributes\Columns\AutoIncrement;
 
 class UpdateModels extends ModelsQueryAbstract
 {

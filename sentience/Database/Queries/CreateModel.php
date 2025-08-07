@@ -9,8 +9,8 @@ use ReflectionProperty;
 use Sentience\Database\Queries\Traits\IfNotExists;
 use Sentience\Exceptions\ModelException;
 use Sentience\Helpers\Reflector;
-use Sentience\Models\Attributes\AutoIncrement;
-use Sentience\Models\Attributes\UniqueConstraint;
+use Sentience\Models\Attributes\Columns\AutoIncrement;
+use Sentience\Models\Attributes\Table\UniqueConstraint;
 
 class CreateModel extends ModelsQueryAbstract
 {
