@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Sentience\Database\Dialects;
 
-use DateTime;
+use DateTimeInterface;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Objects\Raw;
+use Sentience\Timestamp\Timestamp;
 
 interface DialectInterface
 {
@@ -22,8 +23,8 @@ interface DialectInterface
     public function castToDriver(mixed $value): mixed;
     public function castToQuery(mixed $value): mixed;
     public function castBool(bool $bool): mixed;
-    public function castDateTime(DateTime $dateTime): mixed;
+    public function castTimestamp(DateTimeInterface $timestamp): mixed;
     public function parseBool(mixed $bool): bool;
-    public function parseDateTime(string $dateTimeString): ?DateTime;
+    public function parseTimestamp(string $string): ?Timestamp;
     public function phpTypeToColumnType(string $type, bool $autoIncrement, bool $isPrimaryKey, bool $inConstraint): string;
 }

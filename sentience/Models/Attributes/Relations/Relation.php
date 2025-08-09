@@ -10,7 +10,7 @@ use Sentience\Exceptions\RelationException;
 #[Attribute]
 abstract class Relation
 {
-    public const M_TO_R_JOIN_REGEX_PATTERN = '//';
+    public const string M_TO_R_JOIN_REGEX_PATTERN = '//';
 
     protected function parseMToRJoin(string $mToRJoin): ?array
     {

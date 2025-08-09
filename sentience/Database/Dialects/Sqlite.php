@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Sentience\Database\Dialects;
 
+use Sentience\Database\Exceptions\QueryException;
 use Sentience\Database\Queries\Objects\AddForeignKeyConstraint;
 use Sentience\Database\Queries\Objects\AddPrimaryKeys;
 use Sentience\Database\Queries\Objects\AddUniqueConstraint;
 use Sentience\Database\Queries\Objects\AlterColumn;
 use Sentience\Database\Queries\Objects\DropConstraint;
 use Sentience\Database\Queries\Objects\Raw;
-use Sentience\Exceptions\QueryException;
+use Sentience\Timestamp\Timestamp;
 
 class Sqlite extends Sql implements DialectInterface
 {
@@ -101,7 +102,7 @@ class Sqlite extends Sql implements DialectInterface
             'int' => 'INTEGER',
             'float' => 'REAL',
             'string' => 'TEXT',
-            'DateTime' => 'DATETIME',
+            Timestamp::class => 'DATETIME',
             default => 'TEXT'
         };
     }

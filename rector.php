@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
+use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
 use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 
 return RectorConfig::configure()
@@ -14,11 +15,15 @@ return RectorConfig::configure()
         __DIR__ . '/*.php'
     ])
     // uncomment to reach your current PHP version
-    ->withPhpSets(php82: true)
+    ->withPhpSets(php83: true)
     ->withTypeCoverageLevel(0)
     ->withDeadCodeLevel(0)
     ->withCodeQualityLevel(0)
     ->withRules([
         DeclareStrictTypesRector::class
+    ])
+    ->withSkip([
+        AddOverrideAttributeToOverriddenMethodsRector::class
     ]);
+;
 ;

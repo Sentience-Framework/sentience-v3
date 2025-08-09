@@ -9,8 +9,8 @@ use Sentience\Database\Database;
 
 class DialectFactory
 {
-    public const PDO_DRIVER_MYSQL = 'mysql';
-    public const PDO_DRIVER_PGSQL = 'pgsql';
+    public const string PDO_DRIVER_MYSQL = 'mysql';
+    public const string PDO_DRIVER_PGSQL = 'pgsql';
     public const PDO_DRIVER_SQLITE = 'sqlite';
 
     public static function fromDatabase(): DialectInterface

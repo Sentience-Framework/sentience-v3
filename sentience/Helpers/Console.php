@@ -6,7 +6,7 @@ namespace Sentience\Helpers;
 
 class Console
 {
-    public const DEFAULT_WIDTH = 80;
+    public const int DEFAULT_WIDTH = 80;
 
     protected static ?int $width = null;
 

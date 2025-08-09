@@ -10,8 +10,8 @@ use Sentience\Exceptions\FilesystemException;
 
 class Filesystem
 {
-    public const WINDOWS_DIRECTORY_SEPARATOR = '\\';
-    public const UNIX_DIRECTORY_SEPARATOR = '/';
+    public const string WINDOWS_DIRECTORY_SEPARATOR = '\\';
+    public const string UNIX_DIRECTORY_SEPARATOR = '/';
 
     public static function path(string $dir, ?string ...$components): string
     {

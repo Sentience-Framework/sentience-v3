@@ -10,12 +10,13 @@ use Sentience\Database\Queries\Objects\DropConstraint;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Database\Queries\Query;
+use Sentience\Timestamp\Timestamp;
 
 class Mysql extends Sql implements DialectInterface
 {
-    public const IDENTIFIER_ESCAPE = '`';
-    public const STRING_ESCAPE = '"';
-    public const ANSI_ESCAPE = false;
+    public const string IDENTIFIER_ESCAPE = '`';
+    public const string STRING_ESCAPE = '"';
+    public const bool ANSI_ESCAPE = false;
 
     public function createTable(array $config): QueryWithParams
     {
@@ -127,7 +128,7 @@ class Mysql extends Sql implements DialectInterface
             'int' => 'INT',
             'float' => 'FLOAT',
             'string' => 'LONGTEXT',
-            'DateTime' => 'DATETIME(6)',
+            Timestamp::class => 'DATETIME(6)',
             default => 'VARCHAR(255)'
         };
     }

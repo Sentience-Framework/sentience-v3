@@ -6,6 +6,7 @@ namespace Sentience\Models\Traits;
 
 use ReflectionClass;
 use Sentience\Database\Database;
+use Sentience\Timestamp\Timestamp;
 
 trait IsJsonSerializable
 {
@@ -32,7 +33,7 @@ trait IsJsonSerializable
 
             $values[$column] = match (get_debug_type($value)) {
                 'bool' => $dialect->castBool($value),
-                'DateTime' => $dialect->castDateTime($value),
+                Timestamp::class => $dialect->castTimestamp($value),
                 default => $value
             };
         }

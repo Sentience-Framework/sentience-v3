@@ -33,7 +33,7 @@ class SelectModels extends ModelsQueryAbstract
             ->execute();
 
         return array_map(
-            fn(array $row): object => (new $model())->fromDatabase($row),
+            fn (array $row): object => (new $model())->fromDatabase($row),
             $results->fetchAllAssoc()
         );
     }

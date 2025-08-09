@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Sentience\Database\Dialects;
 
-use DateTime;
+use DateTimeInterface;
+use Sentience\Database\Exceptions\QueryException;
 use Sentience\Database\Queries\Enums\WhereType;
 use Sentience\Database\Queries\Objects\AddColumn;
 use Sentience\Database\Queries\Objects\AddForeignKeyConstraint;
@@ -23,17 +24,17 @@ use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Database\Queries\Objects\RenameColumn;
 use Sentience\Database\Queries\Objects\UniqueConstraint;
-use Sentience\Exceptions\QueryException;
 use Sentience\Helpers\Strings;
+use Sentience\Timestamp\Timestamp;
 
 class Sql implements DialectInterface
 {
-    public const IDENTIFIER_ESCAPE = '"';
-    public const STRING_ESCAPE = "'";
-    public const ANSI_ESCAPE = true;
-    public const DATETIME_FORMAT = 'Y-m-d H:i:s.u';
-    public const REGEX_FUNCTION = 'REGEXP';
-    public const NOT_REGEX_FUNCTION = 'NOT REGEXP';
+    public const string IDENTIFIER_ESCAPE = '"';
+    public const string STRING_ESCAPE = "'";
+    public const bool ANSI_ESCAPE = true;
+    public const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
+    public const string REGEX_FUNCTION = 'REGEXP';
+    public const string NOT_REGEX_FUNCTION = 'NOT REGEXP';
 
     public function select(array $config): QueryWithParams
     {
@@ -266,7 +267,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn(string|Raw $column): string => $this->escapeIdentifier($column),
+                    fn (string|Raw $column): string => $this->escapeIdentifier($column),
                     $config['primaryKeys']
                 )
             )
@@ -519,7 +520,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn(string|array|Raw $column): string => $this->escapeIdentifier($column),
+                    fn (string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $groupBy
                 )
             )
@@ -548,7 +549,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn(OrderBy $orderBy): string => sprintf(
+                    fn (OrderBy $orderBy): string => sprintf(
                         '%s %s',
                         $this->escapeIdentifier($orderBy->column),
                         $orderBy->direction->value
@@ -601,7 +602,7 @@ class Sql implements DialectInterface
             : implode(
                 ', ',
                 array_map(
-                    fn(string $column): string => $this->escapeIdentifier($column),
+                    fn (string $column): string => $this->escapeIdentifier($column),
                     $returning
                 )
             );
@@ -639,7 +640,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn(string $column): string => $this->escapeIdentifier($column),
+                    fn (string $column): string => $this->escapeIdentifier($column),
                     $uniqueConstraint->columns
                 )
             )
@@ -717,7 +718,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn(string|array|Raw $column): string => $this->escapeIdentifier($column),
+                    fn (string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $addPrimaryKeys->columns
                 )
             )
@@ -769,7 +770,7 @@ class Sql implements DialectInterface
             ? implode(
                 '.',
                 array_map(
-                    fn(string|Raw $identifier): string => $this->escapeIdentifier($identifier),
+                    fn (string|Raw $identifier): string => $this->escapeIdentifier($identifier),
                     $identifier
                 )
             )
@@ -796,8 +797,8 @@ class Sql implements DialectInterface
             return $this->castBool($value);
         }
 
-        if ($value instanceof DateTime) {
-            return $this->castDateTime($value);
+        if ($value instanceof DateTimeInterface) {
+            return $this->castTimestamp($value);
         }
 
         return $value;
@@ -821,8 +822,8 @@ class Sql implements DialectInterface
             return 'NULL';
         }
 
-        if ($value instanceof DateTime) {
-            return $this->escapeString($this->castDateTime($value));
+        if ($value instanceof DateTimeInterface) {
+            return $this->escapeString($this->castTimestamp($value));
         }
 
         return $value;
@@ -833,9 +834,9 @@ class Sql implements DialectInterface
         return $bool ? 1 : 0;
     }
 
-    public function castDateTime(DateTime $dateTime): mixed
+    public function castTimestamp(DateTimeInterface $dateTimeInterface): mixed
     {
-        return $dateTime->format($this::DATETIME_FORMAT);
+        return $dateTimeInterface->format($this::DATETIME_FORMAT);
     }
 
     public function parseBool(mixed $value): bool
@@ -843,15 +844,15 @@ class Sql implements DialectInterface
         return $value == 1 ? true : false;
     }
 
-    public function parseDateTime(string $dateTimeString): ?DateTime
+    public function parseTimestamp(string $string): ?Timestamp
     {
-        $dateTime = DateTime::createFromFormat($this::DATETIME_FORMAT, $dateTimeString);
+        $timestamp = Timestamp::createFromFormat($this::DATETIME_FORMAT, $string);
 
-        if ($dateTime) {
-            return $dateTime;
+        if ($timestamp) {
+            return $timestamp;
         }
 
-        return datetime_from_string($dateTimeString);
+        return Timestamp::createFromString($string);
     }
 
     public function phpTypeToColumnType(string $type, bool $autoIncrement, bool $isPrimaryKey, bool $inConstraint): string
@@ -861,7 +862,7 @@ class Sql implements DialectInterface
             'int' => 'INT',
             'float' => 'FLOAT',
             'string' => 'TEXT',
-            'DateTime' => 'DATETIME',
+            Timestamp::class => 'DATETIME',
             default => 'TEXT'
         };
     }

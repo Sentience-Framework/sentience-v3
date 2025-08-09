@@ -10,10 +10,10 @@ use Sentience\Sentience\Response;
 
 class CORSMiddleware extends Middleware
 {
-    public const ACCESS_CONTROL_ALLOW_ORIGIN = 'Access-Control-Allow-Origin';
-    public const ACCESS_CONTROL_ALLOW_CREDENTIALS = 'Access-Control-Allow-Credentials';
-    public const ACCESS_CONTROL_ALLOW_METHODS = 'Access-Control-Allow-Methods';
-    public const ACCESS_CONTROL_ALLOW_HEADERS = 'Access-Control-Allow-Headers';
+    public const string ACCESS_CONTROL_ALLOW_ORIGIN = 'Access-Control-Allow-Origin';
+    public const string ACCESS_CONTROL_ALLOW_CREDENTIALS = 'Access-Control-Allow-Credentials';
+    public const string ACCESS_CONTROL_ALLOW_METHODS = 'Access-Control-Allow-Methods';
+    public const string ACCESS_CONTROL_ALLOW_HEADERS = 'Access-Control-Allow-Headers';
 
     public function addHeaders(Request $request): void
     {

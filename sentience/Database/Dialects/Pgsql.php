@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Sentience\Database\Dialects;
 
-use DateTime;
 use Sentience\Database\Queries\Objects\Raw;
+use Sentience\Timestamp\Timestamp;
 
 class Pgsql extends Sql implements DialectInterface
 {
-    public const REGEX_FUNCTION = '~';
-    public const NOT_REGEX_FUNCTION = '!~';
+    public const string REGEX_FUNCTION = '~';
+    public const string NOT_REGEX_FUNCTION = '!~';
 
     public function addOnConflict(string &$query, array &$params, null|string|array $conflict, ?array $conflictUpdates, ?string $primaryKey, array $insertValues): void
     {
@@ -84,13 +84,13 @@ class Pgsql extends Sql implements DialectInterface
         return $bool;
     }
 
-    public function parseDateTime(string $dateTimeString): ?DateTime
+    public function parseTimestamp(string $string): ?Timestamp
     {
-        if (preg_match('/[\+\-][0-9]{2}$/', $dateTimeString)) {
-            return parent::parseDateTime(sprintf('%s:00', $dateTimeString));
+        if (preg_match('/[\+\-][0-9]{2}$/', $string)) {
+            return parent::parseTimestamp(sprintf('%s:00', $string));
         }
 
-        return parent::parseDateTime($dateTimeString);
+        return parent::parseTimestamp($string);
     }
 
     public function phpTypeToColumnType(string $type, bool $autoIncrement, bool $isPrimaryKey, bool $inConstraint): string
@@ -104,7 +104,7 @@ class Pgsql extends Sql implements DialectInterface
             'int' => 'INT8',
             'float' => 'FLOAT8',
             'string' => 'TEXT',
-            'DateTime' => 'TIMESTAMP',
+            Timestamp::class => 'TIMESTAMP',
             default => 'TEXT'
         };
     }

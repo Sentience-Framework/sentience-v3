@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Sentience\Database\Queries;
 
-use DateTime;
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Objects\Alias;
 use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Database\Queries\Objects\TableWithColumn;
 use Sentience\Helpers\Strings;
+use Sentience\Timestamp\Timestamp;
 
 abstract class Query
 {
@@ -33,9 +33,9 @@ abstract class Query
         return new TableWithColumn($table, $column);
     }
 
-    public static function now(): DateTime
+    public static function now(): Timestamp
     {
-        return new DateTime();
+        return new Timestamp();
     }
 
     public static function escapeLikeChars(string $string, bool $escapeBackslash = false): string

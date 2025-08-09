@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Sentience\Database\Queries\Traits;
 
-use DateTime;
+use DateTimeInterface;
+use Sentience\Database\Exceptions\QueryException;
 use Sentience\Database\Queries\Enums\Chain;
 use Sentience\Database\Queries\Enums\WhereType;
 use Sentience\Database\Queries\Objects\Condition;
 use Sentience\Database\Queries\Objects\ConditionGroup;
 use Sentience\Database\Queries\Query;
-use Sentience\Exceptions\QueryException;
 
 trait Where
 {
@@ -66,32 +66,32 @@ trait Where
         return $this->notIn($column, $values, Chain::AND);
     }
 
-    public function whereLessThan(string|array $column, int|float|string|DateTime $value): static
+    public function whereLessThan(string|array $column, int|float|string|DateTimeInterface $value): static
     {
         return $this->lessThan($column, $value, Chain::AND);
     }
 
-    public function whereLessThanOrEquals(string|array $column, int|float|string|DateTime $value): static
+    public function whereLessThanOrEquals(string|array $column, int|float|string|DateTimeInterface $value): static
     {
         return $this->lessThanOrEquals($column, $value, Chain::AND);
     }
 
-    public function whereGreaterThan(string|array $column, int|float|string|DateTime $value): static
+    public function whereGreaterThan(string|array $column, int|float|string|DateTimeInterface $value): static
     {
         return $this->greaterThan($column, $value, Chain::AND);
     }
 
-    public function whereGreaterThanOrEquals(string|array $column, int|float|string|DateTime $value): static
+    public function whereGreaterThanOrEquals(string|array $column, int|float|string|DateTimeInterface $value): static
     {
         return $this->greaterThanOrEquals($column, $value, Chain::AND);
     }
 
-    public function whereBetween(string|array $column, int|float|string|DateTime $min, int|float|string|DateTime $max): static
+    public function whereBetween(string|array $column, int|float|string|DateTimeInterface $min, int|float|string|DateTimeInterface $max): static
     {
         return $this->between($column, $min, $max, Chain::AND);
     }
 
-    public function whereNotBetween(string|array $column, int|float|string|DateTime $min, int|float|string|DateTime $max): static
+    public function whereNotBetween(string|array $column, int|float|string|DateTimeInterface $min, int|float|string|DateTimeInterface $max): static
     {
         return $this->notBetween($column, $min, $max, Chain::AND);
     }
@@ -131,7 +131,7 @@ trait Where
         return $this->group($callback, Chain::AND);
     }
 
-    public function where(string $expression, null|bool|int|float|string|DateTime ...$values): static
+    public function where(string $expression, null|bool|int|float|string|DateTimeInterface ...$values): static
     {
         return $this->rawExpression($expression, $values, Chain::AND);
     }
@@ -186,32 +186,32 @@ trait Where
         return $this->notIn($column, $values, Chain::OR);
     }
 
-    public function orWhereLessThan(string|array $column, int|float|string|DateTime $value): static
+    public function orWhereLessThan(string|array $column, int|float|string|DateTimeInterface $value): static
     {
         return $this->lessThan($column, $value, Chain::OR);
     }
 
-    public function orWhereLessThanOrEquals(string|array $column, int|float|string|DateTime $value): static
+    public function orWhereLessThanOrEquals(string|array $column, int|float|string|DateTimeInterface $value): static
     {
         return $this->lessThanOrEquals($column, $value, Chain::OR);
     }
 
-    public function orWhereGreaterThan(string|array $column, int|float|string|DateTime $value): static
+    public function orWhereGreaterThan(string|array $column, int|float|string|DateTimeInterface $value): static
     {
         return $this->greaterThan($column, $value, Chain::OR);
     }
 
-    public function orWhereGreaterThanOrEquals(string|array $column, int|float|string|DateTime $value): static
+    public function orWhereGreaterThanOrEquals(string|array $column, int|float|string|DateTimeInterface $value): static
     {
         return $this->greaterThanOrEquals($column, $value, Chain::OR);
     }
 
-    public function orWhereBetween(string|array $column, int|float|string|DateTime $min, int|float|string|DateTime $max): static
+    public function orWhereBetween(string|array $column, int|float|string|DateTimeInterface $min, int|float|string|DateTimeInterface $max): static
     {
         return $this->between($column, $min, $max, Chain::OR);
     }
 
-    public function orWhereNotBetween(string|array $column, int|float|string|DateTime $min, int|float|string|DateTime $max): static
+    public function orWhereNotBetween(string|array $column, int|float|string|DateTimeInterface $min, int|float|string|DateTimeInterface $max): static
     {
         return $this->notBetween($column, $min, $max, Chain::OR);
     }
@@ -251,7 +251,7 @@ trait Where
         return $this->group($callback, Chain::OR);
     }
 
-    public function orWhere(string $expression, null|bool|int|float|string|DateTime ...$values): static
+    public function orWhere(string $expression, null|bool|int|float|string|DateTimeInterface ...$values): static
     {
         return $this->rawExpression($expression, $values, Chain::OR);
     }
@@ -326,42 +326,42 @@ trait Where
         return $this;
     }
 
-    protected function lessThan(string|array $column, int|float|string|DateTime $value, Chain $chain): static
+    protected function lessThan(string|array $column, int|float|string|DateTimeInterface $value, Chain $chain): static
     {
         $this->addCondition(WhereType::LESS_THAN, $column, $value, $chain);
 
         return $this;
     }
 
-    protected function lessThanOrEquals(string|array $column, int|float|string|DateTime $value, Chain $chain): static
+    protected function lessThanOrEquals(string|array $column, int|float|string|DateTimeInterface $value, Chain $chain): static
     {
         $this->addCondition(WhereType::LESS_THAN_OR_EQUALS, $column, $value, $chain);
 
         return $this;
     }
 
-    protected function greaterThan(string|array $column, int|float|string|DateTime $value, Chain $chain): static
+    protected function greaterThan(string|array $column, int|float|string|DateTimeInterface $value, Chain $chain): static
     {
         $this->addCondition(WhereType::GREATER_THAN, $column, $value, $chain);
 
         return $this;
     }
 
-    protected function greaterThanOrEquals(string|array $column, int|float|string|DateTime $value, Chain $chain): static
+    protected function greaterThanOrEquals(string|array $column, int|float|string|DateTimeInterface $value, Chain $chain): static
     {
         $this->addCondition(WhereType::GREATER_THAN_OR_EQUALS, $column, $value, $chain);
 
         return $this;
     }
 
-    protected function between(string|array $column, int|float|string|DateTime $min, int|float|string|DateTime $max, Chain $chain): static
+    protected function between(string|array $column, int|float|string|DateTimeInterface $min, int|float|string|DateTimeInterface $max, Chain $chain): static
     {
         $this->addCondition(WhereType::BETWEEN, $column, [$min, $max], $chain);
 
         return $this;
     }
 
-    protected function notBetween(string|array $column, int|float|string|DateTime $min, int|float|string|DateTime $max, Chain $chain): static
+    protected function notBetween(string|array $column, int|float|string|DateTimeInterface $min, int|float|string|DateTimeInterface $max, Chain $chain): static
     {
         $this->addCondition(WhereType::NOT_BETWEEN, $column, [$min, $max], $chain);
 

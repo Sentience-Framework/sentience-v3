@@ -15,6 +15,7 @@ use Sentience\Models\Attributes\Table\Table;
 use Sentience\Models\Attributes\Table\UniqueConstraint;
 use Sentience\Models\Exceptions\MultipleTypesException;
 use Sentience\Models\Exceptions\TableException;
+use Sentience\Timestamp\Timestamp;
 use Sentience\Traits\HasAttributes;
 
 class Model
@@ -45,7 +46,7 @@ class Model
                 'int' => (int) $value,
                 'float' => (float) $value,
                 'string' => (string) $value,
-                'DateTime' => $dialect->parseDateTime($value),
+                Timestamp::class => $dialect->parseTimestamp($value),
                 default => $value
             };
         }
@@ -112,7 +113,7 @@ class Model
 
         return array_filter(
             $columns,
-            fn(string $property) => in_array($property, $primaryKeysAttributeInstance->properties)
+            fn (string $property) => in_array($property, $primaryKeysAttributeInstance->properties)
         );
     }
 

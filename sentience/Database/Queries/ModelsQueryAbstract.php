@@ -6,8 +6,8 @@ namespace Sentience\Database\Queries;
 
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
+use Sentience\Database\Exceptions\QueryException;
 use Sentience\Database\Queries\Traits\Models;
-use Sentience\Exceptions\QueryException;
 use Sentience\Helpers\Arrays;
 use Sentience\Helpers\Reflector;
 use Sentience\Models\Model;

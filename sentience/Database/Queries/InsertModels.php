@@ -42,7 +42,7 @@ class InsertModels extends ModelsQueryAbstract
                         $uniqueColumns,
                         array_filter(
                             $values,
-                            fn(string $column): bool => !in_array($column, $this->excludeColumnsOnUpdate),
+                            fn (string $column): bool => !in_array($column, $this->excludeColumnsOnUpdate),
                             ARRAY_FILTER_USE_KEY
                         )
                     );

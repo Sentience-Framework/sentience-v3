@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Sentience\Database\Queries;
 
-use DateTime;
+use DateTimeInterface;
 use Sentience\Database\Queries\Traits\Where;
 use Sentience\Helpers\Reflector;
 use Sentience\Models\Attributes\Columns\AutoIncrement;
@@ -84,7 +84,7 @@ class UpdateModels extends ModelsQueryAbstract
         return $this;
     }
 
-    public function updateColumn(string $column, null|bool|int|float|string|DateTime $value): static
+    public function updateColumn(string $column, null|bool|int|float|string|DateTimeInterface $value): static
     {
         $this->updates[$column] = $value;
 
