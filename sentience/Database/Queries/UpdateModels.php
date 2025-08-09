@@ -54,7 +54,7 @@ class UpdateModels extends ModelsQueryAbstract
             $updatedRow = $results->fetchAssoc();
 
             if ($updatedRow) {
-                $model->fromArray($updatedRow);
+                $model->fromDatabase($updatedRow);
             }
 
             $lastInsertId = $results->lastInsertId();

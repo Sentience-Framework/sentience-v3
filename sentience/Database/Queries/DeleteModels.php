@@ -32,7 +32,7 @@ class DeleteModels extends ModelsQueryAbstract
             $deletedRow = $results->fetchAssoc();
 
             if ($deletedRow) {
-                $model->fromArray($deletedRow);
+                $model->fromDatabase($deletedRow);
             }
         }
 

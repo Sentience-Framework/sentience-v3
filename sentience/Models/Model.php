@@ -15,15 +15,13 @@ use Sentience\Models\Attributes\Table\Table;
 use Sentience\Models\Attributes\Table\UniqueConstraint;
 use Sentience\Models\Exceptions\MultipleTypesException;
 use Sentience\Models\Exceptions\TableException;
-use Sentience\Models\Traits\IsJsonSerializable;
 use Sentience\Traits\HasAttributes;
 
 class Model
 {
-    use IsJsonSerializable;
     use HasAttributes;
 
-    public function fromArray(array $assoc): static
+    public function fromDatabase(array $assoc): static
     {
         $columns = static::getColumns();
 
@@ -40,24 +38,19 @@ class Model
                 throw new MultipleTypesException('models cannot have mixed or union types');
             }
 
-            $type = (string) (new ReflectionProperty($this, $property))->getType();
+            $type = Reflector::toNamedType((new ReflectionProperty($this, $property))->getType());
 
             $this->{$property} = match ($type) {
-                '?bool', 'bool' => $dialect->parseBool($value),
-                '?int', 'int' => (int) $value,
-                '?float', 'float' => (float) $value,
-                '?string', 'string' => (string) $value,
-                '?DateTime', 'DateTime' => $dialect->parseDateTime($value),
+                'bool' => $dialect->parseBool($value),
+                'int' => (int) $value,
+                'float' => (float) $value,
+                'string' => (string) $value,
+                'DateTime' => $dialect->parseDateTime($value),
                 default => $value
             };
         }
 
         return $this;
-    }
-
-    public function fromObject(object $data): static
-    {
-        return $this->fromArray((array) $data);
     }
 
     public static function getTable(): string
@@ -119,7 +112,7 @@ class Model
 
         return array_filter(
             $columns,
-            fn (string $property) => in_array($property, $primaryKeysAttributeInstance->properties)
+            fn(string $property) => in_array($property, $primaryKeysAttributeInstance->properties)
         );
     }
 
