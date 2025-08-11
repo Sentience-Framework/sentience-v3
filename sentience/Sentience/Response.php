@@ -6,6 +6,7 @@ namespace Sentience\Sentience;
 
 use Sentience\Exceptions\EncodingException;
 use Sentience\Helpers\Json;
+use Sentience\Helpers\Strings;
 use Sentience\Helpers\UrlEncoding;
 use Sentience\Helpers\Xml;
 
@@ -422,31 +423,11 @@ class Response
             echo Xml::encode(
                 $content,
                 function (string $parent, string $key) use ($statusCode): string {
-                    $lowercaseParent = strtolower($parent);
-
-                    if (preg_match('/^.{1}ies$/', $lowercaseParent)) {
-                        return substr($parent, 0, -1);
-                    }
-
-                    if (preg_match('/ies$/', $lowercaseParent)) {
-                        $singular = substr($parent, 0, -3);
-
-                        return $singular . (preg_match('/[A-Z]{1}$/', $singular) ? 'Y' : 'y');
-                    }
-
-                    if (preg_match('/[^aeiouy]es$/', $lowercaseParent)) {
-                        return substr($parent, 0, -2);
-                    }
-
-                    if (preg_match('/s{1}$/', $lowercaseParent)) {
-                        return substr($parent, 0, -1);
-                    }
-
-                    if ($lowercaseParent == 'trace' && $statusCode == 500) {
+                    if (strtolower($parent) == 'trace' && $statusCode == 500) {
                         return 'frame';
                     }
 
-                    return $parent;
+                    return Strings::singularize($parent);
                 }
             );
 

@@ -1,16 +1,14 @@
 <?php
 
-use Sentience\Timestamp\Timestamp;
+declare(strict_types=1);
+use Sentience\Helpers\Strings;
 
 include 'vendor/autoload.php';
 
-$timestamp = Timestamp::createFromString('2025-01-01T12:10:15+05:00');
 
-if (!$timestamp) {
-    echo 'error in format';
-    exit;
-}
+$array = [
+    (new stdClass())
+];
 
-// echo $timestamp->format('Y-m-d H:i:s.u');
-echo $timestamp->jsonSerialize();
+echo $array[1]?->name ?? null;
 
