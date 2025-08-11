@@ -1,9 +1,16 @@
 <?php
 
-declare(strict_types=1);
+use Sentience\Timestamp\Timestamp;
 
-$dateTime = new DateTime();
+include 'vendor/autoload.php';
 
-$dateTime->add(DateInterval::createFromDateString('100000000 seconds'));
+$timestamp = Timestamp::createFromString('2025-01-01T12:10:15+05:00');
 
-echo $dateTime->format(DateTime::RFC3339_EXTENDED);
+if (!$timestamp) {
+    echo 'error in format';
+    exit;
+}
+
+// echo $timestamp->format('Y-m-d H:i:s.u');
+echo $timestamp->jsonSerialize();
+

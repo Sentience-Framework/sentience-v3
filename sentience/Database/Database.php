@@ -34,10 +34,6 @@ use Sentience\Models\Model;
 
 class Database extends Singleton
 {
-    protected string $dsn;
-    protected PDO $pdo;
-    public DialectInterface $dialect;
-
     protected static function createInstance(): static
     {
         $dsn = env('DB_DSN');
@@ -47,32 +43,22 @@ class Database extends Singleton
             throw new DatabaseException('no DB_DSN defined in environment', $dsn);
         }
 
-        return new static($dsn, $debug);
-    }
-
-    public function __construct(string $dsn, protected bool $debug, ?string $username = null, ?string $password = null, array $options = [])
-    {
-        $options = [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
-            PDO::ATTR_EMULATE_PREPARES => false,
-            PDO::ATTR_STRINGIFY_FETCHES => false,
-            ...$options
-        ];
-
-        $this->pdo = new PDO(
-            $dsn,
-            $username,
-            $password,
-            $options
+        $pdo = new PDO(
+            dsn: $dsn,
+            options: [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
+                PDO::ATTR_EMULATE_PREPARES => false,
+                PDO::ATTR_STRINGIFY_FETCHES => false,
+            ]
         );
 
-        $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+        $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
 
         if ($driver == DialectFactory::PDO_DRIVER_SQLITE) {
-            if (method_exists($this->pdo, 'sqliteCreateFunction')) {
-                $this->pdo->sqliteCreateFunction(
+            if (method_exists($pdo, 'sqliteCreateFunction')) {
+                $pdo->sqliteCreateFunction(
                     'REGEXP',
-                    fn (string $pattern, string $value): bool => preg_match(
+                    fn(string $pattern, string $value): bool => preg_match(
                         sprintf(
                             '/%s/u',
                             Strings::escapeChars($pattern, ['/'])
@@ -84,7 +70,16 @@ class Database extends Singleton
             }
         }
 
-        $this->dialect = DialectFactory::fromPDODriver($driver);
+        $dialect = DialectFactory::fromPDODriver($driver);
+
+        return new static($pdo, $debug, $dialect);
+    }
+
+    public function __construct(
+        protected PDO $pdo,
+        protected bool $debug,
+        public DialectInterface $dialect
+    ) {
     }
 
     public function exec(string $query): int
