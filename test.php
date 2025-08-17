@@ -1,13 +1,11 @@
 <?php
 
 declare(strict_types=1);
-use Sentience\Helpers\Strings;
+use Modules\Helpers\Strings;
 
 include 'vendor/autoload.php';
 
-$array = [
-    (new stdClass())
-];
+$value = (float) null;
 
-echo $array[1]?->name ?? null;
+echo json_encode(get_debug_type($value));
 

@@ -8,11 +8,11 @@
     ],
     "autoload": {
         "psr-4": {
-            "Sentience\\": "sentience",
+            "Modules\\": "modules",
             "Src\\": "src"
         },
         "files": [
-            "sentience/Helpers/Functions.php"
+            "modules/Helpers/Functions.php"
         ]
     },
     "require": {

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Sentience\Env\Env;
-use Sentience\Helpers\Filesystem;
-use Sentience\Sentience\Sentience;
+use Modules\Env\Env;
+use Modules\Helpers\Filesystem;
+use Modules\Sentience\Sentience;
 
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/ini.php';

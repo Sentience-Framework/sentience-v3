@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace Src\Controllers;
 
 use Throwable;
-use Sentience\Abstracts\Controller;
-use Sentience\Database\Database;
-use Sentience\Database\Queries\Query;
-use Sentience\Env\Env;
-use Sentience\Exceptions\BuiltInWebServerException;
-use Sentience\Exceptions\ConsoleException;
-use Sentience\Exceptions\MigrationException;
-use Sentience\Helpers\Console;
-use Sentience\Helpers\Filesystem;
-use Sentience\Helpers\Reflector;
-use Sentience\Migrations\MigrationFactory;
-use Sentience\Sentience\Stdio;
+use Modules\Abstracts\Controller;
+use Modules\Database\Database;
+use Modules\Database\Queries\Query;
+use Modules\Env\Env;
+use Modules\Exceptions\BuiltInWebServerException;
+use Modules\Exceptions\ConsoleException;
+use Modules\Exceptions\MigrationException;
+use Modules\Helpers\Console;
+use Modules\Helpers\Filesystem;
+use Modules\Helpers\Reflector;
+use Modules\Migrations\MigrationFactory;
+use Modules\Sentience\Stdio;
 use Src\Models\Migration;
 
 class SentienceController extends Controller

@@ -1,0 +1,29 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Modules\Database\Queries;
+
+use Modules\Database\Queries\Traits\IfExists;
+
+class DropModel extends ModelsQueryAbstract
+{
+    use IfExists;
+
+    public function execute(): null
+    {
+        $model = $this->models[0];
+
+        $this->validateModel($model);
+
+        $query = $this->database->dropTable($model::getTable());
+
+        if ($this->ifExists) {
+            $query->ifExists();
+        }
+
+        $query->execute();
+
+        return null;
+    }
+}

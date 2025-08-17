@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Src\Middleware;
 
-use Sentience\Abstracts\Middleware;
-use Sentience\Sentience\Request;
-use Sentience\Sentience\Response;
+use Modules\Abstracts\Middleware;
+use Modules\Sentience\Request;
+use Modules\Sentience\Response;
 
 class CORSMiddleware extends Middleware
 {

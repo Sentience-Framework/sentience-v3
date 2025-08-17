@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Src\Controllers;
 
-use Sentience\Abstracts\Controller;
-use Sentience\Helpers\Console;
-use Sentience\Helpers\Filesystem;
-use Sentience\Sentience\Stdio;
+use Modules\Abstracts\Controller;
+use Modules\Helpers\Console;
+use Modules\Helpers\Filesystem;
+use Modules\Sentience\Stdio;
 
 class DevToolsController extends Controller
 {
