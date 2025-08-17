@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Sentience\Database\Dialects;
 
+use DateTime;
+use DateTimeImmutable;
 use Sentience\Database\Exceptions\QueryException;
 use Sentience\Database\Queries\Objects\AddForeignKeyConstraint;
 use Sentience\Database\Queries\Objects\AddPrimaryKeys;
@@ -30,7 +32,7 @@ class Sqlite extends Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn (string $column): string => $this->escapeIdentifier($column),
+                    fn(string $column): string => $this->escapeIdentifier($column),
                     $conflict
                 )
             )
@@ -102,7 +104,9 @@ class Sqlite extends Sql implements DialectInterface
             'int' => 'INTEGER',
             'float' => 'REAL',
             'string' => 'TEXT',
-            Timestamp::class => 'DATETIME',
+            Timestamp::class,
+            DateTime::class,
+            DateTimeImmutable::class => 'DATETIME',
             default => 'TEXT'
         };
     }

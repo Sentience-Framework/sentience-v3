@@ -27,7 +27,7 @@ class DeleteModels extends ModelsQueryAbstract
 
             $queryWithParams = $query->toQueryWithParams();
 
-            $results = $this->database->prepared($queryWithParams->query, $queryWithParams->params);
+            $results = $this->database->queryWithParams($queryWithParams->query);
 
             $deletedRow = $results->fetchAssoc();
 

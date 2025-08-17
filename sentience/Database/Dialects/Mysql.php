@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Sentience\Database\Dialects;
 
+use DateTime;
+use DateTimeImmutable;
 use Sentience\Database\Queries\Objects\AlterColumn;
 use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\DropConstraint;
@@ -128,7 +130,9 @@ class Mysql extends Sql implements DialectInterface
             'int' => 'INT',
             'float' => 'FLOAT',
             'string' => 'LONGTEXT',
-            Timestamp::class => 'DATETIME(6)',
+            Timestamp::class,
+            DateTime::class,
+            DateTimeImmutable::class => 'DATETIME(6)',
             default => 'VARCHAR(255)'
         };
     }

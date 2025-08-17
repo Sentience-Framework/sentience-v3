@@ -86,9 +86,4 @@ class Reflector
 
         return !Arrays::empty($reflectionProperty->getAttributes($attribute));
     }
-
-    public static function toNamedType(string|Stringable $type): string
-    {
-        return ltrim((string) $type, '?');
-    }
 }

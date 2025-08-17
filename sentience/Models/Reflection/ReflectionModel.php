@@ -56,26 +56,11 @@ class ReflectionModel
 
     public function getPrimaryKeys(): array
     {
-        $primaryKeyAttributes = $this->reflectionClass->getAttributes(PrimaryKeys::class);
-
-        if (Arrays::empty($primaryKeyAttributes)) {
-            return [];
-        }
-
-        $properties = $this->getProperties();
-
-        $primaryKeyProperties = $primaryKeyAttributes[0]->newInstance()->properties;
-
-        return array_values(
-            array_filter(
-                $properties,
-                fn(ReflectionModelProperty $reflectionModelProperty): bool => in_array($reflectionModelProperty->getColumn(), $primaryKeyProperties)
-            )
-        );
+        return $this->reflectionClass->getAttributes(PrimaryKeys::class)[0]?->newInstance()?->columns ?? [];
     }
 
-    public function getUniqueConstraints(): array
+    public function getUniqueConstraint(): ?UniqueConstraint
     {
-        return $this->reflectionClass->getAttributes(UniqueConstraint::class);
+        return $this->reflectionClass->getAttributes(UniqueConstraint::class)[0]?->newInstance() ?? null;
     }
 }

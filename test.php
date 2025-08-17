@@ -5,7 +5,6 @@ use Sentience\Helpers\Strings;
 
 include 'vendor/autoload.php';
 
-
 $array = [
     (new stdClass())
 ];

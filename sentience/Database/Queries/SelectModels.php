@@ -26,14 +26,14 @@ class SelectModels extends ModelsQueryAbstract
     {
         $model = $this->models[0];
 
-        $this->validateModel($model);
+        $this->validateModel($model, false);
 
         $results = $this->database->select($model::getTable())
-            ->columns(array_keys($model::getColumns()))
+            ->columns($model::getColumns())
             ->execute();
 
         return array_map(
-            fn (array $row): object => (new $model())->fromDatabase($row),
+            fn(array $row): object => (new $model())->fromDatabase($row),
             $results->fetchAllAssoc()
         );
     }

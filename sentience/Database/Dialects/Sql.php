@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Sentience\Database\Dialects;
 
+use DateTime;
+use DateTimeImmutable;
 use DateTimeInterface;
 use Sentience\Database\Exceptions\QueryException;
 use Sentience\Database\Queries\Enums\WhereType;
@@ -267,7 +269,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn (string|Raw $column): string => $this->escapeIdentifier($column),
+                    fn(string|Raw $column): string => $this->escapeIdentifier($column),
                     $config['primaryKeys']
                 )
             )
@@ -520,7 +522,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn (string|array|Raw $column): string => $this->escapeIdentifier($column),
+                    fn(string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $groupBy
                 )
             )
@@ -549,7 +551,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn (OrderBy $orderBy): string => sprintf(
+                    fn(OrderBy $orderBy): string => sprintf(
                         '%s %s',
                         $this->escapeIdentifier($orderBy->column),
                         $orderBy->direction->value
@@ -602,7 +604,7 @@ class Sql implements DialectInterface
             : implode(
                 ', ',
                 array_map(
-                    fn (string $column): string => $this->escapeIdentifier($column),
+                    fn(string $column): string => $this->escapeIdentifier($column),
                     $returning
                 )
             );
@@ -640,7 +642,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn (string $column): string => $this->escapeIdentifier($column),
+                    fn(string $column): string => $this->escapeIdentifier($column),
                     $uniqueConstraint->columns
                 )
             )
@@ -718,7 +720,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn (string|array|Raw $column): string => $this->escapeIdentifier($column),
+                    fn(string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $addPrimaryKeys->columns
                 )
             )
@@ -770,7 +772,7 @@ class Sql implements DialectInterface
             ? implode(
                 '.',
                 array_map(
-                    fn (string|Raw $identifier): string => $this->escapeIdentifier($identifier),
+                    fn(string|Raw $identifier): string => $this->escapeIdentifier($identifier),
                     $identifier
                 )
             )
@@ -862,7 +864,9 @@ class Sql implements DialectInterface
             'int' => 'INT',
             'float' => 'FLOAT',
             'string' => 'TEXT',
-            Timestamp::class => 'DATETIME',
+            Timestamp::class,
+            DateTime::class,
+            DateTimeImmutable::class => 'DATETIME',
             default => 'TEXT'
         };
     }

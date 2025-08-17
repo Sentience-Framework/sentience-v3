@@ -23,14 +23,23 @@ abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
         $this->models = Arrays::wrap($models);
     }
 
-    protected function validateModel(mixed $model): void
+    protected function validateModel(mixed $model, bool $mustBeInstance = true): void
     {
-        if (!is_string($model) && !is_object($model)) {
-            throw new QueryException('%s is not a valid type for a model', get_debug_type($model));
+        if (!is_object($model)) {
+            if ($mustBeInstance) {
+                throw new QueryException('%s is not an instance', get_debug_type($model));
+            }
+
+            if (!is_string($model)) {
+                throw new QueryException('%s is not a valid type for a model', get_debug_type($model));
+            }
         }
 
         if (!Reflector::isSubclassOf($model, Model::class)) {
             throw new QueryException('%s is not a model', $model::class);
         }
+
+        return;
+
     }
 }

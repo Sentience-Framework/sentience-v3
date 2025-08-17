@@ -37,4 +37,9 @@ class Arrays
     {
         return array_sum($array) / count($array);
     }
+
+    public static function unique(array $array): array
+    {
+        return array_values(array_unique($array));
+    }
 }

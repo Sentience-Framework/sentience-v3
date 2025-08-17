@@ -48,7 +48,7 @@ class Database extends Singleton
             options: [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
                 PDO::ATTR_EMULATE_PREPARES => false,
-                PDO::ATTR_STRINGIFY_FETCHES => false,
+                PDO::ATTR_STRINGIFY_FETCHES => false
             ]
         );
 
@@ -103,13 +103,16 @@ class Database extends Singleton
 
     public function prepared(string $query, array $params = []): Results
     {
-        $queryWithParams = new QueryWithParams($query, $params);
+        return $this->queryWithParams(new QueryWithParams($query, $params));
+    }
 
+    public function queryWithParams(QueryWithParams $queryWithParams): Results
+    {
         $rawQuery = $queryWithParams->toRawQuery($this->dialect);
 
         $startTime = microtime(true);
 
-        $pdoStatement = $this->pdo->prepare($query);
+        $pdoStatement = $this->pdo->prepare($queryWithParams->query);
 
         if (is_bool($pdoStatement)) {
             $error = implode(' ', $this->pdo->errorInfo());
@@ -119,7 +122,7 @@ class Database extends Singleton
             throw new PDOException($error);
         }
 
-        foreach ($params as $index => $param) {
+        foreach ($queryWithParams->params as $index => $param) {
             $value = $this->dialect->castToDriver($param);
 
             $pdoStatement->bindValue(

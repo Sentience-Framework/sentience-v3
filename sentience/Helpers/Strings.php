@@ -46,7 +46,7 @@ class Strings
             '/^.{1}ies$/i' => fn(): string => substr($word, 0, -1),
             '/ies$/i' => fn(): string => substr_replace($word, (preg_match('/[A-Z]{1}.{2}$/', $word) ? 'Y' : 'y'), -3),
             '/[a-z]es$/i' => fn(): string => substr($word, 0, -2),
-            '/s{1}$/i' => fn(): string => substr($word, 0, -1),
+            '/s{1}$/i' => fn(): string => substr($word, 0, -1)
         ];
 
         foreach ($rules as $pattern => $callback) {
@@ -64,7 +64,7 @@ class Strings
             '/[^aeiouy]y$/i' => fn(): string => substr($word, 0, -1) . (preg_match('/[A-Z]y$/', $word) ? 'IES' : 'ies'),
             '/[aeiou]y$/i' => fn(): string => "{$word}s",
             '/(s|x|z|ch|sh)$/i' => fn(): string => "{$word}s",
-            '/[^aeiou]e$/i' => fn(): string => "{$word}s",
+            '/[^aeiou]e$/i' => fn(): string => "{$word}s"
         ];
 
         foreach ($rules as $pattern => $callback) {
@@ -79,7 +79,7 @@ class Strings
     public static function toSnakeCase(string $string): string
     {
         $string = preg_replace('/([a-z])([A-Z])/', '$1 $2', $string);
-        $string = preg_replace('/[_\-\s]+/', '_', strtolower($string));
+        $string = preg_replace('/[_\-\s]+/', '_', strtolower((string) $string));
 
         return $string;
     }
@@ -93,7 +93,7 @@ class Strings
 
     public static function toPascalCase($string): string
     {
-        $string = preg_replace('/[-_\s]+/', ' ', $string);
+        $string = preg_replace('/[-_\s]+/', ' ', (string) $string);
         $string = ucwords($string);
         $string = str_replace(' ', '', $string);
 

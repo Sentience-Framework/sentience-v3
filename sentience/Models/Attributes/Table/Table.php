@@ -6,7 +6,7 @@ namespace Sentience\Models\Attributes\Table;
 
 use Attribute;
 
-#[Attribute]
+#[Attribute(Attribute::TARGET_CLASS)]
 class Table
 {
     public function __construct(

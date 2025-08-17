@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Sentience\Database\Queries;
 
+use Sentience\Helpers\Arrays;
 use Sentience\Helpers\Reflector;
 use Sentience\Models\Attributes\Columns\AutoIncrement;
+use Sentience\Models\Reflection\ReflectionModel;
 
 class InsertModels extends ModelsQueryAbstract
 {
@@ -19,30 +21,35 @@ class InsertModels extends ModelsQueryAbstract
 
             $query = $this->database->insert($model::getTable());
 
-            $columns = $model::getColumns();
+            $reflectionModel = new ReflectionModel($model);
+            $reflectionModelProperties = $reflectionModel->getProperties();
 
             $values = [];
 
-            foreach ($columns as $column => $property) {
-                if (!Reflector::isPropertyInitialized($model, $property)) {
+            foreach ($reflectionModelProperties as $reflectionModelProperty) {
+                if (!$reflectionModelProperty->isInitialized($model)) {
                     continue;
                 }
+
+                $property = $reflectionModelProperty->getProperty();
+                $column = $reflectionModelProperty->getColumn();
 
                 $values[$column] = $model->{$property};
             }
 
             $query->values($values);
 
-            if (!is_null($this->onDuplicateUpdate)) {
-                $uniqueColumns = array_keys($model::getUniqueColumns());
-
+            if (!is_null($this->onDuplicateUpdate) && $uniqueConstraint = $reflectionModel->getUniqueConstraint()) {
                 !$this->onDuplicateUpdate
                     ? $query->onConflictIgnore($uniqueColumns)
                     : $query->onConflictUpdate(
-                        $uniqueColumns,
+                        $uniqueConstraint->columns,
                         array_filter(
                             $values,
-                            fn (string $column): bool => !in_array($column, $this->excludeColumnsOnUpdate),
+                            fn(string $column): bool => !in_array(
+                                $column,
+                                Arrays::unique($this->excludeColumnsOnUpdate)
+                            ),
                             ARRAY_FILTER_USE_KEY
                         )
                     );
@@ -52,7 +59,7 @@ class InsertModels extends ModelsQueryAbstract
 
             $queryWithParams = $query->toQueryWithParams();
 
-            $results = $this->database->prepared($queryWithParams->query, $queryWithParams->params);
+            $results = $this->database->queryWithParams($queryWithParams->query);
 
             $insertedRow = $results->fetchAssoc();
 
@@ -66,14 +73,12 @@ class InsertModels extends ModelsQueryAbstract
                 continue;
             }
 
-            $primaryKeys = $model::getPrimaryKeys();
-
-            foreach ($primaryKeys as $property) {
-                if (!Reflector::propertyHasAttribute($model, $property, AutoIncrement::class)) {
+            foreach ($reflectionModelProperties as $reflectionModelProperty) {
+                if (!$reflectionModelProperty->isAutoIncrement()) {
                     continue;
                 }
 
-                $model->{$property} = $lastInsertId;
+                $model->{$reflectionModelProperty->getProperty()} = $lastInsertId;
             }
         }
 
@@ -91,6 +96,20 @@ class InsertModels extends ModelsQueryAbstract
     {
         $this->onDuplicateUpdate = true;
         $this->excludeColumnsOnUpdate = $excludeColumns;
+
+        return $this;
+    }
+
+    public function excludeColumn(string $column): static
+    {
+        $this->excludeColumnsOnUpdate[] = $column;
+
+        return $this;
+    }
+
+    public function excludeColumns(array $columns): static
+    {
+        $this->excludeColumnsOnUpdate = array_merge($this->excludeColumnsOnUpdate, $columns);
 
         return $this;
     }

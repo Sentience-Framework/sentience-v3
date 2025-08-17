@@ -7,12 +7,12 @@ namespace Sentience\Models\Attributes\Relations;
 use Attribute;
 use Sentience\Exceptions\RelationException;
 
-#[Attribute]
+#[Attribute(Attribute::TARGET_PROPERTY)]
 abstract class Relation
 {
     public const string M_TO_R_JOIN_REGEX_PATTERN = '//';
 
-    protected function parseMToRJoin(string $mToRJoin): ?array
+    protected function parseMToRJoin(string $mToRJoin): array
     {
         $isMatch = preg_match(static::M_TO_R_JOIN_REGEX_PATTERN, $mToRJoin, $matches);
 

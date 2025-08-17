@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Sentience\Models\Traits;
 
-use ReflectionClass;
+use DateTime;
+use DateTimeImmutable;
 use Sentience\Database\Database;
+use Sentience\Models\Reflection\ReflectionModel;
 use Sentience\Timestamp\Timestamp;
 
 trait IsJsonSerializable
@@ -14,26 +16,26 @@ trait IsJsonSerializable
     {
         $dialect = Database::getInstance()->dialect;
 
-        $reflectionClass = new ReflectionClass(static::class);
+        $reflectionModel = new ReflectionModel($this);
 
-        $reflectionProperties = $reflectionClass->getProperties();
+        $reflectionModelProperties = $reflectionModel->getProperties();
 
         $values = [];
 
-        foreach ($reflectionProperties as $reflectionProperty) {
-            if (!$reflectionProperty->isInitialized($this)) {
+        foreach ($reflectionModelProperties as $reflectionModelProperty) {
+            if (!$reflectionModelProperty->isInitialized($this)) {
                 continue;
             }
 
-            $property = $reflectionProperty->getName();
-
-            $column = static::getColumn($property);
+            $property = $reflectionModelProperty->getProperty();
+            $column = $reflectionModelProperty->getColumn();
 
             $value = $this->{$property};
 
             $values[$column] = match (get_debug_type($value)) {
                 'bool' => $dialect->castBool($value),
-                Timestamp::class => $dialect->castTimestamp($value),
+                DateTime::class,
+                DateTimeImmutable::class => $value->format(Timestamp::JSON),
                 default => $value
             };
         }

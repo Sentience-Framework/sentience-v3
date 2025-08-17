@@ -12,6 +12,7 @@ use Sentience\Helpers\Strings;
 use Sentience\Models\Attributes\Columns\AutoIncrement;
 use Sentience\Models\Attributes\Columns\Column;
 use Sentience\Models\Exceptions\MultipleTypesException;
+use Sentience\Models\Model;
 
 class ReflectionModelProperty
 {
@@ -22,9 +23,19 @@ class ReflectionModelProperty
         $this->reflectionProperty = new ReflectionProperty($reflectionModel->getClass(), $property);
     }
 
+    public function isInitialized(Model $model): bool
+    {
+        return $this->reflectionProperty->isInitialized($model);
+    }
+
     public function getProperty(): string
     {
         return $this->reflectionProperty->getName();
+    }
+
+    public function getValue(Model $model): string
+    {
+        return $this->reflectionProperty->getValue($model);
     }
 
     public function getColumn(): string
@@ -79,26 +90,24 @@ class ReflectionModelProperty
 
     public function isPrimaryKey(): bool
     {
-        $primaryKeys = $this->reflectionModel->getUniqueConstraints();
-
-        $property = $this->getProperty();
-
-        return in_array($property, $primaryKeys);
+        return in_array(
+            $this->getColumn(),
+            $this->reflectionModel->getPrimaryKeys()
+        );
     }
 
     public function isUnique(): bool
     {
-        $uniqueConstraints = $this->reflectionModel->getUniqueConstraints();
+        $uniqueConstraint = $this->reflectionModel->getUniqueConstraint();
 
-        $property = $this->getProperty();
-
-        foreach ($uniqueConstraints as $uniqueConstraint) {
-            if (in_array($property, $uniqueConstraint->properties)) {
-                return true;
-            }
+        if (!$uniqueConstraint) {
+            return false;
         }
 
-        return false;
+        return in_array(
+            $this->getColumn(),
+            $uniqueConstraint->columns
+        );
     }
 
     public function isAutoIncrement(): bool

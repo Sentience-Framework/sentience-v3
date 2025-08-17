@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Sentience\Database\Dialects;
 
+use DateTime;
+use DateTimeImmutable;
 use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Timestamp\Timestamp;
 
@@ -25,7 +27,7 @@ class Pgsql extends Sql implements DialectInterface
                 implode(
                     ', ',
                     array_map(
-                        fn (string $column): string => $this->escapeIdentifier($column),
+                        fn(string $column): string => $this->escapeIdentifier($column),
                         $conflict
                     )
                 )
@@ -104,7 +106,9 @@ class Pgsql extends Sql implements DialectInterface
             'int' => 'INT8',
             'float' => 'FLOAT8',
             'string' => 'TEXT',
-            Timestamp::class => 'TIMESTAMP',
+            Timestamp::class,
+            DateTime::class,
+            DateTimeImmutable::class => 'TIMESTAMP',
             default => 'TEXT'
         };
     }

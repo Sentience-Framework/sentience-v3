@@ -8,6 +8,7 @@ use DateTimeInterface;
 use Sentience\Database\Queries\Traits\Where;
 use Sentience\Helpers\Reflector;
 use Sentience\Models\Attributes\Columns\AutoIncrement;
+use Sentience\Models\Reflection\ReflectionModel;
 
 class UpdateModels extends ModelsQueryAbstract
 {
@@ -22,14 +23,18 @@ class UpdateModels extends ModelsQueryAbstract
 
             $query = $this->database->update($model::getTable());
 
-            $columns = $model::getColumns();
+            $reflectionModel = new ReflectionModel($model);
+            $reflectionModelProperties = $reflectionModel->getProperties();
 
             $values = [];
 
-            foreach ($columns as $column => $property) {
-                if (!Reflector::isPropertyInitialized($model, $property)) {
+            foreach ($reflectionModelProperties as $reflectionModelProperty) {
+                if (!$reflectionModelProperty->isInitialized($model)) {
                     continue;
                 }
+
+                $property = $reflectionModelProperty->getProperty();
+                $column = $reflectionModelProperty->getColumn();
 
                 $values[$column] = $model->{$property};
             }
@@ -39,17 +44,11 @@ class UpdateModels extends ModelsQueryAbstract
                 ...$this->updates
             ]);
 
-            $primaryKeys = $model::getPrimaryKeys();
-
-            foreach ($primaryKeys as $column => $property) {
-                $query->whereEquals($column, $model->{$property});
-            }
-
             $query->returning();
 
             $queryWithParams = $query->toQueryWithParams();
 
-            $results = $this->database->prepared($queryWithParams->query, $queryWithParams->params);
+            $results = $this->database->queryWithParams($queryWithParams);
 
             $updatedRow = $results->fetchAssoc();
 
@@ -63,14 +62,12 @@ class UpdateModels extends ModelsQueryAbstract
                 continue;
             }
 
-            $primaryKeys = $model::getPrimaryKeys();
-
-            foreach ($primaryKeys as $property) {
-                if (!Reflector::propertyHasAttribute($model, $property, AutoIncrement::class)) {
+            foreach ($reflectionModelProperties as $reflectionModelProperty) {
+                if (!$reflectionModelProperty->isAutoIncrement()) {
                     continue;
                 }
 
-                $model->{$property} = $lastInsertId;
+                $model->{$reflectionModelProperty->getProperty()} = $lastInsertId;
             }
         }
 

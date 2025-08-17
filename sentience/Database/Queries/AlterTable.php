@@ -32,7 +32,7 @@ class AlterTable extends ResultsQueryAbstract
         $queriesWithParams = $this->toQueryWithParams();
 
         return array_map(
-            fn (QueryWithParams $queryWithParams): string => $queryWithParams->toRawQuery($this->dialect),
+            fn(QueryWithParams $queryWithParams): string => $queryWithParams->toRawQuery($this->dialect),
             $queriesWithParams
         );
     }
@@ -42,10 +42,7 @@ class AlterTable extends ResultsQueryAbstract
         $queries = $this->toQueryWithParams();
 
         return array_map(
-            fn (QueryWithParams $queryWithParams): Results => $this->database->prepared(
-                $queryWithParams->query,
-                $queryWithParams->params
-            ),
+            fn(QueryWithParams $queryWithParams): Results => $this->database->queryWithParams($queryWithParams),
             $queries
         );
     }

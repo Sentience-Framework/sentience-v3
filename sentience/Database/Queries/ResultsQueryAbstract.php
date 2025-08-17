@@ -28,9 +28,6 @@ abstract class ResultsQueryAbstract extends Query implements ResultsQueryInterfa
     {
         $queryWithParams = $this->toQueryWithParams();
 
-        return $this->database->prepared(
-            $queryWithParams->query,
-            $queryWithParams->params
-        );
+        return $this->database->queryWithParams($queryWithParams);
     }
 }

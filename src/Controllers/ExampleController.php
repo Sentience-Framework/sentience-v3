@@ -207,9 +207,9 @@ class ExampleController extends Controller
     {
         $start = microtime(true);
 
-        $models = $database->selectModels(Migration::class)
-            ->whereGreaterThanOrEquals('id', 10)
-            ->execute();
+        // $models = $database->selectModels(Migration::class)
+        //     ->whereGreaterThanOrEquals('id', 10)
+        //     ->execute();
 
         $migration = new Migration();
         $migration->batch = 1;
@@ -235,7 +235,7 @@ class ExampleController extends Controller
             ->updateColumn('applied_at', Query::now())
             ->execute();
 
-        // $database->deleteModels($models)->execute();
+        // // $database->deleteModels($models)->execute();
 
         echo json_encode($models, JSON_PRETTY_PRINT);
 
