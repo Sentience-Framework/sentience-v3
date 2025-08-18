@@ -5,12 +5,19 @@ declare(strict_types=1);
 namespace Modules\Database\Queries;
 
 use ReflectionProperty;
+use Modules\Database\Database;
+use Modules\Database\Dialects\DialectInterface;
 use Modules\Exceptions\ModelException;
 use Modules\Helpers\Reflector;
 use Modules\Models\Attributes\Columns\AutoIncrement;
 
 class AlterModel extends ModelsQueryAbstract
 {
+    public function __construct(Database $database, DialectInterface $dialect, string $model)
+    {
+        parent::__construct($database, $dialect, $model);
+    }
+
     public function execute(): null
     {
         $model = $this->models[0];

@@ -6,6 +6,8 @@ namespace Modules\Database\Queries;
 
 use ReflectionClass;
 use ReflectionProperty;
+use Modules\Database\Database;
+use Modules\Database\Dialects\DialectInterface;
 use Modules\Database\Queries\Traits\IfNotExists;
 use Modules\Exceptions\ModelException;
 use Modules\Helpers\Reflector;
@@ -15,6 +17,11 @@ use Modules\Models\Attributes\Table\UniqueConstraint;
 class CreateModel extends ModelsQueryAbstract
 {
     use IfNotExists;
+
+    public function __construct(Database $database, DialectInterface $dialect, string $model)
+    {
+        parent::__construct($database, $dialect, $model);
+    }
 
     public function execute(): null
     {
@@ -73,7 +80,7 @@ class CreateModel extends ModelsQueryAbstract
 
             $query->uniqueConstraint(
                 array_map(
-                    fn(string $property): string => $model::getColumn($property),
+                    fn (string $property): string => $model::getColumn($property),
                     $uniqueConstraint->properties
                 ),
                 $uniqueConstraint->name

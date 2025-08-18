@@ -7,20 +7,29 @@ namespace Modules\Database\Queries;
 use Modules\Database\Database;
 use Modules\Database\Dialects\DialectInterface;
 use Modules\Database\Exceptions\QueryException;
-use Modules\Database\Queries\Traits\Models;
+use Modules\Database\Queries\Objects\QueryWithParams;
+use Modules\Database\Results;
 use Modules\Helpers\Arrays;
 use Modules\Helpers\Reflector;
 use Modules\Models\Model;
 
 abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
 {
-    use Models;
-
-    public function __construct(Database $database, DialectInterface $dialect, string|array|Model $models)
+    public function __construct(Database $database, DialectInterface $dialect, protected string|array|Model $model)
     {
         parent::__construct($database, $dialect);
 
-        $this->models = Arrays::wrap($models);
+        if (is_array($model)) {
+            if (Arrays::empty($model)) {
+                throw new QueryException('array of models is empty');
+            }
+
+            $this->table = $model[0]::getTable();
+
+            return;
+        }
+
+        $this->table = $model::getTable();
     }
 
     protected function validateModel(mixed $model, bool $mustBeInstance = true): void
@@ -40,6 +49,10 @@ abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
         }
 
         return;
+    }
 
+    protected function executeQueryWithParams(QueryWithParams $queryWithParams): Results
+    {
+        return $this->database->queryWithParams($queryWithParams);
     }
 }

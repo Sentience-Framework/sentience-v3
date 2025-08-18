@@ -27,7 +27,7 @@ class Pgsql extends Sql implements DialectInterface
                 implode(
                     ', ',
                     array_map(
-                        fn(string $column): string => $this->escapeIdentifier($column),
+                        fn (string $column): string => $this->escapeIdentifier($column),
                         $conflict
                     )
                 )

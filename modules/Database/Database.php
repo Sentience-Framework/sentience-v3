@@ -58,7 +58,7 @@ class Database extends Singleton
             if (method_exists($pdo, 'sqliteCreateFunction')) {
                 $pdo->sqliteCreateFunction(
                     'REGEXP',
-                    fn(string $pattern, string $value): bool => preg_match(
+                    fn (string $pattern, string $value): bool => preg_match(
                         sprintf(
                             '/%s/u',
                             Strings::escapeChars($pattern, ['/'])

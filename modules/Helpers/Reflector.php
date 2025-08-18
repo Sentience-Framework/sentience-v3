@@ -7,7 +7,6 @@ namespace Modules\Helpers;
 use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionProperty;
-use Stringable;
 
 class Reflector
 {

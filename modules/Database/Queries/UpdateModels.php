@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Modules\Database\Queries;
 
 use DateTimeInterface;
+use Modules\Database\Database;
+use Modules\Database\Dialects\DialectInterface;
 use Modules\Database\Queries\Traits\Where;
-use Modules\Helpers\Reflector;
-use Modules\Models\Attributes\Columns\AutoIncrement;
 use Modules\Models\Reflection\ReflectionModel;
 
 class UpdateModels extends ModelsQueryAbstract
@@ -16,9 +16,14 @@ class UpdateModels extends ModelsQueryAbstract
 
     protected array $updates = [];
 
+    public function __construct(Database $database, DialectInterface $dialect, array $model)
+    {
+        parent::__construct($database, $dialect, $model);
+    }
+
     public function execute(): array
     {
-        foreach ($this->models as $model) {
+        foreach ($this->model as $model) {
             $this->validateModel($model);
 
             $query = $this->database->update($model::getTable());
@@ -74,9 +79,9 @@ class UpdateModels extends ModelsQueryAbstract
         return $this->models;
     }
 
-    public function updateColumns(array $columns): static
+    public function updateColumns(array $values): static
     {
-        array_merge($this->updates, $columns);
+        $this->updates = array_merge($this->updates, $values);
 
         return $this;
     }

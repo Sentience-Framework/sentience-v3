@@ -11,11 +11,9 @@ use Modules\Helpers\Strings;
 use Modules\Models\Attributes\Table\PrimaryKeys;
 use Modules\Models\Attributes\Table\Table;
 use Modules\Models\Attributes\Table\UniqueConstraint;
-use Modules\Models\Exceptions\TableException;
 
 class ReflectionModel
 {
-
     protected ReflectionClass $reflectionClass;
 
     public function __construct(string|object $model)
@@ -31,7 +29,7 @@ class ReflectionModel
     public function getProperties(?int $filter = null): array
     {
         return array_map(
-            fn(ReflectionProperty $reflectionProperty): ReflectionModelProperty => new ReflectionModelProperty(
+            fn (ReflectionProperty $reflectionProperty): ReflectionModelProperty => new ReflectionModelProperty(
                 $this,
                 $reflectionProperty->getName()
             ),

@@ -14,6 +14,8 @@ use Modules\Timestamp\Timestamp;
 
 abstract class Query
 {
+    protected $table;
+
     public function __construct(protected Database $database, protected DialectInterface $dialect)
     {
     }

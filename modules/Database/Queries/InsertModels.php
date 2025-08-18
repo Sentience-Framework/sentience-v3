@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace Modules\Database\Queries;
 
+use Modules\Database\Database;
+use Modules\Database\Dialects\DialectInterface;
 use Modules\Helpers\Arrays;
-use Modules\Helpers\Reflector;
-use Modules\Models\Attributes\Columns\AutoIncrement;
 use Modules\Models\Reflection\ReflectionModel;
 
 class InsertModels extends ModelsQueryAbstract
 {
     protected ?bool $onDuplicateUpdate = null;
     protected array $excludeColumnsOnUpdate = [];
+
+    public function __construct(Database $database, DialectInterface $dialect, array $model)
+    {
+        parent::__construct($database, $dialect, $model);
+    }
 
     public function execute(): array
     {
@@ -46,7 +51,7 @@ class InsertModels extends ModelsQueryAbstract
                         $uniqueConstraint->columns,
                         array_filter(
                             $values,
-                            fn(string $column): bool => !in_array(
+                            fn (string $column): bool => !in_array(
                                 $column,
                                 Arrays::unique($this->excludeColumnsOnUpdate)
                             ),
