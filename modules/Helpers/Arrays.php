@@ -38,8 +38,10 @@ class Arrays
         return array_sum($array) / count($array);
     }
 
-    public static function unique(array $array): array
+    public static function unique(array $array, bool $preserveKeys = false): array
     {
-        return array_values(array_unique($array));
+        $unique = array_unique($array);
+
+        return !$preserveKeys ? array_values($unique) : $unique;
     }
 }

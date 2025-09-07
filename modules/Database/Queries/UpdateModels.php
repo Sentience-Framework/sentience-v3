@@ -8,6 +8,7 @@ use DateTimeInterface;
 use Modules\Database\Database;
 use Modules\Database\Dialects\DialectInterface;
 use Modules\Database\Queries\Traits\Where;
+use Modules\Models\Mapper;
 use Modules\Models\Reflection\ReflectionModel;
 
 class UpdateModels extends ModelsQueryAbstract
@@ -38,6 +39,10 @@ class UpdateModels extends ModelsQueryAbstract
                     continue;
                 }
 
+                if ($reflectionModelProperty->isPrimaryKey()) {
+                    continue;
+                }
+
                 $property = $reflectionModelProperty->getProperty();
                 $column = $reflectionModelProperty->getColumn();
 
@@ -58,7 +63,7 @@ class UpdateModels extends ModelsQueryAbstract
             $updatedRow = $results->fetchAssoc();
 
             if ($updatedRow) {
-                $model->fromDatabase($updatedRow);
+                Mapper::mapAssoc($model, $updatedRow);
             }
 
             $lastInsertId = $results->lastInsertId();
@@ -76,7 +81,7 @@ class UpdateModels extends ModelsQueryAbstract
             }
         }
 
-        return $this->models;
+        return $this->model;
     }
 
     public function updateColumns(array $values): static

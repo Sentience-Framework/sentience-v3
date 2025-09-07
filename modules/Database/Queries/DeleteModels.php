@@ -7,6 +7,7 @@ namespace Modules\Database\Queries;
 use Modules\Database\Database;
 use Modules\Database\Dialects\DialectInterface;
 use Modules\Database\Queries\Traits\Where;
+use Modules\Models\Mapper;
 
 class DeleteModels extends ModelsQueryAbstract
 {
@@ -19,7 +20,7 @@ class DeleteModels extends ModelsQueryAbstract
 
     public function execute(): array
     {
-        foreach ($this->models as $model) {
+        foreach ($this->model as $model) {
             $this->validateModel($model);
 
             $query = $this->database->delete($model::getTable());
@@ -34,15 +35,15 @@ class DeleteModels extends ModelsQueryAbstract
 
             $queryWithParams = $query->toQueryWithParams();
 
-            $results = $this->database->queryWithParams($queryWithParams->query);
+            $results = $this->database->queryWithParams($queryWithParams);
 
             $deletedRow = $results->fetchAssoc();
 
             if ($deletedRow) {
-                $model->fromDatabase($deletedRow);
+                Mapper::mapAssoc($model, $deletedRow);
             }
         }
 
-        return $this->models;
+        return $this->model;
     }
 }

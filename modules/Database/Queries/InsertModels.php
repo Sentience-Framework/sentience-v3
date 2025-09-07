@@ -6,7 +6,8 @@ namespace Modules\Database\Queries;
 
 use Modules\Database\Database;
 use Modules\Database\Dialects\DialectInterface;
-use Modules\Helpers\Arrays;
+use Modules\Database\Queries\Enums\Config;
+use Modules\Models\Mapper;
 use Modules\Models\Reflection\ReflectionModel;
 
 class InsertModels extends ModelsQueryAbstract
@@ -21,15 +22,14 @@ class InsertModels extends ModelsQueryAbstract
 
     public function execute(): array
     {
-        foreach ($this->models as $model) {
+        foreach ($this->model as $model) {
             $this->validateModel($model);
-
-            $query = $this->database->insert($model::getTable());
 
             $reflectionModel = new ReflectionModel($model);
             $reflectionModelProperties = $reflectionModel->getProperties();
 
             $values = [];
+            $autoIncrementPrimaryKeyColumn = null;
 
             foreach ($reflectionModelProperties as $reflectionModelProperty) {
                 if (!$reflectionModelProperty->isInitialized($model)) {
@@ -40,36 +40,34 @@ class InsertModels extends ModelsQueryAbstract
                 $column = $reflectionModelProperty->getColumn();
 
                 $values[$column] = $model->{$property};
+
+                if ($reflectionModelProperty->isAutoIncrement()) {
+                    $autoIncrementPrimaryKeyColumn = $column;
+                }
             }
 
-            $query->values($values);
+            $config = [
+                'table' => $this->table,
+                'values' => $values,
+                'returning' => []
+            ];
 
             if (!is_null($this->onDuplicateUpdate) && $uniqueConstraint = $reflectionModel->getUniqueConstraint()) {
-                !$this->onDuplicateUpdate
-                    ? $query->onConflictIgnore($uniqueColumns)
-                    : $query->onConflictUpdate(
-                        $uniqueConstraint->columns,
-                        array_filter(
-                            $values,
-                            fn (string $column): bool => !in_array(
-                                $column,
-                                Arrays::unique($this->excludeColumnsOnUpdate)
-                            ),
-                            ARRAY_FILTER_USE_KEY
-                        )
-                    );
+                $config['onConflict'] = [
+                    'conflict' => $uniqueConstraint->columns,
+                    'updates' => $values,
+                    'primaryKey' => $autoIncrementPrimaryKeyColumn
+                ];
             }
 
-            $query->returning();
+            $queryWithParams = $this->dialect->insert($config);
 
-            $queryWithParams = $query->toQueryWithParams();
-
-            $results = $this->database->queryWithParams($queryWithParams->query);
+            $results = $this->database->queryWithParams($queryWithParams);
 
             $insertedRow = $results->fetchAssoc();
 
             if ($insertedRow) {
-                $model->fromDatabase($insertedRow);
+                Mapper::mapAssoc($model, $insertedRow);
             }
 
             $lastInsertId = $results->lastInsertId();
@@ -87,7 +85,7 @@ class InsertModels extends ModelsQueryAbstract
             }
         }
 
-        return $this->models;
+        return $this->model;
     }
 
     public function onDuplicateIgnore(): static

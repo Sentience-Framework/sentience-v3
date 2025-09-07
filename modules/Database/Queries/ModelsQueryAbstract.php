@@ -15,6 +15,8 @@ use Modules\Models\Model;
 
 abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
 {
+    protected string|array|Alias|Raw $table;
+
     public function __construct(Database $database, DialectInterface $dialect, protected string|array|Model $model)
     {
         parent::__construct($database, $dialect);

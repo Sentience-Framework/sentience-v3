@@ -108,12 +108,12 @@ class ExampleController extends Controller
             )
             ->join('RIGHT JOIN table2 jt ON jt.column1 = table1.column1 AND jt.column2 = table2.column2')
             ->whereEquals('column1', 10)
-            ->whereGroup(fn ($group) => $group->whereGreaterThanOrEquals('column2', 20)
+            ->whereGroup(fn($group) => $group->whereGreaterThanOrEquals('column2', 20)
                 ->orwhereIsNull('column3'))
             ->where('DATE(`created_at`) > now()')
-            ->whereGroup(fn ($group) => $group->whereIn('column4', [1, 2, 3, 4])
+            ->whereGroup(fn($group) => $group->whereIn('column4', [1, 2, 3, 4])
                 ->whereNotEquals('column5', 'test string'))
-            ->whereGroup(fn ($group) => $group)
+            ->whereGroup(fn($group) => $group)
             ->whereIn('column2', [])
             ->whereNotIn('column2', [])
             ->whereStartsWith('column2', 'a')
@@ -207,25 +207,32 @@ class ExampleController extends Controller
     {
         $start = microtime(true);
 
-        $models = $database->selectModels(Migration::class)
+        $models = [];
+
+        $selectedModels = $database->selectModels(Migration::class)
             ->whereGreaterThanOrEquals('id', 10)
+            ->limit(1)
             ->execute();
 
-        // $migration = new Migration();
-        // $migration->batch = 1;
-        // $migration->filename = 'migration1' . microtime();
-        // $migration->appliedAt = Query::now();
+        // array_push($models, ...$selectedModels);
 
-        // $migration2 = new Migration();
-        // $migration2->batch = 1;
-        // $migration2->filename = 'migration2' . microtime();
-        // $migration2->appliedAt = Query::now();
+        $migration = new Migration();
+        $migration->batch = 1;
+        $migration->filename = 'migration1' . microtime();
+        $migration->appliedAt = Query::now();
 
-        // $models = [$migration, $migration2];
+        $migration2 = new Migration();
+        $migration2->batch = 1;
+        $migration2->filename = 'migration2' . microtime() . '1';
+        $migration2->appliedAt = Query::now();
 
-        // $database->insertModels($models)
-        //     ->onDuplicateUpdate()
-        //     ->execute();
+        $insertedModels = [$migration, $migration2];
+
+        $database->insertModels($insertedModels)
+            ->onDuplicateUpdate()
+            ->execute();
+
+        array_push($models, ...$insertedModels);
 
         // foreach ($models as $model) {
         //     $model->filename = md5((string) $model->id);

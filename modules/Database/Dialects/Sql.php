@@ -151,14 +151,17 @@ class Sql implements DialectInterface
             )
         );
 
-        $this->addOnConflict(
-            $query,
-            $params,
-            $config['onConflict']['conflict'],
-            $config['onConflict']['updates'],
-            $config['onConflict']['primaryKey'],
-            $config['values']
-        );
+        if (array_key_exists('onConflict', $config)) {
+            $this->addOnConflict(
+                $query,
+                $params,
+                $config['onConflict']['conflict'],
+                $config['onConflict']['updates'],
+                $config['onConflict']['primaryKey'],
+                $config['values']
+            );
+        }
+
         $this->addReturning($query, $config['returning']);
 
         $query .= ';';
@@ -269,7 +272,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn (string|Raw $column): string => $this->escapeIdentifier($column),
+                    fn(string|Raw $column): string => $this->escapeIdentifier($column),
                     $config['primaryKeys']
                 )
             )
@@ -522,7 +525,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn (string|array|Raw $column): string => $this->escapeIdentifier($column),
+                    fn(string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $groupBy
                 )
             )
@@ -551,7 +554,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn (OrderBy $orderBy): string => sprintf(
+                    fn(OrderBy $orderBy): string => sprintf(
                         '%s %s',
                         $this->escapeIdentifier($orderBy->column),
                         $orderBy->direction->value
@@ -604,7 +607,7 @@ class Sql implements DialectInterface
             : implode(
                 ', ',
                 array_map(
-                    fn (string $column): string => $this->escapeIdentifier($column),
+                    fn(string $column): string => $this->escapeIdentifier($column),
                     $returning
                 )
             );
@@ -642,7 +645,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn (string $column): string => $this->escapeIdentifier($column),
+                    fn(string $column): string => $this->escapeIdentifier($column),
                     $uniqueConstraint->columns
                 )
             )
@@ -720,7 +723,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn (string|array|Raw $column): string => $this->escapeIdentifier($column),
+                    fn(string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $addPrimaryKeys->columns
                 )
             )
@@ -772,7 +775,7 @@ class Sql implements DialectInterface
             ? implode(
                 '.',
                 array_map(
-                    fn (string|Raw $identifier): string => $this->escapeIdentifier($identifier),
+                    fn(string|Raw $identifier): string => $this->escapeIdentifier($identifier),
                     $identifier
                 )
             )
