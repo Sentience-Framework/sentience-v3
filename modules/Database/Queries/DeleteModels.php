@@ -6,8 +6,12 @@ namespace Modules\Database\Queries;
 
 use Modules\Database\Database;
 use Modules\Database\Dialects\DialectInterface;
+use Modules\Database\Queries\Enums\Chain;
+use Modules\Database\Queries\Enums\Operator;
+use Modules\Database\Queries\Objects\Condition;
 use Modules\Database\Queries\Traits\Where;
 use Modules\Models\Mapper;
+use Modules\Models\Reflection\ReflectionModel;
 
 class DeleteModels extends ModelsQueryAbstract
 {
@@ -20,20 +24,38 @@ class DeleteModels extends ModelsQueryAbstract
 
     public function execute(): array
     {
-        foreach ($this->model as $model) {
+        foreach ($this->models as $model) {
             $this->validateModel($model);
 
-            $query = $this->database->delete($model::getTable());
+            $reflectionModel = new ReflectionModel($model);
+            $reflectionModelProperties = $reflectionModel->getProperties();
 
-            $primaryKeys = $model::getPrimaryKeys();
+            $primaryKeyConditions = [];
 
-            foreach ($primaryKeys as $column => $property) {
-                $query->whereEquals($column, $model->{$property});
+            foreach ($reflectionModelProperties as $reflectionModelProperty) {
+                if (!$reflectionModelProperty->isInitialized($model)) {
+                    continue;
+                }
+
+                $property = $reflectionModelProperty->getProperty();
+                $column = $reflectionModelProperty->getColumn();
+                $value = $model->{$property};
+
+                if ($reflectionModelProperty->isPrimaryKey()) {
+                    $primaryKeyConditions[] = new Condition(
+                        Operator::EQUALS,
+                        $column,
+                        $value,
+                        Chain::AND
+                    );
+                }
             }
 
-            $query->returning();
-
-            $queryWithParams = $query->toQueryWithParams();
+            $queryWithParams = $this->dialect->delete([
+                'table' => $reflectionModel->getTable(),
+                'where' => [...$primaryKeyConditions, ...$this->where],
+                'returning' => $reflectionModel->getColumns()
+            ]);
 
             $results = $this->database->queryWithParams($queryWithParams);
 
@@ -44,6 +66,6 @@ class DeleteModels extends ModelsQueryAbstract
             }
         }
 
-        return $this->model;
+        return $this->models;
     }
 }

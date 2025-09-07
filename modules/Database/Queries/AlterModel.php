@@ -20,7 +20,7 @@ class AlterModel extends ModelsQueryAbstract
 
     public function execute(): null
     {
-        $model = $this->models[0];
+        $model = $this->modelss[0];
 
         $this->validateModel($model);
 

@@ -34,21 +34,23 @@ class SelectModels extends ModelsQueryAbstract
 
     public function __construct(Database $database, DialectInterface $dialect, string $model)
     {
-        parent::__construct($database, $dialect, $model);
+        parent::__construct($database, $dialect, [$model]);
     }
 
     public function execute(): array
     {
-        $this->validateModel($this->model, false);
+        $model = $this->models[0];
 
-        $queryBuilder = new QueryBuilder($this, $this->model);
+        $this->validateModel($model, false);
+
+        $queryBuilder = new QueryBuilder($this, $model);
         $queryBuilder->addRelations($this->relations);
         $queryBuilder->buildQuery();
 
         $queryWithParams = $this->dialect->select([
             'distinct' => $this->distinct,
             'columns' => $this->columns,
-            'table' => $this->table,
+            'table' => $model::getTable(),
             'joins' => $this->joins,
             'where' => $this->where,
             'groupBy' => $this->groupBy,
@@ -61,7 +63,7 @@ class SelectModels extends ModelsQueryAbstract
         $results = $this->executeQueryWithParams($queryWithParams);
 
         return array_map(
-            fn(array $row): object => Mapper::mapAssoc($this->model, $row),
+            fn(array $row): object => Mapper::mapAssoc($model, $row),
             $results->fetchAllAssoc()
         );
     }

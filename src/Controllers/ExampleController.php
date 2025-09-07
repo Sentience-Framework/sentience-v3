@@ -211,10 +211,9 @@ class ExampleController extends Controller
 
         $selectedModels = $database->selectModels(Migration::class)
             ->whereGreaterThanOrEquals('id', 10)
-            ->limit(1)
             ->execute();
 
-        // array_push($models, ...$selectedModels);
+        array_push($models, ...$selectedModels);
 
         $migration = new Migration();
         $migration->batch = 1;
@@ -234,15 +233,16 @@ class ExampleController extends Controller
 
         array_push($models, ...$insertedModels);
 
-        // foreach ($models as $model) {
-        //     $model->filename = md5((string) $model->id);
-        // }
+        foreach ($models as $model) {
+            $model->filename = md5((string) $model->id);
+        }
 
-        // $database->updateModels($models)
-        //     ->updateColumn('applied_at', Query::now())
-        //     ->execute();
+        $database->updateModels($models)
+            ->updateColumn('applied_at', Query::now())
+            ->execute();
 
-        // // $database->deleteModels($models)->execute();
+        $database->deleteModels($models)
+            ->execute();
 
         echo json_encode($models, JSON_PRETTY_PRINT);
 

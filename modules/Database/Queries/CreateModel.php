@@ -25,7 +25,7 @@ class CreateModel extends ModelsQueryAbstract
 
     public function execute(): null
     {
-        $model = $this->models[0];
+        $model = $this->modelss[0];
 
         $this->validateModel($model);
 
@@ -80,7 +80,7 @@ class CreateModel extends ModelsQueryAbstract
 
             $query->uniqueConstraint(
                 array_map(
-                    fn (string $property): string => $model::getColumn($property),
+                    fn(string $property): string => $model::getColumn($property),
                     $uniqueConstraint->properties
                 ),
                 $uniqueConstraint->name

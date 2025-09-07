@@ -8,7 +8,7 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Modules\Database\Exceptions\QueryException;
-use Modules\Database\Queries\Enums\WhereType;
+use Modules\Database\Queries\Enums\Operator;
 use Modules\Database\Queries\Objects\AddColumn;
 use Modules\Database\Queries\Objects\AddForeignKeyConstraint;
 use Modules\Database\Queries\Objects\AddPrimaryKeys;
@@ -423,7 +423,7 @@ class Sql implements DialectInterface
             $query .= sprintf(' %s ', $condition->chain->value);
         }
 
-        if ($condition->type == WhereType::RAW) {
+        if ($condition->type == Operator::RAW) {
             $query .= sprintf('(%s)', $condition->expression);
 
             array_push($params, ...$condition->value);
@@ -435,13 +435,13 @@ class Sql implements DialectInterface
             $query .= sprintf(
                 '%s %s',
                 $this->escapeIdentifier($condition->expression),
-                $condition->type == WhereType::EQUALS ? 'IS NULL' : 'IS NOT NULL'
+                $condition->type == Operator::EQUALS ? 'IS NULL' : 'IS NOT NULL'
             );
 
             return;
         }
 
-        if (in_array($condition->type, [WhereType::BETWEEN, WhereType::NOT_BETWEEN])) {
+        if (in_array($condition->type, [Operator::BETWEEN, Operator::NOT_BETWEEN])) {
             $query .= sprintf(
                 '%s %s ? AND ?',
                 $this->escapeIdentifier($condition->expression),
@@ -457,7 +457,7 @@ class Sql implements DialectInterface
 
         if (is_array($condition->value)) {
             if (count($condition->value) == 0) {
-                $query .= $condition->type == WhereType::IN ? '1 <> 1' : '1 = 1';
+                $query .= $condition->type == Operator::IN ? '1 <> 1' : '1 = 1';
 
                 return;
             }
@@ -474,11 +474,11 @@ class Sql implements DialectInterface
             return;
         }
 
-        if (in_array($condition->type, [WhereType::REGEX, WhereType::NOT_REGEX])) {
+        if (in_array($condition->type, [Operator::REGEX, Operator::NOT_REGEX])) {
             $query .= sprintf(
                 '%s %s ?',
                 $this->escapeIdentifier($condition->expression),
-                $condition->type == WhereType::REGEX ? $this::REGEX_FUNCTION : $this::NOT_REGEX_FUNCTION
+                $condition->type == Operator::REGEX ? $this::REGEX_FUNCTION : $this::NOT_REGEX_FUNCTION
             );
 
             array_push($params, $condition->value);

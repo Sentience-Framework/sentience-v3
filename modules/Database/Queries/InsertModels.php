@@ -22,7 +22,7 @@ class InsertModels extends ModelsQueryAbstract
 
     public function execute(): array
     {
-        foreach ($this->model as $model) {
+        foreach ($this->models as $model) {
             $this->validateModel($model);
 
             $reflectionModel = new ReflectionModel($model);
@@ -47,9 +47,9 @@ class InsertModels extends ModelsQueryAbstract
             }
 
             $config = [
-                'table' => $this->table,
+                'table' => $reflectionModel->getTable(),
                 'values' => $values,
-                'returning' => []
+                'returning' => $reflectionModel->getColumns()
             ];
 
             if (!is_null($this->onDuplicateUpdate) && $uniqueConstraint = $reflectionModel->getUniqueConstraint()) {
@@ -85,7 +85,7 @@ class InsertModels extends ModelsQueryAbstract
             }
         }
 
-        return $this->model;
+        return $this->models;
     }
 
     public function onDuplicateIgnore(): static
@@ -99,20 +99,6 @@ class InsertModels extends ModelsQueryAbstract
     {
         $this->onDuplicateUpdate = true;
         $this->excludeColumnsOnUpdate = $excludeColumns;
-
-        return $this;
-    }
-
-    public function excludeColumn(string $column): static
-    {
-        $this->excludeColumnsOnUpdate[] = $column;
-
-        return $this;
-    }
-
-    public function excludeColumns(array $columns): static
-    {
-        $this->excludeColumnsOnUpdate = array_merge($this->excludeColumnsOnUpdate, $columns);
 
         return $this;
     }

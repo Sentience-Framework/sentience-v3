@@ -20,7 +20,7 @@ class QueryWithParams
         }
 
         $params = array_map(
-            fn (mixed $param): mixed => $dialect->castToQuery($param),
+            fn(mixed $param): mixed => $dialect->castToQuery($param),
             $this->params
         );
 
@@ -34,6 +34,11 @@ class QueryWithParams
                 }
 
                 $param = $params[$index];
+
+                if (is_array($param)) {
+                    print_r($param);
+                    exit;
+                }
 
                 $index++;
 

@@ -7,7 +7,7 @@ namespace Modules\Database\Queries\Traits;
 use DateTimeInterface;
 use Modules\Database\Exceptions\QueryException;
 use Modules\Database\Queries\Enums\Chain;
-use Modules\Database\Queries\Enums\WhereType;
+use Modules\Database\Queries\Enums\Operator;
 use Modules\Database\Queries\Objects\Condition;
 use Modules\Database\Queries\Objects\ConditionGroup;
 use Modules\Database\Queries\Query;
@@ -258,28 +258,28 @@ trait Where
 
     protected function equals(string|array $column, mixed $value, Chain $chain): static
     {
-        $this->addCondition(WhereType::EQUALS, $column, $value, $chain);
+        $this->addCondition(Operator::EQUALS, $column, $value, $chain);
 
         return $this;
     }
 
     protected function notEquals(string|array $column, mixed $value, Chain $chain): static
     {
-        $this->addCondition(WhereType::NOT_EQUALS, $column, $value, $chain);
+        $this->addCondition(Operator::NOT_EQUALS, $column, $value, $chain);
 
         return $this;
     }
 
     protected function like(string|array $column, string $value, Chain $chain): static
     {
-        $this->addCondition(WhereType::LIKE, $column, $value, $chain);
+        $this->addCondition(Operator::LIKE, $column, $value, $chain);
 
         return $this;
     }
 
     protected function notLike(string|array $column, string $value, Chain $chain): static
     {
-        $this->addCondition(WhereType::NOT_LIKE, $column, $value, $chain);
+        $this->addCondition(Operator::NOT_LIKE, $column, $value, $chain);
 
         return $this;
     }
@@ -314,70 +314,70 @@ trait Where
 
     protected function in(string|array $column, array $values, Chain $chain): static
     {
-        $this->addCondition(WhereType::IN, $column, $values, $chain);
+        $this->addCondition(Operator::IN, $column, $values, $chain);
 
         return $this;
     }
 
     protected function notIn(string|array $column, array $values, Chain $chain): static
     {
-        $this->addCondition(WhereType::NOT_IN, $column, $values, $chain);
+        $this->addCondition(Operator::NOT_IN, $column, $values, $chain);
 
         return $this;
     }
 
     protected function lessThan(string|array $column, int|float|string|DateTimeInterface $value, Chain $chain): static
     {
-        $this->addCondition(WhereType::LESS_THAN, $column, $value, $chain);
+        $this->addCondition(Operator::LESS_THAN, $column, $value, $chain);
 
         return $this;
     }
 
     protected function lessThanOrEquals(string|array $column, int|float|string|DateTimeInterface $value, Chain $chain): static
     {
-        $this->addCondition(WhereType::LESS_THAN_OR_EQUALS, $column, $value, $chain);
+        $this->addCondition(Operator::LESS_THAN_OR_EQUALS, $column, $value, $chain);
 
         return $this;
     }
 
     protected function greaterThan(string|array $column, int|float|string|DateTimeInterface $value, Chain $chain): static
     {
-        $this->addCondition(WhereType::GREATER_THAN, $column, $value, $chain);
+        $this->addCondition(Operator::GREATER_THAN, $column, $value, $chain);
 
         return $this;
     }
 
     protected function greaterThanOrEquals(string|array $column, int|float|string|DateTimeInterface $value, Chain $chain): static
     {
-        $this->addCondition(WhereType::GREATER_THAN_OR_EQUALS, $column, $value, $chain);
+        $this->addCondition(Operator::GREATER_THAN_OR_EQUALS, $column, $value, $chain);
 
         return $this;
     }
 
     protected function between(string|array $column, int|float|string|DateTimeInterface $min, int|float|string|DateTimeInterface $max, Chain $chain): static
     {
-        $this->addCondition(WhereType::BETWEEN, $column, [$min, $max], $chain);
+        $this->addCondition(Operator::BETWEEN, $column, [$min, $max], $chain);
 
         return $this;
     }
 
     protected function notBetween(string|array $column, int|float|string|DateTimeInterface $min, int|float|string|DateTimeInterface $max, Chain $chain): static
     {
-        $this->addCondition(WhereType::NOT_BETWEEN, $column, [$min, $max], $chain);
+        $this->addCondition(Operator::NOT_BETWEEN, $column, [$min, $max], $chain);
 
         return $this;
     }
 
     protected function isNull(string|array $column, Chain $chain): static
     {
-        $this->addCondition(WhereType::EQUALS, $column, null, $chain);
+        $this->addCondition(Operator::EQUALS, $column, null, $chain);
 
         return $this;
     }
 
     protected function isNotNull(string|array $column, Chain $chain): static
     {
-        $this->addCondition(WhereType::NOT_EQUALS, $column, null, $chain);
+        $this->addCondition(Operator::NOT_EQUALS, $column, null, $chain);
 
         return $this;
     }
@@ -385,7 +385,7 @@ trait Where
     protected function empty(string|array $column, Chain $chain): static
     {
         return $this->group(
-            fn (ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup
+            fn(ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup
                 ->orWhereIsNull($column)
                 ->orWhereEquals($column, 0)
                 ->orWhereEquals($column, ''),
@@ -396,7 +396,7 @@ trait Where
     protected function notEmpty(string|array $column, Chain $chain): static
     {
         return $this->group(
-            fn (ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup
+            fn(ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup
                 ->whereIsNotNull($column)
                 ->whereNotEquals($column, 0)
                 ->whereNotEquals($column, ''),
@@ -406,14 +406,14 @@ trait Where
 
     protected function regex(string|array $column, string $pattern, Chain $chain): static
     {
-        $this->addCondition(WhereType::REGEX, $column, $pattern, $chain);
+        $this->addCondition(Operator::REGEX, $column, $pattern, $chain);
 
         return $this;
     }
 
     protected function notRegex(string|array $column, string $pattern, Chain $chain): static
     {
-        $this->addCondition(WhereType::NOT_REGEX, $column, $pattern, $chain);
+        $this->addCondition(Operator::NOT_REGEX, $column, $pattern, $chain);
 
         return $this;
     }
@@ -439,12 +439,12 @@ trait Where
 
     protected function rawExpression(string $expression, array $values, Chain $chain): static
     {
-        $this->addCondition(WhereType::RAW, $expression, $values, $chain);
+        $this->addCondition(Operator::RAW, $expression, $values, $chain);
 
         return $this;
     }
 
-    protected function addCondition(WhereType $type, string|array $query, mixed $value, Chain $chain): void
+    protected function addCondition(Operator $type, string|array $query, mixed $value, Chain $chain): void
     {
         $this->where[] = new Condition($type, $query, $value, $chain);
     }

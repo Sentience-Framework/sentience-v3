@@ -7,6 +7,9 @@ namespace Modules\Database\Queries;
 use DateTimeInterface;
 use Modules\Database\Database;
 use Modules\Database\Dialects\DialectInterface;
+use Modules\Database\Queries\Enums\Chain;
+use Modules\Database\Queries\Enums\Operator;
+use Modules\Database\Queries\Objects\Condition;
 use Modules\Database\Queries\Traits\Where;
 use Modules\Models\Mapper;
 use Modules\Models\Reflection\ReflectionModel;
@@ -24,39 +27,42 @@ class UpdateModels extends ModelsQueryAbstract
 
     public function execute(): array
     {
-        foreach ($this->model as $model) {
+        foreach ($this->models as $model) {
             $this->validateModel($model);
-
-            $query = $this->database->update($model::getTable());
 
             $reflectionModel = new ReflectionModel($model);
             $reflectionModelProperties = $reflectionModel->getProperties();
 
             $values = [];
+            $primaryKeyConditions = [];
 
             foreach ($reflectionModelProperties as $reflectionModelProperty) {
                 if (!$reflectionModelProperty->isInitialized($model)) {
                     continue;
                 }
 
-                if ($reflectionModelProperty->isPrimaryKey()) {
-                    continue;
-                }
-
                 $property = $reflectionModelProperty->getProperty();
                 $column = $reflectionModelProperty->getColumn();
+                $value = $model->{$property};
 
-                $values[$column] = $model->{$property};
+                $values[$column] = $value;
+
+                if ($reflectionModelProperty->isPrimaryKey()) {
+                    $primaryKeyConditions[] = new Condition(
+                        Operator::EQUALS,
+                        $column,
+                        $value,
+                        Chain::AND
+                    );
+                }
             }
 
-            $query->values([
-                ...$values,
-                ...$this->updates
+            $queryWithParams = $this->dialect->update([
+                'table' => $reflectionModel->getTable(),
+                'values' => [...$values, ...$this->updates],
+                'where' => [...$primaryKeyConditions, ...$this->where],
+                'returning' => $reflectionModel->getColumns()
             ]);
-
-            $query->returning();
-
-            $queryWithParams = $query->toQueryWithParams();
 
             $results = $this->database->queryWithParams($queryWithParams);
 
@@ -64,24 +70,12 @@ class UpdateModels extends ModelsQueryAbstract
 
             if ($updatedRow) {
                 Mapper::mapAssoc($model, $updatedRow);
-            }
 
-            $lastInsertId = $results->lastInsertId();
-
-            if (!$lastInsertId) {
                 continue;
-            }
-
-            foreach ($reflectionModelProperties as $reflectionModelProperty) {
-                if (!$reflectionModelProperty->isAutoIncrement()) {
-                    continue;
-                }
-
-                $model->{$reflectionModelProperty->getProperty()} = $lastInsertId;
             }
         }
 
-        return $this->model;
+        return $this->models;
     }
 
     public function updateColumns(array $values): static

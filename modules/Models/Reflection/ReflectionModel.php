@@ -29,7 +29,7 @@ class ReflectionModel
     public function getProperties(?int $filter = null): array
     {
         return array_map(
-            fn (ReflectionProperty $reflectionProperty): ReflectionModelProperty => new ReflectionModelProperty(
+            fn(ReflectionProperty $reflectionProperty): ReflectionModelProperty => new ReflectionModelProperty(
                 $this,
                 $reflectionProperty->getName()
             ),
@@ -50,6 +50,14 @@ class ReflectionModel
         $pluralShortName = Strings::pluralize($shortName);
 
         return Strings::toSnakeCase($pluralShortName);
+    }
+
+    public function getColumns(): array
+    {
+        return array_map(
+            fn(ReflectionModelProperty $reflectionModelProperty): string => $reflectionModelProperty->getColumn(),
+            $this->getProperties()
+        );
     }
 
     public function getPrimaryKeys(): array

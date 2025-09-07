@@ -15,23 +15,13 @@ use Modules\Models\Model;
 
 abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
 {
-    protected string|array|Alias|Raw $table;
-
-    public function __construct(Database $database, DialectInterface $dialect, protected string|array|Model $model)
+    public function __construct(Database $database, DialectInterface $dialect, protected array $models)
     {
         parent::__construct($database, $dialect);
 
-        if (is_array($model)) {
-            if (Arrays::empty($model)) {
-                throw new QueryException('array of models is empty');
-            }
-
-            $this->table = $model[0]::getTable();
-
-            return;
+        if (Arrays::empty($models)) {
+            throw new QueryException('array of models is empty');
         }
-
-        $this->table = $model::getTable();
     }
 
     protected function validateModel(mixed $model, bool $mustBeInstance = true): void

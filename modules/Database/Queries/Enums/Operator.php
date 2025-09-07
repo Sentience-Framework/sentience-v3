@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Database\Queries\Enums;
 
-enum WhereType: string
+enum Operator: string
 {
     case EQUALS = '=';
     case NOT_EQUALS = '<>';
