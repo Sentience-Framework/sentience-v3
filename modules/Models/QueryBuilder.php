@@ -2,6 +2,7 @@
 
 namespace Modules\Models;
 
+use Modules\Database\Queries\Objects\QueryWithParams;
 use Modules\Database\Queries\SelectModels;
 
 class QueryBuilder
@@ -28,7 +29,7 @@ class QueryBuilder
         return $this;
     }
 
-    public function buildQuery(): void
+    public function buildQuery(): QueryWithParams
     {
         return;
     }
