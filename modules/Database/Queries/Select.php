@@ -57,31 +57,31 @@ class Select extends ResultsQueryAbstract
 
     public function count(null|string|array|Raw $column = null): int
     {
-        $previousColumns = $this->columns;
         $previousDistinct = $this->distinct;
+        $previousColumns = $this->columns;
+        $previousOrderBy = $this->orderBy;
 
         $this->distinct = false;
-
-        $countExpression = !is_null($column)
-            ? ($previousDistinct ? 'DISTINCT ' : '') . $this->dialect->escapeIdentifier($column)
-            : '*';
-
-        $this->columns([
+        $this->columns = [
             Query::alias(
                 Query::raw(
                     sprintf(
                         'COUNT(%s)',
-                        $countExpression
+                        !is_null($column)
+                        ? ($previousDistinct ? 'DISTINCT ' : '') . $this->dialect->escapeIdentifier($column)
+                        : '*'
                     )
                 ),
                 'count'
             )
-        ]);
+        ];
+        $this->orderBy = [];
 
         $count = (int) $this->execute()->fetch()?->count ?? 0;
 
-        $this->columns = $previousColumns;
         $this->distinct = $previousDistinct;
+        $this->columns = $previousColumns;
+        $this->orderBy = $previousOrderBy;
 
         return $count;
     }

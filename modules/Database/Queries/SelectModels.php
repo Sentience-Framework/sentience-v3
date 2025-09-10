@@ -43,8 +43,8 @@ class SelectModels extends ModelsQueryAbstract
 
         $this->validateModel($model, false);
 
-        $queryBuilder = new QueryBuilder($this, $model);
-        $queryBuilder->addRelations($this->relations);
+        $queryBuilder = new QueryBuilder($model);
+        $joins = $queryBuilder->addRelations($this->relations);
         $queryBuilder->buildQuery();
 
         $queryWithParams = $this->dialect->select([

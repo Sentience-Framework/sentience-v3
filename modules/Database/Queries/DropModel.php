@@ -19,7 +19,7 @@ class DropModel extends ModelsQueryAbstract
 
     public function execute(): null
     {
-        $model = $this->modelss[0];
+        $model = $this->models[0];
 
         $this->validateModel($model);
 
