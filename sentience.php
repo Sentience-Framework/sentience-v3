@@ -31,4 +31,8 @@ foreach ($routes as $route) {
     $sentience->bindRoute($route);
 }
 
+$sentience->bindServiceObject(
+    include Filesystem::path(SENTIENCE_DIR, 'service.php')
+);
+
 $sentience->execute();

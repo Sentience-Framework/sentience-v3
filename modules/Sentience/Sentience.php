@@ -32,6 +32,8 @@ class Sentience extends Singleton
     protected HttpRouter $httpRouter;
     protected ?Closure $handleFatalError = null;
     protected ?Closure $handleThrowable = null;
+    protected array $serviceObjects = [];
+    protected array $injectables = [];
 
     public function __construct()
     {
@@ -63,6 +65,20 @@ class Sentience extends Singleton
     public function handleThrowable(callable $callback): static
     {
         $this->handleThrowable = Closure::fromCallable($callback);
+
+        return $this;
+    }
+
+    public function bindServiceObject(object $service): static
+    {
+        $this->serviceObjects[] = $service;
+
+        return $this;
+    }
+
+    public function bindInjectable(string $name, mixed $value): static
+    {
+        $this->injectables[$name] = $value;
 
         return $this;
     }
@@ -298,7 +314,7 @@ class Sentience extends Singleton
             $stackTrace = array_values(
                 array_filter(
                     $exception->getTrace(),
-                    fn (array $frame): bool => array_key_exists('file', $frame)
+                    fn(array $frame): bool => array_key_exists('file', $frame)
                 )
             );
 
@@ -316,7 +332,7 @@ class Sentience extends Singleton
                     $args = implode(
                         ', ',
                         array_map(
-                            fn (mixed $arg): string => get_debug_type($arg),
+                            fn(mixed $arg): string => get_debug_type($arg),
                             $frame['args'] ?? []
                         )
                     );
@@ -367,7 +383,7 @@ class Sentience extends Singleton
                                 : $frame['function'];
 
                             $args = array_map(
-                                fn (mixed $arg): string => get_debug_type($arg),
+                                fn(mixed $arg): string => get_debug_type($arg),
                                 $frame['args'] ?? []
                             );
 
@@ -394,7 +410,7 @@ class Sentience extends Singleton
     protected function cliNotFound(Argv $argv): void
     {
         $lines = array_map(
-            fn (Command $command): string => sprintf('- %s', $command->command),
+            fn(Command $command): string => sprintf('- %s', $command->command),
             $this->cliRouter->commands
         );
 

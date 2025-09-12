@@ -13,8 +13,10 @@ use Modules\Helpers\Reflector;
 
 class DependencyInjector
 {
-    public function __construct(protected array $injectables = [], protected ?object $service = null)
-    {
+    public function __construct(
+        protected array $injectables = [],
+        protected array $services = []
+    ) {
     }
 
     public function getFunctionParameters(ReflectionFunctionAbstract $reflectionFunctionAbstract, array $injectables = []): array
@@ -68,7 +70,7 @@ class DependencyInjector
                     ...$parameters,
                     ...array_filter(
                         $injectables,
-                        fn (string $injectable): bool => !array_key_exists($injectable, $parameters),
+                        fn(string $injectable): bool => !array_key_exists($injectable, $parameters),
                         ARRAY_FILTER_USE_KEY
                     )
                 ];
