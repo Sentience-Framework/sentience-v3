@@ -40,9 +40,9 @@ class SelectModels extends ModelsQueryAbstract
 
         $this->validateModel($model, false);
 
-        $queryBuilder = new QueryBuilder($model);
-        $joins = $queryBuilder->addRelations($this->relations);
-        $queryBuilder->buildQuery();
+        // $queryBuilder = new QueryBuilder($model);
+        // $joins = $queryBuilder->addRelations($this->relations);
+        // $queryBuilder->buildQuery();
 
         $queryWithParams = $this->dialect->select([
             'distinct' => $this->distinct,
