@@ -8,7 +8,7 @@ return new class {
     {
         $driver = env('DB_DRIVER', '');
         $host = env('DB_HOST', '');
-        $port = env('DB_PORT', '');
+        $port = (int) env('DB_PORT', '');
         $name = env('DB_NAME', '');
         $username = env('DB_USERNAME', '');
         $password = env('DB_PASSWORD', '');

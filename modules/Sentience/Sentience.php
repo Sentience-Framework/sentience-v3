@@ -32,7 +32,7 @@ class Sentience extends Singleton
     protected HttpRouter $httpRouter;
     protected ?Closure $handleFatalError = null;
     protected ?Closure $handleThrowable = null;
-    protected array $serviceObjects = [];
+    protected array $services = [];
     protected array $injectables = [];
 
     public function __construct()
@@ -69,9 +69,9 @@ class Sentience extends Singleton
         return $this;
     }
 
-    public function bindServiceObject(object $service): static
+    public function bindService(object $service): static
     {
-        $this->serviceObjects[] = $service;
+        $this->services[] = $service;
 
         return $this;
     }
@@ -192,7 +192,8 @@ class Sentience extends Singleton
                 'flags' => $flags,
                 'request' => $request,
                 ...$pathVars
-            ]
+            ],
+            $this->services
         );
 
         $args = $this->executeMiddleware($dependencyInjector, $middleware);

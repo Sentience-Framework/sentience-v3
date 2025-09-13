@@ -19,6 +19,20 @@ class DependencyInjector
     ) {
     }
 
+    public function bindInjectable(string $name, mixed $value): static
+    {
+        $this->injectables[$name] = $value;
+
+        return $this;
+    }
+
+    public function bindService(object $service): static
+    {
+        $this->services[] = $service;
+
+        return $this;
+    }
+
     public function getFunctionParameters(ReflectionFunctionAbstract $reflectionFunctionAbstract, array $injectables = []): array
     {
         $injectables = [
@@ -26,13 +40,22 @@ class DependencyInjector
             ...$injectables
         ];
 
-        $serviceProperties = $this->service
-            ? get_object_vars($this->service)
-            : [];
+        $serviceProperties = [];
+        $serviceMethods = [];
 
-        $serviceMethods = $this->service
-            ? get_class_methods($this->service)
-            : [];
+        foreach ($this->services as $service) {
+            $properties = get_object_vars($service);
+
+            $methods = get_class_methods($service);
+
+            foreach ($properties as $property) {
+                $serviceProperties[$property] = [$service, $property];
+            }
+
+            foreach ($methods as $method) {
+                $serviceMethods[$method] = [$service, $method];
+            }
+        }
 
         $functionParameters = $reflectionFunctionAbstract->getParameters();
 
@@ -53,8 +76,8 @@ class DependencyInjector
                 continue;
             }
 
-            if (in_array($name, $serviceMethods)) {
-                $parameters[$name] = [$this->service, $name]();
+            if (array_key_exists($name, $serviceMethods)) {
+                $parameters[$name] = $serviceMethods[$name]();
 
                 continue;
             }
@@ -77,8 +100,8 @@ class DependencyInjector
                 continue;
             }
 
-            if ($this->isInjectable($functionParameter)) {
-                $parameters[$name] = $this->createInjectableInstance($functionParameter);
+            if ($this->isSingleton($functionParameter)) {
+                $parameters[$name] = $this->createSingletonInstance($functionParameter);
 
                 continue;
             }
@@ -95,7 +118,7 @@ class DependencyInjector
         return $parameters;
     }
 
-    protected function isInjectable(ReflectionParameter $reflectionParameter): bool
+    protected function isSingleton(ReflectionParameter $reflectionParameter): bool
     {
         $type = $this->getType($reflectionParameter);
 
@@ -110,7 +133,7 @@ class DependencyInjector
         return Reflector::isSubClassOf($type, Singleton::class);
     }
 
-    protected function createInjectableInstance(ReflectionParameter $reflectionParameter): Singleton
+    protected function createSingletonInstance(ReflectionParameter $reflectionParameter): Singleton
     {
         $type = $this->getType($reflectionParameter);
 
