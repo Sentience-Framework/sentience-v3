@@ -143,7 +143,7 @@ class Database
         return $this->dialect->escapeString($string);
     }
 
-    public function castToDriver(mixed $value): string
+    public function castToDriver(mixed $value): mixed
     {
         return $this->dialect->castToDriver($value);
     }
