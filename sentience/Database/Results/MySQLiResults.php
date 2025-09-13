@@ -3,23 +3,25 @@
 namespace Sentience\Database\Results;
 
 use mysqli_result;
-use PDO;
-use PDOStatement;
 
 class MySQLiResults implements ResultsInterface
 {
-    public function __construct(protected mysqli_result $mysqliResults)
+    public function __construct(protected bool|mysqli_result $mysqliResults)
     {
     }
 
     public function getColumns(): array
     {
+        if (!$this->mysqliResults) {
+            return [];
+        }
+
         $columns = [];
 
         $index = 0;
 
         while (true) {
-            $column = $this->pdoStatement->getColumnMeta($index);
+            $column = $this->mysqliResults->fetch_column($index);
 
             if (!$column) {
                 break;
@@ -33,9 +35,13 @@ class MySQLiResults implements ResultsInterface
         return $columns;
     }
 
-    public function nextRowAsObject(string $class = 'stdClass'): ?object
+    public function fetchObject(string $class = 'stdClass'): ?object
     {
-        $object = $this->pdoStatement->fetchObject($class);
+        if (!$this->mysqliResults) {
+            return null;
+        }
+
+        $object = $this->mysqliResults->fetch_object($class);
 
         if (is_bool($object)) {
             return null;
@@ -44,24 +50,50 @@ class MySQLiResults implements ResultsInterface
         return $object;
     }
 
-    public function allRowsAsObjects(string $class = 'stdClass'): array
+    public function fetchObjects(string $class = 'stdClass'): array
     {
-        return $this->pdoStatement->fetchAll(PDO::FETCH_CLASS, $class);
+        if (!$this->mysqliResults) {
+            return [];
+        }
+
+        $assocs = $this->mysqliResults->fetch_all(MYSQLI_ASSOC);
+
+        return array_map(
+            function (array $assoc) use ($class): object {
+                $object = new $class();
+
+
+                foreach ($assoc as $key => $value) {
+                    $object->{$key} = $value;
+                }
+
+                return $object;
+            },
+            $assocs
+        );
     }
 
-    public function nextRowAsAssoc(): ?array
+    public function fetchAssoc(): ?array
     {
-        $associative = $this->pdoStatement->fetch(PDO::FETCH_ASSOC);
-
-        if (is_bool($associative)) {
+        if (!$this->mysqliResults) {
             return null;
         }
 
-        return $associative;
+        $assoc = $this->mysqliResults->fetch_assoc();
+
+        if (is_bool($assoc)) {
+            return null;
+        }
+
+        return $assoc;
     }
 
-    public function allRowsAsAssocs(): array
+    public function fetchAssocs(): array
     {
-        return $this->pdoStatement->fetchAll(PDO::FETCH_ASSOC);
+        if (!$this->mysqliResults) {
+            return [];
+        }
+
+        return $this->mysqliResults->fetch_all(MYSQLI_ASSOC);
     }
 }

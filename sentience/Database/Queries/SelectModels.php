@@ -61,7 +61,7 @@ class SelectModels extends ModelsQueryAbstract
 
         return array_map(
             fn(array $row): object => $this->mapAssocToModel($model, $row),
-            $results->allRowsAsAssocs()
+            $results->fetchAssocs()
         );
     }
 }

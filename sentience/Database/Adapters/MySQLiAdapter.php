@@ -114,7 +114,7 @@ class MySQLiAdapter extends AdapterAbstract
 
         $results = $mysqliStatement->get_result();
 
-        if (!$results) {
+        if (!$results && $mysqliStatement->error) {
             $error = $mysqliStatement->error;
 
             ($this->debug)($rawQuery, $startTime, $error);

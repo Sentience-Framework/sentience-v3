@@ -32,7 +32,7 @@ class PDOResults implements ResultsInterface
         return $columns;
     }
 
-    public function nextRowAsObject(string $class = 'stdClass'): ?object
+    public function fetchObject(string $class = 'stdClass'): ?object
     {
         $object = $this->pdoStatement->fetchObject($class);
 
@@ -43,23 +43,23 @@ class PDOResults implements ResultsInterface
         return $object;
     }
 
-    public function allRowsAsObjects(string $class = 'stdClass'): array
+    public function fetchObjects(string $class = 'stdClass'): array
     {
         return $this->pdoStatement->fetchAll(PDO::FETCH_CLASS, $class);
     }
 
-    public function nextRowAsAssoc(): ?array
+    public function fetchAssoc(): ?array
     {
-        $associative = $this->pdoStatement->fetch(PDO::FETCH_ASSOC);
+        $assoc = $this->pdoStatement->fetch(PDO::FETCH_ASSOC);
 
-        if (is_bool($associative)) {
+        if (is_bool($assoc)) {
             return null;
         }
 
-        return $associative;
+        return $assoc;
     }
 
-    public function allRowsAsAssocs(): array
+    public function fetchAssocs(): array
     {
         return $this->pdoStatement->fetchAll(PDO::FETCH_ASSOC);
     }

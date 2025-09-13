@@ -5,8 +5,8 @@ namespace Sentience\Database\Results;
 interface ResultsInterface
 {
     public function getColumns(): array;
-    public function nextRowAsObject(string $class = 'stdClass'): ?object;
-    public function allRowsAsObjects(string $class = 'stdClass'): array;
-    public function nextRowAsAssoc(): ?array;
-    public function allRowsAsAssocs(): array;
+    public function fetchObject(string $class = 'stdClass'): ?object;
+    public function fetchObjects(string $class = 'stdClass'): array;
+    public function fetchAssoc(): ?array;
+    public function fetchAssocs(): array;
 }

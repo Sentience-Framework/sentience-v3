@@ -31,9 +31,9 @@ class SQLiteResults implements ResultsInterface
         return $columns;
     }
 
-    public function nextRowAsObject(string $class = 'stdClass'): ?object
+    public function fetchObject(string $class = 'stdClass'): ?object
     {
-        $assoc = $this->nextRowAsAssoc();
+        $assoc = $this->fetchAssoc();
 
         if (is_null($assoc)) {
             return null;
@@ -48,12 +48,12 @@ class SQLiteResults implements ResultsInterface
         return $object;
     }
 
-    public function allRowsAsObjects(string $class = 'stdClass'): array
+    public function fetchObjects(string $class = 'stdClass'): array
     {
         $objects = [];
 
         while (true) {
-            $object = $this->nextRowAsObject($class);
+            $object = $this->fetchObject($class);
 
             if (is_null($object)) {
                 break;
@@ -65,7 +65,7 @@ class SQLiteResults implements ResultsInterface
         return $objects;
     }
 
-    public function nextRowAsAssoc(): ?array
+    public function fetchAssoc(): ?array
     {
         $assoc = $this->sqlite3Results->fetchArray(SQLITE3_ASSOC);
 
@@ -76,12 +76,12 @@ class SQLiteResults implements ResultsInterface
         return $assoc;
     }
 
-    public function allRowsAsAssocs(): array
+    public function fetchAssocs(): array
     {
         $assocs = [];
 
         while (true) {
-            $assoc = $this->nextRowAsAssoc();
+            $assoc = $this->fetchAssoc();
 
             if (is_null($assoc)) {
                 break;

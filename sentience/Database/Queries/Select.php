@@ -76,7 +76,7 @@ class Select extends ResultsQueryAbstract
         ];
         $this->orderBy = [];
 
-        $count = (int) $this->execute()->fetch()?->count ?? 0;
+        $count = (int) $this->execute()->fetchObject()?->count ?? 0;
 
         $this->distinct = $previousDistinct;
         $this->columns = $previousColumns;

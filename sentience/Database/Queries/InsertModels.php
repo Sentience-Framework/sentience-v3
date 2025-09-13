@@ -60,7 +60,7 @@ class InsertModels extends ModelsQueryAbstract
 
             $results = $this->database->queryWithParams($queryWithParams);
 
-            $insertedRow = $results->nextRowAsAssoc();
+            $insertedRow = $results->fetchAssoc();
 
             if ($insertedRow) {
                 $this->mapAssocToModel($model, $insertedRow);

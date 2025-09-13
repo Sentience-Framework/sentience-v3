@@ -56,7 +56,7 @@ class DeleteModels extends ModelsQueryAbstract
 
             $results = $this->database->queryWithParams($queryWithParams);
 
-            $deletedRow = $results->nextRowAsAssoc();
+            $deletedRow = $results->fetchAssoc();
 
             if ($deletedRow) {
                 $this->mapAssocToModel($model, $deletedRow);

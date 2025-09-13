@@ -63,7 +63,7 @@ class UpdateModels extends ModelsQueryAbstract
 
             $results = $this->database->queryWithParams($queryWithParams);
 
-            $updatedRow = $results->nextRowAsAssoc();
+            $updatedRow = $results->fetchAssoc();
 
             if ($updatedRow) {
                 $this->mapAssocToModel($model, $updatedRow);
