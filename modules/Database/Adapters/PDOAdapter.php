@@ -4,6 +4,7 @@ namespace Modules\Database\Adapters;
 
 use Closure;
 use Modules\Database\Dialects\DialectInterface;
+use Modules\Database\Driver;
 use Modules\Database\Queries\Objects\QueryWithParams;
 use Modules\Database\Results\PDOResults;
 use PDO;
@@ -11,37 +12,35 @@ use PDOException;
 
 class PDOAdapter extends AdapterAbstract
 {
-    private PDO $pdo;
+    protected PDO $pdo;
 
     public function __construct(
-        protected string $driver,
+        protected Driver $driver,
         protected string $host,
         protected int $port,
         protected string $name,
         protected string $username,
         protected string $password,
         protected DialectInterface $dialect,
-        protected ?Closure $debug
+        protected ?Closure $debug,
+        protected array $options
     ) {
-        parent::__construct(
-            $driver,
-            $host,
-            $port,
-            $name,
-            $username,
-            $password,
-            $dialect,
-            $debug
-        );
-
-        $this->pdo = new PDO(
-            sprintf(
+        $dsn = $driver == Driver::SQLITE
+            ? sprintf(
+                '%s:%s',
+                $driver->value,
+                $name
+            )
+            : sprintf(
                 '%s:host=%s;port=%s;dbname=%s',
-                $driver,
+                $driver->value,
                 $host,
                 $port,
                 $name
-            ),
+            );
+
+        $this->pdo = new PDO(
+            $dsn,
             $username,
             $password,
             options: [
@@ -119,7 +118,7 @@ class PDOAdapter extends AdapterAbstract
 
     public function beginTransaction(): bool
     {
-        return $this->pdo->inTransaction();
+        return $this->pdo->beginTransaction();
     }
 
     public function inTransaction(): bool

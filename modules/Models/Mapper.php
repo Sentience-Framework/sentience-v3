@@ -26,8 +26,6 @@ class Mapper
             $columns[$reflectionModelProperty->getColumn()] = $reflectionModelProperty;
         }
 
-        $dialect = Database::getInstance()->dialect;
-
         foreach ($assoc as $key => $value) {
             if (!array_key_exists($key, $columns)) {
                 continue;

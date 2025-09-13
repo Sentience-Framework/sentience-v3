@@ -1,0 +1,139 @@
+<?php
+
+namespace Modules\Database\Adapters;
+
+use Closure;
+use Modules\Database\Dialects\DialectInterface;
+use Modules\Database\Driver;
+use Modules\Database\Queries\Objects\QueryWithParams;
+use Modules\Database\Results\SQLiteResults;
+use SQLite3;
+use SQLite3Exception;
+
+class SQLiteAdapter extends AdapterAbstract
+{
+    protected SQLite3 $sqlite;
+    protected bool $inTransaction;
+
+    public function __construct(
+        protected Driver $driver,
+        protected string $host,
+        protected int $port,
+        protected string $name,
+        protected string $username,
+        protected string $password,
+        protected DialectInterface $dialect,
+        protected ?Closure $debug,
+        protected array $options
+    ) {
+        $this->sqlite = new SQLite3($name);
+
+        if (array_key_exists('DB_BUSY_TIMEOUT', $options)) {
+            $this->sqlite->busyTimeout((int) $options['DB_BUSY_TIMEOUT']);
+        }
+    }
+
+    public function query(string $query): void
+    {
+        $startTime = microtime(true);
+
+        $success = $this->sqlite->exec($query);
+
+        if (!$success) {
+            $error = $this->sqlite->lastErrorMsg();
+
+            ($this->debug)($query, $startTime, $error);
+
+            throw new SQLite3Exception($error);
+        }
+
+        ($this->debug)($query, $startTime);
+    }
+
+    public function queryWithParams(QueryWithParams $queryWithParams): SQLiteResults
+    {
+        $rawQuery = $queryWithParams->toRawQuery($this->dialect);
+
+        $startTime = microtime(true);
+
+        $sqlite3Statement = $this->sqlite->prepare($queryWithParams->query);
+
+        if (is_bool($sqlite3Statement)) {
+            $error = $this->sqlite->lastErrorMsg();
+
+            ($this->debug)($rawQuery, $startTime, $error);
+
+            throw new SQLite3Exception($error);
+        }
+
+        foreach ($queryWithParams->params as $index => $param) {
+            $value = $this->dialect->castToDriver($param);
+
+            $sqlite3Statement->bindValue(
+                $index + 1,
+                $value,
+                match (get_debug_type($value)) {
+                    'null' => SQLITE3_NULL,
+                    'bool' => SQLITE3_INTEGER,
+                    'int' => SQLITE3_INTEGER,
+                    'float' => SQLITE3_FLOAT,
+                    'string' => SQLITE3_TEXT,
+                    default => SQLITE3_TEXT
+                }
+            );
+        }
+
+        $sqlite3Results = $sqlite3Statement->execute();
+
+        if (!$sqlite3Results) {
+            $error = $this->sqlite->lastErrorMsg();
+
+            ($this->debug)($rawQuery, $startTime, $error);
+
+            throw new SQLite3Exception($error);
+        }
+
+        ($this->debug)($rawQuery, $startTime);
+
+        return new SQLiteResults($sqlite3Results);
+    }
+
+    public function beginTransaction(): bool
+    {
+        $this->inTransaction = true;
+
+        return $this->sqlite->query('BEGIN;');
+    }
+
+    public function inTransaction(): bool
+    {
+        return $this->inTransaction;
+    }
+
+    public function commitTransaction(): bool
+    {
+        if (!$this->inTransaction) {
+            return false;
+        }
+
+        $this->query('COMMIT;');
+
+        return true;
+    }
+
+    public function rollbackTransaction(): bool
+    {
+        if (!$this->inTransaction) {
+            return false;
+        }
+
+        $this->query('ROLLBACK;');
+
+        return true;
+    }
+
+    public function lastInsertId(?string $name = null): string
+    {
+        return (string) $this->sqlite->lastInsertRowID();
+    }
+}

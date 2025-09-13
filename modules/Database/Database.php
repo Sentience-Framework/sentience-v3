@@ -41,18 +41,20 @@ class Database
         protected string $username,
         protected string $password,
         protected bool $debug,
+        protected array $options
     ) {
         $adapter = $driver->getAdapter();
         $dialect = $driver->getDialect();
 
         $this->adapter = new $adapter(
+            $driver,
             $host,
             $port,
             $name,
             $username,
             $password,
             $dialect,
-            $debug ? function (string $query, float $startTime, ?string $error): void {
+            $debug ? function (string $query, float $startTime, ?string $error = null): void {
                 $endTime = microtime(true);
 
                 $lines = [
@@ -66,7 +68,8 @@ class Database
                 }
 
                 Log::stderrBetweenEqualSigns('Query', $lines);
-            } : null
+            } : null,
+            $options
         );
 
         $this->dialect = $dialect;

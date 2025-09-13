@@ -64,13 +64,13 @@ class InsertModels extends ModelsQueryAbstract
 
             $results = $this->database->queryWithParams($queryWithParams);
 
-            $insertedRow = $results->fetchAssoc();
+            $insertedRow = $results->nextRowAsAssoc();
 
             if ($insertedRow) {
                 Mapper::mapAssoc($model, $insertedRow);
             }
 
-            $lastInsertId = $results->lastInsertId();
+            $lastInsertId = $this->database->lastInsertId();
 
             if (!$lastInsertId) {
                 continue;

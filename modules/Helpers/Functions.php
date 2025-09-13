@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Modules\Env\Env;
 
-function env(string $key, mixed $default = null): mixed
+function env(?string $key = null, mixed $default = null): mixed
 {
     return Env::get($key, $default);
 }

@@ -31,6 +31,6 @@ class QueryBuilder
 
     public function buildQuery(): QueryWithParams
     {
-        return;
+        return new QueryWithParams('');
     }
 }

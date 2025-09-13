@@ -10,8 +10,12 @@ class Env
 {
     protected static array $env = [];
 
-    public static function get(string $key, mixed $default = null): mixed
+    public static function get(?string $key = null, mixed $default = null): mixed
     {
+        if (!$key) {
+            return static::$env;
+        }
+
         if (!array_key_exists($key, static::$env)) {
             return $default;
         }
@@ -141,7 +145,7 @@ class Env
         }
 
         return array_map(
-            fn (string $value): mixed => static::parseVariable($value, $parsedVariables),
+            fn(string $value): mixed => static::parseVariable($value, $parsedVariables),
             $matches[0]
         );
     }
