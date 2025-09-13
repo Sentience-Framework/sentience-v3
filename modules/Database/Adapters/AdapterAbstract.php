@@ -9,7 +9,8 @@ use Modules\Helpers\Strings;
 
 abstract class AdapterAbstract implements AdapterInterface
 {
-    public const REGEXP_FUNCTION = 'REGEXP';
+    public const string REGEXP_FUNCTION = 'REGEXP';
+    public const int REGEXP_FUNCTION_ARGUMENTS_COUNT = 2;
 
     public function __construct(
         protected Driver $driver,

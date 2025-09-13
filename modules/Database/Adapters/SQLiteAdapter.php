@@ -9,7 +9,6 @@ use Modules\Database\Dialects\DialectInterface;
 use Modules\Database\Driver;
 use Modules\Database\Queries\Objects\QueryWithParams;
 use Modules\Database\Results\SQLiteResults;
-use Modules\Helpers\Strings;
 
 class SQLiteAdapter extends AdapterAbstract
 {
@@ -42,7 +41,7 @@ class SQLiteAdapter extends AdapterAbstract
         $this->sqlite->createFunction(
             static::REGEXP_FUNCTION,
             fn(string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
-            2
+            static::REGEXP_FUNCTION_ARGUMENTS_COUNT
         );
 
         if (array_key_exists(static::OPTIONS_BUSY_TIMEOUT, $options)) {

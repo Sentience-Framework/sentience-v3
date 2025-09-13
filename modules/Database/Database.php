@@ -166,6 +166,11 @@ class Database
         };
     }
 
+    public function castToQuery(mixed $value): mixed
+    {
+        return $this->dialect->castToQuery($value);
+    }
+
     public function select(string|array|Alias|Raw $table): Select
     {
         return new Select($this, $this->dialect, $table);

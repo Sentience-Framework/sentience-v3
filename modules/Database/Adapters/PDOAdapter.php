@@ -9,7 +9,6 @@ use Modules\Database\Dialects\DialectInterface;
 use Modules\Database\Driver;
 use Modules\Database\Queries\Objects\QueryWithParams;
 use Modules\Database\Results\PDOResults;
-use Modules\Helpers\Strings;
 
 class PDOAdapter extends AdapterAbstract
 {
@@ -55,7 +54,7 @@ class PDOAdapter extends AdapterAbstract
             $this->pdo->sqliteCreateFunction(
                 static::REGEXP_FUNCTION,
                 fn(string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
-                2
+                static::REGEXP_FUNCTION_ARGUMENTS_COUNT
             );
         }
     }
