@@ -2,15 +2,10 @@
 
 namespace Sentience\Database\Queries;
 
-use ReflectionClass;
-use ReflectionProperty;
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Traits\IfNotExists;
-use Sentience\Exceptions\ModelException;
-use Sentience\Helpers\Reflector;
-use Sentience\Models\Attributes\Columns\AutoIncrement;
-use Sentience\Models\Attributes\Table\UniqueConstraint;
+use Sentience\Models\Reflection\ReflectionModel;
 
 class CreateModel extends ModelsQueryAbstract
 {
@@ -27,60 +22,40 @@ class CreateModel extends ModelsQueryAbstract
 
         $this->validateModel($model, false);
 
-        $columns = $model::getColumns();
-        $primaryKeys = $model::getPrimaryKeys();
-        $uniqueColumns = $model::getUniqueColumns();
+        $reflectionModel = new ReflectionModel($model);
+        $reflectionModelProperties = $reflectionModel->getProperties();
 
-        $query = $this->database->createTable($model::getTable())
-            ->primaryKeys(array_keys($primaryKeys));
+        $table = $reflectionModel->getTable();
+        $primaryKeys = $reflectionModel->getPrimaryKeys();
+        $uniqueConstraint = $reflectionModel->getUniqueConstraint();
+
+        $query = $this->database->createTable($table)
+            ->primaryKeys($primaryKeys);
 
         if ($this->ifNotExists) {
             $query->ifNotExists();
         }
 
-        foreach ($columns as $column => $property) {
-            $reflectionProperty = new ReflectionProperty($model, $property);
+        foreach ($reflectionModelProperties as $reflectionModelProperty) {
+            $propertyAllowsNull = $reflectionModelProperty->allowsNull();
+            $propertyDefaultValue = $reflectionModelProperty->getDefaultValue();
+            $propertyHasAutoIncrementAttribute = $reflectionModelProperty->isAutoIncrement();
 
-            if (!Reflector::hasNamedType($model, $property)) {
-                throw new ModelException('empty or union types are not allowed as model properties');
-            }
-
-            $reflectionProperty = new ReflectionProperty($model, $property);
-            $reflectionType = $reflectionProperty->getType();
-
-            $propertyType = Reflector::toNamedType($reflectionType);
-            $propertyAllowsNull = $reflectionType->allowsNull();
-            $propertyHasDefaultValue = $reflectionProperty->hasDefaultValue();
-            $propertyDefaultValue = $reflectionProperty->getDefaultValue();
-            $propertyIsPrimaryKey = in_array($property, array_values($primaryKeys));
-            $propertyHasAutoIncrementAttribute = Reflector::propertyHasAttribute($model, $property, AutoIncrement::class);
-
-            $columnType = $this->dialect->phpTypeToColumnType(
-                $propertyType,
-                $propertyHasAutoIncrementAttribute,
-                $propertyIsPrimaryKey,
-                in_array($property, array_values($uniqueColumns))
-            );
+            $column = $reflectionModelProperty->getColumn();
+            $columnType = $reflectionModelProperty->getColumnType($this->dialect);
 
             $query->column(
                 $column,
                 $columnType,
                 !$propertyAllowsNull,
-                $propertyHasDefaultValue ? $propertyDefaultValue : null,
+                $propertyDefaultValue,
                 $propertyHasAutoIncrementAttribute
             );
         }
 
-        if (Reflector::classHasAttribute($model, UniqueConstraint::class)) {
-            $uniqueConstraintAttributes = (new ReflectionClass($model))->getAttributes(UniqueConstraint::class);
-
-            $uniqueConstraint = $uniqueConstraintAttributes[0]->newInstance();
-
+        if ($uniqueConstraint) {
             $query->uniqueConstraint(
-                array_map(
-                    fn(string $property): string => $model::getColumn($property),
-                    $uniqueConstraint->properties
-                ),
+                $uniqueConstraint->columns,
                 $uniqueConstraint->name
             );
         }

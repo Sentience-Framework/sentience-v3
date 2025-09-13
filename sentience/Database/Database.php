@@ -25,6 +25,7 @@ use Sentience\Database\Queries\SelectModels;
 use Sentience\Database\Queries\Update;
 use Sentience\Database\Queries\UpdateModels;
 use Sentience\Database\Results\ResultsInterface;
+use Sentience\Helpers\Arrays;
 use Sentience\Helpers\Log;
 use Sentience\Models\Model;
 use Sentience\Timestamp\Timestamp;
@@ -188,7 +189,7 @@ class Database
 
     public function insertModels(array|Model $models): InsertModels
     {
-        return new InsertModels($this, $this->dialect, $models);
+        return new InsertModels($this, $this->dialect, Arrays::wrap($models));
     }
 
     public function update(string|array|Alias|Raw $table = null): Update
@@ -198,7 +199,7 @@ class Database
 
     public function updateModels(array|Model $models): UpdateModels
     {
-        return new UpdateModels($this, $this->dialect, $models);
+        return new UpdateModels($this, $this->dialect, Arrays::wrap($models));
     }
 
     public function delete(string|array|Alias|Raw $table): Delete
@@ -208,7 +209,7 @@ class Database
 
     public function deleteModels(array|Model $models): DeleteModels
     {
-        return new DeleteModels($this, $this->dialect, $models);
+        return new DeleteModels($this, $this->dialect, Arrays::wrap($models));
     }
 
     public function createTable(string|array|Alias|Raw $table): CreateTable

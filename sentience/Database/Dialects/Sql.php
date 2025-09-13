@@ -270,7 +270,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn(string|Raw $column): string => $this->escapeIdentifier($column),
+                    fn (string|Raw $column): string => $this->escapeIdentifier($column),
                     $config['primaryKeys']
                 )
             )
@@ -523,7 +523,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn(string|array|Raw $column): string => $this->escapeIdentifier($column),
+                    fn (string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $groupBy
                 )
             )
@@ -552,7 +552,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn(OrderBy $orderBy): string => sprintf(
+                    fn (OrderBy $orderBy): string => sprintf(
                         '%s %s',
                         $this->escapeIdentifier($orderBy->column),
                         $orderBy->direction->value
@@ -565,7 +565,7 @@ class Sql implements DialectInterface
 
     protected function addLimit(string &$query, ?int $limit): void
     {
-        if (!$limit) {
+        if (is_null($limit)) {
             return;
         }
 
@@ -574,11 +574,11 @@ class Sql implements DialectInterface
 
     protected function addOffset(string &$query, ?int $limit, ?int $offset): void
     {
-        if (!$limit) {
+        if (is_null($limit)) {
             return;
         }
 
-        if (!$offset) {
+        if (is_null($offset)) {
             return;
         }
 
@@ -605,7 +605,7 @@ class Sql implements DialectInterface
             : implode(
                 ', ',
                 array_map(
-                    fn(string $column): string => $this->escapeIdentifier($column),
+                    fn (string $column): string => $this->escapeIdentifier($column),
                     $returning
                 )
             );
@@ -643,7 +643,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn(string $column): string => $this->escapeIdentifier($column),
+                    fn (string $column): string => $this->escapeIdentifier($column),
                     $uniqueConstraint->columns
                 )
             )
@@ -721,7 +721,7 @@ class Sql implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn(string|array|Raw $column): string => $this->escapeIdentifier($column),
+                    fn (string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $addPrimaryKeys->columns
                 )
             )
@@ -773,7 +773,7 @@ class Sql implements DialectInterface
             ? implode(
                 '.',
                 array_map(
-                    fn(string|Raw $identifier): string => $this->escapeIdentifier($identifier),
+                    fn (string|Raw $identifier): string => $this->escapeIdentifier($identifier),
                     $identifier
                 )
             )

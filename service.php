@@ -19,7 +19,7 @@ return new class () {
         $options = [];
 
         foreach ($env as $key => $value) {
-            if (!str_starts_with($key, 'DB_')) {
+            if (!str_starts_with((string) $key, 'DB_')) {
                 continue;
             }
 

@@ -54,7 +54,7 @@ class ReflectionModelProperty
         );
     }
 
-    public function getColumnDefault(): mixed
+    public function getDefaultValue(): mixed
     {
         $columnAttribute = $this->getColumnAttribute();
 

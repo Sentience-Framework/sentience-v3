@@ -72,7 +72,7 @@ class UrlEncoding
 
         if ($unique) {
             return array_map(
-                fn(array $values): mixed => end($values),
+                fn (array $values): mixed => end($values),
                 $decoded
             );
         }

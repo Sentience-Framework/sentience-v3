@@ -6,7 +6,6 @@ use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Traits\Returning;
 use Sentience\Database\Queries\Traits\Values;
 use Sentience\Database\Queries\Traits\Where;
-use Sentience\Database\Results;
 use Sentience\Database\Results\ResultsInterface;
 
 class Update extends ResultsQueryAbstract

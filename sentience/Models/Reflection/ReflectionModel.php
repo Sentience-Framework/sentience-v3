@@ -27,7 +27,7 @@ class ReflectionModel
     public function getProperties(?int $filter = null): array
     {
         return array_map(
-            fn(ReflectionProperty $reflectionProperty): ReflectionModelProperty => new ReflectionModelProperty($this, $reflectionProperty),
+            fn (ReflectionProperty $reflectionProperty): ReflectionModelProperty => new ReflectionModelProperty($this, $reflectionProperty),
             $this->reflectionClass->getProperties($filter)
         );
     }
@@ -50,7 +50,7 @@ class ReflectionModel
     public function getColumns(): array
     {
         return array_map(
-            fn(ReflectionModelProperty $reflectionModelProperty): string => $reflectionModelProperty->getColumn(),
+            fn (ReflectionModelProperty $reflectionModelProperty): string => $reflectionModelProperty->getColumn(),
             $this->getProperties()
         );
     }

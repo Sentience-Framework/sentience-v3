@@ -143,7 +143,7 @@ class Env
         }
 
         return array_map(
-            fn(string $value): mixed => static::parseVariable($value, $parsedVariables),
+            fn (string $value): mixed => static::parseVariable($value, $parsedVariables),
             $matches[0]
         );
     }

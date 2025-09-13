@@ -2,14 +2,12 @@
 
 namespace Src\Models;
 
-use JsonSerializable;
 use Sentience\Models\Attributes\Columns\AutoIncrement;
 use Sentience\Models\Attributes\Columns\Column;
 use Sentience\Models\Attributes\Table\PrimaryKeys;
 use Sentience\Models\Attributes\Table\Table;
 use Sentience\Models\Attributes\Table\UniqueConstraint;
 use Sentience\Models\Model;
-use Sentience\Models\Traits\IsJsonSerializable;
 use Sentience\Timestamp\Timestamp;
 
 #[Table('migrations')]
@@ -24,7 +22,7 @@ class Migration extends Model
     #[Column('batch')]
     public int $batch;
 
-    #[Column(column: 'filename')]
+    #[Column('filename')]
     public string $filename;
 
     #[Column('applied_at')]

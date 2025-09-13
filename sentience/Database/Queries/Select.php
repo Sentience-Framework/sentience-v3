@@ -13,7 +13,6 @@ use Sentience\Database\Queries\Traits\Limit;
 use Sentience\Database\Queries\Traits\Offset;
 use Sentience\Database\Queries\Traits\OrderBy;
 use Sentience\Database\Queries\Traits\Where;
-use Sentience\Database\Results;
 use Sentience\Database\Results\ResultsInterface;
 
 class Select extends ResultsQueryAbstract

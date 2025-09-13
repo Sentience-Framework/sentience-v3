@@ -6,7 +6,6 @@ use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Traits\OnConflict;
 use Sentience\Database\Queries\Traits\Returning;
 use Sentience\Database\Queries\Traits\Values;
-use Sentience\Database\Results;
 use Sentience\Database\Results\ResultsInterface;
 
 class Insert extends ResultsQueryAbstract

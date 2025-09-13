@@ -5,6 +5,7 @@ namespace Sentience\Database\Queries;
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Traits\IfExists;
+use Sentience\Models\Reflection\ReflectionModel;
 
 class DropModel extends ModelsQueryAbstract
 {
@@ -21,7 +22,11 @@ class DropModel extends ModelsQueryAbstract
 
         $this->validateModel($model, false);
 
-        $query = $this->database->dropTable($model::getTable());
+        $reflectionModel = new ReflectionModel($model);
+
+        $table = $reflectionModel->getTable();
+
+        $query = $this->database->dropTable($table);
 
         if ($this->ifExists) {
             $query->ifExists();

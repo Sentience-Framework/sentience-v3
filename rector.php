@@ -8,7 +8,7 @@ return RectorConfig::configure()
     ->withPaths([
         __DIR__ . '/docs',
         __DIR__ . '/public',
-        __DIR__ . '/sentience',
+        __DIR__ . '/sentience.php',
         __DIR__ . '/src',
         __DIR__ . '/*.php'
     ])
@@ -18,7 +18,6 @@ return RectorConfig::configure()
     ->withDeadCodeLevel(0)
     ->withCodeQualityLevel(0)
     ->withRules([
-        'no_extra_blank_lines' => true,
         // DeclareStrictTypesRector::class
     ])
     ->withSkip([

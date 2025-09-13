@@ -9,7 +9,6 @@ use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Results\MySQLiResults;
-use Sentience\Database\Results\ResultsInterface;
 
 class MySQLiAdapter extends AdapterAbstract
 {
@@ -39,7 +38,6 @@ class MySQLiAdapter extends AdapterAbstract
             throw new mysqli_sql_exception($this->mysqli->connect_error);
         }
     }
-
 
     public function query(string $query): void
     {

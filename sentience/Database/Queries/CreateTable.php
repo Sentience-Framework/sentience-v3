@@ -6,7 +6,6 @@ use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Traits\Constraints;
 use Sentience\Database\Queries\Traits\IfNotExists;
-use Sentience\Database\Results;
 use Sentience\Database\Results\ResultsInterface;
 
 class CreateTable extends ResultsQueryAbstract

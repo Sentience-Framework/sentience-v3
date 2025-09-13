@@ -5,7 +5,6 @@ namespace Sentience\Models;
 use JsonSerializable;
 use Sentience\Models\Reflection\ReflectionModel;
 use Sentience\Models\Reflection\ReflectionModelProperty;
-use Sentience\Traits\HasAttributes;
 
 class Model implements JsonSerializable
 {
@@ -17,7 +16,7 @@ class Model implements JsonSerializable
     public static function getColumns(): array
     {
         return array_map(
-            fn(ReflectionModelProperty $reflectionModelProperty): string => $reflectionModelProperty->getColumn(),
+            fn (ReflectionModelProperty $reflectionModelProperty): string => $reflectionModelProperty->getColumn(),
             (new ReflectionModel(static::class))->getProperties()
         );
     }

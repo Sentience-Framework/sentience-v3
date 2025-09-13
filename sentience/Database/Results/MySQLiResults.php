@@ -62,7 +62,6 @@ class MySQLiResults implements ResultsInterface
             function (array $assoc) use ($class): object {
                 $object = new $class();
 
-
                 foreach ($assoc as $key => $value) {
                     $object->{$key} = $value;
                 }

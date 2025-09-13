@@ -2,12 +2,9 @@
 
 namespace Sentience\Database\Queries;
 
-use ReflectionProperty;
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
-use Sentience\Exceptions\ModelException;
-use Sentience\Helpers\Reflector;
-use Sentience\Models\Attributes\Columns\AutoIncrement;
+use Sentience\Models\Reflection\ReflectionModel;
 
 class AlterModel extends ModelsQueryAbstract
 {
@@ -22,10 +19,18 @@ class AlterModel extends ModelsQueryAbstract
 
         $this->validateModel($model, false);
 
-        $table = $model::getTable();
-        $columns = $model::getColumns();
-        $primaryKeys = $model::getPrimaryKeys();
-        $uniqueColumns = $model::getUniqueColumns();
+        $reflectionModel = new ReflectionModel($model);
+        $reflectionModelProperties = $reflectionModel->getProperties();
+
+        $table = $reflectionModel->getTable();
+
+        $columns = [];
+
+        foreach ($reflectionModelProperties as $reflectionModelProperty) {
+            $column = $reflectionModelProperty->getColumn();
+
+            $columns[$column] = $reflectionModelProperty;
+        }
 
         $columnsInDatabase = $this->database->select($table)
             ->limit(0)
@@ -35,7 +40,7 @@ class AlterModel extends ModelsQueryAbstract
         $columnsToAdd = [];
         $columnsToDrop = [];
 
-        foreach ($columns as $column => $property) {
+        foreach ($columns as $column => $reflectionModelProperty) {
             if (in_array($column, $columnsInDatabase)) {
                 continue;
             }
@@ -58,34 +63,20 @@ class AlterModel extends ModelsQueryAbstract
         $query = $this->database->alterTable($table);
 
         foreach ($columnsToAdd as $column) {
-            $property = $columns[$column];
+            $reflectionModelProperty = $columns[$column];
 
-            if (!Reflector::hasNamedType($model, $property)) {
-                throw new ModelException('empty or union types are not allowed as model properties');
-            }
+            $propertyAllowsNull = $reflectionModelProperty->allowsNull();
+            $propertyDefaultValue = $reflectionModelProperty->getDefaultValue();
+            $propertyIsPrimaryKey = $reflectionModelProperty->isPrimaryKey();
+            $propertyHasAutoIncrementAttribute = $reflectionModelProperty->isAutoIncrement();
 
-            $reflectionProperty = new ReflectionProperty($model, $property);
-            $reflectionType = $reflectionProperty->getType();
-
-            $propertyType = Reflector::toNamedType($reflectionType);
-            $propertyAllowsNull = $reflectionType->allowsNull();
-            $propertyHasDefaultValue = $reflectionProperty->hasDefaultValue();
-            $propertyDefaultValue = $reflectionProperty->getDefaultValue();
-            $propertyIsPrimaryKey = in_array($property, array_values($primaryKeys));
-            $propertyHasAutoIncrementAttribute = Reflector::propertyHasAttribute($model, $property, AutoIncrement::class);
-
-            $columnType = $this->dialect->phpTypeToColumnType(
-                $propertyType,
-                $propertyHasAutoIncrementAttribute,
-                $propertyIsPrimaryKey,
-                in_array($property, array_values($uniqueColumns))
-            );
+            $columnType = $reflectionModelProperty->getColumnType($this->dialect);
 
             $query->addColumn(
                 $column,
                 $columnType,
                 !$propertyAllowsNull,
-                $propertyHasDefaultValue ? $propertyDefaultValue : null,
+                $propertyDefaultValue,
                 $propertyHasAutoIncrementAttribute
             );
 
