@@ -29,7 +29,7 @@ class MySQLiResults implements ResultsInterface
 
             $index++;
 
-            $columns[] = $column['name'];
+            $columns[] = $column;
         }
 
         return $columns;
