@@ -9,8 +9,6 @@ use Sentience\Traits\HasAttributes;
 
 class Model implements JsonSerializable
 {
-    use HasAttributes;
-
     public static function getTable(): string
     {
         return (new ReflectionModel(static::class))->getTable();
