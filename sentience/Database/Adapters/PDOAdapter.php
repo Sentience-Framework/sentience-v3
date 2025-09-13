@@ -126,7 +126,11 @@ class PDOAdapter extends AdapterAbstract
 
     public function beginTransaction(): bool
     {
-        return $this->pdo->beginTransaction();
+        if (!$this->pdo->beginTransaction()) {
+            throw new PDOException(implode(' ', $this->pdo->errorInfo()));
+        }
+
+        return true;
     }
 
     public function inTransaction(): bool

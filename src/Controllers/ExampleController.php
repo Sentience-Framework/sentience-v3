@@ -207,11 +207,11 @@ class ExampleController extends Controller
 
         $models = [];
 
-        // $selectedModels = $database->selectModels(Migration::class)
-        //     ->whereGreaterThanOrEquals('id', 10)
-        //     ->execute();
+        $selectedModels = $database->selectModels(Migration::class)
+            ->whereGreaterThanOrEquals('id', 10)
+            ->execute();
 
-        // array_push($models, ...$selectedModels);
+        array_push($models, ...$selectedModels);
 
         $migration = new Migration();
         $migration->batch = 1;

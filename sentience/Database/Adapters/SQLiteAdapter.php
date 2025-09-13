@@ -17,7 +17,7 @@ class SQLiteAdapter extends AdapterAbstract
     public const OPTIONS_BUSY_TIMEOUT = 'DB_BUSY_TIMEOUT';
 
     protected SQLite3 $sqlite;
-    protected bool $inTransaction;
+    protected bool $inTransaction = false;
 
     public function __construct(
         protected Driver $driver,
@@ -116,9 +116,11 @@ class SQLiteAdapter extends AdapterAbstract
 
     public function beginTransaction(): bool
     {
+        $this->sqlite->query('BEGIN;');
+
         $this->inTransaction = true;
 
-        return $this->sqlite->query('BEGIN;');
+        return true;
     }
 
     public function inTransaction(): bool
@@ -134,6 +136,8 @@ class SQLiteAdapter extends AdapterAbstract
 
         $this->query('COMMIT;');
 
+        $this->inTransaction = false;
+
         return true;
     }
 
@@ -144,6 +148,8 @@ class SQLiteAdapter extends AdapterAbstract
         }
 
         $this->query('ROLLBACK;');
+
+        $this->inTransaction = false;
 
         return true;
     }

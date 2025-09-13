@@ -2,11 +2,12 @@
 
 namespace Sentience\Models;
 
+use JsonSerializable;
 use Sentience\Models\Reflection\ReflectionModel;
 use Sentience\Models\Reflection\ReflectionModelProperty;
 use Sentience\Traits\HasAttributes;
 
-class Model
+class Model implements JsonSerializable
 {
     use HasAttributes;
 
@@ -21,5 +22,27 @@ class Model
             fn(ReflectionModelProperty $reflectionModelProperty): string => $reflectionModelProperty->getColumn(),
             (new ReflectionModel(static::class))->getProperties()
         );
+    }
+
+    public function jsonSerialize(): array
+    {
+        $reflectionModel = new ReflectionModel($this);
+
+        $reflectionModelProperties = $reflectionModel->getProperties();
+
+        $values = [];
+
+        foreach ($reflectionModelProperties as $reflectionModelProperty) {
+            if (!$reflectionModelProperty->isInitialized($this)) {
+                continue;
+            }
+
+            $property = $reflectionModelProperty->getProperty();
+            $column = $reflectionModelProperty->getColumn();
+
+            $values[$column] = $this->{$property};
+        }
+
+        return $values;
     }
 }

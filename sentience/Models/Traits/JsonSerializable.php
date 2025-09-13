@@ -4,7 +4,7 @@ namespace Sentience\Models\Traits;
 
 use Sentience\Models\Reflection\ReflectionModel;
 
-trait IsJsonSerializable
+trait JsonSerializable
 {
     public function jsonSerialize(): array
     {

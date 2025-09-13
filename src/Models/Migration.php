@@ -15,10 +15,8 @@ use Sentience\Timestamp\Timestamp;
 #[Table('migrations')]
 #[PrimaryKeys(['id'])]
 #[UniqueConstraint(['filename'])]
-class Migration extends Model implements JsonSerializable
+class Migration extends Model
 {
-    use IsJsonSerializable;
-
     #[Column('id')]
     #[AutoIncrement]
     public int $id;

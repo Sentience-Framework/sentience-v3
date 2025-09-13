@@ -1,0 +1,170 @@
+<?php
+
+namespace Sentience\Database\Adapters;
+
+use Closure;
+use mysqli;
+use mysqli_sql_exception;
+use Sentience\Database\Dialects\DialectInterface;
+use Sentience\Database\Driver;
+use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Results\MySQLiResults;
+use Sentience\Database\Results\ResultsInterface;
+
+class MySQLiAdapter extends AdapterAbstract
+{
+    protected mysqli $mysqli;
+    protected bool $inTransaction = false;
+
+    public function __construct(
+        protected Driver $driver,
+        protected string $host,
+        protected int $port,
+        protected string $name,
+        protected string $username,
+        protected string $password,
+        protected DialectInterface $dialect,
+        protected ?Closure $debug,
+        protected array $options
+    ) {
+        $this->mysqli = new mysqli(
+            $host,
+            $username,
+            $password,
+            $name,
+            $port
+        );
+
+        if ($this->mysqli->connect_error) {
+            throw new mysqli_sql_exception($this->mysqli->connect_error);
+        }
+    }
+
+
+    public function query(string $query): void
+    {
+        $startTime = microtime(true);
+
+        $result = $this->mysqli->query($query);
+
+        if (is_bool($result)) {
+            $error = $this->mysqli->error;
+
+            ($this->debug)($query, $startTime, $error);
+
+            throw new mysqli_sql_exception($error);
+        }
+
+        ($this->debug)($query, $startTime);
+    }
+
+    public function queryWithParams(QueryWithParams $queryWithParams): MySQLiResults
+    {
+        $rawQuery = $queryWithParams->toRawQuery($this->dialect);
+
+        $startTime = microtime(true);
+
+        $mysqliStatement = $this->mysqli->prepare($queryWithParams->query);
+
+        if (is_bool($mysqliStatement)) {
+            $error = $this->mysqli->error;
+
+            ($this->debug)($rawQuery, $startTime, $error);
+
+            throw new mysqli_sql_exception($error);
+        }
+
+        $paramTypes = [];
+        $params = [];
+
+        foreach ($queryWithParams->params as $index => $param) {
+            $value = $this->dialect->castToDriver($param);
+
+            $paramTypes[] = match (get_debug_type($value)) {
+                'null' => 's',
+                'bool' => 'i',
+                'int' => 'i',
+                'float' => 'd',
+                'string' => 's',
+                default => 's'
+            };
+
+            $params[] = $value;
+        }
+
+        $mysqliStatement->bind_param(
+            implode(
+                '',
+                $paramTypes
+            ),
+            ...$params
+        );
+
+        $success = $mysqliStatement->execute();
+
+        if (!$success) {
+            $error = $mysqliStatement->error;
+
+            ($this->debug)($rawQuery, $startTime, $error);
+
+            throw new mysqli_sql_exception($error);
+        }
+
+        ($this->debug)($rawQuery, $startTime);
+
+        $results = $mysqliStatement->get_result();
+
+        if (!$results) {
+            $error = $mysqliStatement->error;
+
+            ($this->debug)($rawQuery, $startTime, $error);
+
+            throw new mysqli_sql_exception($error);
+        }
+
+        return new MySQLiResults($results);
+    }
+
+    public function beginTransaction(): bool
+    {
+        if (!$this->mysqli->begin_transaction()) {
+            throw new mysqli_sql_exception($this->mysqli->error);
+        }
+
+        $this->inTransaction = true;
+
+        return true;
+    }
+
+    public function inTransaction(): bool
+    {
+        return $this->inTransaction;
+    }
+
+    public function commitTransaction(): bool
+    {
+        if (!$this->mysqli->commit()) {
+            throw new mysqli_sql_exception($this->mysqli->error);
+        }
+
+        $this->inTransaction = false;
+
+        return true;
+    }
+
+    public function rollbackTransaction(): bool
+    {
+        if (!$this->mysqli->rollback()) {
+            throw new mysqli_sql_exception($this->mysqli->error);
+        }
+
+        $this->inTransaction = false;
+
+        return true;
+    }
+
+    public function lastInsertId(?string $name = null): string
+    {
+        return (string) $this->mysqli->insert_id;
+    }
+}

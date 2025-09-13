@@ -2,6 +2,7 @@
 
 namespace Sentience\Database;
 
+use Sentience\Database\Adapters\MySQLiAdapter;
 use Sentience\Database\Adapters\PDOAdapter;
 use Sentience\Database\Adapters\SQLiteAdapter;
 use Sentience\Database\Dialects\DialectInterface;
@@ -19,7 +20,8 @@ enum Driver: string
     public function getAdapter(): string
     {
         return match ($this) {
-            static::MYSQL => PDOAdapter::class,
+            // static::MYSQL => PDOAdapter::class,
+            static::MYSQL => MySQLiAdapter::class,
             static::PGSQL => PDOAdapter::class,
             // static::SQLITE => PDOAdapter::class,
             static::SQLITE => SQLiteAdapter::class,
