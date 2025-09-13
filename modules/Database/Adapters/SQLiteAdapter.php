@@ -13,6 +13,10 @@ use Modules\Helpers\Strings;
 
 class SQLiteAdapter extends AdapterAbstract
 {
+    public const OPTIONS_READ_ONLY = 'DB_READ_ONLY';
+    public const OPTIONS_ENCRYPTION_KEY = 'DB_ENCRYPTION_KEY';
+    public const OPTIONS_BUSY_TIMEOUT = 'DB_BUSY_TIMEOUT';
+
     protected SQLite3 $sqlite;
     protected bool $inTransaction;
 
@@ -27,7 +31,14 @@ class SQLiteAdapter extends AdapterAbstract
         protected ?Closure $debug,
         protected array $options
     ) {
-        $this->sqlite = new SQLite3($name);
+        $this->sqlite = new SQLite3(
+            $name,
+            ($options[static::OPTIONS_READ_ONLY] ?? false)
+            ? SQLITE3_OPEN_READONLY
+            : SQLITE3_OPEN_READWRITE,
+            $options[static::OPTIONS_ENCRYPTION_KEY] ?? ''
+        );
+
         $this->sqlite->createFunction(
             'REGEXP',
             fn(string $pattern, string $value): bool => preg_match(
@@ -40,11 +51,8 @@ class SQLiteAdapter extends AdapterAbstract
             2
         );
 
-        if (array_key_exists('DB_BUSY_TIMEOUT', $options)) {
-            $this->sqlite->busyTimeout((int) $options['DB_BUSY_TIMEOUT']);
-        }
-
-        if (array_key_exists('DB_BUSY_TIMEOUT', $options)) {
+        if (array_key_exists(static::OPTIONS_BUSY_TIMEOUT, $options)) {
+            $this->sqlite->busyTimeout((int) $options[static::OPTIONS_BUSY_TIMEOUT]);
         }
     }
 
