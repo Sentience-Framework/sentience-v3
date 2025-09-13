@@ -14,7 +14,6 @@ use Modules\Database\Queries\Traits\Offset;
 use Modules\Database\Queries\Traits\OrderBy;
 use Modules\Database\Queries\Traits\Relations;
 use Modules\Database\Queries\Traits\Where;
-use Modules\Models\Mapper;
 use Modules\Models\QueryBuilder;
 
 class SelectModels extends ModelsQueryAbstract
@@ -61,8 +60,8 @@ class SelectModels extends ModelsQueryAbstract
         $results = $this->executeQueryWithParams($queryWithParams);
 
         return array_map(
-            fn (array $row): object => Mapper::mapAssoc($model, $row),
-            $results->fetchAllAssoc()
+            fn (array $row): object => $this->mapAssocToModel($model, $row),
+            $results->allRowsAsAssocs()
         );
     }
 }

@@ -9,7 +9,6 @@ use Modules\Database\Queries\Enums\Chain;
 use Modules\Database\Queries\Enums\Operator;
 use Modules\Database\Queries\Objects\Condition;
 use Modules\Database\Queries\Traits\Where;
-use Modules\Models\Mapper;
 use Modules\Models\Reflection\ReflectionModel;
 
 class UpdateModels extends ModelsQueryAbstract
@@ -64,10 +63,10 @@ class UpdateModels extends ModelsQueryAbstract
 
             $results = $this->database->queryWithParams($queryWithParams);
 
-            $updatedRow = $results->fetchAssoc();
+            $updatedRow = $results->nextRowAsAssoc();
 
             if ($updatedRow) {
-                Mapper::mapAssoc($model, $updatedRow);
+                $this->mapAssocToModel($model, $updatedRow);
 
                 continue;
             }

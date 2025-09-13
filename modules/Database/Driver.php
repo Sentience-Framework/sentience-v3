@@ -3,6 +3,7 @@
 namespace Modules\Database;
 
 use Modules\Database\Adapters\PDOAdapter;
+use Modules\Database\Adapters\SQLiteAdapter;
 use Modules\Database\Dialects\DialectInterface;
 use Modules\Database\Dialects\Mysql;
 use Modules\Database\Dialects\Pgsql;
@@ -20,7 +21,8 @@ enum Driver: string
         return match ($this) {
             static::MYSQL => PDOAdapter::class,
             static::PGSQL => PDOAdapter::class,
-            static::SQLITE => PDOAdapter::class,
+            // static::SQLITE => PDOAdapter::class,
+            static::SQLITE => SQLiteAdapter::class,
             default => PDOAdapter::class
         };
     }

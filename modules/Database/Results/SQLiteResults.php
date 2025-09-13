@@ -69,7 +69,7 @@ class SQLiteResults implements ResultsInterface
     {
         $assoc = $this->sqlite3Results->fetchArray(SQLITE3_ASSOC);
 
-        if (is_null($assoc)) {
+        if (is_bool($assoc)) {
             return null;
         }
 

@@ -231,16 +231,16 @@ class ExampleController extends Controller
 
         array_push($models, ...$insertedModels);
 
-        // foreach ($models as $model) {
-        //     $model->filename = md5((string) $model->id);
-        // }
+        foreach ($models as $model) {
+            $model->filename = md5((string) $model->id);
+        }
 
-        // $database->updateModels($models)
-        //     ->updateColumn('applied_at', Query::now())
-        //     ->execute();
+        $database->updateModels($models)
+            ->updateColumn('applied_at', Query::now())
+            ->execute();
 
-        // $database->deleteModels($models)
-        //     ->execute();
+        $database->deleteModels($models)
+            ->execute();
 
         $end = microtime(true);
 

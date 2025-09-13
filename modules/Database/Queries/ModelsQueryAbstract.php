@@ -47,8 +47,12 @@ abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
         return $this->database->queryWithParams($queryWithParams);
     }
 
-    protected function mapAssocToModel(Model $model, array $assoc): void
+    protected function mapAssocToModel(string|Model $model, array $assoc): Model
     {
+        if (is_string($model)) {
+            $model = new $model();
+        }
+
         $reflectionModel = new ReflectionModel($model);
         $reflectionModelProperties = $reflectionModel->getProperties();
 
@@ -65,5 +69,7 @@ abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
 
             $model->{$property} = $this->database->parseFromDriver($value, $type);
         }
+
+        return $model;
     }
 }

@@ -8,7 +8,6 @@ use Modules\Database\Queries\Enums\Chain;
 use Modules\Database\Queries\Enums\Operator;
 use Modules\Database\Queries\Objects\Condition;
 use Modules\Database\Queries\Traits\Where;
-use Modules\Models\Mapper;
 use Modules\Models\Reflection\ReflectionModel;
 
 class DeleteModels extends ModelsQueryAbstract
@@ -57,10 +56,10 @@ class DeleteModels extends ModelsQueryAbstract
 
             $results = $this->database->queryWithParams($queryWithParams);
 
-            $deletedRow = $results->fetchAssoc();
+            $deletedRow = $results->nextRowAsAssoc();
 
             if ($deletedRow) {
-                Mapper::mapAssoc($model, $deletedRow);
+                $this->mapAssocToModel($model, $deletedRow);
             }
         }
 
