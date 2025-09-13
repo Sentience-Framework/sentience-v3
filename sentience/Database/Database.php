@@ -117,11 +117,11 @@ class Database
         $this->beginTransaction();
 
         try {
-            $result = $callback($this);
+            $return = $callback($this);
 
             $this->commitTransaction();
 
-            return $result;
+            return $return;
         } catch (Throwable $exception) {
             $this->rollbackTransaction();
 
