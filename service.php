@@ -1,7 +1,7 @@
 <?php
 
-use Modules\Database\Database;
-use Modules\Database\Driver;
+use Sentience\Database\Database;
+use Sentience\Database\Driver;
 
 return new class () {
     public function database(): Database

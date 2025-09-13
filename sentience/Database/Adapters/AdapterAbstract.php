@@ -1,0 +1,38 @@
+<?php
+
+namespace Sentience\Database\Adapters;
+
+use Closure;
+use Sentience\Database\Dialects\DialectInterface;
+use Sentience\Database\Driver;
+use Sentience\Helpers\Strings;
+
+abstract class AdapterAbstract implements AdapterInterface
+{
+    public const string REGEXP_FUNCTION = 'REGEXP';
+    public const int REGEXP_FUNCTION_ARGUMENTS_COUNT = 2;
+
+    public function __construct(
+        protected Driver $driver,
+        protected string $host,
+        protected int $port,
+        protected string $name,
+        protected string $username,
+        protected string $password,
+        protected DialectInterface $dialect,
+        protected ?Closure $debug,
+        protected array $options
+    ) {
+    }
+
+    protected function regexpFunction(string $pattern, string $value): bool
+    {
+        return preg_match(
+            sprintf(
+                '/%s/u',
+                Strings::escapeChars($pattern, ['/'])
+            ),
+            $value
+        );
+    }
+}

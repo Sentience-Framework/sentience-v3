@@ -3,14 +3,14 @@
 namespace Src\Models;
 
 use JsonSerializable;
-use Modules\Models\Attributes\Columns\AutoIncrement;
-use Modules\Models\Attributes\Columns\Column;
-use Modules\Models\Attributes\Table\PrimaryKeys;
-use Modules\Models\Attributes\Table\Table;
-use Modules\Models\Attributes\Table\UniqueConstraint;
-use Modules\Models\Model;
-use Modules\Models\Traits\IsJsonSerializable;
-use Modules\Timestamp\Timestamp;
+use Sentience\Models\Attributes\Columns\AutoIncrement;
+use Sentience\Models\Attributes\Columns\Column;
+use Sentience\Models\Attributes\Table\PrimaryKeys;
+use Sentience\Models\Attributes\Table\Table;
+use Sentience\Models\Attributes\Table\UniqueConstraint;
+use Sentience\Models\Model;
+use Sentience\Models\Traits\IsJsonSerializable;
+use Sentience\Timestamp\Timestamp;
 
 #[Table('migrations')]
 #[PrimaryKeys(['id'])]

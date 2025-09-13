@@ -2,9 +2,9 @@
 
 namespace Src\Middleware;
 
-use Modules\Abstracts\Middleware;
-use Modules\Sentience\Request;
-use Modules\Sentience\Response;
+use Sentience\Abstracts\Middleware;
+use Sentience\Sentience\Request;
+use Sentience\Sentience\Response;
 
 class ExampleMiddleware extends Middleware
 {

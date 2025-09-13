@@ -2,10 +2,10 @@
 
 namespace Src\Controllers;
 
-use Modules\Abstracts\Controller;
-use Modules\Helpers\Console;
-use Modules\Helpers\Filesystem;
-use Modules\Sentience\Stdio;
+use Sentience\Abstracts\Controller;
+use Sentience\Helpers\Console;
+use Sentience\Helpers\Filesystem;
+use Sentience\Sentience\Stdio;
 
 class DevToolsController extends Controller
 {

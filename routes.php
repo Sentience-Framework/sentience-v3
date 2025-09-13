@@ -1,9 +1,9 @@
 <?php
 
-use Modules\Routers\Route;
-use Modules\Routers\RouteGroup;
-use Modules\Sentience\Request;
-use Modules\Sentience\Response;
+use Sentience\Routers\Route;
+use Sentience\Routers\RouteGroup;
+use Sentience\Sentience\Request;
+use Sentience\Sentience\Response;
 use Src\Controllers\ExampleController;
 use Src\Middleware\CORSMiddleware;
 use Src\Middleware\ExampleMiddleware;

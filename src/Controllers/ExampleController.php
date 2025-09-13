@@ -2,13 +2,13 @@
 
 namespace Src\Controllers;
 
-use Modules\Abstracts\Controller;
-use Modules\Database\Database;
-use Modules\Database\Queries\Query;
-use Modules\Helpers\Json;
-use Modules\Sentience\Request;
-use Modules\Sentience\Response;
-use Modules\Sentience\Stdio;
+use Sentience\Abstracts\Controller;
+use Sentience\Database\Database;
+use Sentience\Database\Queries\Query;
+use Sentience\Helpers\Json;
+use Sentience\Sentience\Request;
+use Sentience\Sentience\Response;
+use Sentience\Sentience\Stdio;
 use Src\Models\Migration;
 
 class ExampleController extends Controller

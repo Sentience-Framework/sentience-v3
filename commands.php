@@ -1,6 +1,6 @@
 <?php
 
-use Modules\Routers\Command;
+use Sentience\Routers\Command;
 use Src\Controllers\DevToolsController;
 use Src\Controllers\ExampleController;
 use Src\Controllers\SentienceController;
