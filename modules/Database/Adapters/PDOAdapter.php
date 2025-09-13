@@ -3,12 +3,12 @@
 namespace Modules\Database\Adapters;
 
 use Closure;
+use PDO;
+use PDOException;
 use Modules\Database\Dialects\DialectInterface;
 use Modules\Database\Driver;
 use Modules\Database\Queries\Objects\QueryWithParams;
 use Modules\Database\Results\PDOResults;
-use PDO;
-use PDOException;
 
 class PDOAdapter extends AdapterAbstract
 {

@@ -1,13 +1,9 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Modules\Database\Queries;
 
 use Modules\Database\Database;
 use Modules\Database\Dialects\DialectInterface;
-use Modules\Database\Queries\Enums\Config;
-use Modules\Models\Mapper;
 use Modules\Models\Reflection\ReflectionModel;
 
 class InsertModels extends ModelsQueryAbstract
@@ -67,7 +63,7 @@ class InsertModels extends ModelsQueryAbstract
             $insertedRow = $results->nextRowAsAssoc();
 
             if ($insertedRow) {
-                Mapper::mapAssoc($model, $insertedRow);
+                $this->mapAssocToModel($model, $insertedRow);
             }
 
             $lastInsertId = $this->database->lastInsertId();
@@ -81,7 +77,7 @@ class InsertModels extends ModelsQueryAbstract
                     continue;
                 }
 
-                $model->{$reflectionModelProperty->getProperty()} = $lastInsertId;
+                $model->{$reflectionModelProperty->getProperty()} = (int) $lastInsertId;
             }
         }
 

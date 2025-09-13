@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use Rector\Config\RectorConfig;
 use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
 use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
@@ -20,7 +18,8 @@ return RectorConfig::configure()
     ->withDeadCodeLevel(0)
     ->withCodeQualityLevel(0)
     ->withRules([
-        DeclareStrictTypesRector::class
+        'no_extra_blank_lines' => true,
+        // DeclareStrictTypesRector::class
     ])
     ->withSkip([
         AddOverrideAttributeToOverriddenMethodsRector::class

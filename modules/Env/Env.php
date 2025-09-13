@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Modules\Env;
 
 use Modules\Exceptions\DotEnvException;
@@ -145,7 +143,7 @@ class Env
         }
 
         return array_map(
-            fn(string $value): mixed => static::parseVariable($value, $parsedVariables),
+            fn (string $value): mixed => static::parseVariable($value, $parsedVariables),
             $matches[0]
         );
     }

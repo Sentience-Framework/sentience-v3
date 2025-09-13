@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use Modules\Routers\Command;
 use Src\Controllers\DevToolsController;
 use Src\Controllers\ExampleController;

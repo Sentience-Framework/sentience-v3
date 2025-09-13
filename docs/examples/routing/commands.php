@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 $commands = [
     Command::register(
         'migrations:init',

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Modules\Models;
 
 use Modules\Models\Reflection\ReflectionModel;

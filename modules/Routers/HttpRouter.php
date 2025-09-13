@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Modules\Routers;
 
 use Modules\Helpers\Strings;

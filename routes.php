@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use Modules\Routers\Route;
 use Modules\Routers\RouteGroup;
 use Modules\Sentience\Request;

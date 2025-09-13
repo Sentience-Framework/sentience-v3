@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 $database->createTable()
     ->ifNotExists()
     ->table('table_1')

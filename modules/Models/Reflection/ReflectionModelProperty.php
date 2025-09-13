@@ -1,12 +1,10 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Modules\Models\Reflection;
 
 use ReflectionNamedType;
 use ReflectionProperty;
-use Modules\Database\Database;
+use Modules\Database\Dialects\DialectInterface;
 use Modules\Helpers\Arrays;
 use Modules\Helpers\Strings;
 use Modules\Models\Attributes\Columns\AutoIncrement;
@@ -16,11 +14,8 @@ use Modules\Models\Model;
 
 class ReflectionModelProperty
 {
-    protected ReflectionProperty $reflectionProperty;
-
-    public function __construct(protected ReflectionModel $reflectionModel, string $property)
+    public function __construct(protected ReflectionModel $reflectionModel, protected ReflectionProperty $reflectionProperty)
     {
-        $this->reflectionProperty = new ReflectionProperty($reflectionModel->getClass(), $property);
     }
 
     public function isInitialized(Model $model): bool
@@ -49,10 +44,8 @@ class ReflectionModelProperty
         return $columnAttribute->column;
     }
 
-    public function getColumnType(): string
+    public function getColumnType(DialectInterface $dialect): string
     {
-        $dialect = Database::getInstance()->dialect;
-
         return $dialect->phpTypeToColumnType(
             $this->getType(),
             $this->isAutoIncrement(),

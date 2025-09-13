@@ -3,12 +3,12 @@
 namespace Modules\Database\Adapters;
 
 use Closure;
+use SQLite3;
+use SQLite3Exception;
 use Modules\Database\Dialects\DialectInterface;
 use Modules\Database\Driver;
 use Modules\Database\Queries\Objects\QueryWithParams;
 use Modules\Database\Results\SQLiteResults;
-use SQLite3;
-use SQLite3Exception;
 
 class SQLiteAdapter extends AdapterAbstract
 {

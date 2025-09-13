@@ -1,12 +1,11 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Modules\Database;
 
+use DateTime;
+use DateTimeImmutable;
 use Throwable;
 use Modules\Database\Adapters\AdapterInterface;
-use Modules\Database\Results\ResultsInterface;
 use Modules\Database\Dialects\DialectInterface;
 use Modules\Database\Queries\AlterModel;
 use Modules\Database\Queries\AlterTable;
@@ -25,8 +24,10 @@ use Modules\Database\Queries\Select;
 use Modules\Database\Queries\SelectModels;
 use Modules\Database\Queries\Update;
 use Modules\Database\Queries\UpdateModels;
+use Modules\Database\Results\ResultsInterface;
 use Modules\Helpers\Log;
 use Modules\Models\Model;
+use Modules\Timestamp\Timestamp;
 
 class Database
 {
@@ -130,6 +131,39 @@ class Database
     public function lastInsertId(?string $name = null): ?string
     {
         return $this->adapter->lastInsertId($name);
+    }
+
+    public function escapeIdentifier(string|array|Raw $identifier): string
+    {
+        return $this->dialect->escapeIdentifier($identifier);
+    }
+
+    public function escapeString(string $string): string
+    {
+        return $this->dialect->escapeString($string);
+    }
+
+    public function castToDriver(mixed $value): string
+    {
+        return $this->dialect->castToDriver($value);
+    }
+
+    public function parseFromDriver(mixed $value, string $to): mixed
+    {
+        if (is_null($value)) {
+            return null;
+        }
+
+        return match ($to) {
+            'bool' => $this->dialect->parseBool($value),
+            'int' => (int) $value,
+            'float' => (float) $value,
+            'string' => (string) $value,
+            Timestamp::class => $this->dialect->parseTimestamp($value),
+            DateTime::class => $this->dialect->parseTimestamp($value)->toDateTime(),
+            DateTimeImmutable::class => $this->dialect->parseTimestamp($value)->toDateTimeImmutable(),
+            default => $value
+        };
     }
 
     public function select(string|array|Alias|Raw $table): Select

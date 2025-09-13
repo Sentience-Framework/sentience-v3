@@ -3,7 +3,7 @@
 use Modules\Database\Database;
 use Modules\Database\Driver;
 
-return new class {
+return new class () {
     public function database(): Database
     {
         $driver = env('DB_DRIVER', '');
@@ -34,7 +34,7 @@ return new class {
             $username,
             $password,
             $debug,
-            $options,
+            $options
         );
     }
 };

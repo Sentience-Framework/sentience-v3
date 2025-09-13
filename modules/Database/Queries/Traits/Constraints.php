@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Modules\Database\Queries\Traits;
 
 use Modules\Database\Queries\Objects\ForeignKeyConstraint;

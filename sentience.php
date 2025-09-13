@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use Modules\Env\Env;
 use Modules\Helpers\Filesystem;
 use Modules\Sentience\Sentience;

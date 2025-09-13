@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 $database->select()
     ->table(Query::alias(['public', 'table_1'], 'table1'))
     ->distinct()

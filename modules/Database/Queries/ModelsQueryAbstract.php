@@ -1,17 +1,16 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Modules\Database\Queries;
 
 use Modules\Database\Database;
 use Modules\Database\Dialects\DialectInterface;
 use Modules\Database\Exceptions\QueryException;
 use Modules\Database\Queries\Objects\QueryWithParams;
-use Modules\Database\Results;
+use Modules\Database\Results\ResultsInterface;
 use Modules\Helpers\Arrays;
 use Modules\Helpers\Reflector;
 use Modules\Models\Model;
+use Modules\Models\Reflection\ReflectionModel;
 
 abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
 {
@@ -43,8 +42,28 @@ abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
         return;
     }
 
-    protected function executeQueryWithParams(QueryWithParams $queryWithParams): Results
+    protected function executeQueryWithParams(QueryWithParams $queryWithParams): ResultsInterface
     {
         return $this->database->queryWithParams($queryWithParams);
+    }
+
+    protected function mapAssocToModel(Model $model, array $assoc): void
+    {
+        $reflectionModel = new ReflectionModel($model);
+        $reflectionModelProperties = $reflectionModel->getProperties();
+
+        foreach ($reflectionModelProperties as $reflectionModelProperty) {
+            $property = $reflectionModelProperty->getProperty();
+            $column = $reflectionModelProperty->getColumn();
+            $type = $reflectionModelProperty->getType();
+
+            if (!array_key_exists($column, $assoc)) {
+                continue;
+            }
+
+            $value = $assoc[$column];
+
+            $model->{$property} = $this->database->parseFromDriver($value, $type);
+        }
     }
 }

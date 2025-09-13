@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 $database->alterTable()
     ->table('table_1')
     ->addColumn('column3', 'TINYINT')

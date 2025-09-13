@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Modules\Database\Queries;
 
 use Modules\Database\Database;
@@ -63,7 +61,7 @@ class SelectModels extends ModelsQueryAbstract
         $results = $this->executeQueryWithParams($queryWithParams);
 
         return array_map(
-            fn(array $row): object => Mapper::mapAssoc($model, $row),
+            fn (array $row): object => Mapper::mapAssoc($model, $row),
             $results->fetchAllAssoc()
         );
     }

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Modules\Database\Queries;
 
 use Modules\Database\Queries\Objects\Column;
