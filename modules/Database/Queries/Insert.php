@@ -7,6 +7,7 @@ use Modules\Database\Queries\Traits\OnConflict;
 use Modules\Database\Queries\Traits\Returning;
 use Modules\Database\Queries\Traits\Values;
 use Modules\Database\Results;
+use Modules\Database\Results\ResultsInterface;
 
 class Insert extends ResultsQueryAbstract
 {
@@ -33,7 +34,7 @@ class Insert extends ResultsQueryAbstract
         return parent::toRawQuery();
     }
 
-    public function execute(): Results
+    public function execute(): ResultsInterface
     {
         return parent::execute();
     }

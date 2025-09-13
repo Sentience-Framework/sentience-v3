@@ -13,7 +13,7 @@ class AlterModel extends ModelsQueryAbstract
 {
     public function __construct(Database $database, DialectInterface $dialect, string $model)
     {
-        parent::__construct($database, $dialect, $model);
+        parent::__construct($database, $dialect, [$model]);
     }
 
     public function execute(): null

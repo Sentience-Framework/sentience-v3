@@ -5,6 +5,7 @@ namespace Modules\Database\Queries;
 use Modules\Database\Queries\Objects\QueryWithParams;
 use Modules\Database\Queries\Traits\IfExists;
 use Modules\Database\Results;
+use Modules\Database\Results\ResultsInterface;
 
 class DropTable extends ResultsQueryAbstract
 {
@@ -23,7 +24,7 @@ class DropTable extends ResultsQueryAbstract
         return parent::toRawQuery();
     }
 
-    public function execute(): Results
+    public function execute(): ResultsInterface
     {
         return parent::execute();
     }

@@ -7,6 +7,7 @@ use Modules\Database\Queries\Objects\QueryWithParams;
 use Modules\Database\Queries\Traits\Constraints;
 use Modules\Database\Queries\Traits\IfNotExists;
 use Modules\Database\Results;
+use Modules\Database\Results\ResultsInterface;
 
 class CreateTable extends ResultsQueryAbstract
 {
@@ -35,7 +36,7 @@ class CreateTable extends ResultsQueryAbstract
         return parent::toRawQuery();
     }
 
-    public function execute(): Results
+    public function execute(): ResultsInterface
     {
         return parent::execute();
     }

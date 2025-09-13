@@ -4,5 +4,5 @@ namespace Modules\Interfaces;
 
 interface Dto
 {
-    public static function fromArray(array $assoc): static;
+    public static function fromAssoc(array $assoc): static;
 }

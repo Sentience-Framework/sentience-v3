@@ -6,6 +6,7 @@ use Modules\Database\Queries\Objects\QueryWithParams;
 use Modules\Database\Queries\Traits\Returning;
 use Modules\Database\Queries\Traits\Where;
 use Modules\Database\Results;
+use Modules\Database\Results\ResultsInterface;
 
 class Delete extends ResultsQueryAbstract
 {
@@ -26,7 +27,7 @@ class Delete extends ResultsQueryAbstract
         return parent::toRawQuery();
     }
 
-    public function execute(): Results
+    public function execute(): ResultsInterface
     {
         return parent::execute();
     }

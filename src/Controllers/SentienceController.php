@@ -152,7 +152,7 @@ class SentienceController extends Controller
                 )
             ])
             ->execute()
-            ->fetch()
+            ->nextRowAsObject()
             ->batch ?? 0;
 
         $nextBatch = $highestBatch + 1;
@@ -220,7 +220,7 @@ class SentienceController extends Controller
                 )
             ])
             ->execute()
-            ->fetch()
+            ->nextRowAsObject()
             ->batch ?? 0;
 
         if ($highestBatch == 0) {
@@ -346,7 +346,7 @@ class SentienceController extends Controller
                 )
             ])
             ->execute()
-            ->fetch()
+            ->nextRowAsObject()
             ->batch ?? 0;
 
         $nextBatch = $highestBatch + 1;
@@ -424,7 +424,7 @@ class SentienceController extends Controller
                 )
             ])
             ->execute()
-            ->fetch()
+            ->nextRowAsObject()
             ->batch ?? 0;
 
         $nextBatch = $highestBatch + 1;
@@ -503,7 +503,7 @@ class SentienceController extends Controller
                 )
             ])
             ->execute()
-            ->fetch()
+            ->nextRowAsObject()
             ->batch ?? 0;
 
         $nextBatch = $highestBatch + 1;

@@ -18,7 +18,7 @@ class CreateModel extends ModelsQueryAbstract
 
     public function __construct(Database $database, DialectInterface $dialect, string $model)
     {
-        parent::__construct($database, $dialect, $model);
+        parent::__construct($database, $dialect, [$model]);
     }
 
     public function execute(): null
@@ -78,7 +78,7 @@ class CreateModel extends ModelsQueryAbstract
 
             $query->uniqueConstraint(
                 array_map(
-                    fn (string $property): string => $model::getColumn($property),
+                    fn(string $property): string => $model::getColumn($property),
                     $uniqueConstraint->properties
                 ),
                 $uniqueConstraint->name
