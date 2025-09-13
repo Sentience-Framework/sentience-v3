@@ -5,9 +5,12 @@ namespace Modules\Database\Adapters;
 use Closure;
 use Modules\Database\Dialects\DialectInterface;
 use Modules\Database\Driver;
+use Modules\Helpers\Strings;
 
 abstract class AdapterAbstract implements AdapterInterface
 {
+    public const REGEXP_FUNCTION = 'REGEXP';
+
     public function __construct(
         protected Driver $driver,
         protected string $host,
@@ -19,5 +22,16 @@ abstract class AdapterAbstract implements AdapterInterface
         protected ?Closure $debug,
         protected array $options
     ) {
+    }
+
+    protected function regexpFunction(string $pattern, string $value): bool
+    {
+        return preg_match(
+            sprintf(
+                '/%s/u',
+                Strings::escapeChars($pattern, ['/'])
+            ),
+            $value
+        );
     }
 }

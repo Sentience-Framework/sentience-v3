@@ -40,14 +40,8 @@ class SQLiteAdapter extends AdapterAbstract
         );
 
         $this->sqlite->createFunction(
-            'REGEXP',
-            fn(string $pattern, string $value): bool => preg_match(
-                sprintf(
-                    '/%s/u',
-                    Strings::escapeChars($pattern, ['/'])
-                ),
-                $value
-            ),
+            static::REGEXP_FUNCTION,
+            fn(string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
             2
         );
 

@@ -53,14 +53,8 @@ class PDOAdapter extends AdapterAbstract
 
         if (method_exists($this->pdo, 'sqliteCreateFunction')) {
             $this->pdo->sqliteCreateFunction(
-                'REGEXP',
-                fn(string $pattern, string $value): bool => preg_match(
-                    sprintf(
-                        '/%s/u',
-                        Strings::escapeChars($pattern, ['/'])
-                    ),
-                    $value
-                ),
+                static::REGEXP_FUNCTION,
+                fn(string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
                 2
             );
         }
