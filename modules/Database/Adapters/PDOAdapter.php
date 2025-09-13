@@ -9,6 +9,7 @@ use Modules\Database\Dialects\DialectInterface;
 use Modules\Database\Driver;
 use Modules\Database\Queries\Objects\QueryWithParams;
 use Modules\Database\Results\PDOResults;
+use Modules\Helpers\Strings;
 
 class PDOAdapter extends AdapterAbstract
 {
@@ -49,6 +50,20 @@ class PDOAdapter extends AdapterAbstract
                 PDO::ATTR_STRINGIFY_FETCHES => false
             ]
         );
+
+        if (method_exists($this->pdo, 'sqliteCreateFunction')) {
+            $this->pdo->sqliteCreateFunction(
+                'REGEXP',
+                fn(string $pattern, string $value): bool => preg_match(
+                    sprintf(
+                        '/%s/u',
+                        Strings::escapeChars($pattern, ['/'])
+                    ),
+                    $value
+                ),
+                2
+            );
+        }
     }
 
     public function query(string $query): void

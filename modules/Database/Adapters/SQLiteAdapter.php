@@ -9,6 +9,7 @@ use Modules\Database\Dialects\DialectInterface;
 use Modules\Database\Driver;
 use Modules\Database\Queries\Objects\QueryWithParams;
 use Modules\Database\Results\SQLiteResults;
+use Modules\Helpers\Strings;
 
 class SQLiteAdapter extends AdapterAbstract
 {
@@ -27,9 +28,23 @@ class SQLiteAdapter extends AdapterAbstract
         protected array $options
     ) {
         $this->sqlite = new SQLite3($name);
+        $this->sqlite->createFunction(
+            'REGEXP',
+            fn(string $pattern, string $value): bool => preg_match(
+                sprintf(
+                    '/%s/u',
+                    Strings::escapeChars($pattern, ['/'])
+                ),
+                $value
+            ),
+            2
+        );
 
         if (array_key_exists('DB_BUSY_TIMEOUT', $options)) {
             $this->sqlite->busyTimeout((int) $options['DB_BUSY_TIMEOUT']);
+        }
+
+        if (array_key_exists('DB_BUSY_TIMEOUT', $options)) {
         }
     }
 
