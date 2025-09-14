@@ -6,10 +6,10 @@ use Sentience\Database\Adapters\MySQLiAdapter;
 use Sentience\Database\Adapters\PDOAdapter;
 use Sentience\Database\Adapters\SQLiteAdapter;
 use Sentience\Database\Dialects\DialectInterface;
-use Sentience\Database\Dialects\Mysql;
-use Sentience\Database\Dialects\Pgsql;
-use Sentience\Database\Dialects\Sql;
-use Sentience\Database\Dialects\Sqlite;
+use Sentience\Database\Dialects\MySQL;
+use Sentience\Database\Dialects\PgSQL;
+use Sentience\Database\Dialects\SQL;
+use Sentience\Database\Dialects\SQLite;
 
 enum Driver: string
 {
@@ -23,8 +23,8 @@ enum Driver: string
             // static::MYSQL => PDOAdapter::class,
             static::MYSQL => MySQLiAdapter::class,
             static::PGSQL => PDOAdapter::class,
-            static::SQLITE => PDOAdapter::class,
-            // static::SQLITE => SQLiteAdapter::class,
+            // static::SQLITE => PDOAdapter::class,
+            static::SQLITE => SQLiteAdapter::class,
             default => PDOAdapter::class
         };
     }
@@ -32,10 +32,10 @@ enum Driver: string
     public function getDialect(): DialectInterface
     {
         return match ($this) {
-            static::MYSQL => new Mysql(),
-            static::PGSQL => new Pgsql(),
-            static::SQLITE => new Sqlite(),
-            default => new Sql()
+            static::MYSQL => new MySQL(),
+            static::PGSQL => new PgSQL(),
+            static::SQLITE => new SQLite(),
+            default => new SQL()
         };
     }
 }

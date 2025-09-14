@@ -7,7 +7,7 @@ use DateTimeImmutable;
 use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Timestamp\Timestamp;
 
-class PgSQL extends Sql implements DialectInterface
+class PgSQL extends SQL implements DialectInterface
 {
     public const string REGEX_FUNCTION = '~';
     public const string NOT_REGEX_FUNCTION = '!~';

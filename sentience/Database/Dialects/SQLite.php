@@ -13,7 +13,7 @@ use Sentience\Database\Queries\Objects\DropConstraint;
 use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Timestamp\Timestamp;
 
-class SQLite extends Sql implements DialectInterface
+class SQLite extends SQL implements DialectInterface
 {
     public function addOnConflict(string &$query, array &$params, null|string|array $conflict, ?array $conflictUpdates, ?string $primaryKey, array $insertValues): void
     {
