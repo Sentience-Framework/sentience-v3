@@ -23,8 +23,8 @@ enum Driver: string
             // static::MYSQL => PDOAdapter::class,
             static::MYSQL => MySQLiAdapter::class,
             static::PGSQL => PDOAdapter::class,
-            // static::SQLITE => PDOAdapter::class,
-            static::SQLITE => SQLiteAdapter::class,
+            static::SQLITE => PDOAdapter::class,
+            // static::SQLITE => SQLiteAdapter::class,
             default => PDOAdapter::class
         };
     }

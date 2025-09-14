@@ -181,7 +181,9 @@ class SentienceController extends Controller
             $migrationModel->filename = $filename;
             $migrationModel->appliedAt = Query::now();
 
-            $database->insertModels($migrationModel)->execute();
+            $database->insertModels($migrationModel)
+                // ->onDuplicateUpdate()
+                ->execute();
 
             Stdio::printFLn('Migration %s applied', $filename);
         }
@@ -356,7 +358,9 @@ class SentienceController extends Controller
         $migrationModel->filename = $migrationName;
         $migrationModel->appliedAt = Query::now();
 
-        $database->insertModels($migrationModel)->execute();
+        $database->insertModels($migrationModel)
+            // ->onDuplicateUpdate()
+            ->execute();
 
         Stdio::printFLn('Migration for model %s created successfully', Reflector::getShortName($model));
     }
@@ -434,7 +438,9 @@ class SentienceController extends Controller
         $migrationModel->filename = $migrationName;
         $migrationModel->appliedAt = Query::now();
 
-        $database->insertModels($migrationModel)->execute();
+        $database->insertModels($migrationModel)
+            // ->onDuplicateUpdate()
+            ->execute();
 
         Stdio::printFLn('Migration for model %s created successfully', Reflector::getShortName($model));
     }
@@ -513,7 +519,9 @@ class SentienceController extends Controller
         $migrationModel->filename = $migrationName;
         $migrationModel->appliedAt = Query::now();
 
-        $database->insertModels($migrationModel)->execute();
+        $database->insertModels($migrationModel)
+            // ->onDuplicateUpdate()
+            ->execute();
 
         Stdio::printFLn('Migration for model %s created successfully', Reflector::getShortName($model));
     }
