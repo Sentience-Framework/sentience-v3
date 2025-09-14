@@ -2,8 +2,6 @@
 
 namespace Sentience\Database;
 
-use DateTime;
-use DateTimeImmutable;
 use Throwable;
 use Sentience\Database\Adapters\AdapterInterface;
 use Sentience\Database\Dialects\DialectInterface;
@@ -28,7 +26,6 @@ use Sentience\Database\Results\ResultsInterface;
 use Sentience\Helpers\Arrays;
 use Sentience\Helpers\Log;
 use Sentience\Models\Model;
-use Sentience\Timestamp\Timestamp;
 
 class Database
 {
@@ -132,34 +129,6 @@ class Database
     public function lastInsertId(?string $name = null): ?string
     {
         return $this->adapter->lastInsertId($name);
-    }
-
-    public function castToDriver(mixed $value): mixed
-    {
-        return $this->dialect->castToDriver($value);
-    }
-
-    public function castToQuery(mixed $value): mixed
-    {
-        return $this->dialect->castToQuery($value);
-    }
-
-    public function parseFromDriver(mixed $value, string $to): mixed
-    {
-        if (is_null($value)) {
-            return null;
-        }
-
-        return match ($to) {
-            'bool' => $this->dialect->parseBool($value),
-            'int' => (int) $value,
-            'float' => (float) $value,
-            'string' => (string) $value,
-            Timestamp::class => $this->dialect->parseTimestamp($value),
-            DateTime::class => $this->dialect->parseTimestamp($value)->toDateTime(),
-            DateTimeImmutable::class => $this->dialect->parseTimestamp($value)->toDateTimeImmutable(),
-            default => $value
-        };
     }
 
     public function select(string|array|Alias|Raw $table): Select

@@ -23,7 +23,7 @@ return new class () {
                 continue;
             }
 
-            $option = substr($key, 3);
+            $option = substr((string) $key, 3);
 
             $options[$option] = $value;
         }

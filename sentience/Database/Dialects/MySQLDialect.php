@@ -12,7 +12,7 @@ use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Database\Queries\Query;
 use Sentience\Timestamp\Timestamp;
 
-class MySQL extends SQL implements DialectInterface
+class MySQLDialect extends SQLDialect implements DialectInterface
 {
     public const string IDENTIFIER_ESCAPE = '`';
     public const string STRING_ESCAPE = '"';

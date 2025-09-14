@@ -2,6 +2,8 @@
 
 namespace Sentience\Database\Queries;
 
+use DateTime;
+use DateTimeImmutable;
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Exceptions\QueryException;
@@ -11,6 +13,7 @@ use Sentience\Helpers\Arrays;
 use Sentience\Helpers\Reflector;
 use Sentience\Models\Model;
 use Sentience\Models\Reflection\ReflectionModel;
+use Sentience\Timestamp\Timestamp;
 
 abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
 {
@@ -67,7 +70,22 @@ abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
 
             $value = $assoc[$column];
 
-            $model->{$property} = $this->database->parseFromDriver($value, $type);
+            if (is_null($value)) {
+                $model->{$property} = null;
+
+                continue;
+            }
+
+            $model->{$property} = match ($type) {
+                'bool' => $this->dialect->parseBool($value),
+                'int' => (int) $value,
+                'float' => (float) $value,
+                'string' => (string) $value,
+                Timestamp::class => $this->dialect->parseTimestamp($value),
+                DateTime::class => $this->dialect->parseTimestamp($value)->toDateTime(),
+                DateTimeImmutable::class => $this->dialect->parseTimestamp($value)->toDateTimeImmutable(),
+                default => $value
+            };
         }
 
         return $model;

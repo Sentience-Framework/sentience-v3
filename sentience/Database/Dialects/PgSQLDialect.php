@@ -7,7 +7,7 @@ use DateTimeImmutable;
 use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Timestamp\Timestamp;
 
-class PgSQL extends SQL implements DialectInterface
+class PgSQLDialect extends SQLDialect implements DialectInterface
 {
     public const string REGEX_FUNCTION = '~';
     public const string NOT_REGEX_FUNCTION = '!~';
@@ -25,7 +25,7 @@ class PgSQL extends SQL implements DialectInterface
                 implode(
                     ', ',
                     array_map(
-                        fn(string $column): string => $this->escapeIdentifier($column),
+                        fn (string $column): string => $this->escapeIdentifier($column),
                         $conflict
                     )
                 )
