@@ -124,44 +124,42 @@ class PDOAdapter extends AdapterAbstract
         return new PDOResults($pdoStatement);
     }
 
-    public function beginTransaction(): bool
+    public function beginTransaction(): void
     {
+        if ($this->inTransaction()) {
+            return;
+        }
+
         if (!$this->pdo->beginTransaction()) {
             throw new PDOException(implode(' ', $this->pdo->errorInfo()));
         }
-
-        return true;
     }
 
-    public function inTransaction(): bool
-    {
-        return $this->pdo->inTransaction();
-    }
-
-    public function commitTransaction(): bool
+    public function commitTransaction(): void
     {
         if (!$this->inTransaction()) {
-            return false;
+            return;
         }
 
         if (!$this->pdo->commit()) {
             throw new PDOException(implode(' ', $this->pdo->errorInfo()));
         }
-
-        return true;
     }
 
-    public function rollbackTransaction(): bool
+    public function rollbackTransaction(): void
     {
         if (!$this->inTransaction()) {
-            return false;
+            return;
         }
 
         if (!$this->pdo->rollBack()) {
             throw new PDOException(implode(' ', $this->pdo->errorInfo()));
         }
+    }
 
-        return true;
+    public function inTransaction(): bool
+    {
+        return $this->pdo->inTransaction();
     }
 
     public function lastInsertId(?string $name = null): string

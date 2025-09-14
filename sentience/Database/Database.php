@@ -92,24 +92,24 @@ class Database
         return $this->adapter->queryWithParams($queryWithParams);
     }
 
-    public function beginTransaction(): bool
+    public function beginTransaction(): void
     {
-        return $this->adapter->beginTransaction();
+        $this->adapter->beginTransaction();
+    }
+
+    public function commitTransaction(): void
+    {
+        $this->adapter->commitTransaction();
+    }
+
+    public function rollbackTransaction(): void
+    {
+        $this->adapter->rollbackTransaction();
     }
 
     public function inTransaction(): bool
     {
         return $this->adapter->inTransaction();
-    }
-
-    public function commitTransaction(): bool
-    {
-        return $this->adapter->commitTransaction();
-    }
-
-    public function rollbackTransaction(): bool
-    {
-        return $this->adapter->rollbackTransaction();
     }
 
     public function transactionInCallback(callable $callback): mixed
@@ -134,19 +134,14 @@ class Database
         return $this->adapter->lastInsertId($name);
     }
 
-    public function escapeIdentifier(string|array|Raw $identifier): string
-    {
-        return $this->dialect->escapeIdentifier($identifier);
-    }
-
-    public function escapeString(string $string): string
-    {
-        return $this->dialect->escapeString($string);
-    }
-
     public function castToDriver(mixed $value): mixed
     {
         return $this->dialect->castToDriver($value);
+    }
+
+    public function castToQuery(mixed $value): mixed
+    {
+        return $this->dialect->castToQuery($value);
     }
 
     public function parseFromDriver(mixed $value, string $to): mixed
@@ -165,11 +160,6 @@ class Database
             DateTimeImmutable::class => $this->dialect->parseTimestamp($value)->toDateTimeImmutable(),
             default => $value
         };
-    }
-
-    public function castToQuery(mixed $value): mixed
-    {
-        return $this->dialect->castToQuery($value);
     }
 
     public function select(string|array|Alias|Raw $table): Select

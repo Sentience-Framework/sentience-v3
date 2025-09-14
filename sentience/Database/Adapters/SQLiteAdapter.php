@@ -90,7 +90,6 @@ class SQLiteAdapter extends AdapterAbstract
                 $value,
                 match (get_debug_type($value)) {
                     'null' => SQLITE3_NULL,
-                    'bool' => SQLITE3_INTEGER,
                     'int' => SQLITE3_INTEGER,
                     'float' => SQLITE3_FLOAT,
                     'string' => SQLITE3_TEXT,
@@ -114,44 +113,42 @@ class SQLiteAdapter extends AdapterAbstract
         return new SQLiteResults($sqlite3Results);
     }
 
-    public function beginTransaction(): bool
+    public function beginTransaction(): void
     {
+        if ($this->inTransaction()) {
+            return;
+        }
+
         $this->sqlite->query('BEGIN;');
 
         $this->inTransaction = true;
-
-        return true;
     }
 
-    public function inTransaction(): bool
+    public function commitTransaction(): void
     {
-        return $this->inTransaction;
-    }
-
-    public function commitTransaction(): bool
-    {
-        if (!$this->inTransaction) {
-            return false;
+        if (!$this->inTransaction()) {
+            return;
         }
 
         $this->query('COMMIT;');
 
         $this->inTransaction = false;
-
-        return true;
     }
 
-    public function rollbackTransaction(): bool
+    public function rollbackTransaction(): void
     {
-        if (!$this->inTransaction) {
-            return false;
+        if (!$this->inTransaction()) {
+            return;
         }
 
         $this->query('ROLLBACK;');
 
         $this->inTransaction = false;
+    }
 
-        return true;
+    public function inTransaction(): bool
+    {
+        return $this->inTransaction;
     }
 
     public function lastInsertId(?string $name = null): string

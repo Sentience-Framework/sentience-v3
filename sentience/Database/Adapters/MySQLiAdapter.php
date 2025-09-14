@@ -80,7 +80,6 @@ class MySQLiAdapter extends AdapterAbstract
 
             $paramTypes[] = match (get_debug_type($value)) {
                 'null' => 's',
-                'bool' => 'i',
                 'int' => 'i',
                 'float' => 'd',
                 'string' => 's',
@@ -123,42 +122,48 @@ class MySQLiAdapter extends AdapterAbstract
         return new MySQLiResults($results);
     }
 
-    public function beginTransaction(): bool
+    public function beginTransaction(): void
     {
+        if ($this->inTransaction()) {
+            return;
+        }
+
         if (!$this->mysqli->begin_transaction()) {
             throw new mysqli_sql_exception($this->mysqli->error);
         }
 
         $this->inTransaction = true;
-
-        return true;
     }
 
-    public function inTransaction(): bool
+    public function commitTransaction(): void
     {
-        return $this->inTransaction;
-    }
+        if (!$this->inTransaction()) {
+            return;
+        }
 
-    public function commitTransaction(): bool
-    {
         if (!$this->mysqli->commit()) {
             throw new mysqli_sql_exception($this->mysqli->error);
         }
 
         $this->inTransaction = false;
-
-        return true;
     }
 
-    public function rollbackTransaction(): bool
+    public function rollbackTransaction(): void
     {
+        if (!$this->inTransaction()) {
+            return;
+        }
+
         if (!$this->mysqli->rollback()) {
             throw new mysqli_sql_exception($this->mysqli->error);
         }
 
         $this->inTransaction = false;
+    }
 
-        return true;
+    public function inTransaction(): bool
+    {
+        return $this->inTransaction;
     }
 
     public function lastInsertId(?string $name = null): string
