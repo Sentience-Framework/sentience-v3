@@ -12,6 +12,8 @@ use Sentience\Database\Results\PDOResults;
 
 class PDOAdapter extends AdapterAbstract
 {
+    public const OPTIONS_PRAGMA_SYNCHRONOUS_OFF = 'PRAGMA_SYNCHRONOUS_OFF';
+
     protected PDO $pdo;
 
     public function __construct(
@@ -50,12 +52,20 @@ class PDOAdapter extends AdapterAbstract
             ]
         );
 
-        if (method_exists($this->pdo, 'sqliteCreateFunction')) {
-            $this->pdo->sqliteCreateFunction(
-                static::REGEXP_FUNCTION,
-                fn (string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
-                static::REGEXP_FUNCTION_ARGUMENTS_COUNT
-            );
+        if ($driver == Driver::SQLITE) {
+            if (method_exists($this->pdo, 'sqliteCreateFunction')) {
+                $this->pdo->sqliteCreateFunction(
+                    static::REGEXP_FUNCTION,
+                    fn(string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
+                    static::REGEXP_FUNCTION_ARGUMENTS_COUNT
+                );
+            }
+
+            $this->query('PRAGMA journal_mode=WAL;');
+
+            if ((bool) $options[static::OPTIONS_PRAGMA_SYNCHRONOUS_OFF] ?? false) {
+                $this->query('PRAGMA synchronous=OFF');
+            }
         }
     }
 

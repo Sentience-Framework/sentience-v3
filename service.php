@@ -23,7 +23,9 @@ return new class () {
                 continue;
             }
 
-            $options[$key] = $value;
+            $option = substr($key, 3);
+
+            $options[$option] = $value;
         }
 
         return new Database(
