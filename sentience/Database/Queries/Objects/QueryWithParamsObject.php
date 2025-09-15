@@ -18,7 +18,7 @@ class QueryWithParamsObject
         }
 
         $params = array_map(
-            fn(mixed $param): mixed => $dialect->castToQuery($param),
+            fn (mixed $param): mixed => $dialect->castToQuery($param),
             $this->params
         );
 

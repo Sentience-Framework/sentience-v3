@@ -10,7 +10,6 @@ use Sentience\Database\Queries\Objects\AddPrimaryKeysObject;
 use Sentience\Database\Queries\Objects\AddUniqueConstraintObject;
 use Sentience\Database\Queries\Objects\AlterColumnObject;
 use Sentience\Database\Queries\Objects\DropConstraintObject;
-use Sentience\Database\Queries\Objects\RawObject;
 use Sentience\Timestamp\Timestamp;
 
 class SQLiteDialect extends SQLDialect implements DialectInterface
@@ -30,7 +29,7 @@ class SQLiteDialect extends SQLDialect implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn(string $column): string => $this->escapeIdentifier($column),
+                    fn (string $column): string => $this->escapeIdentifier($column),
                     $conflict
                 )
             )

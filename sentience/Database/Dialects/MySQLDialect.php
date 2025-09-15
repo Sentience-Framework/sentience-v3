@@ -8,7 +8,6 @@ use Sentience\Database\Queries\Objects\AlterColumnObject;
 use Sentience\Database\Queries\Objects\ColumnObject;
 use Sentience\Database\Queries\Objects\DropConstraintObject;
 use Sentience\Database\Queries\Objects\QueryWithParamsObject;
-use Sentience\Database\Queries\Objects\RawObject;
 use Sentience\Database\Queries\Query;
 use Sentience\Timestamp\Timestamp;
 

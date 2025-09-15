@@ -5,8 +5,8 @@ namespace Sentience\Database\Queries\Traits;
 use DateTimeInterface;
 use Sentience\Database\Queries\Enums\ChainEnum;
 use Sentience\Database\Queries\Enums\OperatorEnum;
-use Sentience\Database\Queries\Objects\ConditionObject;
 use Sentience\Database\Queries\Objects\ConditionGroupObject;
+use Sentience\Database\Queries\Objects\ConditionObject;
 use Sentience\Database\Queries\Query;
 
 trait WhereTrait
@@ -382,7 +382,7 @@ trait WhereTrait
     protected function empty(string|array $column, ChainEnum $chain): static
     {
         return $this->group(
-            fn(ConditionGroupObject $conditionGroup): ConditionGroupObject => $conditionGroup
+            fn (ConditionGroupObject $conditionGroup): ConditionGroupObject => $conditionGroup
                 ->orWhereIsNull($column)
                 ->orWhereEquals($column, 0)
                 ->orWhereEquals($column, ''),
@@ -393,7 +393,7 @@ trait WhereTrait
     protected function notEmpty(string|array $column, ChainEnum $chain): static
     {
         return $this->group(
-            fn(ConditionGroupObject $conditionGroup): ConditionGroupObject => $conditionGroup
+            fn (ConditionGroupObject $conditionGroup): ConditionGroupObject => $conditionGroup
                 ->whereIsNotNull($column)
                 ->whereNotEquals($column, 0)
                 ->whereNotEquals($column, ''),

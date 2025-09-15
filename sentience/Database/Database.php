@@ -28,7 +28,6 @@ use Sentience\Models\Model;
 
 class Database
 {
-
     public function __construct(
         protected AdapterInterface $adapter,
         protected DialectInterface $dialect

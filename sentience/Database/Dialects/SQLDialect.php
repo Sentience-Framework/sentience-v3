@@ -14,8 +14,8 @@ use Sentience\Database\Queries\Objects\AddUniqueConstraintObject;
 use Sentience\Database\Queries\Objects\AliasObject;
 use Sentience\Database\Queries\Objects\AlterColumnObject;
 use Sentience\Database\Queries\Objects\ColumnObject;
-use Sentience\Database\Queries\Objects\ConditionObject;
 use Sentience\Database\Queries\Objects\ConditionGroupObject;
+use Sentience\Database\Queries\Objects\ConditionObject;
 use Sentience\Database\Queries\Objects\DropColumnObject;
 use Sentience\Database\Queries\Objects\DropConstraintObject;
 use Sentience\Database\Queries\Objects\ForeignKeyConstraintObject;
@@ -270,7 +270,7 @@ class SQLDialect implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn(string|RawObject $column): string => $this->escapeIdentifier($column),
+                    fn (string|RawObject $column): string => $this->escapeIdentifier($column),
                     $config['primaryKeys']
                 )
             )
@@ -523,7 +523,7 @@ class SQLDialect implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn(string|array|RawObject $column): string => $this->escapeIdentifier($column),
+                    fn (string|array|RawObject $column): string => $this->escapeIdentifier($column),
                     $groupBy
                 )
             )
@@ -552,7 +552,7 @@ class SQLDialect implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn(OrderByObject $orderBy): string => sprintf(
+                    fn (OrderByObject $orderBy): string => sprintf(
                         '%s %s',
                         $this->escapeIdentifier($orderBy->column),
                         $orderBy->direction->value
@@ -605,7 +605,7 @@ class SQLDialect implements DialectInterface
             : implode(
                 ', ',
                 array_map(
-                    fn(string $column): string => $this->escapeIdentifier($column),
+                    fn (string $column): string => $this->escapeIdentifier($column),
                     $returning
                 )
             );
@@ -643,7 +643,7 @@ class SQLDialect implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn(string $column): string => $this->escapeIdentifier($column),
+                    fn (string $column): string => $this->escapeIdentifier($column),
                     $uniqueConstraint->columns
                 )
             )
@@ -721,7 +721,7 @@ class SQLDialect implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn(string|array|RawObject $column): string => $this->escapeIdentifier($column),
+                    fn (string|array|RawObject $column): string => $this->escapeIdentifier($column),
                     $addPrimaryKeys->columns
                 )
             )
@@ -773,7 +773,7 @@ class SQLDialect implements DialectInterface
             ? implode(
                 '.',
                 array_map(
-                    fn(string|RawObject $identifier): string => $this->escapeIdentifier($identifier),
+                    fn (string|RawObject $identifier): string => $this->escapeIdentifier($identifier),
                     $identifier
                 )
             )

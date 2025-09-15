@@ -32,9 +32,7 @@ class SQLiteAdapter extends AdapterAbstract
     ) {
         $this->sqlite = new SQLite3(
             $name,
-            ($options[static::OPTIONS_READ_ONLY] ?? false)
-            ? SQLITE3_OPEN_READONLY
-            : SQLITE3_OPEN_READWRITE,
+            ($options[static::OPTIONS_READ_ONLY] ?? false) ? SQLITE3_OPEN_READONLY : SQLITE3_OPEN_READWRITE,
             $options[static::OPTIONS_ENCRYPTION_KEY] ?? ''
         );
 
