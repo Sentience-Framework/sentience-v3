@@ -2,13 +2,12 @@
 
 namespace Sentience\Database\Queries;
 
+use BackedEnum;
 use DateTime;
 use DateTimeImmutable;
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Exceptions\QueryException;
-use Sentience\Database\Queries\Objects\QueryWithParamsObject;
-use Sentience\Database\Results\ResultsInterface;
 use Sentience\Helpers\Arrays;
 use Sentience\Helpers\Reflector;
 use Sentience\Models\Model;
@@ -45,11 +44,6 @@ abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
         return;
     }
 
-    protected function executeQueryWithParams(QueryWithParamsObject $queryWithParams): ResultsInterface
-    {
-        return $this->database->queryWithParams($queryWithParams);
-    }
-
     protected function mapAssocToModel(string|Model $model, array $assoc): Model
     {
         if (is_string($model)) {
@@ -84,7 +78,7 @@ abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
                 Timestamp::class => $this->dialect->parseTimestamp($value),
                 DateTime::class => $this->dialect->parseTimestamp($value)->toDateTime(),
                 DateTimeImmutable::class => $this->dialect->parseTimestamp($value)->toDateTimeImmutable(),
-                default => $value
+                default => is_subclass_of($type, BackedEnum::class) ? $type::from($value) : $value
             };
         }
 

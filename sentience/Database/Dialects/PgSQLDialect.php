@@ -4,7 +4,6 @@ namespace Sentience\Database\Dialects;
 
 use DateTime;
 use DateTimeImmutable;
-use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Timestamp\Timestamp;
 
 class PgSQLDialect extends SQLDialect implements DialectInterface
@@ -46,7 +45,7 @@ class PgSQLDialect extends SQLDialect implements DialectInterface
                 ', ',
                 array_map(
                     function (mixed $value, string $key) use (&$params): string {
-                        if ($value instanceof Raw) {
+                        if ($value instanceof RawObject) {
                             return sprintf(
                                 '%s = %s',
                                 $this->escapeIdentifier($key),

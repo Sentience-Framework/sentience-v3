@@ -10,6 +10,7 @@ use Sentience\Sentience\Request;
 use Sentience\Sentience\Response;
 use Sentience\Sentience\Stdio;
 use Src\Models\Migration;
+use Src\Models\TestEnum;
 
 class ExampleController extends Controller
 {
@@ -214,12 +215,12 @@ class ExampleController extends Controller
         array_push($models, ...$selectedModels);
 
         $migration = new Migration();
-        $migration->batch = 1;
+        $migration->batch = TestEnum::ONE;
         $migration->filename = 'migration1' . microtime();
         $migration->appliedAt = Query::now();
 
         $migration2 = new Migration();
-        $migration2->batch = 1;
+        $migration2->batch = TestEnum::ONE;
         $migration2->filename = 'migration2' . microtime() . '1';
         $migration2->appliedAt = Query::now();
 

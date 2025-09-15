@@ -61,11 +61,11 @@ class SQLDialect implements DialectInterface
                             return $this->escapeIdentifier($column);
                         }
 
-                        if ($column instanceof Alias) {
+                        if ($column instanceof AliasObject) {
                             return $this->escapeIdentifierWithAlias($column->name, $column->alias);
                         }
 
-                        if ($column instanceof Raw) {
+                        if ($column instanceof RawObject) {
                             return $column->expression;
                         }
 
@@ -136,7 +136,7 @@ class SQLDialect implements DialectInterface
                 ', ',
                 array_map(
                     function (mixed $value) use (&$params): string {
-                        if ($value instanceof Raw) {
+                        if ($value instanceof RawObject) {
                             return $value->expression;
                         }
 
@@ -189,7 +189,7 @@ class SQLDialect implements DialectInterface
             ', ',
             array_map(
                 function (mixed $value, string $key) use (&$params): string {
-                    if ($value instanceof Raw) {
+                    if ($value instanceof RawObject) {
                         return sprintf(
                             '%s = %s',
                             $this->escapeIdentifier($key),
@@ -309,14 +309,14 @@ class SQLDialect implements DialectInterface
                 $query .= ' ';
 
                 $query .= match (true) {
-                    $alter instanceof AddColumn => $this->stringifyAlterTableAddColumn($alter),
-                    $alter instanceof AlterColumn => $this->stringifyAlterTableAlterColumn($alter),
-                    $alter instanceof RenameColumn => $this->stringifyAlterTableRenameColumn($alter),
-                    $alter instanceof DropColumn => $this->stringifyAlterTableDropColumn($alter),
-                    $alter instanceof AddPrimaryKeys => $this->stringifyAlterTableAddPrimaryKeys($alter),
-                    $alter instanceof AddUniqueConstraint => $this->stringifyAlterTableAddUniqueConstraint($alter),
-                    $alter instanceof AddForeignKeyConstraint => $this->stringifyAlterTableAddForeignKeyConstraint($alter),
-                    $alter instanceof DropConstraint => $this->stringifyAlterTableDropConstraint($alter),
+                    $alter instanceof AddColumnObject => $this->stringifyAlterTableAddColumn($alter),
+                    $alter instanceof AlterColumnObject => $this->stringifyAlterTableAlterColumn($alter),
+                    $alter instanceof RenameColumnObject => $this->stringifyAlterTableRenameColumn($alter),
+                    $alter instanceof DropColumnObject => $this->stringifyAlterTableDropColumn($alter),
+                    $alter instanceof AddPrimaryKeysObject => $this->stringifyAlterTableAddPrimaryKeys($alter),
+                    $alter instanceof AddUniqueConstraintObject => $this->stringifyAlterTableAddUniqueConstraint($alter),
+                    $alter instanceof AddForeignKeyConstraintObject => $this->stringifyAlterTableAddForeignKeyConstraint($alter),
+                    $alter instanceof DropConstraintObject => $this->stringifyAlterTableDropConstraint($alter),
                     default => throw new QueryException('unsupported alter %s', $alter::class)
                 };
 
@@ -382,7 +382,7 @@ class SQLDialect implements DialectInterface
                 $query .= ' ';
             }
 
-            if ($join instanceof Raw) {
+            if ($join instanceof RawObject) {
                 $query .= $join->expression;
 
                 continue;

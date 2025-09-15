@@ -16,7 +16,7 @@ class JoinObject
         public string|array|RawObject $onTable,
         public string $onTableColumn
     ) {
-        if ($joinTable instanceof Alias) {
+        if ($joinTable instanceof AliasObject) {
             $this->joinTable = $joinTable->name;
             $this->joinTableAlias = $joinTable->alias;
         } else {

@@ -79,7 +79,7 @@ class MySQLiAdapter extends AdapterAbstract
         $paramTypes = [];
         $params = [];
 
-        foreach ($queryWithParams->params as $index => $param) {
+        foreach ($queryWithParams->params as $param) {
             $value = $dialect->castToDriver($param);
 
             $paramTypes[] = match (get_debug_type($value)) {

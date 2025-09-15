@@ -63,7 +63,7 @@ class MySQLDialect extends SQLDialect implements DialectInterface
                 ', ',
                 array_map(
                     function (mixed $value, string $key) use (&$params): string {
-                        if ($value instanceof Raw) {
+                        if ($value instanceof RawObject) {
                             return sprintf(
                                 '%s = %s',
                                 $this->escapeIdentifier($key),
