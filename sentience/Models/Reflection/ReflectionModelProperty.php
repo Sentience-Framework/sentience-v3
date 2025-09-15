@@ -2,6 +2,8 @@
 
 namespace Sentience\Models\Reflection;
 
+use BackedEnum;
+use ReflectionEnum;
 use ReflectionNamedType;
 use ReflectionProperty;
 use Sentience\Database\Dialects\DialectInterface;
@@ -46,8 +48,14 @@ class ReflectionModelProperty
 
     public function getColumnType(DialectInterface $dialect): string
     {
+        $type = $this->getType();
+
+        if (is_subclass_of($type, BackedEnum::class)) {
+            $type = (new ReflectionEnum($type))->getBackingType();
+        }
+
         return $dialect->phpTypeToColumnType(
-            $this->getType(),
+            $type,
             $this->isAutoIncrement(),
             $this->isPrimaryKey(),
             $this->isUnique()
