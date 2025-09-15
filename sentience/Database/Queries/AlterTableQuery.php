@@ -13,7 +13,7 @@ use Sentience\Database\Queries\Objects\QueryWithParamsObject;
 use Sentience\Database\Queries\Objects\RenameColumnObject;
 use Sentience\Database\Results\ResultsInterface;
 
-class AlterTable extends ResultsQueryAbstract
+class AlterTableQuery extends ResultsQueryAbstract
 {
     protected array $alters = [];
 

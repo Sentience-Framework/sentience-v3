@@ -7,7 +7,7 @@ use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Traits\IfNotExistsTrait;
 use Sentience\Models\Reflection\ReflectionModel;
 
-class CreateModel extends ModelsQueryAbstract
+class CreateModelQuery extends ModelsQueryAbstract
 {
     use IfNotExistsTrait;
 

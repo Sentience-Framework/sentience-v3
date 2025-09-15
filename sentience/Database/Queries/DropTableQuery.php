@@ -3,21 +3,18 @@
 namespace Sentience\Database\Queries;
 
 use Sentience\Database\Queries\Objects\QueryWithParamsObject;
-use Sentience\Database\Queries\Traits\ReturningTrait;
-use Sentience\Database\Queries\Traits\WhereTrait;
+use Sentience\Database\Queries\Traits\IfExistsTrait;
 use Sentience\Database\Results\ResultsInterface;
 
-class Delete extends ResultsQueryAbstract
+class DropTableQuery extends ResultsQueryAbstract
 {
-    use ReturningTrait;
-    use WhereTrait;
+    use IfExistsTrait;
 
     public function toQueryWithParams(): QueryWithParamsObject
     {
-        return $this->dialect->delete([
-            'table' => $this->table,
-            'where' => $this->where,
-            'returning' => $this->returning
+        return $this->dialect->dropTable([
+            'ifExists' => $this->ifExists,
+            'table' => $this->table
         ]);
     }
 

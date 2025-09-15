@@ -6,10 +6,10 @@ use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Models\Reflection\ReflectionModel;
 
-class InsertModels extends ModelsQueryAbstract
+class InsertModelsQuery extends ModelsQueryAbstract
 {
     protected ?bool $onDuplicateUpdate = null;
-    protected array $excludeColumnsOnUpdate = [];
+    protected array $onDuplicateUpdateExcludeColumns = [];
 
     public function __construct(Database $database, DialectInterface $dialect, array $model)
     {
@@ -24,6 +24,12 @@ class InsertModels extends ModelsQueryAbstract
             $reflectionModel = new ReflectionModel($model);
             $reflectionModelProperties = $reflectionModel->getProperties();
 
+            $reflectionModel = new ReflectionModel($model);
+
+            $table = $reflectionModel->getTable();
+
+            $insertQuery = $this->database->insert($table);
+
             $values = [];
             $autoIncrementPrimaryKeyColumn = null;
 
@@ -37,28 +43,31 @@ class InsertModels extends ModelsQueryAbstract
 
                 $values[$column] = $model->{$property};
 
-                if ($reflectionModelProperty->isAutoIncrement()) {
+                if ($reflectionModelProperty->isPrimaryKey() && $reflectionModelProperty->isAutoIncrement()) {
                     $autoIncrementPrimaryKeyColumn = $column;
                 }
             }
 
-            $config = [
-                'table' => $reflectionModel->getTable(),
-                'values' => $values,
-                'returning' => $reflectionModel->getColumns()
-            ];
+            $insertQuery->values($values);
 
-            if (!is_null($this->onDuplicateUpdate) && $uniqueConstraint = $reflectionModel->getUniqueConstraint()) {
-                $config['onConflict'] = [
-                    'conflict' => $uniqueConstraint->columns,
-                    'updates' => $values,
-                    'primaryKey' => $autoIncrementPrimaryKeyColumn
-                ];
+            if (!is_null($this->onDuplicateUpdate)) {
+                $uniqueConstraint = $reflectionModel->getUniqueConstraint();
+
+                $columns = $uniqueConstraint
+                    ? $uniqueConstraint->columns
+                    : $reflectionModel->getPrimaryKeys();
+
+                $columns = array_filter(
+                    $columns,
+                    fn (string $column): bool => !in_array($column, $this->onDuplicateUpdateExcludeColumns)
+                );
+
+                $this->onDuplicateUpdate
+                    ? $insertQuery->onConflictUpdate($columns, $values, $autoIncrementPrimaryKeyColumn)
+                    : $insertQuery->onConflictIgnore($columns, $autoIncrementPrimaryKeyColumn);
             }
 
-            $queryWithParams = $this->dialect->insert($config);
-
-            $results = $this->database->queryWithParams($queryWithParams);
+            $results = $insertQuery->execute();
 
             $insertedRow = $results->fetchAssoc();
 
@@ -94,7 +103,7 @@ class InsertModels extends ModelsQueryAbstract
     public function onDuplicateUpdate(array $excludeColumns = []): static
     {
         $this->onDuplicateUpdate = true;
-        $this->excludeColumnsOnUpdate = $excludeColumns;
+        $this->onDuplicateUpdateExcludeColumns = $excludeColumns;
 
         return $this;
     }

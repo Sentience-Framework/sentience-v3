@@ -2,36 +2,64 @@
 
 namespace Sentience\Database;
 
+use Closure;
 use Throwable;
 use Sentience\Database\Adapters\AdapterInterface;
 use Sentience\Database\Dialects\DialectInterface;
-use Sentience\Database\Queries\AlterModel;
-use Sentience\Database\Queries\AlterTable;
-use Sentience\Database\Queries\CreateModel;
-use Sentience\Database\Queries\CreateTable;
-use Sentience\Database\Queries\Delete;
-use Sentience\Database\Queries\DeleteModels;
-use Sentience\Database\Queries\DropModel;
-use Sentience\Database\Queries\DropTable;
-use Sentience\Database\Queries\Insert;
-use Sentience\Database\Queries\InsertModels;
+use Sentience\Database\Queries\AlterModelQuery;
+use Sentience\Database\Queries\AlterTableQuery;
+use Sentience\Database\Queries\CreateModelQuery;
+use Sentience\Database\Queries\CreateTableQuery;
+use Sentience\Database\Queries\DeleteModelsQuery;
+use Sentience\Database\Queries\DeleteQuery;
+use Sentience\Database\Queries\DropModelQuery;
+use Sentience\Database\Queries\DropTableQuery;
+use Sentience\Database\Queries\InsertModelsQuery;
+use Sentience\Database\Queries\InsertQuery;
 use Sentience\Database\Queries\Objects\AliasObject;
 use Sentience\Database\Queries\Objects\QueryWithParamsObject;
 use Sentience\Database\Queries\Objects\RawObject;
-use Sentience\Database\Queries\Select;
-use Sentience\Database\Queries\SelectModels;
-use Sentience\Database\Queries\Update;
-use Sentience\Database\Queries\UpdateModels;
+use Sentience\Database\Queries\SelectModelsQuery;
+use Sentience\Database\Queries\SelectQuery;
+use Sentience\Database\Queries\UpdateModelsQuery;
+use Sentience\Database\Queries\UpdateQuery;
 use Sentience\Database\Results\ResultsInterface;
 use Sentience\Helpers\Arrays;
 use Sentience\Models\Model;
 
 class Database
 {
+    protected AdapterInterface $adapter;
+    protected DialectInterface $dialect;
+
     public function __construct(
-        protected AdapterInterface $adapter,
-        protected DialectInterface $dialect
+        protected Driver $driver,
+        protected string $host,
+        protected int $port,
+        protected string $name,
+        protected string $username,
+        protected string $password,
+        protected array $queries,
+        protected ?Closure $debug,
+        protected array $options,
+        bool $usePDOAdapter = false
     ) {
+        $adapter = $driver->getAdapter(
+            $host,
+            $port,
+            $name,
+            $username,
+            $password,
+            $queries,
+            $debug,
+            $options,
+            $usePDOAdapter
+        );
+
+        $dialect = $driver->getDialect();
+
+        $this->adapter = $adapter;
+        $this->dialect = $dialect;
     }
 
     public function query(string $query): void
@@ -91,73 +119,73 @@ class Database
         return $this->adapter->lastInsertId($name);
     }
 
-    public function select(string|array|AliasObject|RawObject $table): Select
+    public function select(string|array|AliasObject|RawObject $table): SelectQuery
     {
-        return new Select($this, $this->dialect, $table);
+        return new SelectQuery($this, $this->dialect, $table);
     }
 
-    public function selectModels(string $model): SelectModels
+    public function selectModels(string $model): SelectModelsQuery
     {
-        return new SelectModels($this, $this->dialect, $model);
+        return new SelectModelsQuery($this, $this->dialect, $model);
     }
 
-    public function insert(string|array|AliasObject|RawObject $table = null): Insert
+    public function insert(string|array|AliasObject|RawObject $table = null): InsertQuery
     {
-        return new Insert($this, $this->dialect, $table);
+        return new InsertQuery($this, $this->dialect, $table);
     }
 
-    public function insertModels(array|Model $models): InsertModels
+    public function insertModels(array|Model $models): InsertModelsQuery
     {
-        return new InsertModels($this, $this->dialect, Arrays::wrap($models));
+        return new InsertModelsQuery($this, $this->dialect, Arrays::wrap($models));
     }
 
-    public function update(string|array|AliasObject|RawObject $table = null): Update
+    public function update(string|array|AliasObject|RawObject $table = null): UpdateQuery
     {
-        return new Update($this, $this->dialect, $table);
+        return new UpdateQuery($this, $this->dialect, $table);
     }
 
-    public function updateModels(array|Model $models): UpdateModels
+    public function updateModels(array|Model $models): UpdateModelsQuery
     {
-        return new UpdateModels($this, $this->dialect, Arrays::wrap($models));
+        return new UpdateModelsQuery($this, $this->dialect, Arrays::wrap($models));
     }
 
-    public function delete(string|array|AliasObject|RawObject $table): Delete
+    public function delete(string|array|AliasObject|RawObject $table): DeleteQuery
     {
-        return new Delete($this, $this->dialect, $table);
+        return new DeleteQuery($this, $this->dialect, $table);
     }
 
-    public function deleteModels(array|Model $models): DeleteModels
+    public function deleteModels(array|Model $models): DeleteModelsQuery
     {
-        return new DeleteModels($this, $this->dialect, Arrays::wrap($models));
+        return new DeleteModelsQuery($this, $this->dialect, Arrays::wrap($models));
     }
 
-    public function createTable(string|array|AliasObject|RawObject $table): CreateTable
+    public function createTable(string|array|AliasObject|RawObject $table): CreateTableQuery
     {
-        return new CreateTable($this, $this->dialect, $table);
+        return new CreateTableQuery($this, $this->dialect, $table);
     }
 
-    public function createModel(string $model): CreateModel
+    public function createModel(string $model): CreateModelQuery
     {
-        return new CreateModel($this, $this->dialect, $model);
+        return new CreateModelQuery($this, $this->dialect, $model);
     }
 
-    public function alterTable(string|array|AliasObject|RawObject $table): AlterTable
+    public function alterTable(string|array|AliasObject|RawObject $table): AlterTableQuery
     {
-        return new AlterTable($this, $this->dialect, $table);
+        return new AlterTableQuery($this, $this->dialect, $table);
     }
 
-    public function alterModel(string $model): AlterModel
+    public function alterModel(string $model): AlterModelQuery
     {
-        return new AlterModel($this, $this->dialect, $model);
+        return new AlterModelQuery($this, $this->dialect, $model);
     }
 
-    public function dropTable(string|array|AliasObject|RawObject $table): DropTable
+    public function dropTable(string|array|AliasObject|RawObject $table): DropTableQuery
     {
-        return new DropTable($this, $this->dialect, $table);
+        return new DropTableQuery($this, $this->dialect, $table);
     }
 
-    public function dropModel(string $model): DropModel
+    public function dropModel(string $model): DropModelQuery
     {
-        return new DropModel($this, $this->dialect, $model);
+        return new DropModelQuery($this, $this->dialect, $model);
     }
 }

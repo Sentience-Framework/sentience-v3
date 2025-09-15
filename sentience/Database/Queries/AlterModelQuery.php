@@ -6,7 +6,7 @@ use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Models\Reflection\ReflectionModel;
 
-class AlterModel extends ModelsQueryAbstract
+class AlterModelQuery extends ModelsQueryAbstract
 {
     public function __construct(Database $database, DialectInterface $dialect, string $model)
     {
@@ -23,6 +23,8 @@ class AlterModel extends ModelsQueryAbstract
         $reflectionModelProperties = $reflectionModel->getProperties();
 
         $table = $reflectionModel->getTable();
+
+        $query = $this->database->alterTable($table);
 
         $columns = [];
 
@@ -59,8 +61,6 @@ class AlterModel extends ModelsQueryAbstract
         if ((count($columnsToAdd) + count($columnsToDrop)) == 0) {
             return null;
         }
-
-        $query = $this->database->alterTable($table);
 
         foreach ($columnsToAdd as $column) {
             $reflectionModelProperty = $columns[$column];

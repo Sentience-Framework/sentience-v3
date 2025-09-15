@@ -9,8 +9,9 @@ class ConditionGroupObject
 {
     use WhereTrait;
 
-    public function __construct(public ChainEnum $chain)
+    public function __construct(public ChainEnum $chain, array $conditions = [])
     {
+        array_push($this->where, ...$conditions);
     }
 
     public function getConditions(): array

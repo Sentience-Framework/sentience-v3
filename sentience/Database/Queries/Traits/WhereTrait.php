@@ -419,13 +419,17 @@ trait WhereTrait
     {
         $conditionGroup = new ConditionGroupObject($chain);
 
-        $callback($conditionGroup);
+        $returnedConditionGroup = $callback($conditionGroup);
+
+        if ($returnedConditionGroup instanceof ConditionGroupObject) {
+            $conditionGroup = $returnedConditionGroup;
+        }
 
         if (count($conditionGroup->getConditions()) == 0) {
             return $this;
         }
 
-        $this->where[] = $conditionGroup;
+        $this->addConditionGroup($conditionGroup);
 
         return $this;
     }
@@ -440,5 +444,10 @@ trait WhereTrait
     protected function addCondition(OperatorEnum $type, string|array $query, mixed $value, ChainEnum $chain): void
     {
         $this->where[] = new ConditionObject($type, $query, $value, $chain);
+    }
+
+    protected function addConditionGroup(ConditionGroupObject $conditionGroup): void
+    {
+        $this->where[] = $conditionGroup;
     }
 }

@@ -1,7 +1,6 @@
 <?php
 
 use Sentience\Database\Database;
-use Sentience\Database\DatabaseFactory;
 use Sentience\Database\Driver;
 use Sentience\Helpers\Log;
 
@@ -32,7 +31,7 @@ return new class () {
             $options[$option] = $value;
         }
 
-        return DatabaseFactory::create(
+        return new Database(
             Driver::from($driver),
             $host,
             $port,
