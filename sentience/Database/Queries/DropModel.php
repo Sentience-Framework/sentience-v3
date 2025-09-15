@@ -4,12 +4,12 @@ namespace Sentience\Database\Queries;
 
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
-use Sentience\Database\Queries\Traits\IfExists;
+use Sentience\Database\Queries\Traits\IfExistsTrait;
 use Sentience\Models\Reflection\ReflectionModel;
 
 class DropModel extends ModelsQueryAbstract
 {
-    use IfExists;
+    use IfExistsTrait;
 
     public function __construct(Database $database, DialectInterface $dialect, string $model)
     {

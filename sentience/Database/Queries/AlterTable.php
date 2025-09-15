@@ -2,15 +2,15 @@
 
 namespace Sentience\Database\Queries;
 
-use Sentience\Database\Queries\Objects\AddColumn;
-use Sentience\Database\Queries\Objects\AddForeignKeyConstraint;
-use Sentience\Database\Queries\Objects\AddPrimaryKeys;
-use Sentience\Database\Queries\Objects\AddUniqueConstraint;
-use Sentience\Database\Queries\Objects\AlterColumn;
-use Sentience\Database\Queries\Objects\DropColumn;
-use Sentience\Database\Queries\Objects\DropConstraint;
-use Sentience\Database\Queries\Objects\QueryWithParams;
-use Sentience\Database\Queries\Objects\RenameColumn;
+use Sentience\Database\Queries\Objects\AddColumnObject;
+use Sentience\Database\Queries\Objects\AddForeignKeyConstraintObject;
+use Sentience\Database\Queries\Objects\AddPrimaryKeysObject;
+use Sentience\Database\Queries\Objects\AddUniqueConstraintObject;
+use Sentience\Database\Queries\Objects\AlterColumnObject;
+use Sentience\Database\Queries\Objects\DropColumnObject;
+use Sentience\Database\Queries\Objects\DropConstraintObject;
+use Sentience\Database\Queries\Objects\QueryWithParamsObject;
+use Sentience\Database\Queries\Objects\RenameColumnObject;
 use Sentience\Database\Results\ResultsInterface;
 
 class AlterTable extends ResultsQueryAbstract
@@ -30,7 +30,7 @@ class AlterTable extends ResultsQueryAbstract
         $queriesWithParams = $this->toQueryWithParams();
 
         return array_map(
-            fn (QueryWithParams $queryWithParams): string => $queryWithParams->toRawQuery($this->dialect),
+            fn(QueryWithParamsObject $queryWithParams): string => $queryWithParams->toRawQuery($this->dialect),
             $queriesWithParams
         );
     }
@@ -40,63 +40,63 @@ class AlterTable extends ResultsQueryAbstract
         $queries = $this->toQueryWithParams();
 
         return array_map(
-            fn (QueryWithParams $queryWithParams): ResultsInterface => $this->database->queryWithParams($queryWithParams),
+            fn(QueryWithParamsObject $queryWithParams): ResultsInterface => $this->database->queryWithParams($queryWithParams),
             $queries
         );
     }
 
     public function addColumn(string $name, string $type, bool $notNull = false, mixed $defaultValue = null, bool $autoIncrement = false): static
     {
-        $this->alters[] = new AddColumn($name, $type, $notNull, $defaultValue, $autoIncrement);
+        $this->alters[] = new AddColumnObject($name, $type, $notNull, $defaultValue, $autoIncrement);
 
         return $this;
     }
 
     public function alterColumn(string $column, string $options): static
     {
-        $this->alters[] = new AlterColumn($column, $options);
+        $this->alters[] = new AlterColumnObject($column, $options);
 
         return $this;
     }
 
     public function renameColumn(string $oldName, string $newName): static
     {
-        $this->alters[] = new RenameColumn($oldName, $newName);
+        $this->alters[] = new RenameColumnObject($oldName, $newName);
 
         return $this;
     }
 
     public function dropColumn(string $column): static
     {
-        $this->alters[] = new DropColumn($column);
+        $this->alters[] = new DropColumnObject($column);
 
         return $this;
     }
 
     public function addPrimaryKeys(string|array $columns): static
     {
-        $this->alters[] = new AddPrimaryKeys(is_string($columns) ? [$columns] : $columns);
+        $this->alters[] = new AddPrimaryKeysObject(is_string($columns) ? [$columns] : $columns);
 
         return $this;
     }
 
     public function addUniqueConstraint(array $columns, ?string $name): static
     {
-        $this->alters[] = new AddUniqueConstraint($columns, $name);
+        $this->alters[] = new AddUniqueConstraintObject($columns, $name);
 
         return $this;
     }
 
     public function addForeignKeyConstraint(string $column, string $referenceTable, string $referenceColumn, ?string $name = null): static
     {
-        $this->alters[] = new AddForeignKeyConstraint($column, $referenceTable, $referenceColumn, $name);
+        $this->alters[] = new AddForeignKeyConstraintObject($column, $referenceTable, $referenceColumn, $name);
 
         return $this;
     }
 
     public function dropConstraint(string $constraint): static
     {
-        $this->alters[] = new DropConstraint($constraint);
+        $this->alters[] = new DropConstraintObject($constraint);
 
         return $this;
     }

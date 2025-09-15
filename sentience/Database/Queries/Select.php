@@ -2,32 +2,32 @@
 
 namespace Sentience\Database\Queries;
 
-use Sentience\Database\Queries\Objects\QueryWithParams;
-use Sentience\Database\Queries\Objects\Raw;
-use Sentience\Database\Queries\Traits\Columns;
-use Sentience\Database\Queries\Traits\Distinct;
-use Sentience\Database\Queries\Traits\GroupBy;
-use Sentience\Database\Queries\Traits\Having;
-use Sentience\Database\Queries\Traits\Joins;
-use Sentience\Database\Queries\Traits\Limit;
-use Sentience\Database\Queries\Traits\Offset;
-use Sentience\Database\Queries\Traits\OrderBy;
-use Sentience\Database\Queries\Traits\Where;
+use Sentience\Database\Queries\Objects\QueryWithParamsObject;
+use Sentience\Database\Queries\Objects\RawObject;
+use Sentience\Database\Queries\Traits\ColumnsTrait;
+use Sentience\Database\Queries\Traits\DistinctTrait;
+use Sentience\Database\Queries\Traits\GroupByTrait;
+use Sentience\Database\Queries\Traits\HavingTrait;
+use Sentience\Database\Queries\Traits\JoinsTrait;
+use Sentience\Database\Queries\Traits\LimitTrait;
+use Sentience\Database\Queries\Traits\OffsetTrait;
+use Sentience\Database\Queries\Traits\OrderByTrait;
+use Sentience\Database\Queries\Traits\WhereTrait;
 use Sentience\Database\Results\ResultsInterface;
 
 class Select extends ResultsQueryAbstract
 {
-    use Columns;
-    use Distinct;
-    use GroupBy;
-    use Having;
-    use Joins;
-    use Limit;
-    use Offset;
-    use OrderBy;
-    use Where;
+    use ColumnsTrait;
+    use DistinctTrait;
+    use GroupByTrait;
+    use HavingTrait;
+    use JoinsTrait;
+    use LimitTrait;
+    use OffsetTrait;
+    use OrderByTrait;
+    use WhereTrait;
 
-    public function toQueryWithParams(): QueryWithParams
+    public function toQueryWithParams(): QueryWithParamsObject
     {
         return $this->dialect->select([
             'distinct' => $this->distinct,
@@ -53,7 +53,7 @@ class Select extends ResultsQueryAbstract
         return parent::execute();
     }
 
-    public function count(null|string|array|Raw $column = null): int
+    public function count(null|string|array|RawObject $column = null): int
     {
         $previousDistinct = $this->distinct;
         $previousColumns = $this->columns;

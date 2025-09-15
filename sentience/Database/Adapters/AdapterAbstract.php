@@ -3,7 +3,6 @@
 namespace Sentience\Database\Adapters;
 
 use Closure;
-use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
 use Sentience\Helpers\Strings;
 
@@ -21,8 +20,7 @@ abstract class AdapterAbstract implements AdapterInterface
         protected string $password,
         protected array $queries,
         protected ?Closure $debug,
-        protected array $options,
-        protected DialectInterface $dialect
+        protected array $options
     ) {
     }
 
@@ -35,5 +33,14 @@ abstract class AdapterAbstract implements AdapterInterface
             ),
             $value
         );
+    }
+
+    protected function debug(string $query, float $startTime, ?string $error = null): void
+    {
+        if (!$this->debug) {
+            return;
+        }
+
+        ($this->debug)($query, $startTime, $error);
     }
 }

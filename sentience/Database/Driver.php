@@ -2,6 +2,8 @@
 
 namespace Sentience\Database;
 
+use Closure;
+use Sentience\Database\Adapters\AdapterInterface;
 use Sentience\Database\Adapters\MySQLiAdapter;
 use Sentience\Database\Adapters\PDOAdapter;
 use Sentience\Database\Adapters\SQLiteAdapter;
@@ -17,16 +19,37 @@ enum Driver: string
     case PGSQL = 'pgsql';
     case SQLITE = 'sqlite';
 
-    public function getAdapter(): string
-    {
-        return match ($this) {
-            // static::MYSQL => PDOAdapter::class,
-            static::MYSQL => MySQLiAdapter::class,
-            static::PGSQL => PDOAdapter::class,
-            static::SQLITE => PDOAdapter::class,
-            // static::SQLITE => SQLiteAdapter::class,
-            default => PDOAdapter::class
-        };
+    public function getAdapter(
+        string $host,
+        int $port,
+        string $name,
+        string $username,
+        string $password,
+        array $queries,
+        ?Closure $debug,
+        array $options,
+        bool $usePDOAdapter = false
+    ): AdapterInterface {
+        $adapter = !$usePDOAdapter
+            ? match ($this) {
+                static::MYSQL => MySQLiAdapter::class,
+                static::PGSQL => PDOAdapter::class,
+                static::SQLITE => SQLiteAdapter::class,
+                default => PDOAdapter::class
+            }
+            : PDOAdapter::class;
+
+        return new $adapter(
+            $this,
+            $host,
+            $port,
+            $name,
+            $username,
+            $password,
+            $queries,
+            $debug,
+            $options
+        );
     }
 
     public function getDialect(): DialectInterface

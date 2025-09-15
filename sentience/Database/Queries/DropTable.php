@@ -2,15 +2,15 @@
 
 namespace Sentience\Database\Queries;
 
-use Sentience\Database\Queries\Objects\QueryWithParams;
-use Sentience\Database\Queries\Traits\IfExists;
+use Sentience\Database\Queries\Objects\QueryWithParamsObject;
+use Sentience\Database\Queries\Traits\IfExistsTrait;
 use Sentience\Database\Results\ResultsInterface;
 
 class DropTable extends ResultsQueryAbstract
 {
-    use IfExists;
+    use IfExistsTrait;
 
-    public function toQueryWithParams(): QueryWithParams
+    public function toQueryWithParams(): QueryWithParamsObject
     {
         return $this->dialect->dropTable([
             'ifExists' => $this->ifExists,

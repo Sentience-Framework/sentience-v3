@@ -4,9 +4,9 @@ namespace Sentience\Database\Queries;
 
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
-use Sentience\Database\Queries\Objects\Alias;
-use Sentience\Database\Queries\Objects\Raw;
-use Sentience\Database\Queries\Objects\TableWithColumn;
+use Sentience\Database\Queries\Objects\AliasObject;
+use Sentience\Database\Queries\Objects\RawObject;
+use Sentience\Database\Queries\Objects\TableWithColumnObject;
 use Sentience\Helpers\Strings;
 use Sentience\Timestamp\Timestamp;
 
@@ -16,19 +16,19 @@ abstract class Query
     {
     }
 
-    public static function alias(string|array|Raw $name, string $alias): Alias
+    public static function alias(string|array|RawObject $name, string $alias): AliasObject
     {
-        return new Alias($name, $alias);
+        return new AliasObject($name, $alias);
     }
 
-    public static function raw(string $expression): Raw
+    public static function raw(string $expression): RawObject
     {
-        return new Raw($expression);
+        return new RawObject($expression);
     }
 
-    public static function tableWithColumn(string|array|Alias|Raw $table, string|Alias|Raw $column): TableWithColumn
+    public static function tableWithColumn(string|array|AliasObject|RawObject $table, string|AliasObject|RawObject $column): TableWithColumnObject
     {
-        return new TableWithColumn($table, $column);
+        return new TableWithColumnObject($table, $column);
     }
 
     public static function now(): Timestamp

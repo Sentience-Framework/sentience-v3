@@ -5,12 +5,12 @@ namespace Sentience\Database\Dialects;
 use DateTime;
 use DateTimeImmutable;
 use Sentience\Database\Exceptions\QueryException;
-use Sentience\Database\Queries\Objects\AddForeignKeyConstraint;
-use Sentience\Database\Queries\Objects\AddPrimaryKeys;
-use Sentience\Database\Queries\Objects\AddUniqueConstraint;
-use Sentience\Database\Queries\Objects\AlterColumn;
-use Sentience\Database\Queries\Objects\DropConstraint;
-use Sentience\Database\Queries\Objects\Raw;
+use Sentience\Database\Queries\Objects\AddForeignKeyConstraintObject;
+use Sentience\Database\Queries\Objects\AddPrimaryKeysObject;
+use Sentience\Database\Queries\Objects\AddUniqueConstraintObject;
+use Sentience\Database\Queries\Objects\AlterColumnObject;
+use Sentience\Database\Queries\Objects\DropConstraintObject;
+use Sentience\Database\Queries\Objects\RawObject;
 use Sentience\Timestamp\Timestamp;
 
 class SQLiteDialect extends SQLDialect implements DialectInterface
@@ -30,7 +30,7 @@ class SQLiteDialect extends SQLDialect implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn (string $column): string => $this->escapeIdentifier($column),
+                    fn(string $column): string => $this->escapeIdentifier($column),
                     $conflict
                 )
             )
@@ -70,27 +70,27 @@ class SQLiteDialect extends SQLDialect implements DialectInterface
         );
     }
 
-    public function stringifyAlterTableAlterColumn(AlterColumn $alterColumn): string
+    public function stringifyAlterTableAlterColumn(AlterColumnObject $alterColumn): string
     {
         throw new QueryException('SQLite does not support altering columns');
     }
 
-    protected function stringifyAlterTableAddPrimaryKeys(AddPrimaryKeys $addPrimaryKeys): string
+    protected function stringifyAlterTableAddPrimaryKeys(AddPrimaryKeysObject $addPrimaryKeys): string
     {
         throw new QueryException('SQLite does not support adding primary keys by altering the table');
     }
 
-    protected function stringifyAlterTableAddUniqueConstraint(AddUniqueConstraint $addUniqueConstraint): string
+    protected function stringifyAlterTableAddUniqueConstraint(AddUniqueConstraintObject $addUniqueConstraint): string
     {
         throw new QueryException('SQLite does not support adding constraints by altering the table');
     }
 
-    protected function stringifyAlterTableAddForeignKeyConstraint(AddForeignKeyConstraint $addForeignKeyConstraint): string
+    protected function stringifyAlterTableAddForeignKeyConstraint(AddForeignKeyConstraintObject $addForeignKeyConstraint): string
     {
         throw new QueryException('SQLite does not support adding constraints by altering the table');
     }
 
-    protected function stringifyAlterTableDropConstraint(DropConstraint $dropConstraint): string
+    protected function stringifyAlterTableDropConstraint(DropConstraintObject $dropConstraint): string
     {
         throw new QueryException('SQLite does not support dropping constraints by altering the table');
     }

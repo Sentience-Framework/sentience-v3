@@ -1,7 +1,9 @@
 <?php
 
 use Sentience\Database\Database;
+use Sentience\Database\DatabaseFactory;
 use Sentience\Database\Driver;
+use Sentience\Helpers\Log;
 
 return new class () {
     public function database(): Database
@@ -13,7 +15,8 @@ return new class () {
         $username = env('DB_USERNAME', '');
         $password = env('DB_PASSWORD', '');
         $queries = env('DB_QUERIES', []);
-        $debug = env('DB_DEBUG', '');
+        $debug = env('DB_DEBUG', false);
+        $usePDO = env('DB_USE_PDO', false);
 
         $env = env();
 
@@ -29,7 +32,7 @@ return new class () {
             $options[$option] = $value;
         }
 
-        return new Database(
+        return DatabaseFactory::create(
             Driver::from($driver),
             $host,
             $port,
@@ -37,8 +40,23 @@ return new class () {
             $username,
             $password,
             $queries,
-            $debug,
-            $options
+            $debug ? function (string $query, float $startTime, ?string $error = null): void {
+                $endTime = microtime(true);
+
+                $lines = [
+                    sprintf('Timestamp : %s', date('Y-m-d H:i:s')),
+                    sprintf('Query     : %s', $query),
+                    sprintf('Time      : %.2f ms', ($endTime - $startTime) * 1000)
+                ];
+
+                if ($error) {
+                    $lines[] = sprintf('Error     : %s', $error);
+                }
+
+                Log::stderrBetweenEqualSigns('Query', $lines);
+            } : null,
+            $options,
+            $usePDO
         );
     }
 };

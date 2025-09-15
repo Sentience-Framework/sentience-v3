@@ -5,15 +5,15 @@ namespace Sentience\Database\Queries;
 use DateTimeInterface;
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
-use Sentience\Database\Queries\Enums\Chain;
-use Sentience\Database\Queries\Enums\Operator;
-use Sentience\Database\Queries\Objects\Condition;
-use Sentience\Database\Queries\Traits\Where;
+use Sentience\Database\Queries\Enums\ChainEnum;
+use Sentience\Database\Queries\Enums\OperatorEnum;
+use Sentience\Database\Queries\Objects\ConditionObject;
+use Sentience\Database\Queries\Traits\WhereTrait;
 use Sentience\Models\Reflection\ReflectionModel;
 
 class UpdateModels extends ModelsQueryAbstract
 {
-    use Where;
+    use WhereTrait;
 
     protected array $updates = [];
 
@@ -45,11 +45,11 @@ class UpdateModels extends ModelsQueryAbstract
                 $values[$column] = $value;
 
                 if ($reflectionModelProperty->isPrimaryKey()) {
-                    $primaryKeyConditions[] = new Condition(
-                        Operator::EQUALS,
+                    $primaryKeyConditions[] = new ConditionObject(
+                        OperatorEnum::EQUALS,
                         $column,
                         $value,
-                        Chain::AND
+                        ChainEnum::AND
                     );
                 }
             }

@@ -4,30 +4,30 @@ namespace Sentience\Database\Queries;
 
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
-use Sentience\Database\Queries\Traits\Columns;
-use Sentience\Database\Queries\Traits\Distinct;
-use Sentience\Database\Queries\Traits\GroupBy;
-use Sentience\Database\Queries\Traits\Having;
-use Sentience\Database\Queries\Traits\Joins;
-use Sentience\Database\Queries\Traits\Limit;
-use Sentience\Database\Queries\Traits\Offset;
-use Sentience\Database\Queries\Traits\OrderBy;
-use Sentience\Database\Queries\Traits\Relations;
-use Sentience\Database\Queries\Traits\Where;
+use Sentience\Database\Queries\Traits\ColumnsTrait;
+use Sentience\Database\Queries\Traits\DistinctTrait;
+use Sentience\Database\Queries\Traits\GroupByTrait;
+use Sentience\Database\Queries\Traits\HavingTrait;
+use Sentience\Database\Queries\Traits\JoinsTrait;
+use Sentience\Database\Queries\Traits\LimitTrait;
+use Sentience\Database\Queries\Traits\OffsetTrait;
+use Sentience\Database\Queries\Traits\OrderByTrait;
+use Sentience\Database\Queries\Traits\RelationsTrait;
+use Sentience\Database\Queries\Traits\WhereTrait;
 use Sentience\Models\QueryBuilder;
 
 class SelectModels extends ModelsQueryAbstract
 {
-    use Columns;
-    use Distinct;
-    use GroupBy;
-    use Joins;
-    use Having;
-    use Limit;
-    use Offset;
-    use OrderBy;
-    use Relations;
-    use Where;
+    use ColumnsTrait;
+    use DistinctTrait;
+    use GroupByTrait;
+    use JoinsTrait;
+    use HavingTrait;
+    use LimitTrait;
+    use OffsetTrait;
+    use OrderByTrait;
+    use RelationsTrait;
+    use WhereTrait;
 
     public function __construct(Database $database, DialectInterface $dialect, string $model)
     {
@@ -60,7 +60,7 @@ class SelectModels extends ModelsQueryAbstract
         $results = $this->executeQueryWithParams($queryWithParams);
 
         return array_map(
-            fn (array $row): object => $this->mapAssocToModel($model, $row),
+            fn(array $row): object => $this->mapAssocToModel($model, $row),
             $results->fetchAssocs()
         );
     }

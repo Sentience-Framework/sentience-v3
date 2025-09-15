@@ -7,7 +7,7 @@ use SQLite3;
 use SQLite3Exception;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
-use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Queries\Objects\QueryWithParamsObject;
 use Sentience\Database\Results\SQLiteResults;
 
 class SQLiteAdapter extends AdapterAbstract
@@ -28,8 +28,7 @@ class SQLiteAdapter extends AdapterAbstract
         protected string $password,
         protected array $queries,
         protected ?Closure $debug,
-        protected array $options,
-        protected DialectInterface $dialect
+        protected array $options
     ) {
         $this->sqlite = new SQLite3(
             $name,
@@ -67,9 +66,9 @@ class SQLiteAdapter extends AdapterAbstract
         ($this->debug)($query, $startTime);
     }
 
-    public function queryWithParams(QueryWithParams $queryWithParams): SQLiteResults
+    public function queryWithParams(DialectInterface $dialect, QueryWithParamsObject $queryWithParams): SQLiteResults
     {
-        $rawQuery = $queryWithParams->toRawQuery($this->dialect);
+        $rawQuery = $queryWithParams->toRawQuery($dialect);
 
         $startTime = microtime(true);
 
@@ -84,7 +83,7 @@ class SQLiteAdapter extends AdapterAbstract
         }
 
         foreach ($queryWithParams->params as $index => $param) {
-            $value = $this->dialect->castToDriver($param);
+            $value = $dialect->castToDriver($param);
 
             $sqlite3Statement->bindValue(
                 $index + 1,

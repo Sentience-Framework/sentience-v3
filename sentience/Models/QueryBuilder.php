@@ -2,7 +2,7 @@
 
 namespace Sentience\Models;
 
-use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Queries\Objects\QueryWithParamsObject;
 use Sentience\Database\Queries\SelectModels;
 
 class QueryBuilder
@@ -29,8 +29,8 @@ class QueryBuilder
         return $this;
     }
 
-    public function buildQuery(): QueryWithParams
+    public function buildQuery(): QueryWithParamsObject
     {
-        return new QueryWithParams('');
+        return new QueryWithParamsObject('');
     }
 }

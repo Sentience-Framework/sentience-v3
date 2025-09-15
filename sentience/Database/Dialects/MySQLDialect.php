@@ -4,11 +4,11 @@ namespace Sentience\Database\Dialects;
 
 use DateTime;
 use DateTimeImmutable;
-use Sentience\Database\Queries\Objects\AlterColumn;
-use Sentience\Database\Queries\Objects\Column;
-use Sentience\Database\Queries\Objects\DropConstraint;
-use Sentience\Database\Queries\Objects\QueryWithParams;
-use Sentience\Database\Queries\Objects\Raw;
+use Sentience\Database\Queries\Objects\AlterColumnObject;
+use Sentience\Database\Queries\Objects\ColumnObject;
+use Sentience\Database\Queries\Objects\DropConstraintObject;
+use Sentience\Database\Queries\Objects\QueryWithParamsObject;
+use Sentience\Database\Queries\Objects\RawObject;
 use Sentience\Database\Queries\Query;
 use Sentience\Timestamp\Timestamp;
 
@@ -18,7 +18,7 @@ class MySQLDialect extends SQLDialect implements DialectInterface
     public const string STRING_ESCAPE = '"';
     public const bool ANSI_ESCAPE = false;
 
-    public function createTable(array $config): QueryWithParams
+    public function createTable(array $config): QueryWithParamsObject
     {
         $queryWithParams = parent::createTable($config);
 
@@ -88,7 +88,7 @@ class MySQLDialect extends SQLDialect implements DialectInterface
         return;
     }
 
-    public function stringifyColumnDefinition(Column $column): string
+    public function stringifyColumnDefinition(ColumnObject $column): string
     {
         $stringifiedColumn = parent::stringifyColumnDefinition($column);
 
@@ -99,14 +99,14 @@ class MySQLDialect extends SQLDialect implements DialectInterface
         return $stringifiedColumn;
     }
 
-    public function stringifyAlterTableAlterColumn(AlterColumn $alterColumn): string
+    public function stringifyAlterTableAlterColumn(AlterColumnObject $alterColumn): string
     {
         $stringifiedAlterColumn = parent::stringifyAlterTableAlterColumn($alterColumn);
 
         return substr_replace($stringifiedAlterColumn, 'MODIFY', 0, 5);
     }
 
-    public function stringifyAlterTableDropConstraint(DropConstraint $dropConstraint): string
+    public function stringifyAlterTableDropConstraint(DropConstraintObject $dropConstraint): string
     {
         $stringifiedDropConstraint = parent::stringifyAlterTableDropConstraint($dropConstraint);
 

@@ -4,15 +4,15 @@ namespace Sentience\Database\Queries;
 
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
-use Sentience\Database\Queries\Enums\Chain;
-use Sentience\Database\Queries\Enums\Operator;
-use Sentience\Database\Queries\Objects\Condition;
-use Sentience\Database\Queries\Traits\Where;
+use Sentience\Database\Queries\Enums\ChainEnum;
+use Sentience\Database\Queries\Enums\OperatorEnum;
+use Sentience\Database\Queries\Objects\ConditionObject;
+use Sentience\Database\Queries\Traits\WhereTrait;
 use Sentience\Models\Reflection\ReflectionModel;
 
 class DeleteModels extends ModelsQueryAbstract
 {
-    use Where;
+    use WhereTrait;
 
     public function __construct(Database $database, DialectInterface $dialect, array $model)
     {
@@ -39,11 +39,11 @@ class DeleteModels extends ModelsQueryAbstract
                 $value = $model->{$property};
 
                 if ($reflectionModelProperty->isPrimaryKey()) {
-                    $primaryKeyConditions[] = new Condition(
-                        Operator::EQUALS,
+                    $primaryKeyConditions[] = new ConditionObject(
+                        OperatorEnum::EQUALS,
                         $column,
                         $value,
-                        Chain::AND
+                        ChainEnum::AND
                     );
                 }
             }

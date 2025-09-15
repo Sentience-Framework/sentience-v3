@@ -4,12 +4,12 @@ namespace Sentience\Database\Queries;
 
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
-use Sentience\Database\Queries\Traits\IfNotExists;
+use Sentience\Database\Queries\Traits\IfNotExistsTrait;
 use Sentience\Models\Reflection\ReflectionModel;
 
 class CreateModel extends ModelsQueryAbstract
 {
-    use IfNotExists;
+    use IfNotExistsTrait;
 
     public function __construct(Database $database, DialectInterface $dialect, string $model)
     {

@@ -7,7 +7,7 @@ use DateTimeImmutable;
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Exceptions\QueryException;
-use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Queries\Objects\QueryWithParamsObject;
 use Sentience\Database\Results\ResultsInterface;
 use Sentience\Helpers\Arrays;
 use Sentience\Helpers\Reflector;
@@ -45,7 +45,7 @@ abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
         return;
     }
 
-    protected function executeQueryWithParams(QueryWithParams $queryWithParams): ResultsInterface
+    protected function executeQueryWithParams(QueryWithParamsObject $queryWithParams): ResultsInterface
     {
         return $this->database->queryWithParams($queryWithParams);
     }

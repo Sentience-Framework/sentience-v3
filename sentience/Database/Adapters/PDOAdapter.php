@@ -7,7 +7,7 @@ use PDO;
 use PDOException;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
-use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Queries\Objects\QueryWithParamsObject;
 use Sentience\Database\Results\PDOResults;
 
 class PDOAdapter extends AdapterAbstract
@@ -23,8 +23,7 @@ class PDOAdapter extends AdapterAbstract
         protected string $password,
         protected array $queries,
         protected ?Closure $debug,
-        protected array $options,
-        protected DialectInterface $dialect
+        protected array $options
     ) {
         $dsn = $driver == Driver::SQLITE
             ? sprintf(
@@ -81,17 +80,17 @@ class PDOAdapter extends AdapterAbstract
         if (is_bool($affected)) {
             $error = implode(' ', $this->pdo->errorInfo());
 
-            ($this->debug)($query, $startTime, $error);
+            $this->debug($query, $startTime, $error);
 
             throw new PDOException($error);
         }
 
-        ($this->debug)($query, $startTime);
+        $this->debug($query, $startTime);
     }
 
-    public function queryWithParams(QueryWithParams $queryWithParams): PDOResults
+    public function queryWithParams(DialectInterface $dialect, QueryWithParamsObject $queryWithParams): PDOResults
     {
-        $rawQuery = $queryWithParams->toRawQuery($this->dialect);
+        $rawQuery = $queryWithParams->toRawQuery($dialect);
 
         $startTime = microtime(true);
 
@@ -100,13 +99,13 @@ class PDOAdapter extends AdapterAbstract
         if (is_bool($pdoStatement)) {
             $error = implode(' ', $this->pdo->errorInfo());
 
-            ($this->debug)($rawQuery, $startTime, $error);
+            $this->debug($rawQuery, $startTime, $error);
 
             throw new PDOException($error);
         }
 
         foreach ($queryWithParams->params as $index => $param) {
-            $value = $this->dialect->castToDriver($param);
+            $value = $dialect->castToDriver($param);
 
             $pdoStatement->bindValue(
                 $index + 1,
@@ -127,12 +126,12 @@ class PDOAdapter extends AdapterAbstract
         if (!$success) {
             $error = implode(' ', $pdoStatement->errorInfo());
 
-            ($this->debug)($rawQuery, $startTime, $error);
+            $this->debug($rawQuery, $startTime, $error);
 
             throw new PDOException($error);
         }
 
-        ($this->debug)($rawQuery, $startTime);
+        $this->debug($rawQuery, $startTime);
 
         return new PDOResults($pdoStatement);
     }

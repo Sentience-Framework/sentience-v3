@@ -7,7 +7,7 @@ use mysqli;
 use mysqli_sql_exception;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
-use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Queries\Objects\QueryWithParamsObject;
 use Sentience\Database\Results\MySQLiResults;
 
 class MySQLiAdapter extends AdapterAbstract
@@ -24,8 +24,7 @@ class MySQLiAdapter extends AdapterAbstract
         protected string $password,
         protected array $queries,
         protected ?Closure $debug,
-        protected array $options,
-        protected DialectInterface $dialect
+        protected array $options
     ) {
         $this->mysqli = new mysqli(
             $host,
@@ -53,17 +52,17 @@ class MySQLiAdapter extends AdapterAbstract
         if (is_bool($result)) {
             $error = $this->mysqli->error;
 
-            ($this->debug)($query, $startTime, $error);
+            $this->debug($query, $startTime, $error);
 
             throw new mysqli_sql_exception($error);
         }
 
-        ($this->debug)($query, $startTime);
+        $this->debug($query, $startTime);
     }
 
-    public function queryWithParams(QueryWithParams $queryWithParams): MySQLiResults
+    public function queryWithParams(DialectInterface $dialect, QueryWithParamsObject $queryWithParams): MySQLiResults
     {
-        $rawQuery = $queryWithParams->toRawQuery($this->dialect);
+        $rawQuery = $queryWithParams->toRawQuery($dialect);
 
         $startTime = microtime(true);
 
@@ -72,7 +71,7 @@ class MySQLiAdapter extends AdapterAbstract
         if (is_bool($mysqliStatement)) {
             $error = $this->mysqli->error;
 
-            ($this->debug)($rawQuery, $startTime, $error);
+            $this->debug($rawQuery, $startTime, $error);
 
             throw new mysqli_sql_exception($error);
         }
@@ -81,7 +80,7 @@ class MySQLiAdapter extends AdapterAbstract
         $params = [];
 
         foreach ($queryWithParams->params as $index => $param) {
-            $value = $this->dialect->castToDriver($param);
+            $value = $dialect->castToDriver($param);
 
             $paramTypes[] = match (get_debug_type($value)) {
                 'null' => 's',
@@ -107,22 +106,22 @@ class MySQLiAdapter extends AdapterAbstract
         if (!$success) {
             $error = $mysqliStatement->error;
 
-            ($this->debug)($rawQuery, $startTime, $error);
+            $this->debug($rawQuery, $startTime, $error);
 
             throw new mysqli_sql_exception($error);
         }
-
-        ($this->debug)($rawQuery, $startTime);
 
         $results = $mysqliStatement->get_result();
 
         if (!$results && $mysqliStatement->error) {
             $error = $mysqliStatement->error;
 
-            ($this->debug)($rawQuery, $startTime, $error);
+            $this->debug($rawQuery, $startTime, $error);
 
             throw new mysqli_sql_exception($error);
         }
+
+        $this->debug($rawQuery, $startTime);
 
         return new MySQLiResults($results);
     }
