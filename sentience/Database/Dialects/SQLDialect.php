@@ -317,7 +317,7 @@ class SQLDialect implements DialectInterface
                     $alter instanceof AddUniqueConstraint => $this->stringifyAlterTableAddUniqueConstraint($alter),
                     $alter instanceof AddForeignKeyConstraint => $this->stringifyAlterTableAddForeignKeyConstraint($alter),
                     $alter instanceof DropConstraint => $this->stringifyAlterTableDropConstraint($alter),
-                    default => throw new QueryException('unsupported alter %s', $alter::class)
+                    default => throw new QueryException('unsupported alter ' . $alter::class)
                 };
 
                 $query .= ';';

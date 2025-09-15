@@ -2,7 +2,7 @@
 
 namespace Sentience\Interfaces;
 
-interface Dto
+interface DtoInterface
 {
     public static function fromAssoc(array $assoc): static;
 }

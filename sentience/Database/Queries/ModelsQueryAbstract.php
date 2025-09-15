@@ -30,16 +30,16 @@ abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
     {
         if (!is_object($model)) {
             if ($mustBeInstance) {
-                throw new QueryException('%s is not an instance', get_debug_type($model));
+                throw new QueryException(get_debug_type($model) . ' is not an instance');
             }
 
             if (!is_string($model)) {
-                throw new QueryException('%s is not a valid type for a model', get_debug_type($model));
+                throw new QueryException(get_debug_type($model) . ' is not a valid type for a model');
             }
         }
 
         if (!Reflector::isSubclassOf($model, Model::class)) {
-            throw new QueryException('%s is not a model', $model::class);
+            throw new QueryException($model::class . ' is not a model');
         }
 
         return;

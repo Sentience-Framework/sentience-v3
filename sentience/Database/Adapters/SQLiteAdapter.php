@@ -58,12 +58,12 @@ class SQLiteAdapter extends AdapterAbstract
         if (!$success) {
             $error = $this->sqlite->lastErrorMsg();
 
-            ($this->debug)($query, $startTime, $error);
+            $this->debug($query, $startTime, $error);
 
             throw new SQLite3Exception($error);
         }
 
-        ($this->debug)($query, $startTime);
+        $this->debug($query, $startTime);
     }
 
     public function queryWithParams(DialectInterface $dialect, QueryWithParamsObject $queryWithParams): SQLiteResults
@@ -77,7 +77,7 @@ class SQLiteAdapter extends AdapterAbstract
         if (is_bool($sqlite3Statement)) {
             $error = $this->sqlite->lastErrorMsg();
 
-            ($this->debug)($rawQuery, $startTime, $error);
+            $this->debug($rawQuery, $startTime, $error);
 
             throw new SQLite3Exception($error);
         }
@@ -103,12 +103,12 @@ class SQLiteAdapter extends AdapterAbstract
         if (!$sqlite3Results) {
             $error = $this->sqlite->lastErrorMsg();
 
-            ($this->debug)($rawQuery, $startTime, $error);
+            $this->debug($rawQuery, $startTime, $error);
 
             throw new SQLite3Exception($error);
         }
 
-        ($this->debug)($rawQuery, $startTime);
+        $this->debug($rawQuery, $startTime);
 
         return new SQLiteResults($sqlite3Results);
     }
