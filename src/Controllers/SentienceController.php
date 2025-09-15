@@ -358,7 +358,6 @@ class SentienceController extends Controller
         $migrationModel->appliedAt = Query::now();
 
         $database->insertModels($migrationModel)
-            // ->onDuplicateUpdate()
             ->execute();
 
         Stdio::printFLn('Migration for model %s created successfully', $model::class);
@@ -438,7 +437,6 @@ class SentienceController extends Controller
         $migrationModel->appliedAt = Query::now();
 
         $database->insertModels($migrationModel)
-            // ->onDuplicateUpdate()
             ->execute();
 
         Stdio::printFLn('Migration for model %s created successfully', $model::class);
@@ -519,7 +517,6 @@ class SentienceController extends Controller
         $migrationModel->appliedAt = Query::now();
 
         $database->insertModels($migrationModel)
-            // ->onDuplicateUpdate()
             ->execute();
 
         Stdio::printFLn('Migration for model %s created successfully', $model::class);
