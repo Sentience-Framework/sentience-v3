@@ -3,7 +3,7 @@
 namespace Sentience\Database\Queries\Objects;
 
 use Sentience\Database\Dialects\DialectInterface;
-use Sentience\Exceptions\RawQueryException;
+use Sentience\Exceptions\QueryWithParamsException;
 
 class QueryWithParamsObject
 {
@@ -28,7 +28,7 @@ class QueryWithParamsObject
             '/\?(?=(?:[^\'\"\`\\\\]|\'(?:\\\\.|[^\\\\\'])*\'|\"(?:\\\\.|[^\\\\\"])*\"|\`(?:\\\\.|[^\\\\\`])*\`)*$)/',
             function () use ($params, &$index): mixed {
                 if (!array_key_exists($index, $params)) {
-                    throw new RawQueryException('placeholder and value count do not match');
+                    throw new QueryWithParamsException('placeholder and value count do not match');
                 }
 
                 $param = $params[$index];

@@ -2,8 +2,8 @@
 
 namespace Sentience\Database\Exceptions;
 
-use Exception;
+use Sentience\Exceptions\CustomException;
 
-class QueryException extends Exception
+class QueryException extends CustomException
 {
 }

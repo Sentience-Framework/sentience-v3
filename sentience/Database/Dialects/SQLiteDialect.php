@@ -22,7 +22,7 @@ class SQLiteDialect extends SQLDialect implements DialectInterface
         }
 
         if (is_string($conflict)) {
-            throw new QueryException('SQLite does not support ON CONFLICT ON CONSTRAINT, please use an array of columns');
+            throw new QueryException('SQLite does not support named constraints, please use an array of columns');
         }
 
         $expression = sprintf(
