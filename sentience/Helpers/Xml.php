@@ -2,6 +2,7 @@
 
 namespace Sentience\Helpers;
 
+use ReflectionClass;
 use SimpleXMLElement;
 use Sentience\Exceptions\XmlException;
 
@@ -10,7 +11,7 @@ class Xml
     public static function encode(array|object $value, ?callable $pluralToSingular = null): ?string
     {
         $rootTag = is_object($value)
-            ? Reflector::getShortName($value)
+            ? (new ReflectionClass($value))->getShortName()
             : 'root';
 
         $simpleXmlElement = new SimpleXMLElement(

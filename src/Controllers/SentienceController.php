@@ -12,7 +12,6 @@ use Sentience\Exceptions\ConsoleException;
 use Sentience\Exceptions\MigrationException;
 use Sentience\Helpers\Console;
 use Sentience\Helpers\Filesystem;
-use Sentience\Helpers\Reflector;
 use Sentience\Migrations\MigrationFactory;
 use Sentience\Sentience\Stdio;
 use Src\Models\Migration;
@@ -362,7 +361,7 @@ class SentienceController extends Controller
             // ->onDuplicateUpdate()
             ->execute();
 
-        Stdio::printFLn('Migration for model %s created successfully', Reflector::getShortName($model));
+        Stdio::printFLn('Migration for model %s created successfully', $model::class);
     }
 
     public function updateModel(Database $database, array $words, array $flags): void
@@ -442,7 +441,7 @@ class SentienceController extends Controller
             // ->onDuplicateUpdate()
             ->execute();
 
-        Stdio::printFLn('Migration for model %s created successfully', Reflector::getShortName($model));
+        Stdio::printFLn('Migration for model %s created successfully', $model::class);
     }
 
     public function resetModel(Database $database, array $words, array $flags): void
@@ -523,7 +522,7 @@ class SentienceController extends Controller
             // ->onDuplicateUpdate()
             ->execute();
 
-        Stdio::printFLn('Migration for model %s created successfully', Reflector::getShortName($model));
+        Stdio::printFLn('Migration for model %s created successfully', $model::class);
     }
 
     public function fixDotEnv(array $words, array $flags): void

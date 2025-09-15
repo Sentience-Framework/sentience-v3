@@ -9,7 +9,6 @@ use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Exceptions\QueryException;
 use Sentience\Helpers\Arrays;
-use Sentience\Helpers\Reflector;
 use Sentience\Models\Model;
 use Sentience\Models\Reflection\ReflectionModel;
 use Sentience\Timestamp\Timestamp;
@@ -25,7 +24,7 @@ abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
         }
     }
 
-    protected function validateModel(mixed $model, bool $mustBeInstance = true): void
+    protected function validateModel(string|object $model, bool $mustBeInstance = true): void
     {
         if (!is_object($model)) {
             if ($mustBeInstance) {
@@ -37,8 +36,8 @@ abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
             }
         }
 
-        if (!Reflector::isSubclassOf($model, Model::class)) {
-            throw new QueryException('is not a model', $model::class);
+        if (!is_subclass_of($model, Model::class)) {
+            throw new QueryException('%s is not a model', $model::class);
         }
 
         return;

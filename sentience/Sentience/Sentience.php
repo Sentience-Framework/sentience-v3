@@ -17,7 +17,6 @@ use Sentience\Exceptions\NoticeException;
 use Sentience\Exceptions\ParseException;
 use Sentience\Exceptions\WarningException;
 use Sentience\Helpers\Log;
-use Sentience\Helpers\Reflector;
 use Sentience\Routers\CliRouter;
 use Sentience\Routers\Command;
 use Sentience\Routers\HttpRouter;
@@ -302,7 +301,7 @@ class Sentience extends Singleton
     protected function handleExceptionCli(Throwable $exception): void
     {
         $lines = [
-            sprintf('- Type    : %s', Reflector::getShortName($exception)),
+            sprintf('- Type    : %s', (new ReflectionClass($exception))->getShortName()),
             sprintf('- Message : %s', $exception->getMessage())
         ];
 
@@ -357,7 +356,7 @@ class Sentience extends Singleton
     {
         $response = [
             'error' => [
-                'type' => Reflector::getShortName($exception),
+                'type' => (new ReflectionClass($exception))->getShortName(),
                 'message' => $exception->getMessage()
             ]
         ];

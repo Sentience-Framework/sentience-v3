@@ -7,7 +7,6 @@ use ReflectionNamedType;
 use ReflectionParameter;
 use Sentience\Abstracts\Singleton;
 use Sentience\Exceptions\DependencyInjectionException;
-use Sentience\Helpers\Reflector;
 
 class DependencyInjector
 {
@@ -128,7 +127,7 @@ class DependencyInjector
             return false;
         }
 
-        return Reflector::isSubClassOf($type, Singleton::class);
+        return is_subclass_of($type, Singleton::class);
     }
 
     protected function createSingletonInstance(ReflectionParameter $reflectionParameter): Singleton
