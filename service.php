@@ -12,6 +12,7 @@ return new class () {
         $name = env('DB_NAME') ?? env('DB_FILE');
         $username = env('DB_USERNAME', '');
         $password = env('DB_PASSWORD', '');
+        $queries = env('DB_QUERIES', []);
         $debug = env('DB_DEBUG', '');
 
         $env = env();
@@ -35,6 +36,7 @@ return new class () {
             $name,
             $username,
             $password,
+            $queries,
             $debug,
             $options
         );

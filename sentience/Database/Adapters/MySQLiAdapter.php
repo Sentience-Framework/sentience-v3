@@ -22,9 +22,10 @@ class MySQLiAdapter extends AdapterAbstract
         protected string $name,
         protected string $username,
         protected string $password,
-        protected DialectInterface $dialect,
+        protected array $queries,
         protected ?Closure $debug,
-        protected array $options
+        protected array $options,
+        protected DialectInterface $dialect
     ) {
         $this->mysqli = new mysqli(
             $host,
@@ -36,6 +37,10 @@ class MySQLiAdapter extends AdapterAbstract
 
         if ($this->mysqli->connect_error) {
             throw new mysqli_sql_exception($this->mysqli->connect_error);
+        }
+
+        foreach ($queries as $query) {
+            $this->query($query);
         }
     }
 

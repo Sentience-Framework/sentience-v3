@@ -19,9 +19,10 @@ abstract class AdapterAbstract implements AdapterInterface
         protected string $name,
         protected string $username,
         protected string $password,
-        protected DialectInterface $dialect,
+        protected array $queries,
         protected ?Closure $debug,
-        protected array $options
+        protected array $options,
+        protected DialectInterface $dialect
     ) {
     }
 

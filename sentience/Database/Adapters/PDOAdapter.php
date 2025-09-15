@@ -21,9 +21,10 @@ class PDOAdapter extends AdapterAbstract
         protected string $name,
         protected string $username,
         protected string $password,
-        protected DialectInterface $dialect,
+        protected array $queries,
         protected ?Closure $debug,
-        protected array $options
+        protected array $options,
+        protected DialectInterface $dialect
     ) {
         $dsn = $driver == Driver::SQLITE
             ? sprintf(
@@ -46,12 +47,17 @@ class PDOAdapter extends AdapterAbstract
             options: [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
                 PDO::ATTR_EMULATE_PREPARES => false,
-                PDO::ATTR_STRINGIFY_FETCHES => false
+                PDO::ATTR_STRINGIFY_FETCHES => false,
+                PDO::ATTR_PERSISTENT => true
             ]
         );
 
         if ($driver == Driver::SQLITE) {
             $this->configureForSQLite($options);
+        }
+
+        foreach ($queries as $query) {
+            $this->query($query);
         }
     }
 
@@ -60,15 +66,9 @@ class PDOAdapter extends AdapterAbstract
         if (method_exists($this->pdo, 'sqliteCreateFunction')) {
             $this->pdo->sqliteCreateFunction(
                 static::REGEXP_FUNCTION,
-                fn (string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
+                fn(string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
                 static::REGEXP_FUNCTION_ARGUMENTS_COUNT
             );
-        }
-
-        $this->query('PRAGMA journal_mode=WAL;');
-
-        if ((bool) $options[SQLiteAdapter::OPTIONS_PRAGMA_SYNCHRONOUS_OFF] ?? false) {
-            $this->query('PRAGMA synchronous=OFF');
         }
     }
 

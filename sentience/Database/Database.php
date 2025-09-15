@@ -39,6 +39,7 @@ class Database
         protected string $name,
         protected string $username,
         protected string $password,
+        protected array $queries,
         protected bool $debug,
         protected array $options
     ) {
@@ -52,7 +53,7 @@ class Database
             $name,
             $username,
             $password,
-            $dialect,
+            $queries,
             $debug ? function (string $query, float $startTime, ?string $error = null): void {
                 $endTime = microtime(true);
 
@@ -68,7 +69,8 @@ class Database
 
                 Log::stderrBetweenEqualSigns('Query', $lines);
             } : null,
-            $options
+            $options,
+            $dialect,
         );
 
         $this->dialect = $dialect;

@@ -15,7 +15,6 @@ class SQLiteAdapter extends AdapterAbstract
     public const OPTIONS_READ_ONLY = 'READ_ONLY';
     public const OPTIONS_ENCRYPTION_KEY = 'ENCRYPTION_KEY';
     public const OPTIONS_BUSY_TIMEOUT = 'BUSY_TIMEOUT';
-    public const OPTIONS_PRAGMA_SYNCHRONOUS_OFF = 'PRAGMA_SYNCHRONOUS_OFF';
 
     protected SQLite3 $sqlite;
     protected bool $inTransaction = false;
@@ -27,9 +26,10 @@ class SQLiteAdapter extends AdapterAbstract
         protected string $name,
         protected string $username,
         protected string $password,
-        protected DialectInterface $dialect,
+        protected array $queries,
         protected ?Closure $debug,
-        protected array $options
+        protected array $options,
+        protected DialectInterface $dialect
     ) {
         $this->sqlite = new SQLite3(
             $name,
@@ -41,18 +41,12 @@ class SQLiteAdapter extends AdapterAbstract
 
         $this->sqlite->createFunction(
             static::REGEXP_FUNCTION,
-            fn (string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
+            fn(string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
             static::REGEXP_FUNCTION_ARGUMENTS_COUNT
         );
 
-        if (array_key_exists(static::OPTIONS_BUSY_TIMEOUT, $options)) {
-            $this->sqlite->busyTimeout((int) $options[static::OPTIONS_BUSY_TIMEOUT]);
-        }
-
-        $this->query('PRAGMA journal_mode=WAL;');
-
-        if ((bool) $options[static::OPTIONS_PRAGMA_SYNCHRONOUS_OFF] ?? false) {
-            $this->query('PRAGMA synchronous=OFF');
+        foreach ($queries as $query) {
+            $this->query($query);
         }
     }
 
