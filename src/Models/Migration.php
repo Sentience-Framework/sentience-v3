@@ -20,7 +20,7 @@ class Migration extends Model
     public int $id;
 
     #[Column('batch')]
-    public TestEnum $batch;
+    public int $batch;
 
     #[Column('filename')]
     public string $filename;
