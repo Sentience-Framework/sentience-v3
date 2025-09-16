@@ -26,11 +26,6 @@ abstract class Query
         return new RawObject($expression);
     }
 
-    public static function tableWithColumn(string|array|AliasObject|RawObject $table, string|AliasObject|RawObject $column): TableWithColumnObject
-    {
-        return new TableWithColumnObject($table, $column);
-    }
-
     public static function now(): Timestamp
     {
         return new Timestamp();
