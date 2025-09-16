@@ -22,5 +22,3 @@ return RectorConfig::configure()
     ->withSkip([
         AddOverrideAttributeToOverriddenMethodsRector::class
     ]);
-;
-;

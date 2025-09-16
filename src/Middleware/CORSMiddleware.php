@@ -13,7 +13,7 @@ class CORSMiddleware extends Middleware
     public const string ACCESS_CONTROL_ALLOW_METHODS = 'Access-Control-Allow-Methods';
     public const string ACCESS_CONTROL_ALLOW_HEADERS = 'Access-Control-Allow-Headers';
 
-    public function returnOrigin(Request $request): void
+    public function headers(Request $request): void
     {
         $originHeader = $request->getHeader('origin');
         $allowedOrigins = implode(', ', (array) config('cors->access_control_allow_origin', ['*']));

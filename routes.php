@@ -15,12 +15,12 @@ return [
             Response::ok(['status' => 'available']);
         }
     )->setMiddleware([
-                [CORSMiddleware::class, 'returnOrigin']
+                [CORSMiddleware::class, 'headers']
             ]),
 
     RouteGroup::register('/response')
         ->setMiddleware([
-            [CORSMiddleware::class, 'returnOrigin']
+            [CORSMiddleware::class, 'headers']
         ])
         ->bind(Route::register('/json', [ExampleController::class, 'jsonResponse']))
         ->bind(Route::register('/xml', [ExampleController::class, 'xmlResponse']))
@@ -28,7 +28,7 @@ return [
 
     RouteGroup::register('/users/{userId}')
         ->setMiddleware([
-            [CORSMiddleware::class, 'returnOrigin'],
+            [CORSMiddleware::class, 'headers'],
             [ExampleMiddleware::class, 'killSwitch']
         ])
         ->bind(Route::register('/', [ExampleController::class, 'getUser'])->setMethods(['GET']))
