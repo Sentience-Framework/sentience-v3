@@ -12,9 +12,9 @@ use Sentience\Database\Results\SQLiteResults;
 
 class SQLiteAdapter extends AdapterAbstract
 {
-    public const OPTIONS_READ_ONLY = 'READ_ONLY';
-    public const OPTIONS_ENCRYPTION_KEY = 'ENCRYPTION_KEY';
-    public const OPTIONS_BUSY_TIMEOUT = 'BUSY_TIMEOUT';
+    public const OPTIONS_READ_ONLY = 'sqlite3_read_only';
+    public const OPTIONS_ENCRYPTION_KEY = 'sqlite3_encryption_key';
+    public const OPTIONS_BUSY_TIMEOUT = 'sqlite3_busy_timeout';
 
     protected SQLite3 $sqlite;
     protected bool $inTransaction = false;
@@ -30,6 +30,18 @@ class SQLiteAdapter extends AdapterAbstract
         protected ?Closure $debug,
         protected array $options
     ) {
+        parent::__construct(
+            $driver,
+            $host,
+            $port,
+            $name,
+            $username,
+            $password,
+            $queries,
+            $debug,
+            $options
+        );
+
         $this->sqlite = new SQLite3(
             $name,
             ($options[static::OPTIONS_READ_ONLY] ?? false) ? SQLITE3_OPEN_READONLY : SQLITE3_OPEN_READWRITE,
@@ -38,7 +50,7 @@ class SQLiteAdapter extends AdapterAbstract
 
         $this->sqlite->createFunction(
             static::REGEXP_FUNCTION,
-            fn (string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
+            fn(string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
             static::REGEXP_FUNCTION_ARGUMENTS_COUNT
         );
 

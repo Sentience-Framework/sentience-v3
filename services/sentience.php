@@ -7,29 +7,16 @@ use Sentience\Helpers\Log;
 return new class () {
     public function database(): Database
     {
-        $driver = env('DB_DRIVER', '');
-        $host = env('DB_HOST', '');
-        $port = (int) env('DB_PORT', '');
-        $name = env('DB_NAME') ?? env('DB_FILE');
-        $username = env('DB_USERNAME', '');
-        $password = env('DB_PASSWORD', '');
-        $queries = env('DB_QUERIES', []);
-        $debug = env('DB_DEBUG', false);
-        $usePDO = env('DB_USE_PDO', false);
-
-        $env = env();
-
-        $options = [];
-
-        foreach ($env as $key => $value) {
-            if (!str_starts_with((string) $key, 'DB_')) {
-                continue;
-            }
-
-            $option = substr((string) $key, 3);
-
-            $options[$option] = $value;
-        }
+        $driver = config('database->driver', '');
+        $host = config("database->{$driver}->host", '');
+        $port = (int) config("database->{$driver}->port", '');
+        $name = config(["database->{$driver}->name", "database->{$driver}->file"], '');
+        $username = config("database->{$driver}->username", '');
+        $password = config("database->{$driver}->password", '');
+        $queries = config("database->{$driver}->queries", []);
+        $usePDO = config("database->{$driver}->use_pdo", false);
+        $debug = config('database->debug', false);
+        $options = config("database->{$driver}", []);
 
         return new Database(
             Driver::from($driver),

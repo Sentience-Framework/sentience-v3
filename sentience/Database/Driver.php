@@ -27,7 +27,7 @@ enum Driver: string
         string $password,
         array $queries,
         ?Closure $debug,
-        array $options,
+        array $options = [],
         bool $usePDOAdapter = false
     ): AdapterInterface {
         $adapter = !$usePDOAdapter
@@ -37,7 +37,7 @@ enum Driver: string
                 static::SQLITE => SQLiteAdapter::class,
                 default => PDOAdapter::class
             }
-        : PDOAdapter::class;
+            : PDOAdapter::class;
 
         return new $adapter(
             $this,

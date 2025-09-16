@@ -25,6 +25,18 @@ class PDOAdapter extends AdapterAbstract
         protected ?Closure $debug,
         protected array $options
     ) {
+        parent::__construct(
+            $driver,
+            $host,
+            $port,
+            $name,
+            $username,
+            $password,
+            $queries,
+            $debug,
+            $options
+        );
+
         $dsn = $driver == Driver::SQLITE
             ? sprintf(
                 '%s:%s',
@@ -65,7 +77,7 @@ class PDOAdapter extends AdapterAbstract
         if (method_exists($this->pdo, 'sqliteCreateFunction')) {
             $this->pdo->sqliteCreateFunction(
                 static::REGEXP_FUNCTION,
-                fn (string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
+                fn(string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
                 static::REGEXP_FUNCTION_ARGUMENTS_COUNT
             );
         }

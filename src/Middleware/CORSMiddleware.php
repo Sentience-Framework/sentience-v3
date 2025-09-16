@@ -16,14 +16,14 @@ class CORSMiddleware extends Middleware
     public function returnOrigin(Request $request): void
     {
         $originHeader = $request->getHeader('origin');
-        $originEnv = implode(', ', (array) env('ACCESS_CONTROL_ALLOW_ORIGIN', ['*']));
+        $allowedOrigins = implode(', ', (array) config('cors->access_control_allow_origin', ['*']));
 
-        $returnOrigin = env('ACCESS_CONTROL_RETURN_ORIGIN', true);
+        $returnOrigin = config('cors->access_control_return_origin', true);
 
-        $accessControlAllowOrigin = $returnOrigin && $originHeader ? $originHeader : $originEnv;
-        $accessControlAllowCredentials = env('ACCESS_CONTROL_ALLOW_CREDENTIALS', true) ? 'true' : 'false';
-        $accessControlAllowMethods = implode(', ', (array) env('ACCESS_CONTROL_ALLOW_METHODS', ['*']));
-        $accessControlAllowHeaders = implode(', ', (array) env('ACCESS_CONTROL_ALLOW_HEADERS', ['*']));
+        $accessControlAllowOrigin = $returnOrigin && $originHeader ? $originHeader : $allowedOrigins;
+        $accessControlAllowCredentials = config('cors->access_control_allow_credentials', true) ? 'true' : 'false';
+        $accessControlAllowMethods = implode(', ', (array) config('cors->access_control_allow_methods', ['*']));
+        $accessControlAllowHeaders = implode(', ', (array) config('cors->access_control_allow_headers', ['*']));
 
         Response::header(static::ACCESS_CONTROL_ALLOW_ORIGIN, $accessControlAllowOrigin);
         Response::header(static::ACCESS_CONTROL_ALLOW_CREDENTIALS, $accessControlAllowCredentials);

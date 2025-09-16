@@ -26,6 +26,18 @@ class MySQLiAdapter extends AdapterAbstract
         protected ?Closure $debug,
         protected array $options
     ) {
+        parent::__construct(
+            $driver,
+            $host,
+            $port,
+            $name,
+            $username,
+            $password,
+            $queries,
+            $debug,
+            $options
+        );
+
         $this->mysqli = new mysqli(
             $host,
             $username,

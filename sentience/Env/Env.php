@@ -8,17 +8,23 @@ class Env
 {
     protected static array $env = [];
 
-    public static function get(?string $key = null, mixed $default = null): mixed
+    public static function get(null|string|array $key = null, mixed $default = null): mixed
     {
         if (!$key) {
             return static::$env;
         }
 
-        if (!array_key_exists($key, static::$env)) {
-            return $default;
+        $keys = (array) $key;
+
+        foreach ($keys as $key) {
+            if (!array_key_exists($key, static::$env)) {
+                continue;
+            }
+
+            return static::$env[$key];
         }
 
-        return static::$env[$key];
+        return $default;
     }
 
     public static function set(string $key, mixed $value): mixed
@@ -143,7 +149,7 @@ class Env
         }
 
         return array_map(
-            fn (string $value): mixed => static::parseVariable($value, $parsedVariables),
+            fn(string $value): mixed => static::parseVariable($value, $parsedVariables),
             $matches[0]
         );
     }

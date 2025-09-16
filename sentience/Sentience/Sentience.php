@@ -109,7 +109,7 @@ class Sentience extends Singleton
 
         set_error_handler(
             function (int $s, string $m, string $f, int $l): bool {
-                if (!env('ERRORS_CATCH_NON_FATAL', true)) {
+                if (!config('sentience->errors->catch_non_fatal', true)) {
                     return true;
                 }
 
@@ -305,14 +305,14 @@ class Sentience extends Singleton
             sprintf('- Message : %s', $exception->getMessage())
         ];
 
-        if (env('ERRORS_STACK_TRACE', false)) {
+        if (config('sentience->errors->stack_trace', false)) {
             $lines[] = sprintf('- File    : %s', $exception->getFile());
             $lines[] = sprintf('- Line    : %d', $exception->getLine());
 
             $stackTrace = array_values(
                 array_filter(
                     $exception->getTrace(),
-                    fn (array $frame): bool => array_key_exists('file', $frame)
+                    fn(array $frame): bool => array_key_exists('file', $frame)
                 )
             );
 
@@ -330,7 +330,7 @@ class Sentience extends Singleton
                     $args = implode(
                         ', ',
                         array_map(
-                            fn (mixed $arg): string => get_debug_type($arg),
+                            fn(mixed $arg): string => get_debug_type($arg),
                             $frame['args'] ?? []
                         )
                     );
@@ -361,7 +361,7 @@ class Sentience extends Singleton
             ]
         ];
 
-        if (env('ERRORS_STACK_TRACE', false)) {
+        if (onfig('sentience->errors->stack_trace', false)) {
             $response['error']['file'] = $exception->getFile();
             $response['error']['line'] = $exception->getLine();
 
@@ -381,7 +381,7 @@ class Sentience extends Singleton
                                 : $frame['function'];
 
                             $args = array_map(
-                                fn (mixed $arg): string => get_debug_type($arg),
+                                fn(mixed $arg): string => get_debug_type($arg),
                                 $frame['args'] ?? []
                             );
 
@@ -408,7 +408,7 @@ class Sentience extends Singleton
     protected function cliNotFound(Argv $argv): void
     {
         $lines = array_map(
-            fn (Command $command): string => sprintf('- %s', $command->command),
+            fn(Command $command): string => sprintf('- %s', $command->command),
             $this->cliRouter->commands
         );
 

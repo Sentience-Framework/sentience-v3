@@ -17,7 +17,7 @@ class Request extends Singleton
         $method = strtoupper((string) $_SERVER['REQUEST_METHOD']);
         $headers = array_change_key_case(getallheaders(), CASE_LOWER);
         $queryString = (string) strtok($_SERVER['QUERY_STRING'] ?? '', '#');
-        $queryParams = UrlEncoding::decode($queryString, false);
+        $queryParams = UrlEncoding::decode($queryString, config('sentience->requests->unique_query_params'));
         $cookies = $_COOKIE;
         $body = file_get_contents('php://input');
 

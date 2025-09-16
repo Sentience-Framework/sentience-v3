@@ -22,8 +22,8 @@ class SentienceController extends Controller
     {
         $dir = escapeshellarg(Filesystem::path(SENTIENCE_DIR, 'public'));
         $bin = escapeshellarg(defined(PHP_BINARY) ? PHP_BINARY : 'php');
-        $host = env('SERVER_HOST', 'localhost');
-        $port = env('SERVER_PORT', 8000);
+        $host = config('sentience->server->host', 'localhost');
+        $port = config('sentience->server->port', 8000);
 
         $command = sprintf('cd %s && %s -S %s:%d', $dir, $bin, $host, $port);
 

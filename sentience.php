@@ -1,5 +1,6 @@
 <?php
 
+use Sentience\Config\Config;
 use Sentience\Env\Env;
 use Sentience\Helpers\Filesystem;
 use Sentience\Sentience\Sentience;
@@ -16,8 +17,11 @@ Env::loadFile(
     ['SENTIENCE_DIR' => SENTIENCE_DIR]
 );
 
+Config::loadDirectory(Filesystem::path(SENTIENCE_DIR, 'config'));
+
 $commands = require Filesystem::path(SENTIENCE_DIR, 'commands.php');
 $routes = require Filesystem::path(SENTIENCE_DIR, 'routes.php');
+$services = Filesystem::scandir(Filesystem::path(SENTIENCE_DIR, 'services'));
 
 $sentience = Sentience::getInstance();
 
@@ -29,8 +33,8 @@ foreach ($routes as $route) {
     $sentience->bindRoute($route);
 }
 
-$sentience->bindService(
-    include Filesystem::path(SENTIENCE_DIR, 'service.php')
-);
+foreach ($services as $service) {
+    $sentience->bindService(include $service);
+}
 
 $sentience->execute();
