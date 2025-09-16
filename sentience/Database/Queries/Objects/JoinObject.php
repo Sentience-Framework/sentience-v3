@@ -6,7 +6,7 @@ use Sentience\Database\Queries\Enums\JoinEnum;
 
 class JoinObject
 {
-    public string|array|Raw $joinTable;
+    public string|array|RawObject $joinTable;
     public ?string $joinTableAlias = null;
 
     public function __construct(
