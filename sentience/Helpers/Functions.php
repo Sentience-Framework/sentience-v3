@@ -1,7 +1,5 @@
 <?php
 
-
-
 use Sentience\Env\Env;
 
 function env(?string $key = null, mixed $default = null): mixed

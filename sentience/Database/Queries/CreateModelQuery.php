@@ -43,12 +43,13 @@ class CreateModelQuery extends ModelsQueryAbstract
 
             $column = $reflectionModelProperty->getColumn();
             $columnType = $reflectionModelProperty->getColumnType($this->dialect);
+            $defaultValue = $this->value($propertyDefaultValue);
 
             $query->column(
                 $column,
                 $columnType,
                 !$propertyAllowsNull,
-                $propertyDefaultValue,
+                $defaultValue,
                 $propertyHasAutoIncrementAttribute
             );
         }

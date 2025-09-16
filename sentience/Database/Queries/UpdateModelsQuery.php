@@ -45,7 +45,7 @@ class UpdateModelsQuery extends ModelsQueryAbstract
                 $column = $reflectionModelProperty->getColumn();
                 $value = $model->{$property};
 
-                $values[$column] = $value;
+                $values[$column] = $this->value($value);
 
                 if ($reflectionModelProperty->isPrimaryKey()) {
                     $updateQuery->whereEquals($column, $value);

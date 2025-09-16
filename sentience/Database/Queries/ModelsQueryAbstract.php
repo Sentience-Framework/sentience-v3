@@ -83,4 +83,13 @@ abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
 
         return $model;
     }
+
+    protected function value(mixed $value): mixed
+    {
+        if (is_subclass_of($value, BackedEnum::class)) {
+            return $value->value;
+        }
+
+        return $value;
+    }
 }

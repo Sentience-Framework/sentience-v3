@@ -38,7 +38,7 @@ class DeleteModelsQuery extends ModelsQueryAbstract
 
                 $property = $reflectionModelProperty->getProperty();
                 $column = $reflectionModelProperty->getColumn();
-                $value = $model->{$property};
+                $value = $this->value($model->{$property});
 
                 if ($reflectionModelProperty->isPrimaryKey()) {
                     $deleteQuery->whereEquals($column, $value);
