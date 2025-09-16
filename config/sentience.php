@@ -14,6 +14,6 @@ return [
     ],
     'server' => [
         'host' => env('SERVER_HOST', 'localhost'),
-        'port' => env('SERVER_PORT', 8000),
+        'port' => env('SERVER_PORT', 8000)
     ]
 ];

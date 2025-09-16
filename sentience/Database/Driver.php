@@ -37,7 +37,7 @@ enum Driver: string
                 static::SQLITE => SQLiteAdapter::class,
                 default => PDOAdapter::class
             }
-            : PDOAdapter::class;
+        : PDOAdapter::class;
 
         return new $adapter(
             $this,

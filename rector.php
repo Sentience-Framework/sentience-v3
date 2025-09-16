@@ -6,7 +6,6 @@ use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 
 return RectorConfig::configure()
     ->withPaths([
-        __DIR__ . '/docs',
         __DIR__ . '/public',
         __DIR__ . '/sentience.php',
         __DIR__ . '/src',

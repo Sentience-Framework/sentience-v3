@@ -37,7 +37,7 @@ return [
          */
         'sqlite3_read_only' => env('DB_READ_ONLY', false),
         'sqlite3_encryption_key' => env('DB_ENCRYPTION_KEY', ''),
-        'sqlite3_busy_timeout' => env('DB_BUSY_TIMEOUT', 100),
+        'sqlite3_busy_timeout' => env('DB_BUSY_TIMEOUT', 100)
     ],
-    'debug' => env('DB_DEBUG', false),
+    'debug' => env('DB_DEBUG', false)
 ];

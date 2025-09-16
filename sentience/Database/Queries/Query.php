@@ -6,7 +6,6 @@ use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Objects\AliasObject;
 use Sentience\Database\Queries\Objects\RawObject;
-use Sentience\Database\Queries\Objects\TableWithColumnObject;
 use Sentience\Helpers\Strings;
 use Sentience\Timestamp\Timestamp;
 
