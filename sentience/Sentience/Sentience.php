@@ -361,7 +361,7 @@ class Sentience extends Singleton
             ]
         ];
 
-        if (onfig('sentience->errors->stack_trace', false)) {
+        if (config('sentience->errors->stack_trace', false)) {
             $response['error']['file'] = $exception->getFile();
             $response['error']['line'] = $exception->getLine();
 
