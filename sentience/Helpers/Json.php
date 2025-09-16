@@ -26,7 +26,7 @@ class Json
 
     protected static function checkError(): void
     {
-        if (json_last_error() == JSON_ERROR_NONE) {
+        if (json_last_error() != JSON_ERROR_NONE) {
             throw new JsonException(json_last_error_msg());
         }
     }
