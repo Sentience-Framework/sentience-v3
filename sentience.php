@@ -23,7 +23,7 @@ $commands = require Filesystem::path(SENTIENCE_DIR, 'commands.php');
 $routes = require Filesystem::path(SENTIENCE_DIR, 'routes.php');
 $services = Filesystem::scandir(Filesystem::path(SENTIENCE_DIR, 'services'));
 
-$sentience = Sentience::getInstance();
+$sentience = new Sentience();
 
 foreach ($commands as $command) {
     $sentience->bindCommand($command);

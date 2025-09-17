@@ -98,7 +98,7 @@ class DependencyInjector
             }
 
             if ($this->isSingleton($functionParameter)) {
-                $parameters[$name] = $this->createSingletonInstance($functionParameter);
+                $parameters[$name] = $this->getSingletonInstance($functionParameter);
 
                 continue;
             }
@@ -130,7 +130,7 @@ class DependencyInjector
         return is_subclass_of($type, Singleton::class);
     }
 
-    protected function createSingletonInstance(ReflectionParameter $reflectionParameter): Singleton
+    protected function getSingletonInstance(ReflectionParameter $reflectionParameter): Singleton
     {
         $type = $this->getType($reflectionParameter);
 

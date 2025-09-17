@@ -3,14 +3,13 @@
 namespace Sentience\Sentience;
 
 use SimpleXMLElement;
-use Sentience\Abstracts\Singleton;
 use Sentience\Helpers\Json;
 use Sentience\Helpers\UrlEncoding;
 use Sentience\Helpers\Xml;
 
-class Request extends Singleton
+class Request
 {
-    protected static function createInstance(): static
+    public static function createFromSuperGlobals(): static
     {
         $url = (array_key_exists('HTTPS', $_SERVER) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $path = (string) strtok($_SERVER['REQUEST_URI'], '?');

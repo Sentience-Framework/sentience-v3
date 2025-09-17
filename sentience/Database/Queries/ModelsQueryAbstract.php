@@ -8,7 +8,6 @@ use DateTimeImmutable;
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Exceptions\QueryException;
-use Sentience\Helpers\Arrays;
 use Sentience\Models\Model;
 use Sentience\Models\Reflection\ReflectionModel;
 use Sentience\Timestamp\Timestamp;
@@ -19,7 +18,7 @@ abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
     {
         parent::__construct($database, $dialect);
 
-        if (Arrays::empty($models)) {
+        if (count($models) == 0) {
             throw new QueryException('array of models is empty');
         }
     }

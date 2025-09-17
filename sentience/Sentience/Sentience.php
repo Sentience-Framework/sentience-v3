@@ -9,7 +9,6 @@ use ReflectionMethod;
 use Throwable;
 use Sentience\Abstracts\Controller;
 use Sentience\Abstracts\Middleware;
-use Sentience\Abstracts\Singleton;
 use Sentience\Exceptions\CallbackException;
 use Sentience\Exceptions\DeprecatedException;
 use Sentience\Exceptions\FatalErrorException;
@@ -23,7 +22,7 @@ use Sentience\Routers\HttpRouter;
 use Sentience\Routers\Route;
 use Sentience\Routers\RouteGroup;
 
-class Sentience extends Singleton
+class Sentience
 {
     protected CliRouter $cliRouter;
     protected HttpRouter $httpRouter;
@@ -143,7 +142,7 @@ class Sentience extends Singleton
 
     protected function executeCli(): void
     {
-        $argv = Argv::getInstance();
+        $argv = Argv::createFromArgv();
 
         [$command, $words, $flags] = $this->cliRouter->match($argv);
 
@@ -158,7 +157,7 @@ class Sentience extends Singleton
 
     protected function executeHttp(): void
     {
-        $request = Request::getInstance();
+        $request = Request::createFromSuperGlobals();
 
         [$route, $pathVars, $statusCode] = $this->httpRouter->match($request);
 
