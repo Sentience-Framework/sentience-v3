@@ -4,7 +4,7 @@ namespace Sentience\Database\Queries\Traits;
 
 use DateTimeInterface;
 use Sentience\Database\Queries\Enums\ChainEnum;
-use Sentience\Database\Queries\Enums\OperatorEnum;
+use Sentience\Database\Queries\Enums\ConditionEnum;
 use Sentience\Database\Queries\Objects\Condition;
 use Sentience\Database\Queries\Objects\ConditionGroup;
 use Sentience\Database\Queries\Query;
@@ -255,28 +255,28 @@ trait WhereTrait
 
     protected function equals(string|array $column, mixed $value, ChainEnum $chain): static
     {
-        $this->addCondition(OperatorEnum::EQUALS, $column, $value, $chain);
+        $this->addCondition(ConditionEnum::EQUALS, $column, $value, $chain);
 
         return $this;
     }
 
     protected function notEquals(string|array $column, mixed $value, ChainEnum $chain): static
     {
-        $this->addCondition(OperatorEnum::NOT_EQUALS, $column, $value, $chain);
+        $this->addCondition(ConditionEnum::NOT_EQUALS, $column, $value, $chain);
 
         return $this;
     }
 
     protected function like(string|array $column, string $value, ChainEnum $chain): static
     {
-        $this->addCondition(OperatorEnum::LIKE, $column, $value, $chain);
+        $this->addCondition(ConditionEnum::LIKE, $column, $value, $chain);
 
         return $this;
     }
 
     protected function notLike(string|array $column, string $value, ChainEnum $chain): static
     {
-        $this->addCondition(OperatorEnum::NOT_LIKE, $column, $value, $chain);
+        $this->addCondition(ConditionEnum::NOT_LIKE, $column, $value, $chain);
 
         return $this;
     }
@@ -311,70 +311,70 @@ trait WhereTrait
 
     protected function in(string|array $column, array $values, ChainEnum $chain): static
     {
-        $this->addCondition(OperatorEnum::IN, $column, $values, $chain);
+        $this->addCondition(ConditionEnum::IN, $column, $values, $chain);
 
         return $this;
     }
 
     protected function notIn(string|array $column, array $values, ChainEnum $chain): static
     {
-        $this->addCondition(OperatorEnum::NOT_IN, $column, $values, $chain);
+        $this->addCondition(ConditionEnum::NOT_IN, $column, $values, $chain);
 
         return $this;
     }
 
     protected function lessThan(string|array $column, int|float|string|DateTimeInterface $value, ChainEnum $chain): static
     {
-        $this->addCondition(OperatorEnum::LESS_THAN, $column, $value, $chain);
+        $this->addCondition(ConditionEnum::LESS_THAN, $column, $value, $chain);
 
         return $this;
     }
 
     protected function lessThanOrEquals(string|array $column, int|float|string|DateTimeInterface $value, ChainEnum $chain): static
     {
-        $this->addCondition(OperatorEnum::LESS_THAN_OR_EQUALS, $column, $value, $chain);
+        $this->addCondition(ConditionEnum::LESS_THAN_OR_EQUALS, $column, $value, $chain);
 
         return $this;
     }
 
     protected function greaterThan(string|array $column, int|float|string|DateTimeInterface $value, ChainEnum $chain): static
     {
-        $this->addCondition(OperatorEnum::GREATER_THAN, $column, $value, $chain);
+        $this->addCondition(ConditionEnum::GREATER_THAN, $column, $value, $chain);
 
         return $this;
     }
 
     protected function greaterThanOrEquals(string|array $column, int|float|string|DateTimeInterface $value, ChainEnum $chain): static
     {
-        $this->addCondition(OperatorEnum::GREATER_THAN_OR_EQUALS, $column, $value, $chain);
+        $this->addCondition(ConditionEnum::GREATER_THAN_OR_EQUALS, $column, $value, $chain);
 
         return $this;
     }
 
     protected function between(string|array $column, int|float|string|DateTimeInterface $min, int|float|string|DateTimeInterface $max, ChainEnum $chain): static
     {
-        $this->addCondition(OperatorEnum::BETWEEN, $column, [$min, $max], $chain);
+        $this->addCondition(ConditionEnum::BETWEEN, $column, [$min, $max], $chain);
 
         return $this;
     }
 
     protected function notBetween(string|array $column, int|float|string|DateTimeInterface $min, int|float|string|DateTimeInterface $max, ChainEnum $chain): static
     {
-        $this->addCondition(OperatorEnum::NOT_BETWEEN, $column, [$min, $max], $chain);
+        $this->addCondition(ConditionEnum::NOT_BETWEEN, $column, [$min, $max], $chain);
 
         return $this;
     }
 
     protected function isNull(string|array $column, ChainEnum $chain): static
     {
-        $this->addCondition(OperatorEnum::EQUALS, $column, null, $chain);
+        $this->addCondition(ConditionEnum::EQUALS, $column, null, $chain);
 
         return $this;
     }
 
     protected function isNotNull(string|array $column, ChainEnum $chain): static
     {
-        $this->addCondition(OperatorEnum::NOT_EQUALS, $column, null, $chain);
+        $this->addCondition(ConditionEnum::NOT_EQUALS, $column, null, $chain);
 
         return $this;
     }
@@ -403,14 +403,14 @@ trait WhereTrait
 
     protected function regex(string|array $column, string $pattern, ChainEnum $chain): static
     {
-        $this->addCondition(OperatorEnum::REGEX, $column, $pattern, $chain);
+        $this->addCondition(ConditionEnum::REGEX, $column, $pattern, $chain);
 
         return $this;
     }
 
     protected function notRegex(string|array $column, string $pattern, ChainEnum $chain): static
     {
-        $this->addCondition(OperatorEnum::NOT_REGEX, $column, $pattern, $chain);
+        $this->addCondition(ConditionEnum::NOT_REGEX, $column, $pattern, $chain);
 
         return $this;
     }
@@ -436,14 +436,14 @@ trait WhereTrait
 
     protected function rawExpression(string $expression, array $values, ChainEnum $chain): static
     {
-        $this->addCondition(OperatorEnum::RAW, $expression, $values, $chain);
+        $this->addCondition(ConditionEnum::RAW, $expression, $values, $chain);
 
         return $this;
     }
 
-    protected function addCondition(OperatorEnum $type, string|array $query, mixed $value, ChainEnum $chain): void
+    protected function addCondition(ConditionEnum $condition, string|array $query, mixed $value, ChainEnum $chain): void
     {
-        $this->where[] = new Condition($type, $query, $value, $chain);
+        $this->where[] = new Condition($condition, $query, $value, $chain);
     }
 
     protected function addConditionGroup(ConditionGroup $conditionGroup): void

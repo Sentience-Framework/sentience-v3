@@ -2,7 +2,7 @@
 
 namespace Sentience\Database\Queries\Enums;
 
-enum OperatorEnum: string
+enum ConditionEnum: string
 {
     case EQUALS = '=';
     case NOT_EQUALS = '<>';

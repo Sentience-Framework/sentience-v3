@@ -6,7 +6,7 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Sentience\Database\Exceptions\QueryException;
-use Sentience\Database\Queries\Enums\OperatorEnum;
+use Sentience\Database\Queries\Enums\ConditionEnum;
 use Sentience\Database\Queries\Objects\AddColumn;
 use Sentience\Database\Queries\Objects\AddForeignKeyConstraint;
 use Sentience\Database\Queries\Objects\AddPrimaryKeys;
@@ -421,7 +421,7 @@ class SQLDialect implements DialectInterface
             $query .= sprintf(' %s ', $condition->chain->value);
         }
 
-        if ($condition->type == OperatorEnum::RAW) {
+        if ($condition->condition == ConditionEnum::RAW) {
             $query .= sprintf('(%s)', $condition->expression);
 
             array_push($params, ...$condition->value);
@@ -433,17 +433,17 @@ class SQLDialect implements DialectInterface
             $query .= sprintf(
                 '%s %s',
                 $this->escapeIdentifier($condition->expression),
-                $condition->type == OperatorEnum::EQUALS ? 'IS NULL' : 'IS NOT NULL'
+                $condition->condition == ConditionEnum::EQUALS ? 'IS NULL' : 'IS NOT NULL'
             );
 
             return;
         }
 
-        if (in_array($condition->type, [OperatorEnum::BETWEEN, OperatorEnum::NOT_BETWEEN])) {
+        if (in_array($condition->condition, [ConditionEnum::BETWEEN, ConditionEnum::NOT_BETWEEN])) {
             $query .= sprintf(
                 '%s %s ? AND ?',
                 $this->escapeIdentifier($condition->expression),
-                $condition->type->value,
+                $condition->condition->value,
                 $condition->value[0],
                 $condition->value[1]
             );
@@ -455,7 +455,7 @@ class SQLDialect implements DialectInterface
 
         if (is_array($condition->value)) {
             if (count($condition->value) == 0) {
-                $query .= $condition->type == OperatorEnum::IN ? '1 <> 1' : '1 = 1';
+                $query .= $condition->condition == ConditionEnum::IN ? '1 <> 1' : '1 = 1';
 
                 return;
             }
@@ -463,7 +463,7 @@ class SQLDialect implements DialectInterface
             $query .= sprintf(
                 '%s %s (%s)',
                 $this->escapeIdentifier($condition->expression),
-                $condition->type->value,
+                $condition->condition->value,
                 implode(', ', array_fill(0, count($condition->value), '?'))
             );
 
@@ -472,11 +472,11 @@ class SQLDialect implements DialectInterface
             return;
         }
 
-        if (in_array($condition->type, [OperatorEnum::REGEX, OperatorEnum::NOT_REGEX])) {
+        if (in_array($condition->condition, [ConditionEnum::REGEX, ConditionEnum::NOT_REGEX])) {
             $query .= sprintf(
                 '%s %s ?',
                 $this->escapeIdentifier($condition->expression),
-                $condition->type == OperatorEnum::REGEX ? $this::REGEX_FUNCTION : $this::NOT_REGEX_FUNCTION
+                $condition->condition == ConditionEnum::REGEX ? $this::REGEX_FUNCTION : $this::NOT_REGEX_FUNCTION
             );
 
             array_push($params, $condition->value);
@@ -487,7 +487,7 @@ class SQLDialect implements DialectInterface
         $query .= sprintf(
             '%s %s ?',
             $this->escapeIdentifier($condition->expression),
-            $condition->type->value
+            $condition->condition->value
         );
 
         array_push($params, $condition->value);
