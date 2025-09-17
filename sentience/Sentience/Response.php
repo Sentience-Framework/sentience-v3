@@ -78,52 +78,52 @@ class Response
         setcookie($key, $value, ['expires' => $expiresOrOptions, 'path' => $path, 'domain' => $domain, 'secure' => $secure, 'httponly' => $httpOnly]);
     }
 
-    public static function ok(mixed $content = null, string $encoding = 'default'): void
+    public static function ok(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::OK, $content, $encoding);
     }
 
-    public static function created(mixed $content = null, string $encoding = 'default'): void
+    public static function created(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::CREATED, $content, $encoding);
     }
 
-    public static function accepted(mixed $content = null, string $encoding = 'default'): void
+    public static function accepted(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::ACCEPTED, $content, $encoding);
     }
 
-    public static function nonAuthoritativeInformation(mixed $content = null, string $encoding = 'default'): void
+    public static function nonAuthoritativeInformation(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::NON_AUTHORITATIVE_INFORMATION, $content, $encoding);
     }
 
-    public static function noContent(mixed $content = null, string $encoding = 'default'): void
+    public static function noContent(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::NO_CONTENT, $content, $encoding);
     }
 
-    public static function resetContent(mixed $content = null, string $encoding = 'default'): void
+    public static function resetContent(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::RESET_CONTENT, $content, $encoding);
     }
 
-    public static function partialContent(mixed $content = null, string $encoding = 'default'): void
+    public static function partialContent(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::PARTIAL_CONTENT, $content, $encoding);
     }
 
-    public static function multiStatus(mixed $content = null, string $encoding = 'default'): void
+    public static function multiStatus(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::MULTI_STATUS, $content, $encoding);
     }
 
-    public static function alreadyReported(mixed $content = null, string $encoding = 'default'): void
+    public static function alreadyReported(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::ALREADY_REPORTED, $content, $encoding);
     }
 
-    public static function imUsed(mixed $content = null, string $encoding = 'default'): void
+    public static function imUsed(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::IM_USED, $content, $encoding);
     }
@@ -163,202 +163,202 @@ class Response
         static::redirect(static::PERMANENT_REDIRECT, $url);
     }
 
-    public static function badRequest(mixed $content = null, string $encoding = 'default'): void
+    public static function badRequest(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::BAD_REQUEST, $content, $encoding);
     }
 
-    public static function unauthorized(mixed $content = null, string $encoding = 'default'): void
+    public static function unauthorized(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::UNAUTHORIZED, $content, $encoding);
     }
 
-    public static function paymentRequired(mixed $content = null, string $encoding = 'default'): void
+    public static function paymentRequired(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::PAYMENT_REQUIRED, $content, $encoding);
     }
 
-    public static function forbidden(mixed $content = null, string $encoding = 'default'): void
+    public static function forbidden(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::FORBIDDEN, $content, $encoding);
     }
 
-    public static function notFound(mixed $content = null, string $encoding = 'default'): void
+    public static function notFound(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::NOT_FOUND, $content, $encoding);
     }
 
-    public static function methodNotAllowed(mixed $content = null, string $encoding = 'default'): void
+    public static function methodNotAllowed(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::METHOD_NOT_ALLOWED, $content, $encoding);
     }
 
-    public static function notAcceptable(mixed $content = null, string $encoding = 'default'): void
+    public static function notAcceptable(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::NOT_ACCEPTABLE, $content, $encoding);
     }
 
-    public static function proxyAuthenticationRequired(mixed $content = null, string $encoding = 'default'): void
+    public static function proxyAuthenticationRequired(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::PROXY_AUTHENTICATION_REQUIRED, $content, $encoding);
     }
 
-    public static function requestTimeout(mixed $content = null, string $encoding = 'default'): void
+    public static function requestTimeout(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::REQUEST_TIMEOUT, $content, $encoding);
     }
 
-    public static function conflict(mixed $content = null, string $encoding = 'default'): void
+    public static function conflict(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::CONFLICT, $content, $encoding);
     }
 
-    public static function gone(mixed $content = null, string $encoding = 'default'): void
+    public static function gone(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::GONE, $content, $encoding);
     }
 
-    public static function lengthRequired(mixed $content = null, string $encoding = 'default'): void
+    public static function lengthRequired(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::LENGTH_REQUIRED, $content, $encoding);
     }
 
-    public static function preconditionFailed(mixed $content = null, string $encoding = 'default'): void
+    public static function preconditionFailed(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::PRECONDITION_FAILED, $content, $encoding);
     }
 
-    public static function payloadTooLarge(mixed $content = null, string $encoding = 'default'): void
+    public static function payloadTooLarge(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::PAYLOAD_TOO_LARGE, $content, $encoding);
     }
 
-    public static function uriTooLong(mixed $content = null, string $encoding = 'default'): void
+    public static function uriTooLong(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::URI_TOO_LONG, $content, $encoding);
     }
 
-    public static function unsupportedMediaType(mixed $content = null, string $encoding = 'default'): void
+    public static function unsupportedMediaType(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::UNSUPPORTED_MEDIA_TYPE, $content, $encoding);
     }
 
-    public static function rangeNotSatisfiable(mixed $content = null, string $encoding = 'default'): void
+    public static function rangeNotSatisfiable(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::RANGE_NOT_SATISFIABLE, $content, $encoding);
     }
 
-    public static function expectationFailed(mixed $content = null, string $encoding = 'default'): void
+    public static function expectationFailed(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::EXPECTATION_FAILED, $content, $encoding);
     }
 
-    public static function teapot(mixed $content = null, string $encoding = 'default'): void
+    public static function teapot(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::TEAPOT, $content, $encoding);
     }
 
-    public static function misdirectedRequest(mixed $content = null, string $encoding = 'default'): void
+    public static function misdirectedRequest(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::MISDIRECTED_REQUEST, $content, $encoding);
     }
 
-    public static function unprocessableContent(mixed $content = null, string $encoding = 'default'): void
+    public static function unprocessableContent(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::UNPROCESSABLE_CONTENT, $content, $encoding);
     }
 
-    public static function locked(mixed $content = null, string $encoding = 'default'): void
+    public static function locked(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::LOCKED, $content, $encoding);
     }
 
-    public static function failedDependency(mixed $content = null, string $encoding = 'default'): void
+    public static function failedDependency(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::FAILED_DEPENDENCY, $content, $encoding);
     }
 
-    public static function tooEarly(mixed $content = null, string $encoding = 'default'): void
+    public static function tooEarly(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::TOO_EARLY, $content, $encoding);
     }
 
-    public static function upgradeRequired(mixed $content = null, string $encoding = 'default'): void
+    public static function upgradeRequired(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::UPGRADE_REQUIRED, $content, $encoding);
     }
 
-    public static function preconditionRequired(mixed $content = null, string $encoding = 'default'): void
+    public static function preconditionRequired(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::PRECONDITION_REQUIRED, $content, $encoding);
     }
 
-    public static function tooManyRequests(mixed $content = null, string $encoding = 'default'): void
+    public static function tooManyRequests(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::TOO_MANY_REQUESTS, $content, $encoding);
     }
 
-    public static function requestHeaderFieldsTooLarge(mixed $content = null, string $encoding = 'default'): void
+    public static function requestHeaderFieldsTooLarge(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::REQUEST_HEADER_FIELDS_TOO_LARGE, $content, $encoding);
     }
 
-    public static function unavailableForLegalReasons(mixed $content = null, string $encoding = 'default'): void
+    public static function unavailableForLegalReasons(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::UNAVAILABLE_FOR_LEGAL_REASONS, $content, $encoding);
     }
 
-    public static function internalServerError(mixed $content = null, string $encoding = 'default'): void
+    public static function internalServerError(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::INTERNAL_SERVER_ERROR, $content, $encoding);
     }
 
-    public static function notImplemented(mixed $content = null, string $encoding = 'default'): void
+    public static function notImplemented(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::NOT_IMPLEMENTED, $content, $encoding);
     }
 
-    public static function badGateway(mixed $content = null, string $encoding = 'default'): void
+    public static function badGateway(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::BAD_GATEWAY, $content, $encoding);
     }
 
-    public static function serviceUnavailable(mixed $content = null, string $encoding = 'default'): void
+    public static function serviceUnavailable(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::SERVICE_UNAVAILABLE, $content, $encoding);
     }
 
-    public static function gatewayTimeout(mixed $content = null, string $encoding = 'default'): void
+    public static function gatewayTimeout(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::GATEWAY_TIMEOUT, $content, $encoding);
     }
 
-    public static function httpVersionNotSupported(mixed $content = null, string $encoding = 'default'): void
+    public static function httpVersionNotSupported(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::HTTP_VERSION_NOT_SUPPORTED, $content, $encoding);
     }
 
-    public static function variantAlsoNegotiates(mixed $content = null, string $encoding = 'default'): void
+    public static function variantAlsoNegotiates(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::VARIANT_ALSO_NEGOTIATES, $content, $encoding);
     }
 
-    public static function insufficientStorage(mixed $content = null, string $encoding = 'default'): void
+    public static function insufficientStorage(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::INSUFFICIENT_STORAGE, $content, $encoding);
     }
 
-    public static function loopDetected(mixed $content = null, string $encoding = 'default'): void
+    public static function loopDetected(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::LOOP_DETECTED, $content, $encoding);
     }
 
-    public static function notExtended(mixed $content = null, string $encoding = 'default'): void
+    public static function notExtended(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::NOT_EXTENDED, $content, $encoding);
     }
 
-    public static function networkAuthenticationRequired(mixed $content = null, string $encoding = 'default'): void
+    public static function networkAuthenticationRequired(mixed $content = null, ?string $encoding = null): void
     {
         static::respond(static::NETWORK_AUTHENTICATION_REQUIRED, $content, $encoding);
     }
@@ -367,7 +367,7 @@ class Response
     {
         http_response_code($statusCode);
 
-        header('Content-Type: ' . $contentType);
+        static::header('Content-Type', $contentType);
 
         echo $content;
 
@@ -378,17 +378,17 @@ class Response
     {
         http_response_code($statusCode);
 
-        header(sprintf('Location: %s', $url));
+        static::header('Location', $url);
 
         exit;
     }
 
-    protected static function respond(int $statusCode, mixed $content, string $encoding): void
+    protected static function respond(int $statusCode, mixed $content, ?string $encoding): void
     {
         http_response_code($statusCode);
 
         if (is_null($content)) {
-            header('Content-Type: ');
+            static::header('Content-Type', '');
 
             echo '';
 
@@ -396,19 +396,17 @@ class Response
         }
 
         if (is_scalar($content)) {
-            header('Content-Type: text/plain');
+            static::header('Content-Type', 'text/plain');
 
             echo strval($content);
 
             exit;
         }
 
-        $encoding = !in_array($encoding, ['json', 'xml', 'url'])
-            ? config('sentience->encoding->default')
-            : $encoding;
+        $encoding ??= config('sentience->encoding->default');
 
         if ($encoding == 'json') {
-            header('Content-Type: application/json');
+            static::header('Content-Type', 'application/json');
 
             echo Json::encode($content);
 
@@ -416,7 +414,7 @@ class Response
         }
 
         if ($encoding == 'xml') {
-            header('Content-Type: text/xml');
+            static::header('Content-Type', 'text/xml');
 
             echo Xml::encode(
                 $content,
@@ -433,13 +431,13 @@ class Response
         }
 
         if ($encoding == 'url') {
-            header('Content-Type: application/x-www-form-urlencoded');
+            static::header('Content-Type', 'application/x-www-form-urlencoded');
 
             echo UrlEncoding::encode($content);
 
             exit;
         }
 
-        throw new EncodingException('unknown default encoding %s', $encoding);
+        throw new EncodingException('unknown encoding %s', (string) $encoding);
     }
 }
