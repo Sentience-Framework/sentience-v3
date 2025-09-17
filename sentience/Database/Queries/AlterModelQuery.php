@@ -71,7 +71,7 @@ class AlterModelQuery extends ModelsQueryAbstract
             $propertyHasAutoIncrementAttribute = $reflectionModelProperty->isAutoIncrement();
 
             $columnType = $reflectionModelProperty->getColumnType($this->dialect);
-            $defaultValue = $this->value($propertyDefaultValue);
+            $defaultValue = $this->getValueIfBackedEnum($propertyDefaultValue);
 
             $query->addColumn(
                 $column,

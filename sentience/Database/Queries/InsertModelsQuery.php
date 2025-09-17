@@ -41,7 +41,7 @@ class InsertModelsQuery extends ModelsQueryAbstract
                 $property = $reflectionModelProperty->getProperty();
                 $column = $reflectionModelProperty->getColumn();
 
-                $values[$column] = $this->value($model->{$property});
+                $values[$column] = $this->getValueIfBackedEnum($model->{$property});
 
                 if ($reflectionModelProperty->isPrimaryKey() && $reflectionModelProperty->isAutoIncrement()) {
                     $autoIncrementPrimaryKeyColumn = $column;

@@ -43,7 +43,7 @@ class CreateModelQuery extends ModelsQueryAbstract
 
             $column = $reflectionModelProperty->getColumn();
             $columnType = $reflectionModelProperty->getColumnType($this->dialect);
-            $defaultValue = $this->value($propertyDefaultValue);
+            $defaultValue = $this->getValueIfBackedEnum($propertyDefaultValue);
 
             $query->column(
                 $column,

@@ -45,7 +45,7 @@ class UpdateModelsQuery extends ModelsQueryAbstract
                 $column = $reflectionModelProperty->getColumn();
                 $value = $model->{$property};
 
-                $values[$column] = $this->value($value);
+                $values[$column] = $this->getValueIfBackedEnum($value);
 
                 if ($reflectionModelProperty->isPrimaryKey()) {
                     $updateQuery->whereEquals($column, $value);
