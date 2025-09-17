@@ -42,7 +42,7 @@ class Config
         return static::$config[$key] = $value;
     }
 
-    public static function loadDirectory(string $path): void
+    public static function loadFiles(string $path): void
     {
         $configs = Filesystem::scandir($path);
 

@@ -17,7 +17,7 @@ Env::loadFile(
     ['SENTIENCE_DIR' => SENTIENCE_DIR]
 );
 
-Config::loadDirectory(Filesystem::path(SENTIENCE_DIR, 'config'));
+Config::loadFiles(Filesystem::path(SENTIENCE_DIR, 'config'));
 
 $commands = require Filesystem::path(SENTIENCE_DIR, 'commands.php');
 $routes = require Filesystem::path(SENTIENCE_DIR, 'routes.php');
