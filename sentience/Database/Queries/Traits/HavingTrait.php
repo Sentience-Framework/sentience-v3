@@ -3,15 +3,15 @@
 namespace Sentience\Database\Queries\Traits;
 
 use DateTimeInterface;
-use Sentience\Database\Queries\Objects\QueryWithParamsObject;
+use Sentience\Database\Queries\Objects\QueryWithParams;
 
 trait HavingTrait
 {
-    protected ?QueryWithParamsObject $having = null;
+    protected ?QueryWithParams $having = null;
 
     public function having(string $expression, bool|int|float|string|DateTimeInterface ...$values): static
     {
-        $this->having = new QueryWithParamsObject($expression, $values);
+        $this->having = new QueryWithParams($expression, $values);
 
         return $this;
     }

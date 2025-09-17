@@ -4,8 +4,8 @@ namespace Sentience\Database\Queries;
 
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
-use Sentience\Database\Queries\Objects\AliasObject;
-use Sentience\Database\Queries\Objects\RawObject;
+use Sentience\Database\Queries\Objects\Alias;
+use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Helpers\Strings;
 use Sentience\Timestamp\Timestamp;
 
@@ -15,14 +15,14 @@ abstract class Query
     {
     }
 
-    public static function alias(string|array|RawObject $name, string $alias): AliasObject
+    public static function alias(string|array|Raw $name, string $alias): Alias
     {
-        return new AliasObject($name, $alias);
+        return new Alias($name, $alias);
     }
 
-    public static function raw(string $expression): RawObject
+    public static function raw(string $expression): Raw
     {
-        return new RawObject($expression);
+        return new Raw($expression);
     }
 
     public static function now(): Timestamp

@@ -3,20 +3,20 @@
 namespace Sentience\Database\Dialects;
 
 use DateTimeInterface;
-use Sentience\Database\Queries\Objects\QueryWithParamsObject;
-use Sentience\Database\Queries\Objects\RawObject;
+use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Timestamp\Timestamp;
 
 interface DialectInterface
 {
-    public function select(array $config): QueryWithParamsObject;
-    public function insert(array $config): QueryWithParamsObject;
-    public function update(array $config): QueryWithParamsObject;
-    public function delete(array $config): QueryWithParamsObject;
-    public function createTable(array $config): QueryWithParamsObject;
+    public function select(array $config): QueryWithParams;
+    public function insert(array $config): QueryWithParams;
+    public function update(array $config): QueryWithParams;
+    public function delete(array $config): QueryWithParams;
+    public function createTable(array $config): QueryWithParams;
     public function alterTable(array $config): array;
-    public function dropTable(array $config): QueryWithParamsObject;
-    public function escapeIdentifier(string|array|RawObject $identifier): string;
+    public function dropTable(array $config): QueryWithParams;
+    public function escapeIdentifier(string|array|Raw $identifier): string;
     public function escapeString(string $string): string;
     public function castToDriver(mixed $value): mixed;
     public function castToQuery(mixed $value): mixed;

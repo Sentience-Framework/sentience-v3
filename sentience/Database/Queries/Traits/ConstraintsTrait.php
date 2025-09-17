@@ -2,8 +2,8 @@
 
 namespace Sentience\Database\Queries\Traits;
 
-use Sentience\Database\Queries\Objects\ForeignKeyConstraintObject;
-use Sentience\Database\Queries\Objects\UniqueConstraintObject;
+use Sentience\Database\Queries\Objects\ForeignKeyConstraint;
+use Sentience\Database\Queries\Objects\UniqueConstraint;
 
 trait ConstraintsTrait
 {
@@ -12,14 +12,14 @@ trait ConstraintsTrait
 
     public function uniqueConstraint(array $columns, ?string $name = null): static
     {
-        $this->uniqueConstraints[] = new UniqueConstraintObject($columns, $name);
+        $this->uniqueConstraints[] = new UniqueConstraint($columns, $name);
 
         return $this;
     }
 
     public function foreignKeyConstraint(string $column, string $referenceTable, string $referenceColumn, ?string $name = null): static
     {
-        $this->foreignKeyConstraints[] = new ForeignKeyConstraintObject($column, $referenceTable, $referenceColumn, $name);
+        $this->foreignKeyConstraints[] = new ForeignKeyConstraint($column, $referenceTable, $referenceColumn, $name);
 
         return $this;
     }

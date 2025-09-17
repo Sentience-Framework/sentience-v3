@@ -24,6 +24,11 @@ class ReflectionModel
         return $this->reflectionClass->getName();
     }
 
+    public function getShortName(): string
+    {
+        return $this->reflectionClass->getShortName();
+    }
+
     public function getProperties(?int $filter = null): array
     {
         return array_map(

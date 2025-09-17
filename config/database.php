@@ -5,7 +5,7 @@ use Sentience\Helpers\Filesystem;
 return [
     'driver' => env('DB_DRIVER', 'sqlite'),
     'mysql' => [
-        'host' => env('DB_HOST', '127.0.0.1'),
+        'host' => env('DB_HOST', 'localhost'),
         'port' => env('DB_PORT', 3306),
         'name' => env('DB_NAME', 'sentience'),
         'username' => env('DB_USERNAME', 'root'),
@@ -14,7 +14,7 @@ return [
         'use_pdo' => env('DB_USE_PDO', false)
     ],
     'pgsql' => [
-        'host' => env('DB_HOST', '127.0.0.1'),
+        'host' => env('DB_HOST', 'localhost'),
         'port' => env('DB_PORT', 5432),
         'name' => env('DB_NAME', 'sentience'),
         'username' => env('DB_USERNAME', 'postgres'),
@@ -33,7 +33,7 @@ return [
         'use_pdo' => env('DB_USE_PDO', true),
 
         /**
-         * These options only work when use_pdo is disabled
+         * These options only work when use_pdo is disabled.
          */
         'sqlite3_read_only' => env('DB_READ_ONLY', false),
         'sqlite3_encryption_key' => env('DB_ENCRYPTION_KEY', ''),

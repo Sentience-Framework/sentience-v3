@@ -6,7 +6,7 @@ use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Enums\ChainEnum;
 use Sentience\Database\Queries\Enums\OrderByDirectionEnum;
-use Sentience\Database\Queries\Objects\ConditionGroupObject;
+use Sentience\Database\Queries\Objects\ConditionGroup;
 use Sentience\Database\Queries\Traits\DistinctTrait;
 use Sentience\Database\Queries\Traits\LimitTrait;
 use Sentience\Database\Queries\Traits\OffsetTrait;
@@ -47,7 +47,7 @@ class SelectModelsQuery extends ModelsQueryAbstract
             $selectQuery->distinct();
         }
 
-        $selectQuery->whereGroup(fn (): ConditionGroupObject => new ConditionGroupObject(ChainEnum::AND, $this->where));
+        $selectQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(ChainEnum::AND, $this->where));
 
         foreach ($this->orderBy as $orderBy) {
             $orderBy->direction == OrderByDirectionEnum::ASC

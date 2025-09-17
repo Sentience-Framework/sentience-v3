@@ -2,7 +2,7 @@
 
 namespace Sentience\Database\Queries;
 
-use Sentience\Database\Queries\Objects\QueryWithParamsObject;
+use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Traits\OnConflictTrait;
 use Sentience\Database\Queries\Traits\ReturningTrait;
 use Sentience\Database\Queries\Traits\ValuesTrait;
@@ -14,7 +14,7 @@ class InsertQuery extends ResultsQueryAbstract
     use ReturningTrait;
     use ValuesTrait;
 
-    public function toQueryWithParams(): QueryWithParamsObject
+    public function toQueryWithParams(): QueryWithParams
     {
         return $this->dialect->insert([
             'table' => $this->table,

@@ -5,7 +5,7 @@ namespace Sentience\Database\Queries;
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Enums\ChainEnum;
-use Sentience\Database\Queries\Objects\ConditionGroupObject;
+use Sentience\Database\Queries\Objects\ConditionGroup;
 use Sentience\Database\Queries\Traits\WhereTrait;
 use Sentience\Models\Reflection\ReflectionModel;
 
@@ -45,7 +45,7 @@ class DeleteModelsQuery extends ModelsQueryAbstract
                 }
             }
 
-            $deleteQuery->whereGroup(fn (): ConditionGroupObject => new ConditionGroupObject(ChainEnum::AND, $this->where));
+            $deleteQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(ChainEnum::AND, $this->where));
             $deleteQuery->returning($columns);
 
             $results = $deleteQuery->execute();

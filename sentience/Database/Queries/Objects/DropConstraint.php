@@ -2,7 +2,7 @@
 
 namespace Sentience\Database\Queries\Objects;
 
-class DropConstraintObject
+class DropConstraint
 {
     public function __construct(public string $constraint)
     {

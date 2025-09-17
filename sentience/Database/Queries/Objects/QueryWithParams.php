@@ -5,7 +5,7 @@ namespace Sentience\Database\Queries\Objects;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Exceptions\QueryWithParamsException;
 
-class QueryWithParamsObject
+class QueryWithParams
 {
     public function __construct(public string $query, public array $params = [])
     {

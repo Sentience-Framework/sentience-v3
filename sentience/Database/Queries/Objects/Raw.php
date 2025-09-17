@@ -2,7 +2,7 @@
 
 namespace Sentience\Database\Queries\Objects;
 
-class RawObject
+class Raw
 {
     public function __construct(public string $expression)
     {

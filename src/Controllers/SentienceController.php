@@ -27,6 +27,8 @@ class SentienceController extends Controller
 
         $command = sprintf('cd %s && %s -S %s:%d', $dir, $bin, $host, $port);
 
+        passthru($command);
+
         if (PHP_OS_FAMILY == 'Windows') {
             passthru($command);
 
@@ -41,7 +43,7 @@ class SentienceController extends Controller
 
         Console::stream(
             $command,
-            function ($stdout, $stderr) use ($consoleWidth, &$startTime, &$endTime, &$path): void {
+            function ($stdout, $stderr) use ($consoleWidth, &$startTimes, &$endTimes, &$path): void {
                 if (empty($stderr)) {
                     return;
                 }

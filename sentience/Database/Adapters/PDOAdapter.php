@@ -7,7 +7,7 @@ use PDO;
 use PDOException;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
-use Sentience\Database\Queries\Objects\QueryWithParamsObject;
+use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Results\PDOResults;
 
 class PDOAdapter extends AdapterAbstract
@@ -100,7 +100,7 @@ class PDOAdapter extends AdapterAbstract
         $this->debug($query, $startTime);
     }
 
-    public function queryWithParams(DialectInterface $dialect, QueryWithParamsObject $queryWithParams): PDOResults
+    public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): PDOResults
     {
         $rawQuery = $queryWithParams->toRawQuery($dialect);
 

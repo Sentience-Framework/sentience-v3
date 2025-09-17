@@ -2,7 +2,7 @@
 
 namespace Sentience\Database\Queries;
 
-use Sentience\Database\Queries\Objects\QueryWithParamsObject;
+use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Traits\ReturningTrait;
 use Sentience\Database\Queries\Traits\ValuesTrait;
 use Sentience\Database\Queries\Traits\WhereTrait;
@@ -14,7 +14,7 @@ class UpdateQuery extends ResultsQueryAbstract
     use ValuesTrait;
     use WhereTrait;
 
-    public function toQueryWithParams(): QueryWithParamsObject
+    public function toQueryWithParams(): QueryWithParams
     {
         return $this->dialect->update([
             'table' => $this->table,

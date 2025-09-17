@@ -2,6 +2,6 @@
 
 namespace Sentience\Database\Queries\Objects;
 
-class AddColumnObject extends ColumnObject
+class AddUniqueConstraint extends UniqueConstraint
 {
 }

@@ -4,12 +4,12 @@ namespace Sentience\Database\Queries;
 
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
-use Sentience\Database\Queries\Objects\AliasObject;
-use Sentience\Database\Queries\Objects\RawObject;
+use Sentience\Database\Queries\Objects\Alias;
+use Sentience\Database\Queries\Objects\Raw;
 
 abstract class ResultsQueryAbstract extends Query implements ResultsQueryInterface
 {
-    public function __construct(Database $database, DialectInterface $dialect, protected string|array|AliasObject|RawObject $table)
+    public function __construct(Database $database, DialectInterface $dialect, protected string|array|Alias|Raw $table)
     {
         parent::__construct($database, $dialect);
     }

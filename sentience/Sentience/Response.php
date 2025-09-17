@@ -404,7 +404,7 @@ class Response
         }
 
         $encoding = !in_array($encoding, ['json', 'xml', 'url'])
-            ? config('sentience->responses->default_encoding')
+            ? config('sentience->encoding->default')
             : $encoding;
 
         if ($encoding == 'json') {

@@ -7,7 +7,7 @@ use mysqli;
 use mysqli_sql_exception;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
-use Sentience\Database\Queries\Objects\QueryWithParamsObject;
+use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Results\MySQLiResults;
 
 class MySQLiAdapter extends AdapterAbstract
@@ -72,7 +72,7 @@ class MySQLiAdapter extends AdapterAbstract
         $this->debug($query, $startTime);
     }
 
-    public function queryWithParams(DialectInterface $dialect, QueryWithParamsObject $queryWithParams): MySQLiResults
+    public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): MySQLiResults
     {
         $rawQuery = $queryWithParams->toRawQuery($dialect);
 

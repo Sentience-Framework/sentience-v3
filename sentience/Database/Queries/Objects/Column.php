@@ -2,7 +2,7 @@
 
 namespace Sentience\Database\Queries\Objects;
 
-class ColumnObject
+class Column
 {
     public function __construct(
         public string $name,

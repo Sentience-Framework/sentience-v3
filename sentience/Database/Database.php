@@ -16,9 +16,9 @@ use Sentience\Database\Queries\DropModelQuery;
 use Sentience\Database\Queries\DropTableQuery;
 use Sentience\Database\Queries\InsertModelsQuery;
 use Sentience\Database\Queries\InsertQuery;
-use Sentience\Database\Queries\Objects\AliasObject;
-use Sentience\Database\Queries\Objects\QueryWithParamsObject;
-use Sentience\Database\Queries\Objects\RawObject;
+use Sentience\Database\Queries\Objects\Alias;
+use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Database\Queries\SelectModelsQuery;
 use Sentience\Database\Queries\SelectQuery;
 use Sentience\Database\Queries\UpdateModelsQuery;
@@ -69,10 +69,10 @@ class Database
 
     public function prepared(string $query, array $params = []): ResultsInterface
     {
-        return $this->queryWithParams(new QueryWithParamsObject($query, $params));
+        return $this->queryWithParams(new QueryWithParams($query, $params));
     }
 
-    public function queryWithParams(QueryWithParamsObject $queryWithParams): ResultsInterface
+    public function queryWithParams(QueryWithParams $queryWithParams): ResultsInterface
     {
         return $this->adapter->queryWithParams($this->dialect, $queryWithParams);
     }
@@ -119,7 +119,7 @@ class Database
         return $this->adapter->lastInsertId($name);
     }
 
-    public function select(string|array|AliasObject|RawObject $table): SelectQuery
+    public function select(string|array|Alias|Raw $table): SelectQuery
     {
         return new SelectQuery($this, $this->dialect, $table);
     }
@@ -129,7 +129,7 @@ class Database
         return new SelectModelsQuery($this, $this->dialect, $model);
     }
 
-    public function insert(string|array|AliasObject|RawObject $table = null): InsertQuery
+    public function insert(string|array|Alias|Raw $table = null): InsertQuery
     {
         return new InsertQuery($this, $this->dialect, $table);
     }
@@ -139,7 +139,7 @@ class Database
         return new InsertModelsQuery($this, $this->dialect, Arrays::wrap($models));
     }
 
-    public function update(string|array|AliasObject|RawObject $table = null): UpdateQuery
+    public function update(string|array|Alias|Raw $table = null): UpdateQuery
     {
         return new UpdateQuery($this, $this->dialect, $table);
     }
@@ -149,7 +149,7 @@ class Database
         return new UpdateModelsQuery($this, $this->dialect, Arrays::wrap($models));
     }
 
-    public function delete(string|array|AliasObject|RawObject $table): DeleteQuery
+    public function delete(string|array|Alias|Raw $table): DeleteQuery
     {
         return new DeleteQuery($this, $this->dialect, $table);
     }
@@ -159,7 +159,7 @@ class Database
         return new DeleteModelsQuery($this, $this->dialect, Arrays::wrap($models));
     }
 
-    public function createTable(string|array|AliasObject|RawObject $table): CreateTableQuery
+    public function createTable(string|array|Alias|Raw $table): CreateTableQuery
     {
         return new CreateTableQuery($this, $this->dialect, $table);
     }
@@ -169,7 +169,7 @@ class Database
         return new CreateModelQuery($this, $this->dialect, $model);
     }
 
-    public function alterTable(string|array|AliasObject|RawObject $table): AlterTableQuery
+    public function alterTable(string|array|Alias|Raw $table): AlterTableQuery
     {
         return new AlterTableQuery($this, $this->dialect, $table);
     }
@@ -179,7 +179,7 @@ class Database
         return new AlterModelQuery($this, $this->dialect, $model);
     }
 
-    public function dropTable(string|array|AliasObject|RawObject $table): DropTableQuery
+    public function dropTable(string|array|Alias|Raw $table): DropTableQuery
     {
         return new DropTableQuery($this, $this->dialect, $table);
     }

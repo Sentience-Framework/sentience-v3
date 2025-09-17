@@ -7,7 +7,7 @@ use SQLite3;
 use SQLite3Exception;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
-use Sentience\Database\Queries\Objects\QueryWithParamsObject;
+use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Results\SQLiteResults;
 
 class SQLiteAdapter extends AdapterAbstract
@@ -76,7 +76,7 @@ class SQLiteAdapter extends AdapterAbstract
         $this->debug($query, $startTime);
     }
 
-    public function queryWithParams(DialectInterface $dialect, QueryWithParamsObject $queryWithParams): SQLiteResults
+    public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): SQLiteResults
     {
         $rawQuery = $queryWithParams->toRawQuery($dialect);
 

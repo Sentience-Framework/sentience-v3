@@ -2,8 +2,8 @@
 
 namespace Sentience\Database\Queries;
 
-use Sentience\Database\Queries\Objects\ColumnObject;
-use Sentience\Database\Queries\Objects\QueryWithParamsObject;
+use Sentience\Database\Queries\Objects\Column;
+use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Traits\ConstraintsTrait;
 use Sentience\Database\Queries\Traits\IfNotExistsTrait;
 use Sentience\Database\Results\ResultsInterface;
@@ -16,7 +16,7 @@ class CreateTableQuery extends ResultsQueryAbstract
     protected array $columns = [];
     protected array $primaryKeys = [];
 
-    public function toQueryWithParams(): QueryWithParamsObject
+    public function toQueryWithParams(): QueryWithParams
     {
         return $this->dialect->createTable([
             'ifNotExists' => $this->ifNotExists,
@@ -42,7 +42,7 @@ class CreateTableQuery extends ResultsQueryAbstract
 
     public function column(string $name, string $type, bool $notNull = false, mixed $defaultValue = null, bool $autoIncrement = false): static
     {
-        $this->columns[] = new ColumnObject($name, $type, $notNull, $defaultValue, $autoIncrement);
+        $this->columns[] = new Column($name, $type, $notNull, $defaultValue, $autoIncrement);
 
         return $this;
     }

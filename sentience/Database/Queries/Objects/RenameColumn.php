@@ -2,7 +2,7 @@
 
 namespace Sentience\Database\Queries\Objects;
 
-class RenameColumnObject
+class RenameColumn
 {
     public function __construct(public string $oldName, public string $newName)
     {

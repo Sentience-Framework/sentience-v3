@@ -17,7 +17,7 @@ class Request extends Singleton
         $method = strtoupper((string) $_SERVER['REQUEST_METHOD']);
         $headers = array_change_key_case(getallheaders(), CASE_LOWER);
         $queryString = (string) strtok($_SERVER['QUERY_STRING'] ?? '', '#');
-        $queryParams = UrlEncoding::decode($queryString, config('sentience->requests->unique_query_params'));
+        $queryParams = UrlEncoding::decode($queryString, config('sentience->encoding->url_encoding_unique', false));
         $cookies = $_COOKIE;
         $body = file_get_contents('php://input');
 
@@ -73,9 +73,19 @@ class Request extends Singleton
         return Xml::decode($this->body);
     }
 
-    public function getUrlEncoded(bool $unique = false): array
+    public function getUrlEncoded(): array
     {
-        return UrlEncoding::decode($this->body, $unique);
+        return UrlEncoding::decode($this->body, config('sentience->encoding->url_encoding_unique', false));
+    }
+
+    public function decode(): mixed
+    {
+        return match (config('sentience->encoding->default')) {
+            'json' => $this->getJson(),
+            'xml' => $this->getXml(),
+            'url' => $this->getUrlEncoded(),
+            default => $this->body
+        };
     }
 
     public function getIPAddress(): ?string

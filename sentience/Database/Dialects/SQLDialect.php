@@ -7,23 +7,23 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use Sentience\Database\Exceptions\QueryException;
 use Sentience\Database\Queries\Enums\OperatorEnum;
-use Sentience\Database\Queries\Objects\AddColumnObject;
-use Sentience\Database\Queries\Objects\AddForeignKeyConstraintObject;
-use Sentience\Database\Queries\Objects\AddPrimaryKeysObject;
-use Sentience\Database\Queries\Objects\AddUniqueConstraintObject;
-use Sentience\Database\Queries\Objects\AliasObject;
-use Sentience\Database\Queries\Objects\AlterColumnObject;
-use Sentience\Database\Queries\Objects\ColumnObject;
-use Sentience\Database\Queries\Objects\ConditionGroupObject;
-use Sentience\Database\Queries\Objects\ConditionObject;
-use Sentience\Database\Queries\Objects\DropColumnObject;
-use Sentience\Database\Queries\Objects\DropConstraintObject;
-use Sentience\Database\Queries\Objects\ForeignKeyConstraintObject;
-use Sentience\Database\Queries\Objects\OrderByObject;
-use Sentience\Database\Queries\Objects\QueryWithParamsObject;
-use Sentience\Database\Queries\Objects\RawObject;
-use Sentience\Database\Queries\Objects\RenameColumnObject;
-use Sentience\Database\Queries\Objects\UniqueConstraintObject;
+use Sentience\Database\Queries\Objects\AddColumn;
+use Sentience\Database\Queries\Objects\AddForeignKeyConstraint;
+use Sentience\Database\Queries\Objects\AddPrimaryKeys;
+use Sentience\Database\Queries\Objects\AddUniqueConstraint;
+use Sentience\Database\Queries\Objects\Alias;
+use Sentience\Database\Queries\Objects\AlterColumn;
+use Sentience\Database\Queries\Objects\Column;
+use Sentience\Database\Queries\Objects\Condition;
+use Sentience\Database\Queries\Objects\ConditionGroup;
+use Sentience\Database\Queries\Objects\DropColumn;
+use Sentience\Database\Queries\Objects\DropConstraint;
+use Sentience\Database\Queries\Objects\ForeignKeyConstraint;
+use Sentience\Database\Queries\Objects\OrderBy;
+use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Queries\Objects\Raw;
+use Sentience\Database\Queries\Objects\RenameColumn;
+use Sentience\Database\Queries\Objects\UniqueConstraint;
 use Sentience\Helpers\Strings;
 use Sentience\Timestamp\Timestamp;
 
@@ -36,7 +36,7 @@ class SQLDialect implements DialectInterface
     public const string REGEX_FUNCTION = 'REGEXP';
     public const string NOT_REGEX_FUNCTION = 'NOT REGEXP';
 
-    public function select(array $config): QueryWithParamsObject
+    public function select(array $config): QueryWithParams
     {
         if (!$config['table']) {
             throw new QueryException('no table specified');
@@ -56,16 +56,16 @@ class SQLDialect implements DialectInterface
             ? implode(
                 ', ',
                 array_map(
-                    function (string|array|AliasObject|RawObject $column): string {
+                    function (string|array|Alias|Raw $column): string {
                         if (is_array($column)) {
                             return $this->escapeIdentifier($column);
                         }
 
-                        if ($column instanceof AliasObject) {
+                        if ($column instanceof Alias) {
                             return $this->escapeIdentifierWithAlias($column->name, $column->alias);
                         }
 
-                        if ($column instanceof RawObject) {
+                        if ($column instanceof Raw) {
                             return $column->expression;
                         }
 
@@ -89,10 +89,10 @@ class SQLDialect implements DialectInterface
 
         $query .= ';';
 
-        return new QueryWithParamsObject($query, $params);
+        return new QueryWithParams($query, $params);
     }
 
-    public function insert(array $config): QueryWithParamsObject
+    public function insert(array $config): QueryWithParams
     {
         if (!$config['table']) {
             throw new QueryException('no table specified');
@@ -114,12 +114,12 @@ class SQLDialect implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    function (string|array|AliasObject|RawObject $column): string {
-                        if ($column instanceof RawObject) {
+                    function (string|array|Alias|Raw $column): string {
+                        if ($column instanceof Raw) {
                             return $column->expression;
                         }
 
-                        if ($column instanceof AliasObject) {
+                        if ($column instanceof Alias) {
                             return $this->escapeIdentifier($column->name);
                         }
 
@@ -136,7 +136,7 @@ class SQLDialect implements DialectInterface
                 ', ',
                 array_map(
                     function (mixed $value) use (&$params): string {
-                        if ($value instanceof RawObject) {
+                        if ($value instanceof Raw) {
                             return $value->expression;
                         }
 
@@ -164,10 +164,10 @@ class SQLDialect implements DialectInterface
 
         $query .= ';';
 
-        return new QueryWithParamsObject($query, $params);
+        return new QueryWithParams($query, $params);
     }
 
-    public function update(array $config): QueryWithParamsObject
+    public function update(array $config): QueryWithParams
     {
         if (!$config['table']) {
             throw new QueryException('no table specified');
@@ -189,7 +189,7 @@ class SQLDialect implements DialectInterface
             ', ',
             array_map(
                 function (mixed $value, string $key) use (&$params): string {
-                    if ($value instanceof RawObject) {
+                    if ($value instanceof Raw) {
                         return sprintf(
                             '%s = %s',
                             $this->escapeIdentifier($key),
@@ -211,10 +211,10 @@ class SQLDialect implements DialectInterface
 
         $query .= ';';
 
-        return new QueryWithParamsObject($query, $params);
+        return new QueryWithParams($query, $params);
     }
 
-    public function delete(array $config): QueryWithParamsObject
+    public function delete(array $config): QueryWithParams
     {
         if (!$config['table']) {
             throw new QueryException('no table specified');
@@ -231,10 +231,10 @@ class SQLDialect implements DialectInterface
 
         $query .= ';';
 
-        return new QueryWithParamsObject($query, $params);
+        return new QueryWithParams($query, $params);
     }
 
-    public function createTable(array $config): QueryWithParamsObject
+    public function createTable(array $config): QueryWithParams
     {
         if (!$config['table']) {
             throw new QueryException('no table specified');
@@ -270,7 +270,7 @@ class SQLDialect implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn (string|RawObject $column): string => $this->escapeIdentifier($column),
+                    fn (string|Raw $column): string => $this->escapeIdentifier($column),
                     $config['primaryKeys']
                 )
             )
@@ -287,7 +287,7 @@ class SQLDialect implements DialectInterface
         $query .= sprintf(' (%s)', implode(', ', $definitions));
         $query .= ';';
 
-        return new QueryWithParamsObject($query, $params);
+        return new QueryWithParams($query, $params);
     }
 
     public function alterTable(array $config): array
@@ -301,7 +301,7 @@ class SQLDialect implements DialectInterface
         }
 
         return array_map(
-            function (object $alter) use ($config): QueryWithParamsObject {
+            function (object $alter) use ($config): QueryWithParams {
                 $query = 'ALTER TABLE';
 
                 $this->addTable($query, $config['table']);
@@ -309,26 +309,26 @@ class SQLDialect implements DialectInterface
                 $query .= ' ';
 
                 $query .= match (true) {
-                    $alter instanceof AddColumnObject => $this->stringifyAlterTableAddColumn($alter),
-                    $alter instanceof AlterColumnObject => $this->stringifyAlterTableAlterColumn($alter),
-                    $alter instanceof RenameColumnObject => $this->stringifyAlterTableRenameColumn($alter),
-                    $alter instanceof DropColumnObject => $this->stringifyAlterTableDropColumn($alter),
-                    $alter instanceof AddPrimaryKeysObject => $this->stringifyAlterTableAddPrimaryKeys($alter),
-                    $alter instanceof AddUniqueConstraintObject => $this->stringifyAlterTableAddUniqueConstraint($alter),
-                    $alter instanceof AddForeignKeyConstraintObject => $this->stringifyAlterTableAddForeignKeyConstraint($alter),
-                    $alter instanceof DropConstraintObject => $this->stringifyAlterTableDropConstraint($alter),
+                    $alter instanceof AddColumn => $this->stringifyAlterTableAddColumn($alter),
+                    $alter instanceof AlterColumn => $this->stringifyAlterTableAlterColumn($alter),
+                    $alter instanceof RenameColumn => $this->stringifyAlterTableRenameColumn($alter),
+                    $alter instanceof DropColumn => $this->stringifyAlterTableDropColumn($alter),
+                    $alter instanceof AddPrimaryKeys => $this->stringifyAlterTableAddPrimaryKeys($alter),
+                    $alter instanceof AddUniqueConstraint => $this->stringifyAlterTableAddUniqueConstraint($alter),
+                    $alter instanceof AddForeignKeyConstraint => $this->stringifyAlterTableAddForeignKeyConstraint($alter),
+                    $alter instanceof DropConstraint => $this->stringifyAlterTableDropConstraint($alter),
                     default => throw new QueryException('unsupported alter %s', $alter::class)
                 };
 
                 $query .= ';';
 
-                return new QueryWithParamsObject($query);
+                return new QueryWithParams($query);
             },
             $config['alters']
         );
     }
 
-    public function dropTable(array $config): QueryWithParamsObject
+    public function dropTable(array $config): QueryWithParams
     {
         if (!$config['table']) {
             throw new QueryException('no table specified');
@@ -347,20 +347,20 @@ class SQLDialect implements DialectInterface
 
         $query .= ';';
 
-        return new QueryWithParamsObject($query, $params);
+        return new QueryWithParams($query, $params);
     }
 
-    protected function addTable(string &$query, string|array|AliasObject|RawObject $table): void
+    protected function addTable(string &$query, string|array|Alias|Raw $table): void
     {
         $query .= ' ';
 
-        if ($table instanceof AliasObject) {
+        if ($table instanceof Alias) {
             $query .= $this->escapeIdentifierWithAlias($table->name, $table->alias);
 
             return;
         }
 
-        if ($table instanceof RawObject) {
+        if ($table instanceof Raw) {
             $query .= $table->expression;
 
             return;
@@ -382,7 +382,7 @@ class SQLDialect implements DialectInterface
                 $query .= ' ';
             }
 
-            if ($join instanceof RawObject) {
+            if ($join instanceof Raw) {
                 $query .= $join->expression;
 
                 continue;
@@ -390,7 +390,7 @@ class SQLDialect implements DialectInterface
 
             $query .= sprintf(
                 '%s %s ON %s.%s = %s.%s',
-                $join->type->value,
+                $join->join->value,
                 $this->escapeIdentifierWithAlias($join->joinTable, $join->joinTableAlias),
                 $this->escapeIdentifier($join->joinTableAlias ?? $join->joinTable),
                 $this->escapeIdentifier($join->joinTableColumn),
@@ -409,13 +409,13 @@ class SQLDialect implements DialectInterface
         $query .= ' WHERE ';
 
         foreach ($where as $index => $condition) {
-            $condition instanceof ConditionObject
+            $condition instanceof Condition
                 ? $this->addCondition($query, $params, $index, $condition)
                 : $this->addConditionGroup($query, $params, $index, $condition);
         }
     }
 
-    protected function addCondition(string &$query, array &$params, int $index, ConditionObject $condition): void
+    protected function addCondition(string &$query, array &$params, int $index, Condition $condition): void
     {
         if ($index > 0) {
             $query .= sprintf(' %s ', $condition->chain->value);
@@ -493,7 +493,7 @@ class SQLDialect implements DialectInterface
         array_push($params, $condition->value);
     }
 
-    protected function addConditionGroup(string &$query, array &$params, int $index, ConditionGroupObject $group): void
+    protected function addConditionGroup(string &$query, array &$params, int $index, ConditionGroup $group): void
     {
         if ($index > 0) {
             $query .= sprintf(' %s ', $group->chain->value);
@@ -504,7 +504,7 @@ class SQLDialect implements DialectInterface
         $query .= '(';
 
         foreach ($conditions as $index => $condition) {
-            $condition instanceof ConditionObject
+            $condition instanceof Condition
                 ? $this->addCondition($query, $params, $index, $condition)
                 : $this->addConditionGroup($query, $params, $index, $condition);
         }
@@ -523,14 +523,14 @@ class SQLDialect implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn (string|array|RawObject $column): string => $this->escapeIdentifier($column),
+                    fn (string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $groupBy
                 )
             )
         );
     }
 
-    protected function addHaving(string &$query, array &$params, ?QueryWithParamsObject $having): void
+    protected function addHaving(string &$query, array &$params, ?QueryWithParams $having): void
     {
         if (is_null($having)) {
             return;
@@ -552,7 +552,7 @@ class SQLDialect implements DialectInterface
             implode(
                 ', ',
                 array_map(
-                    fn (OrderByObject $orderBy): string => sprintf(
+                    fn (OrderBy $orderBy): string => sprintf(
                         '%s %s',
                         $this->escapeIdentifier($orderBy->column),
                         $orderBy->direction->value
@@ -613,7 +613,7 @@ class SQLDialect implements DialectInterface
         $query .= ' RETURNING ' . $columns;
     }
 
-    protected function stringifyColumnDefinition(ColumnObject $column): string
+    protected function stringifyColumnDefinition(Column $column): string
     {
         $stringifiedColumn = sprintf(
             '%s %s',
@@ -636,7 +636,7 @@ class SQLDialect implements DialectInterface
         return $stringifiedColumn;
     }
 
-    protected function stringifyUniqueConstraintDefinition(UniqueConstraintObject $uniqueConstraint): string
+    protected function stringifyUniqueConstraintDefinition(UniqueConstraint $uniqueConstraint): string
     {
         $stringifiedUniqueConstraint = sprintf(
             'UNIQUE (%s)',
@@ -660,7 +660,7 @@ class SQLDialect implements DialectInterface
         return $stringifiedUniqueConstraint;
     }
 
-    protected function stringifyForeignKeyConstraintDefinition(ForeignKeyConstraintObject $foreignKeyConstraint): string
+    protected function stringifyForeignKeyConstraintDefinition(ForeignKeyConstraint $foreignKeyConstraint): string
     {
         $stringifiedForeignKeyConstraint = sprintf(
             'FOREIGN KEY (%s) REFERENCES %s (%s)',
@@ -680,7 +680,7 @@ class SQLDialect implements DialectInterface
         return $stringifiedForeignKeyConstraint;
     }
 
-    protected function stringifyAlterTableAddColumn(AddColumnObject $addColumn): string
+    protected function stringifyAlterTableAddColumn(AddColumn $addColumn): string
     {
         return sprintf(
             'ADD COLUMN %s',
@@ -688,7 +688,7 @@ class SQLDialect implements DialectInterface
         );
     }
 
-    protected function stringifyAlterTableAlterColumn(AlterColumnObject $alterColumn): string
+    protected function stringifyAlterTableAlterColumn(AlterColumn $alterColumn): string
     {
         return sprintf(
             'ALTER COLUMN %s %s',
@@ -697,7 +697,7 @@ class SQLDialect implements DialectInterface
         );
     }
 
-    protected function stringifyAlterTableRenameColumn(RenameColumnObject $renameColumn): string
+    protected function stringifyAlterTableRenameColumn(RenameColumn $renameColumn): string
     {
         return sprintf(
             'RENAME COLUMN %s TO %s',
@@ -706,7 +706,7 @@ class SQLDialect implements DialectInterface
         );
     }
 
-    protected function stringifyAlterTableDropColumn(DropColumnObject $dropColumn): string
+    protected function stringifyAlterTableDropColumn(DropColumn $dropColumn): string
     {
         return sprintf(
             'DROP COLUMN %s',
@@ -714,21 +714,21 @@ class SQLDialect implements DialectInterface
         );
     }
 
-    protected function stringifyAlterTableAddPrimaryKeys(AddPrimaryKeysObject $addPrimaryKeys): string
+    protected function stringifyAlterTableAddPrimaryKeys(AddPrimaryKeys $addPrimaryKeys): string
     {
         return sprintf(
             'ADD PRIMARY KEY (%s)',
             implode(
                 ', ',
                 array_map(
-                    fn (string|array|RawObject $column): string => $this->escapeIdentifier($column),
+                    fn (string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $addPrimaryKeys->columns
                 )
             )
         );
     }
 
-    protected function stringifyAlterTableAddUniqueConstraint(AddUniqueConstraintObject $addUniqueConstraint): string
+    protected function stringifyAlterTableAddUniqueConstraint(AddUniqueConstraint $addUniqueConstraint): string
     {
         return sprintf(
             'ADD %s',
@@ -736,7 +736,7 @@ class SQLDialect implements DialectInterface
         );
     }
 
-    protected function stringifyAlterTableAddForeignKeyConstraint(AddForeignKeyConstraintObject $addForeignKeyConstraint): string
+    protected function stringifyAlterTableAddForeignKeyConstraint(AddForeignKeyConstraint $addForeignKeyConstraint): string
     {
         return sprintf(
             'ADD %s',
@@ -744,7 +744,7 @@ class SQLDialect implements DialectInterface
         );
     }
 
-    protected function stringifyAlterTableDropConstraint(DropConstraintObject $dropConstraint): string
+    protected function stringifyAlterTableDropConstraint(DropConstraint $dropConstraint): string
     {
         return sprintf(
             'DROP CONSTRAINT %s',
@@ -752,7 +752,7 @@ class SQLDialect implements DialectInterface
         );
     }
 
-    protected function escapeIdentifierWithAlias(string|array|RawObject $identifier, ?string $alias): string
+    protected function escapeIdentifierWithAlias(string|array|Raw $identifier, ?string $alias): string
     {
         $escapedIdentifier = $this->escapeIdentifier($identifier);
 
@@ -763,9 +763,9 @@ class SQLDialect implements DialectInterface
         return sprintf('%s AS %s', $escapedIdentifier, $this->escapeIdentifier($alias));
     }
 
-    public function escapeIdentifier(string|array|RawObject $identifier): string
+    public function escapeIdentifier(string|array|Raw $identifier): string
     {
-        if ($identifier instanceof RawObject) {
+        if ($identifier instanceof Raw) {
             return $identifier->expression;
         }
 
@@ -773,7 +773,7 @@ class SQLDialect implements DialectInterface
             ? implode(
                 '.',
                 array_map(
-                    fn (string|RawObject $identifier): string => $this->escapeIdentifier($identifier),
+                    fn (string|Raw $identifier): string => $this->escapeIdentifier($identifier),
                     $identifier
                 )
             )

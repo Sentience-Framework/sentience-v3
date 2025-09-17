@@ -86,12 +86,6 @@ class ExampleController extends Controller
                 'joinColumn',
                 ['public', 't1'],
                 't1Column'
-            )
-            ->rightJoin(
-                Query::raw('table2'),
-                'joinColumn',
-                Query::raw('t1'),
-                't1Column'
             )->innerJoin(
                 ['public', 'table3'],
                 'joinColumn',

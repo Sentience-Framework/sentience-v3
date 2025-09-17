@@ -2,11 +2,9 @@
 
 return [
     'env' => env('ENV', 'production'),
-    'requests' => [
-        'unique_query_params' => false
-    ],
-    'responses' => [
-        'default_encoding' => env('RESPONSES_DEFAULT_ENCODING', 'json')
+    'encoding' => [
+        'default' => env('DEFAULT_ENCODING', 'json'),
+        'url_encoding_unique' => false
     ],
     'errors' => [
         'catch_non_fatal' => env('ERRORS_CATCH_NON_FATAL', true),

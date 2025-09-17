@@ -5,7 +5,7 @@ namespace Sentience\Database\Queries\Objects;
 use Sentience\Database\Queries\Enums\ChainEnum;
 use Sentience\Database\Queries\Traits\WhereTrait;
 
-class ConditionGroupObject
+class ConditionGroup
 {
     use WhereTrait;
 

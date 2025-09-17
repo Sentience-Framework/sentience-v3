@@ -5,8 +5,8 @@ namespace Sentience\Database\Queries\Traits;
 use DateTimeInterface;
 use Sentience\Database\Queries\Enums\ChainEnum;
 use Sentience\Database\Queries\Enums\OperatorEnum;
-use Sentience\Database\Queries\Objects\ConditionGroupObject;
-use Sentience\Database\Queries\Objects\ConditionObject;
+use Sentience\Database\Queries\Objects\Condition;
+use Sentience\Database\Queries\Objects\ConditionGroup;
 use Sentience\Database\Queries\Query;
 
 trait WhereTrait
@@ -382,7 +382,7 @@ trait WhereTrait
     protected function empty(string|array $column, ChainEnum $chain): static
     {
         return $this->group(
-            fn (ConditionGroupObject $conditionGroup): ConditionGroupObject => $conditionGroup
+            fn (ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup
                 ->orWhereIsNull($column)
                 ->orWhereEquals($column, 0)
                 ->orWhereEquals($column, ''),
@@ -393,7 +393,7 @@ trait WhereTrait
     protected function notEmpty(string|array $column, ChainEnum $chain): static
     {
         return $this->group(
-            fn (ConditionGroupObject $conditionGroup): ConditionGroupObject => $conditionGroup
+            fn (ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup
                 ->whereIsNotNull($column)
                 ->whereNotEquals($column, 0)
                 ->whereNotEquals($column, ''),
@@ -417,11 +417,11 @@ trait WhereTrait
 
     protected function group(callable $callback, ChainEnum $chain): static
     {
-        $conditionGroup = new ConditionGroupObject($chain);
+        $conditionGroup = new ConditionGroup($chain);
 
         $returnedConditionGroup = $callback($conditionGroup);
 
-        if ($returnedConditionGroup instanceof ConditionGroupObject) {
+        if ($returnedConditionGroup instanceof ConditionGroup) {
             $conditionGroup = $returnedConditionGroup;
         }
 
@@ -443,10 +443,10 @@ trait WhereTrait
 
     protected function addCondition(OperatorEnum $type, string|array $query, mixed $value, ChainEnum $chain): void
     {
-        $this->where[] = new ConditionObject($type, $query, $value, $chain);
+        $this->where[] = new Condition($type, $query, $value, $chain);
     }
 
-    protected function addConditionGroup(ConditionGroupObject $conditionGroup): void
+    protected function addConditionGroup(ConditionGroup $conditionGroup): void
     {
         $this->where[] = $conditionGroup;
     }

@@ -4,19 +4,19 @@ namespace Sentience\Database\Queries\Objects;
 
 use Sentience\Database\Queries\Enums\JoinEnum;
 
-class JoinObject
+class Join
 {
-    public string|array|RawObject $joinTable;
+    public string|array|Raw $joinTable;
     public ?string $joinTableAlias = null;
 
     public function __construct(
         public JoinEnum $join,
-        string|array|AliasObject|RawObject $joinTable,
+        string|array|Alias|Raw $joinTable,
         public string $joinTableColumn,
-        public string|array|RawObject $onTable,
+        public string|array|Raw $onTable,
         public string $onTableColumn
     ) {
-        if ($joinTable instanceof AliasObject) {
+        if ($joinTable instanceof Alias) {
             $this->joinTable = $joinTable->name;
             $this->joinTableAlias = $joinTable->alias;
         } else {

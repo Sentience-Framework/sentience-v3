@@ -45,7 +45,7 @@ class PgSQLDialect extends SQLDialect implements DialectInterface
                 ', ',
                 array_map(
                     function (mixed $value, string $key) use (&$params): string {
-                        if ($value instanceof RawObject) {
+                        if ($value instanceof Raw) {
                             return sprintf(
                                 '%s = %s',
                                 $this->escapeIdentifier($key),

@@ -2,7 +2,7 @@
 
 namespace Sentience\Database\Queries\Objects;
 
-class AlterColumnObject
+class AlterColumn
 {
     public function __construct(public string $column, public string $options)
     {

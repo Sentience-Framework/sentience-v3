@@ -2,7 +2,7 @@
 
 namespace Sentience\Database\Queries;
 
-use Sentience\Database\Queries\Objects\QueryWithParamsObject;
+use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Traits\ReturningTrait;
 use Sentience\Database\Queries\Traits\WhereTrait;
 use Sentience\Database\Results\ResultsInterface;
@@ -12,7 +12,7 @@ class DeleteQuery extends ResultsQueryAbstract
     use ReturningTrait;
     use WhereTrait;
 
-    public function toQueryWithParams(): QueryWithParamsObject
+    public function toQueryWithParams(): QueryWithParams
     {
         return $this->dialect->delete([
             'table' => $this->table,

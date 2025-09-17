@@ -2,8 +2,8 @@
 
 namespace Sentience\Database\Queries;
 
-use Sentience\Database\Queries\Objects\QueryWithParamsObject;
-use Sentience\Database\Queries\Objects\RawObject;
+use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Database\Queries\Traits\ColumnsTrait;
 use Sentience\Database\Queries\Traits\DistinctTrait;
 use Sentience\Database\Queries\Traits\GroupByTrait;
@@ -27,7 +27,7 @@ class SelectQuery extends ResultsQueryAbstract
     use OrderByTrait;
     use WhereTrait;
 
-    public function toQueryWithParams(): QueryWithParamsObject
+    public function toQueryWithParams(): QueryWithParams
     {
         return $this->dialect->select([
             'distinct' => $this->distinct,
@@ -53,7 +53,7 @@ class SelectQuery extends ResultsQueryAbstract
         return parent::execute();
     }
 
-    public function count(null|string|array|RawObject $column = null): int
+    public function count(null|string|array|Raw $column = null): int
     {
         $previousDistinct = $this->distinct;
         $previousColumns = $this->columns;
