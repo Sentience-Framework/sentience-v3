@@ -77,7 +77,7 @@ class PDOAdapter extends AdapterAbstract
         if (method_exists($this->pdo, 'sqliteCreateFunction')) {
             $this->pdo->sqliteCreateFunction(
                 static::REGEXP_FUNCTION,
-                fn(string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
+                fn (string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
                 static::REGEXP_FUNCTION_ARGUMENTS_COUNT
             );
         }
@@ -85,33 +85,33 @@ class PDOAdapter extends AdapterAbstract
 
     public function query(string $query): void
     {
-        $startTime = microtime(true);
+        $start = microtime(true);
 
         $affected = $this->pdo->exec($query);
 
         if (is_bool($affected)) {
             $error = implode(' ', $this->pdo->errorInfo());
 
-            $this->debug($query, $startTime, $error);
+            $this->debug($query, $start, $error);
 
             throw new PDOException($error);
         }
 
-        $this->debug($query, $startTime);
+        $this->debug($query, $start);
     }
 
     public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): PDOResults
     {
         $rawQuery = $queryWithParams->toRawQuery($dialect);
 
-        $startTime = microtime(true);
+        $start = microtime(true);
 
         $pdoStatement = $this->pdo->prepare($queryWithParams->query);
 
         if (is_bool($pdoStatement)) {
             $error = implode(' ', $this->pdo->errorInfo());
 
-            $this->debug($rawQuery, $startTime, $error);
+            $this->debug($rawQuery, $start, $error);
 
             throw new PDOException($error);
         }
@@ -138,12 +138,12 @@ class PDOAdapter extends AdapterAbstract
         if (!$success) {
             $error = implode(' ', $pdoStatement->errorInfo());
 
-            $this->debug($rawQuery, $startTime, $error);
+            $this->debug($rawQuery, $start, $error);
 
             throw new PDOException($error);
         }
 
-        $this->debug($rawQuery, $startTime);
+        $this->debug($rawQuery, $start);
 
         return new PDOResults($pdoStatement);
     }

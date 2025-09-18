@@ -27,8 +27,6 @@ class SentienceController extends Controller
 
         $command = sprintf('cd %s && %s -S %s:%d', $dir, $bin, $host, $port);
 
-        passthru($command);
-
         if (PHP_OS_FAMILY == 'Windows') {
             passthru($command);
 
@@ -43,7 +41,7 @@ class SentienceController extends Controller
 
         Console::stream(
             $command,
-            function ($stdout, $stderr) use ($consoleWidth, &$startTimes, &$endTimes, &$path): void {
+            function ($stdout, $stderr) use ($consoleWidth, &$requests): void {
                 if (empty($stderr)) {
                     return;
                 }
@@ -53,6 +51,10 @@ class SentienceController extends Controller
                     : $stderr;
 
                 $lines = explode(PHP_EOL, $stderr);
+
+                if (!$requests) {
+                    $requests = [];
+                }
 
                 foreach ($lines as $line) {
                     if (preg_match('/\(reason:\s*(.*?)\)/', $line, $matches)) {
@@ -71,24 +73,33 @@ class SentienceController extends Controller
                         continue;
                     }
 
-                    if (preg_match('/^\[.*?\]\s.*\:\d+\s(\w+)/', $line, $matches)) {
-                        $status = $matches[1];
+                    if (preg_match('/^\[.*?\]\s.*\:(\d+)\s(\w+)/', $line, $matches)) {
+                        $requestId = $matches[1];
+                        $status = $matches[2];
+
+                        if (!array_key_exists($requestId, $requests)) {
+                            $requests[$requestId] = [];
+                        }
 
                         if ($status == 'Accepted') {
-                            $startTime = microtime(true);
+                            $requests[$requestId]['start'] = microtime(true);
 
                             continue;
                         }
 
                         if ($status == 'Closing') {
-                            $endTime = microtime(true);
+                            $requests[$requestId]['end'] = microtime(true);
 
-                            Stdio::errorFLn(
-                                '%s (%.2f ms) %s',
-                                date('Y-m-d H:i:s'),
-                                ($endTime - $startTime) * 1000,
-                                $path
-                            );
+                            if (array_key_exists('path', $requests[$requestId])) {
+                                Stdio::errorFLn(
+                                    '%s (%.2f ms) %s',
+                                    date('Y-m-d H:i:s'),
+                                    ($requests[$requestId]['end'] - $requests[$requestId]['start']) * 1000,
+                                    $requests[$requestId]['path']
+                                );
+                            }
+
+                            unset($requests[$requestId]);
 
                             continue;
                         }
@@ -96,8 +107,15 @@ class SentienceController extends Controller
                         continue;
                     }
 
-                    if (preg_match('/^\[.*?\]\s.*\:\d+\s\[\d+\]\:\s\w+\s(.*)/', $line, $matches)) {
-                        $path = $matches[1];
+                    if (preg_match('/^\[.*?\]\s.*\:(\d+)\s\[\d+\]\:\s\w+\s(.*)/', $line, $matches)) {
+                        $requestId = $matches[1];
+                        $path = $matches[2];
+
+                        if (!array_key_exists($requestId, $requests)) {
+                            $requests[$requestId] = [];
+                        }
+
+                        $requests[$requestId]['path'] = $path;
 
                         continue;
                     }

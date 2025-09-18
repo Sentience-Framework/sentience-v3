@@ -67,7 +67,7 @@ class ExampleController extends Controller
 
     public function query(Database $database): void
     {
-        $startTime = microtime(true);
+        $start = microtime(true);
 
         $queries = [];
 
@@ -190,9 +190,9 @@ class ExampleController extends Controller
             Stdio::printLn('');
         }
 
-        $endTime = microtime(true);
+        $end = microtime(true);
 
-        Stdio::printFLn('Time: %f', $endTime - $startTime);
+        Stdio::printFLn('Time: %f', $end - $start);
     }
 
     public function select(Database $database): void

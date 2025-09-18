@@ -61,33 +61,33 @@ class SQLiteAdapter extends AdapterAbstract
 
     public function query(string $query): void
     {
-        $startTime = microtime(true);
+        $start = microtime(true);
 
         $success = $this->sqlite->exec($query);
 
         if (!$success) {
             $error = $this->sqlite->lastErrorMsg();
 
-            $this->debug($query, $startTime, $error);
+            $this->debug($query, $start, $error);
 
             throw new SQLite3Exception($error);
         }
 
-        $this->debug($query, $startTime);
+        $this->debug($query, $start);
     }
 
     public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): SQLiteResults
     {
         $rawQuery = $queryWithParams->toRawQuery($dialect);
 
-        $startTime = microtime(true);
+        $start = microtime(true);
 
         $sqlite3Statement = $this->sqlite->prepare($queryWithParams->query);
 
         if (is_bool($sqlite3Statement)) {
             $error = $this->sqlite->lastErrorMsg();
 
-            $this->debug($rawQuery, $startTime, $error);
+            $this->debug($rawQuery, $start, $error);
 
             throw new SQLite3Exception($error);
         }
@@ -113,12 +113,12 @@ class SQLiteAdapter extends AdapterAbstract
         if (!$sqlite3Results) {
             $error = $this->sqlite->lastErrorMsg();
 
-            $this->debug($rawQuery, $startTime, $error);
+            $this->debug($rawQuery, $start, $error);
 
             throw new SQLite3Exception($error);
         }
 
-        $this->debug($rawQuery, $startTime);
+        $this->debug($rawQuery, $start);
 
         return new SQLiteResults($sqlite3Results);
     }

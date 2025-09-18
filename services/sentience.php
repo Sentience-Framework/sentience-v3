@@ -26,13 +26,13 @@ return new class () {
             $username,
             $password,
             $queries,
-            $debug ? function (string $query, float $startTime, ?string $error = null): void {
-                $endTime = microtime(true);
+            $debug ? function (string $query, float $start, ?string $error = null): void {
+                $end = microtime(true);
 
                 $lines = [
                     sprintf('Timestamp : %s', date('Y-m-d H:i:s')),
                     sprintf('Query     : %s', $query),
-                    sprintf('Time      : %.2f ms', ($endTime - $startTime) * 1000)
+                    sprintf('Time      : %.2f ms', ($end - $start) * 1000)
                 ];
 
                 if ($error) {

@@ -35,12 +35,12 @@ abstract class AdapterAbstract implements AdapterInterface
         );
     }
 
-    protected function debug(string $query, float $startTime, ?string $error = null): void
+    protected function debug(string $query, float $start, ?string $error = null): void
     {
         if (!$this->debug) {
             return;
         }
 
-        ($this->debug)($query, $startTime, $error);
+        ($this->debug)($query, $start, $error);
     }
 }

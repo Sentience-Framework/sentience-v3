@@ -57,33 +57,33 @@ class MySQLiAdapter extends AdapterAbstract
 
     public function query(string $query): void
     {
-        $startTime = microtime(true);
+        $start = microtime(true);
 
         $result = $this->mysqli->query($query);
 
         if (is_bool($result)) {
             $error = $this->mysqli->error;
 
-            $this->debug($query, $startTime, $error);
+            $this->debug($query, $start, $error);
 
             throw new mysqli_sql_exception($error);
         }
 
-        $this->debug($query, $startTime);
+        $this->debug($query, $start);
     }
 
     public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): MySQLiResults
     {
         $rawQuery = $queryWithParams->toRawQuery($dialect);
 
-        $startTime = microtime(true);
+        $start = microtime(true);
 
         $mysqliStatement = $this->mysqli->prepare($queryWithParams->query);
 
         if (is_bool($mysqliStatement)) {
             $error = $this->mysqli->error;
 
-            $this->debug($rawQuery, $startTime, $error);
+            $this->debug($rawQuery, $start, $error);
 
             throw new mysqli_sql_exception($error);
         }
@@ -118,7 +118,7 @@ class MySQLiAdapter extends AdapterAbstract
         if (!$success) {
             $error = $mysqliStatement->error;
 
-            $this->debug($rawQuery, $startTime, $error);
+            $this->debug($rawQuery, $start, $error);
 
             throw new mysqli_sql_exception($error);
         }
@@ -128,12 +128,12 @@ class MySQLiAdapter extends AdapterAbstract
         if (!$results && $mysqliStatement->error) {
             $error = $mysqliStatement->error;
 
-            $this->debug($rawQuery, $startTime, $error);
+            $this->debug($rawQuery, $start, $error);
 
             throw new mysqli_sql_exception($error);
         }
 
-        $this->debug($rawQuery, $startTime);
+        $this->debug($rawQuery, $start);
 
         return new MySQLiResults($results);
     }
