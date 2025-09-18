@@ -77,7 +77,7 @@ class PDOAdapter extends AdapterAbstract
         if (method_exists($this->pdo, 'sqliteCreateFunction')) {
             $this->pdo->sqliteCreateFunction(
                 static::REGEXP_FUNCTION,
-                fn (string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
+                fn(string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
                 static::REGEXP_FUNCTION_ARGUMENTS_COUNT
             );
         }
@@ -186,7 +186,7 @@ class PDOAdapter extends AdapterAbstract
         return $this->pdo->inTransaction();
     }
 
-    public function lastInsertId(?string $name = null): string
+    public function lastInsertId(?string $name = null): ?string
     {
         $lastInserId = $this->pdo->lastInsertId($name);
 

@@ -14,5 +14,5 @@ interface AdapterInterface
     public function commitTransaction(): void;
     public function rollbackTransaction(): void;
     public function inTransaction(): bool;
-    public function lastInsertId(?string $name = null): string;
+    public function lastInsertId(?string $name = null): ?string;
 }
