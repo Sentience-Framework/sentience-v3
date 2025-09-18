@@ -9,41 +9,41 @@ use Src\Middleware\CORSMiddleware;
 use Src\Middleware\ExampleMiddleware;
 
 return [
-    Route::register(
+    Route::any(
         '/healthcheck',
         function (): void {
             Response::ok(['status' => 'available']);
         }
     )->setMiddleware([
-                [CORSMiddleware::class, 'headers']
+                [CORSMiddleware::class, 'returnOrigin']
             ]),
 
-    RouteGroup::register('/response')
+    RouteGroup::route('/response')
         ->setMiddleware([
-            [CORSMiddleware::class, 'headers']
+            [CORSMiddleware::class, 'returnOrigin']
         ])
-        ->bind(Route::register('/json', [ExampleController::class, 'jsonResponse']))
-        ->bind(Route::register('/xml', [ExampleController::class, 'xmlResponse']))
-        ->bind(Route::register('/url', [ExampleController::class, 'urlResponse'])),
+        ->bind(Route::any('/json', [ExampleController::class, 'jsonResponse']))
+        ->bind(Route::any('/xml', [ExampleController::class, 'xmlResponse']))
+        ->bind(Route::any('/url', [ExampleController::class, 'urlResponse'])),
 
-    RouteGroup::register('/users/{userId}')
+    RouteGroup::route('/users/{userId}')
         ->setMiddleware([
-            [CORSMiddleware::class, 'headers'],
+            [CORSMiddleware::class, 'returnOrigin'],
             [ExampleMiddleware::class, 'killSwitch']
         ])
-        ->bind(Route::register('/', [ExampleController::class, 'getUser'])->setMethods(['GET']))
+        ->bind(Route::get('/', [ExampleController::class, 'getUser']))
         ->bind(
-            RouteGroup::register('/contacts')
-                ->bind(Route::register('/', [ExampleController::class, 'getContacts'])->setMethods(['GET']))
-                ->bind(Route::register('/', [ExampleController::class, 'createContact'])->setMethods(['POST']))
+            RouteGroup::route('/contacts')
+                ->bind(Route::get('/', [ExampleController::class, 'getContacts']))
+                ->bind(Route::post('/', [ExampleController::class, 'createContact']))
                 ->bind(
-                    RouteGroup::register('/{contactId:int}')
-                        ->bind(Route::register('/', [ExampleController::class, 'getContact'])->setMethods(['GET']))
-                        ->bind(Route::register('/', [ExampleController::class, 'updateContact'])->setMethods(['PUT']))
+                    RouteGroup::route('/{contactId:int}')
+                        ->bind(Route::get('/', [ExampleController::class, 'getContact']))
+                        ->bind(Route::put('/', [ExampleController::class, 'updateContact']))
                 )
         ),
 
-    Route::register('/{country}-{language}', function (Request $request, ...$pathVars): void {
+    Route::any('/{country}-{language}', function (Request $request, ...$pathVars): void {
         Response::ok($pathVars);
     })
 ];

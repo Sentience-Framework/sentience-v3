@@ -6,18 +6,45 @@ class Route
 {
     public string $route;
     public mixed $callback;
-    public array $methods = ['*'];
+    public array $methods = [];
     public array $middleware = [];
 
-    public static function register(string $route, string|array|callable $callback): static
+    public static function get(string $route, string|array|callable $callback, array $middleware = []): static
     {
-        return new static($route, $callback);
+        return new static($route, $callback, $middleware, ['GET']);
     }
 
-    public function __construct(string $route, string|array|callable $callback)
+    public static function post(string $route, string|array|callable $callback, array $middleware = []): static
+    {
+        return new static($route, $callback, $middleware, ['POST']);
+    }
+
+    public static function put(string $route, string|array|callable $callback, array $middleware = []): static
+    {
+        return new static($route, $callback, $middleware, ['PUT']);
+    }
+
+    public static function patch(string $route, string|array|callable $callback, array $middleware = []): static
+    {
+        return new static($route, $callback, $middleware, ['PATCH']);
+    }
+
+    public static function delete(string $route, string|array|callable $callback, array $middleware = []): static
+    {
+        return new static($route, $callback, $middleware, ['DELETE']);
+    }
+
+    public static function any(string $route, string|array|callable $callback, array $middleware = []): static
+    {
+        return new static($route, $callback, $middleware, ['*']);
+    }
+
+    public function __construct(string $route, string|array|callable $callback, array $middleware = [], array $methods = ['*'])
     {
         $this->setRoute($route);
         $this->setCallback($callback);
+        $this->setMiddleware($middleware);
+        $this->setMethods($methods);
     }
 
     public function setRoute(string $route): static
@@ -34,19 +61,19 @@ class Route
         return $this;
     }
 
+    public function setMiddleware(array $middleware): static
+    {
+        $this->middleware = $middleware;
+
+        return $this;
+    }
+
     public function setMethods(array $methods): static
     {
         $this->methods = array_map(
             fn (string $method): string => strtoupper($method),
             $methods
         );
-
-        return $this;
-    }
-
-    public function setMiddleware(array $middleware): static
-    {
-        $this->middleware = $middleware;
 
         return $this;
     }

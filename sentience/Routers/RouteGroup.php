@@ -8,14 +8,15 @@ class RouteGroup
     public array $routes = [];
     public array $middleware = [];
 
-    public static function register(string $route): static
+    public static function route(string $route, array $middleware = []): static
     {
-        return new static($route);
+        return new static($route, $middleware);
     }
 
-    public function __construct(string $route)
+    public function __construct(string $route, array $middleware = [])
     {
         $this->setRoute($route);
+        $this->setMiddleware($middleware);
     }
 
     public function setRoute(string $route): static
