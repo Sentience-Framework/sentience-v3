@@ -78,7 +78,7 @@ class SQLiteAdapter extends AdapterAbstract
 
     public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): SQLiteResults
     {
-        $rawQuery = $queryWithParams->toRawQuery($dialect);
+        $query = $queryWithParams->toRawQuery($dialect);
 
         $start = microtime(true);
 
@@ -87,7 +87,7 @@ class SQLiteAdapter extends AdapterAbstract
         if (is_bool($sqlite3Statement)) {
             $error = $this->sqlite->lastErrorMsg();
 
-            $this->debug($rawQuery, $start, $error);
+            $this->debug($query, $start, $error);
 
             throw new SQLite3Exception($error);
         }
@@ -113,12 +113,12 @@ class SQLiteAdapter extends AdapterAbstract
         if (!$sqlite3Results) {
             $error = $this->sqlite->lastErrorMsg();
 
-            $this->debug($rawQuery, $start, $error);
+            $this->debug($query, $start, $error);
 
             throw new SQLite3Exception($error);
         }
 
-        $this->debug($rawQuery, $start);
+        $this->debug($query, $start);
 
         return new SQLiteResults($sqlite3Results);
     }

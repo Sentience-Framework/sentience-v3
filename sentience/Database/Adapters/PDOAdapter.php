@@ -102,7 +102,7 @@ class PDOAdapter extends AdapterAbstract
 
     public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): PDOResults
     {
-        $rawQuery = $queryWithParams->toRawQuery($dialect);
+        $query = $queryWithParams->toRawQuery($dialect);
 
         $start = microtime(true);
 
@@ -111,7 +111,7 @@ class PDOAdapter extends AdapterAbstract
         if (is_bool($pdoStatement)) {
             $error = implode(' ', $this->pdo->errorInfo());
 
-            $this->debug($rawQuery, $start, $error);
+            $this->debug($query, $start, $error);
 
             throw new PDOException($error);
         }
@@ -138,12 +138,12 @@ class PDOAdapter extends AdapterAbstract
         if (!$success) {
             $error = implode(' ', $pdoStatement->errorInfo());
 
-            $this->debug($rawQuery, $start, $error);
+            $this->debug($query, $start, $error);
 
             throw new PDOException($error);
         }
 
-        $this->debug($rawQuery, $start);
+        $this->debug($query, $start);
 
         return new PDOResults($pdoStatement);
     }

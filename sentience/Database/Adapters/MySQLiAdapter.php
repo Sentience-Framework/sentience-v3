@@ -74,7 +74,7 @@ class MySQLiAdapter extends AdapterAbstract
 
     public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): MySQLiResults
     {
-        $rawQuery = $queryWithParams->toRawQuery($dialect);
+        $query = $queryWithParams->toRawQuery($dialect);
 
         $start = microtime(true);
 
@@ -83,7 +83,7 @@ class MySQLiAdapter extends AdapterAbstract
         if (is_bool($mysqliStatement)) {
             $error = $this->mysqli->error;
 
-            $this->debug($rawQuery, $start, $error);
+            $this->debug($query, $start, $error);
 
             throw new mysqli_sql_exception($error);
         }
@@ -118,7 +118,7 @@ class MySQLiAdapter extends AdapterAbstract
         if (!$success) {
             $error = $mysqliStatement->error;
 
-            $this->debug($rawQuery, $start, $error);
+            $this->debug($query, $start, $error);
 
             throw new mysqli_sql_exception($error);
         }
@@ -128,12 +128,12 @@ class MySQLiAdapter extends AdapterAbstract
         if (!$results && $mysqliStatement->error) {
             $error = $mysqliStatement->error;
 
-            $this->debug($rawQuery, $start, $error);
+            $this->debug($query, $start, $error);
 
             throw new mysqli_sql_exception($error);
         }
 
-        $this->debug($rawQuery, $start);
+        $this->debug($query, $start);
 
         return new MySQLiResults($results);
     }
