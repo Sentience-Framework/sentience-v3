@@ -24,7 +24,7 @@ class PgSQLDialect extends SQLDialect implements DialectInterface
                 implode(
                     ', ',
                     array_map(
-                        fn (string $column): string => $this->escapeIdentifier($column),
+                        fn(string $column): string => $this->escapeIdentifier($column),
                         $conflict
                     )
                 )
@@ -86,7 +86,7 @@ class PgSQLDialect extends SQLDialect implements DialectInterface
     public function parseTimestamp(string $string): ?Timestamp
     {
         if (preg_match('/[\+\-][0-9]{2}$/', $string)) {
-            return parent::parseTimestamp(sprintf('%s:00', $string));
+            $string .= ':00';
         }
 
         return parent::parseTimestamp($string);
