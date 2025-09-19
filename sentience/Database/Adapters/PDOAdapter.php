@@ -4,7 +4,7 @@ namespace Sentience\Database\Adapters;
 
 use Closure;
 use PDO;
-use PDOException;
+use Throwable;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
 use Sentience\Database\Queries\Objects\QueryWithParams;
@@ -56,16 +56,15 @@ class PDOAdapter extends AdapterAbstract
             $username,
             $password,
             options: [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_EMULATE_PREPARES => false,
                 PDO::ATTR_STRINGIFY_FETCHES => false,
                 PDO::ATTR_PERSISTENT => true
             ]
         );
 
-        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
-
         if ($driver == Driver::SQLITE) {
-            $this->configureForSQLite($options);
+            $this->configurePDOForSQLite($options);
         }
 
         foreach ($queries as $query) {
@@ -73,7 +72,7 @@ class PDOAdapter extends AdapterAbstract
         }
     }
 
-    protected function configureForSQLite(array $options): void
+    protected function configurePDOForSQLite(array $options): void
     {
         if (method_exists($this->pdo, 'sqliteCreateFunction')) {
             $this->pdo->sqliteCreateFunction(
@@ -88,14 +87,12 @@ class PDOAdapter extends AdapterAbstract
     {
         $start = microtime(true);
 
-        $affected = $this->pdo->exec($query);
+        try {
+            $this->pdo->exec($query);
+        } catch (Throwable $exception) {
+            $this->debug($query, $start, $exception);
 
-        if (is_bool($affected)) {
-            $error = $this->errorInfo($this->pdo->errorInfo());
-
-            $this->debug($query, $start, $error);
-
-            throw new PDOException($error);
+            throw $exception;
         }
 
         $this->debug($query, $start);
@@ -107,14 +104,12 @@ class PDOAdapter extends AdapterAbstract
 
         $start = microtime(true);
 
-        $pdoStatement = $this->pdo->prepare($queryWithParams->query);
+        try {
+            $pdoStatement = $this->pdo->prepare($queryWithParams->query);
+        } catch (Throwable $exception) {
+            $this->debug($query, $start, $exception);
 
-        if (is_bool($pdoStatement)) {
-            $error = $this->errorInfo($this->pdo->errorInfo());
-
-            $this->debug($query, $start, $error);
-
-            throw new PDOException($error);
+            throw $exception;
         }
 
         foreach ($queryWithParams->params as $index => $param) {
@@ -134,14 +129,12 @@ class PDOAdapter extends AdapterAbstract
             );
         }
 
-        $success = $pdoStatement->execute();
+        try {
+            $pdoStatement->execute();
+        } catch (Throwable $exception) {
+            $this->debug($query, $start, $exception);
 
-        if (!$success) {
-            $error = $this->errorInfo($pdoStatement->errorInfo());
-
-            $this->debug($query, $start, $error);
-
-            throw new PDOException($error);
+            throw $exception;
         }
 
         $this->debug($query, $start);
@@ -155,9 +148,7 @@ class PDOAdapter extends AdapterAbstract
             return;
         }
 
-        if (!$this->pdo->beginTransaction()) {
-            throw new PDOException($this->errorInfo($this->pdo->errorInfo()));
-        }
+        $this->pdo->beginTransaction();
     }
 
     public function commitTransaction(): void
@@ -166,9 +157,7 @@ class PDOAdapter extends AdapterAbstract
             return;
         }
 
-        if (!$this->pdo->commit()) {
-            throw new PDOException($this->errorInfo($this->pdo->errorInfo()));
-        }
+        $this->pdo->commit();
     }
 
     public function rollbackTransaction(): void
@@ -177,9 +166,7 @@ class PDOAdapter extends AdapterAbstract
             return;
         }
 
-        if (!$this->pdo->rollBack()) {
-            throw new PDOException($this->errorInfo($this->pdo->errorInfo()));
-        }
+        $this->pdo->rollBack();
     }
 
     public function inTransaction(): bool
@@ -196,10 +183,5 @@ class PDOAdapter extends AdapterAbstract
         }
 
         return $lastInserId;
-    }
-
-    protected function errorInfo(array $errorInfo): string
-    {
-        return implode(' ', $errorInfo);
     }
 }

@@ -65,12 +65,10 @@ class SQLite3Adapter extends AdapterAbstract
     {
         $start = microtime(true);
 
-        $this->sqlite->exec($query);
-
         try {
             $this->sqlite->exec($query);
         } catch (Throwable $exception) {
-            $this->debug($query, $start, $exception->getMessage());
+            $this->debug($query, $start, $exception);
 
             throw $exception;
         }
@@ -87,7 +85,7 @@ class SQLite3Adapter extends AdapterAbstract
         try {
             $sqlite3Statement = $this->sqlite->prepare($queryWithParams->query);
         } catch (Throwable $exception) {
-            $this->debug($query, $start, $exception->getMessage());
+            $this->debug($query, $start, $exception);
 
             throw $exception;
         }
@@ -111,7 +109,7 @@ class SQLite3Adapter extends AdapterAbstract
         try {
             $sqlite3Results = $sqlite3Statement->execute();
         } catch (Throwable $exception) {
-            $this->debug($query, $start, $exception->getMessage());
+            $this->debug($query, $start, $exception);
 
             throw $exception;
         }

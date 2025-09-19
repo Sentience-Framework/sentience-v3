@@ -3,6 +3,7 @@
 namespace Sentience\Database\Adapters;
 
 use Closure;
+use Throwable;
 use Sentience\Database\Driver;
 use Sentience\Helpers\Strings;
 
@@ -35,10 +36,14 @@ abstract class AdapterAbstract implements AdapterInterface
         );
     }
 
-    protected function debug(string $query, float $start, ?string $error = null): void
+    protected function debug(string $query, float $start, null|string|Throwable $error = null): void
     {
         if (!$this->debug) {
             return;
+        }
+
+        if ($error instanceof Throwable) {
+            $error = $error->getMessage();
         }
 
         ($this->debug)($query, $start, $error);

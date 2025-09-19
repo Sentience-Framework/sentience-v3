@@ -4,7 +4,7 @@ namespace Sentience\Database\Adapters;
 
 use Closure;
 use mysqli;
-use mysqli_sql_exception;
+use Throwable;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
 use Sentience\Database\Queries\Objects\QueryWithParams;
@@ -38,6 +38,8 @@ class MySQLiAdapter extends AdapterAbstract
             $options
         );
 
+        mysqli_report(MYSQLI_REPORT_ERROR);
+
         $this->mysqli = new mysqli(
             $host,
             $username,
@@ -46,10 +48,6 @@ class MySQLiAdapter extends AdapterAbstract
             $port
         );
 
-        if ($this->mysqli->connect_error) {
-            throw new mysqli_sql_exception($this->mysqli->connect_error);
-        }
-
         foreach ($queries as $query) {
             $this->query($query);
         }
@@ -57,18 +55,14 @@ class MySQLiAdapter extends AdapterAbstract
 
     public function query(string $query): void
     {
-        $this->disableErrorThrowing();
-
         $start = microtime(true);
 
-        $result = $this->mysqli->query($query);
+        try {
+            $this->mysqli->query($query);
+        } catch (Throwable $exception) {
+            $this->debug($query, $start, $exception);
 
-        if (is_bool($result)) {
-            $error = $this->mysqli->error;
-
-            $this->debug($query, $start, $error);
-
-            throw new mysqli_sql_exception($error);
+            throw $exception;
         }
 
         $this->debug($query, $start);
@@ -76,20 +70,16 @@ class MySQLiAdapter extends AdapterAbstract
 
     public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): MySQLiResults
     {
-        $this->disableErrorThrowing();
-
         $query = $queryWithParams->toRawQuery($dialect);
 
         $start = microtime(true);
 
-        $mysqliStatement = $this->mysqli->prepare($queryWithParams->query);
+        try {
+            $mysqliStatement = $this->mysqli->prepare($queryWithParams->query);
+        } catch (Throwable $exception) {
+            $this->debug($query, $start, $exception);
 
-        if (is_bool($mysqliStatement)) {
-            $error = $this->mysqli->error;
-
-            $this->debug($query, $start, $error);
-
-            throw new mysqli_sql_exception($error);
+            throw $exception;
         }
 
         $paramTypes = [];
@@ -119,25 +109,15 @@ class MySQLiAdapter extends AdapterAbstract
             );
         }
 
-        $success = $mysqliStatement->execute();
+        try {
+            $mysqliStatement->execute();
+        } catch (Throwable $exception) {
+            $this->debug($query, $start, $exception);
 
-        if (!$success) {
-            $error = $mysqliStatement->error;
-
-            $this->debug($query, $start, $error);
-
-            throw new mysqli_sql_exception($error);
+            throw $exception;
         }
 
         $results = $mysqliStatement->get_result();
-
-        if (!$results && $mysqliStatement->error) {
-            $error = $mysqliStatement->error;
-
-            $this->debug($query, $start, $error);
-
-            throw new mysqli_sql_exception($error);
-        }
 
         $this->debug($query, $start);
 
@@ -150,9 +130,7 @@ class MySQLiAdapter extends AdapterAbstract
             return;
         }
 
-        if (!$this->mysqli->begin_transaction()) {
-            throw new mysqli_sql_exception($this->mysqli->error);
-        }
+        $this->mysqli->begin_transaction();
 
         $this->inTransaction = true;
     }
@@ -163,9 +141,7 @@ class MySQLiAdapter extends AdapterAbstract
             return;
         }
 
-        if (!$this->mysqli->commit()) {
-            throw new mysqli_sql_exception($this->mysqli->error);
-        }
+        $this->mysqli->commit();
 
         $this->inTransaction = false;
     }
@@ -176,9 +152,7 @@ class MySQLiAdapter extends AdapterAbstract
             return;
         }
 
-        if (!$this->mysqli->rollback()) {
-            throw new mysqli_sql_exception($this->mysqli->error);
-        }
+        $this->mysqli->rollback();
 
         $this->inTransaction = false;
     }
@@ -191,22 +165,5 @@ class MySQLiAdapter extends AdapterAbstract
     public function lastInsertId(?string $name = null): string
     {
         return (string) $this->mysqli->insert_id;
-    }
-
-    protected function debug(string $query, float $start, ?string $error = null): void
-    {
-        $this->enableErrorThrowing();
-
-        parent::debug($query, $start, $error);
-    }
-
-    protected function enableErrorThrowing(): void
-    {
-        mysqli_report(MYSQLI_REPORT_ERROR);
-    }
-
-    protected function disableErrorThrowing(): void
-    {
-        mysqli_report(MYSQLI_REPORT_OFF);
     }
 }
