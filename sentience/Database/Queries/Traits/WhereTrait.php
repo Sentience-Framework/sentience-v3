@@ -419,10 +419,10 @@ trait WhereTrait
     {
         $conditionGroup = new ConditionGroup($chain);
 
-        $returnedConditionGroup = $callback($conditionGroup);
+        $conditionGroup = $callback($conditionGroup) ?? $conditionGroup;
 
-        if ($returnedConditionGroup instanceof ConditionGroup) {
-            $conditionGroup = $returnedConditionGroup;
+        if (!($conditionGroup instanceof ConditionGroup)) {
+            return $this;
         }
 
         if (count($conditionGroup->getConditions()) == 0) {
