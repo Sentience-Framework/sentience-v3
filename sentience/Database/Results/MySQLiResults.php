@@ -6,13 +6,13 @@ use mysqli_result;
 
 class MySQLiResults implements ResultsInterface
 {
-    public function __construct(protected bool|mysqli_result $mysqliResults)
+    public function __construct(protected bool|mysqli_result $mysqliResult)
     {
     }
 
     public function getColumns(): array
     {
-        if (!$this->mysqliResults) {
+        if (!$this->mysqliResult) {
             return [];
         }
 
@@ -21,7 +21,7 @@ class MySQLiResults implements ResultsInterface
         $index = 0;
 
         while (true) {
-            $column = $this->mysqliResults->fetch_column($index);
+            $column = $this->mysqliResult->fetch_column($index);
 
             if (!$column) {
                 break;
@@ -37,11 +37,11 @@ class MySQLiResults implements ResultsInterface
 
     public function fetchObject(string $class = 'stdClass'): ?object
     {
-        if (!$this->mysqliResults) {
+        if (!$this->mysqliResult) {
             return null;
         }
 
-        $object = $this->mysqliResults->fetch_object($class);
+        $object = $this->mysqliResult->fetch_object($class);
 
         if (is_bool($object)) {
             return null;
@@ -52,11 +52,11 @@ class MySQLiResults implements ResultsInterface
 
     public function fetchObjects(string $class = 'stdClass'): array
     {
-        if (!$this->mysqliResults) {
+        if (!$this->mysqliResult) {
             return [];
         }
 
-        $assocs = $this->mysqliResults->fetch_all(MYSQLI_ASSOC);
+        $assocs = $this->mysqliResult->fetch_all(MYSQLI_ASSOC);
 
         return array_map(
             function (array $assoc) use ($class): object {
@@ -74,11 +74,11 @@ class MySQLiResults implements ResultsInterface
 
     public function fetchAssoc(): ?array
     {
-        if (!$this->mysqliResults) {
+        if (!$this->mysqliResult) {
             return null;
         }
 
-        $assoc = $this->mysqliResults->fetch_assoc();
+        $assoc = $this->mysqliResult->fetch_assoc();
 
         if (is_bool($assoc)) {
             return null;
@@ -89,10 +89,10 @@ class MySQLiResults implements ResultsInterface
 
     public function fetchAssocs(): array
     {
-        if (!$this->mysqliResults) {
+        if (!$this->mysqliResult) {
             return [];
         }
 
-        return $this->mysqliResults->fetch_all(MYSQLI_ASSOC);
+        return $this->mysqliResult->fetch_all(MYSQLI_ASSOC);
     }
 }

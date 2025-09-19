@@ -6,7 +6,7 @@ use SQLite3Result;
 
 class SQLite3Results implements ResultsInterface
 {
-    public function __construct(protected SQLite3Result $sqlite3Results)
+    public function __construct(protected SQLite3Result $sqlite3Result)
     {
     }
 
@@ -17,7 +17,7 @@ class SQLite3Results implements ResultsInterface
         $index = 0;
 
         while (true) {
-            $column = $this->sqlite3Results->columnName($index);
+            $column = $this->sqlite3Result->columnName($index);
 
             if (!$column) {
                 break;
@@ -67,7 +67,7 @@ class SQLite3Results implements ResultsInterface
 
     public function fetchAssoc(): ?array
     {
-        $assoc = $this->sqlite3Results->fetchArray(SQLITE3_ASSOC);
+        $assoc = $this->sqlite3Result->fetchArray(SQLITE3_ASSOC);
 
         if (is_bool($assoc)) {
             return null;
