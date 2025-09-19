@@ -4,6 +4,7 @@ namespace Sentience\Database\Dialects;
 
 use DateTime;
 use DateTimeImmutable;
+use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Timestamp\Timestamp;
 
 class PgSQLDialect extends SQLDialect implements DialectInterface

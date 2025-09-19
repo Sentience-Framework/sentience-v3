@@ -10,6 +10,7 @@ use Sentience\Database\Queries\Objects\AddPrimaryKeys;
 use Sentience\Database\Queries\Objects\AddUniqueConstraint;
 use Sentience\Database\Queries\Objects\AlterColumn;
 use Sentience\Database\Queries\Objects\DropConstraint;
+use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Timestamp\Timestamp;
 
 class SQLiteDialect extends SQLDialect implements DialectInterface
