@@ -38,7 +38,7 @@ class MySQLiAdapter extends AdapterAbstract
             $options
         );
 
-        mysqli_report(MYSQLI_REPORT_ERROR);
+        mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
         $this->mysqli = new mysqli(
             $host,
