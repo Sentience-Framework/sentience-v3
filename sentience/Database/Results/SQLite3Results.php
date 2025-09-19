@@ -4,7 +4,7 @@ namespace Sentience\Database\Results;
 
 use SQLite3Result;
 
-class SQLiteResults implements ResultsInterface
+class SQLite3Results implements ResultsInterface
 {
     public function __construct(protected SQLite3Result $sqlite3Results)
     {

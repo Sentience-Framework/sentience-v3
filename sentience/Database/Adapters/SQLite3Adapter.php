@@ -8,9 +8,9 @@ use SQLite3Exception;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
 use Sentience\Database\Queries\Objects\QueryWithParams;
-use Sentience\Database\Results\SQLiteResults;
+use Sentience\Database\Results\SQLite3Results;
 
-class SQLiteAdapter extends AdapterAbstract
+class SQLite3Adapter extends AdapterAbstract
 {
     public const OPTIONS_READ_ONLY = 'sqlite3_read_only';
     public const OPTIONS_ENCRYPTION_KEY = 'sqlite3_encryption_key';
@@ -44,7 +44,9 @@ class SQLiteAdapter extends AdapterAbstract
 
         $this->sqlite = new SQLite3(
             $name,
-            ($options[static::OPTIONS_READ_ONLY] ?? false) ? SQLITE3_OPEN_READONLY : SQLITE3_OPEN_READWRITE,
+            ($options[static::OPTIONS_READ_ONLY] ?? false)
+            ? SQLITE3_OPEN_READONLY | SQLITE3_OPEN_CREATE
+            : SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE,
             $options[static::OPTIONS_ENCRYPTION_KEY] ?? ''
         );
 
@@ -76,7 +78,7 @@ class SQLiteAdapter extends AdapterAbstract
         $this->debug($query, $start);
     }
 
-    public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): SQLiteResults
+    public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): SQLite3Results
     {
         $query = $queryWithParams->toRawQuery($dialect);
 
@@ -120,7 +122,7 @@ class SQLiteAdapter extends AdapterAbstract
 
         $this->debug($query, $start);
 
-        return new SQLiteResults($sqlite3Results);
+        return new SQLite3Results($sqlite3Results);
     }
 
     public function beginTransaction(): void

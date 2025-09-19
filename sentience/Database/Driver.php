@@ -6,7 +6,7 @@ use Closure;
 use Sentience\Database\Adapters\AdapterInterface;
 use Sentience\Database\Adapters\MySQLiAdapter;
 use Sentience\Database\Adapters\PDOAdapter;
-use Sentience\Database\Adapters\SQLiteAdapter;
+use Sentience\Database\Adapters\SQLite3Adapter;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Dialects\MySQLDialect;
 use Sentience\Database\Dialects\PgSQLDialect;
@@ -34,7 +34,7 @@ enum Driver: string
             ? match ($this) {
                 static::MYSQL => MySQLiAdapter::class,
                 static::PGSQL => PDOAdapter::class,
-                static::SQLITE => SQLiteAdapter::class,
+                static::SQLITE => SQLite3Adapter::class,
                 default => PDOAdapter::class
             }
         : PDOAdapter::class;
