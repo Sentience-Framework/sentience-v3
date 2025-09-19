@@ -19,11 +19,13 @@ class CliRouter
 
     public function match(Argv $argv): array
     {
-        $arg = $argv->args[1] ?? '';
+        $arg = $argv->argv[1] ?? null;
 
         foreach ($this->commands as $command) {
             if ($arg == $command->command) {
-                [$words, $flags] = $this->parseArgs($argv->args);
+                $args = $argv->getArgs();
+
+                [$words, $flags] = $this->parseArgs($args);
 
                 return [$command, $words, $flags];
             }

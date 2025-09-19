@@ -57,6 +57,8 @@ class MySQLiAdapter extends AdapterAbstract
 
     public function query(string $query): void
     {
+        $this->disableErrorThrowing();
+
         $start = microtime(true);
 
         $result = $this->mysqli->query($query);
@@ -74,6 +76,8 @@ class MySQLiAdapter extends AdapterAbstract
 
     public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): MySQLiResults
     {
+        $this->disableErrorThrowing();
+
         $query = $queryWithParams->toRawQuery($dialect);
 
         $start = microtime(true);
@@ -89,7 +93,7 @@ class MySQLiAdapter extends AdapterAbstract
         }
 
         $paramTypes = [];
-        $params = [];
+        $paramValues = [];
 
         foreach ($queryWithParams->params as $param) {
             $value = $dialect->castToDriver($param);
@@ -102,16 +106,18 @@ class MySQLiAdapter extends AdapterAbstract
                 default => 's'
             };
 
-            $params[] = $value;
+            $paramValues[] = $value;
         }
 
-        $mysqliStatement->bind_param(
-            implode(
-                '',
-                $paramTypes
-            ),
-            ...$params
-        );
+        if (count($paramValues) > 0) {
+            $mysqliStatement->bind_param(
+                implode(
+                    '',
+                    $paramTypes
+                ),
+                ...$paramValues
+            );
+        }
 
         $success = $mysqliStatement->execute();
 
@@ -185,5 +191,22 @@ class MySQLiAdapter extends AdapterAbstract
     public function lastInsertId(?string $name = null): string
     {
         return (string) $this->mysqli->insert_id;
+    }
+
+    protected function debug(string $query, float $start, ?string $error = null): void
+    {
+        $this->enableErrorThrowing();
+
+        parent::debug($query, $start, $error);
+    }
+
+    protected function enableErrorThrowing(): void
+    {
+        mysqli_report(MYSQLI_REPORT_ERROR);
+    }
+
+    protected function disableErrorThrowing(): void
+    {
+        mysqli_report(MYSQLI_REPORT_OFF);
     }
 }

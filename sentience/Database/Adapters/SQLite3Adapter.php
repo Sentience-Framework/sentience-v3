@@ -4,7 +4,7 @@ namespace Sentience\Database\Adapters;
 
 use Closure;
 use SQLite3;
-use SQLite3Exception;
+use Throwable;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
 use Sentience\Database\Queries\Objects\QueryWithParams;
@@ -65,14 +65,14 @@ class SQLite3Adapter extends AdapterAbstract
     {
         $start = microtime(true);
 
-        $success = $this->sqlite->exec($query);
+        $this->sqlite->exec($query);
 
-        if (!$success) {
-            $error = $this->sqlite->lastErrorMsg();
+        try {
+            $this->sqlite->exec($query);
+        } catch (Throwable $exception) {
+            $this->debug($query, $start, $exception->getMessage());
 
-            $this->debug($query, $start, $error);
-
-            throw new SQLite3Exception($error);
+            throw $exception;
         }
 
         $this->debug($query, $start);
@@ -84,14 +84,12 @@ class SQLite3Adapter extends AdapterAbstract
 
         $start = microtime(true);
 
-        $sqlite3Statement = $this->sqlite->prepare($queryWithParams->query);
+        try {
+            $sqlite3Statement = $this->sqlite->prepare($queryWithParams->query);
+        } catch (Throwable $exception) {
+            $this->debug($query, $start, $exception->getMessage());
 
-        if (is_bool($sqlite3Statement)) {
-            $error = $this->sqlite->lastErrorMsg();
-
-            $this->debug($query, $start, $error);
-
-            throw new SQLite3Exception($error);
+            throw $exception;
         }
 
         foreach ($queryWithParams->params as $index => $param) {
@@ -110,14 +108,12 @@ class SQLite3Adapter extends AdapterAbstract
             );
         }
 
-        $sqlite3Results = $sqlite3Statement->execute();
+        try {
+            $sqlite3Results = $sqlite3Statement->execute();
+        } catch (Throwable $exception) {
+            $this->debug($query, $start, $exception->getMessage());
 
-        if (!$sqlite3Results) {
-            $error = $this->sqlite->lastErrorMsg();
-
-            $this->debug($query, $start, $error);
-
-            throw new SQLite3Exception($error);
+            throw $exception;
         }
 
         $this->debug($query, $start);
@@ -131,7 +127,7 @@ class SQLite3Adapter extends AdapterAbstract
             return;
         }
 
-        $this->sqlite->query('BEGIN;');
+        $this->query('BEGIN;');
 
         $this->inTransaction = true;
     }

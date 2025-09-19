@@ -56,12 +56,13 @@ class PDOAdapter extends AdapterAbstract
             $username,
             $password,
             options: [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
                 PDO::ATTR_EMULATE_PREPARES => false,
                 PDO::ATTR_STRINGIFY_FETCHES => false,
                 PDO::ATTR_PERSISTENT => true
             ]
         );
+
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
 
         if ($driver == Driver::SQLITE) {
             $this->configureForSQLite($options);
@@ -90,7 +91,7 @@ class PDOAdapter extends AdapterAbstract
         $affected = $this->pdo->exec($query);
 
         if (is_bool($affected)) {
-            $error = implode(' ', $this->pdo->errorInfo());
+            $error = $this->errorInfo($this->pdo->errorInfo());
 
             $this->debug($query, $start, $error);
 
@@ -109,7 +110,7 @@ class PDOAdapter extends AdapterAbstract
         $pdoStatement = $this->pdo->prepare($queryWithParams->query);
 
         if (is_bool($pdoStatement)) {
-            $error = implode(' ', $this->pdo->errorInfo());
+            $error = $this->errorInfo($this->pdo->errorInfo());
 
             $this->debug($query, $start, $error);
 
@@ -136,7 +137,7 @@ class PDOAdapter extends AdapterAbstract
         $success = $pdoStatement->execute();
 
         if (!$success) {
-            $error = implode(' ', $pdoStatement->errorInfo());
+            $error = $this->errorInfo($pdoStatement->errorInfo());
 
             $this->debug($query, $start, $error);
 
@@ -155,7 +156,7 @@ class PDOAdapter extends AdapterAbstract
         }
 
         if (!$this->pdo->beginTransaction()) {
-            throw new PDOException(implode(' ', $this->pdo->errorInfo()));
+            throw new PDOException($this->errorInfo($this->pdo->errorInfo()));
         }
     }
 
@@ -166,7 +167,7 @@ class PDOAdapter extends AdapterAbstract
         }
 
         if (!$this->pdo->commit()) {
-            throw new PDOException(implode(' ', $this->pdo->errorInfo()));
+            throw new PDOException($this->errorInfo($this->pdo->errorInfo()));
         }
     }
 
@@ -177,7 +178,7 @@ class PDOAdapter extends AdapterAbstract
         }
 
         if (!$this->pdo->rollBack()) {
-            throw new PDOException(implode(' ', $this->pdo->errorInfo()));
+            throw new PDOException($this->errorInfo($this->pdo->errorInfo()));
         }
     }
 
@@ -195,5 +196,10 @@ class PDOAdapter extends AdapterAbstract
         }
 
         return $lastInserId;
+    }
+
+    protected function errorInfo(array $errorInfo): string
+    {
+        return implode(' ', $errorInfo);
     }
 }

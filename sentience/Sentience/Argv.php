@@ -9,7 +9,12 @@ class Argv
         return new static($GLOBALS['argv']);
     }
 
-    public function __construct(public array $args)
+    public function __construct(public array $argv)
     {
+    }
+
+    public function getArgs(): array
+    {
+        return array_slice($this->argv, 2);
     }
 }
