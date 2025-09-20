@@ -13,9 +13,9 @@ class DeleteModelsQuery extends ModelsQueryAbstract
 {
     use WhereTrait;
 
-    public function __construct(Database $database, DialectInterface $dialect, array $model)
+    public function __construct(Database $database, DialectInterface $dialect, array $models)
     {
-        parent::__construct($database, $dialect, $model);
+        parent::__construct($database, $dialect, $models);
     }
 
     public function execute(): array

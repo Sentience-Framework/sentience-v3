@@ -48,7 +48,7 @@ class MySQLiAdapter extends AdapterAbstract
             $port
         );
 
-        if (array_key_exists(static::OPTIONS_CHARSET, $options)) {
+        if (array_key_exists(static::OPTIONS_MYSQL_CHARSET, $options)) {
             $this->mysqli->set_charset((string) $options['charset']);
         }
 

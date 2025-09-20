@@ -90,7 +90,7 @@ class PDOAdapter extends AdapterAbstract
         );
 
         if ($driver == Driver::MYSQL) {
-            if (array_key_exists(static::OPTIONS_CHARSET, $options)) {
+            if (array_key_exists(static::OPTIONS_MYSQL_CHARSET, $options)) {
                 $dsn .= sprintf(';charset=%s' . (string) $options['charset']);
             }
         }
