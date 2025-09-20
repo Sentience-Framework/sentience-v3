@@ -30,14 +30,14 @@ enum Driver: string
         array $options = [],
         bool $usePDOAdapter = false
     ): AdapterInterface {
-        $adapter = !$usePDOAdapter
-            ? match ($this) {
+        $adapter = $usePDOAdapter
+            ? PDOAdapter::class
+            : match ($this) {
                 static::MYSQL => MySQLiAdapter::class,
                 static::PGSQL => PDOAdapter::class,
                 static::SQLITE => SQLite3Adapter::class,
                 default => PDOAdapter::class
-            }
-        : PDOAdapter::class;
+            };
 
         return new $adapter(
             $this,
