@@ -11,6 +11,7 @@ return [
         'username' => env('DB_USERNAME', 'root'),
         'password' => env('DB_PASSWORD', ''),
         'queries' => env('DB_QUERIES', []),
+        'charset' => env('DB_CHARSET', 'utf8mb4'),
         'use_pdo' => env('DB_USE_PDO', false)
     ],
     'pgsql' => [

@@ -37,19 +37,13 @@ class PDOAdapter extends AdapterAbstract
             $options
         );
 
-        $dsn = $driver == Driver::SQLITE
-            ? sprintf(
-                '%s:%s',
-                $driver->value,
-                $name
-            )
-            : sprintf(
-                '%s:host=%s;port=%s;dbname=%s',
-                $driver->value,
-                $host,
-                $port,
-                $name
-            );
+        $dsn = $this->dsn(
+            $driver,
+            $host,
+            $port,
+            $name,
+            $options
+        );
 
         $this->pdo = new PDO(
             $dsn,
@@ -70,6 +64,38 @@ class PDOAdapter extends AdapterAbstract
         foreach ($queries as $query) {
             $this->query($query);
         }
+    }
+
+    protected function dsn(
+        Driver $driver,
+        string $host,
+        int $port,
+        string $name,
+        array $options
+    ): string {
+        if ($driver == Driver::SQLITE) {
+            return sprintf(
+                '%s:%s',
+                $driver->value,
+                $name
+            );
+        }
+
+        $dsn = sprintf(
+            '%s:host=%s;port=%s;dbname=%s',
+            $driver->value,
+            $host,
+            $port,
+            $name
+        );
+
+        if ($driver == Driver::MYSQL) {
+            if (array_key_exists(static::OPTIONS_CHARSET, $options)) {
+                $dsn .= sprintf(';charset=%s' . (string) $options['charset']);
+            }
+        }
+
+        return $dsn;
     }
 
     protected function configurePDOForSQLite(array $options): void
