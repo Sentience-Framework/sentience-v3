@@ -9,9 +9,9 @@ trait HavingTrait
 {
     protected ?QueryWithParams $having = null;
 
-    public function having(string $expression, bool|int|float|string|DateTimeInterface ...$values): static
+    public function having(string $conditions, bool|int|float|string|DateTimeInterface ...$values): static
     {
-        $this->having = new QueryWithParams($expression, $values);
+        $this->having = new QueryWithParams($conditions, $values);
 
         return $this;
     }
