@@ -2,8 +2,6 @@
 
 namespace Sentience\Database\Dialects;
 
-use DateTime;
-use DateTimeImmutable;
 use Sentience\Database\Exceptions\QueryException;
 use Sentience\Database\Queries\Objects\AddForeignKeyConstraint;
 use Sentience\Database\Queries\Objects\AddPrimaryKeys;
@@ -11,7 +9,6 @@ use Sentience\Database\Queries\Objects\AddUniqueConstraint;
 use Sentience\Database\Queries\Objects\AlterColumn;
 use Sentience\Database\Queries\Objects\DropConstraint;
 use Sentience\Database\Queries\Objects\Raw;
-use Sentience\Timestamp\Timestamp;
 
 class SQLiteDialect extends SQLDialect implements DialectInterface
 {
@@ -93,19 +90,5 @@ class SQLiteDialect extends SQLDialect implements DialectInterface
     protected function buildAlterTableDropConstraint(DropConstraint $dropConstraint): string
     {
         throw new QueryException('SQLite does not support dropping constraints by altering the table');
-    }
-
-    public function phpTypeToColumnType(string $type, bool $autoIncrement, bool $isPrimaryKey, bool $inConstraint): string
-    {
-        return match ($type) {
-            'bool' => 'BOOLEAN',
-            'int' => 'INTEGER',
-            'float' => 'REAL',
-            'string' => 'TEXT',
-            Timestamp::class,
-            DateTime::class,
-            DateTimeImmutable::class => 'DATETIME',
-            default => 'TEXT'
-        };
     }
 }

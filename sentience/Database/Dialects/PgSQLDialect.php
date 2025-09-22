@@ -2,8 +2,6 @@
 
 namespace Sentience\Database\Dialects;
 
-use DateTime;
-use DateTimeImmutable;
 use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Timestamp\Timestamp;
 
@@ -91,23 +89,5 @@ class PgSQLDialect extends SQLDialect implements DialectInterface
         }
 
         return parent::parseTimestamp($string);
-    }
-
-    public function phpTypeToColumnType(string $type, bool $autoIncrement, bool $isPrimaryKey, bool $inConstraint): string
-    {
-        if ($autoIncrement && $type == 'int') {
-            return 'SERIAL';
-        }
-
-        return match ($type) {
-            'bool' => 'BOOL',
-            'int' => 'INT8',
-            'float' => 'FLOAT8',
-            'string' => 'TEXT',
-            Timestamp::class,
-            DateTime::class,
-            DateTimeImmutable::class => 'TIMESTAMP',
-            default => 'TEXT'
-        };
     }
 }

@@ -2,8 +2,6 @@
 
 namespace Sentience\Database\Dialects;
 
-use DateTime;
-use DateTimeImmutable;
 use DateTimeInterface;
 use Sentience\Database\Exceptions\QueryException;
 use Sentience\Database\Queries\Enums\ConditionEnum;
@@ -828,19 +826,5 @@ class SQLDialect implements DialectInterface
         }
 
         return Timestamp::createFromString($string);
-    }
-
-    public function phpTypeToColumnType(string $type, bool $autoIncrement, bool $isPrimaryKey, bool $inConstraint): string
-    {
-        return match ($type) {
-            'bool' => 'INT',
-            'int' => 'INT',
-            'float' => 'FLOAT',
-            'string' => 'TEXT',
-            Timestamp::class,
-            DateTime::class,
-            DateTimeImmutable::class => 'DATETIME',
-            default => 'TEXT'
-        };
     }
 }

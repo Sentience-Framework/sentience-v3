@@ -7,11 +7,18 @@ use ReflectionEnum;
 use ReflectionNamedType;
 use ReflectionProperty;
 use Sentience\Database\Dialects\DialectInterface;
+use Sentience\Database\Dialects\MySQLDialect;
+use Sentience\Database\Dialects\PgSQLDialect;
+use Sentience\Database\Dialects\SQLiteDialect;
 use Sentience\Helpers\Arrays;
 use Sentience\Helpers\Strings;
 use Sentience\Models\Attributes\Columns\AutoIncrement;
 use Sentience\Models\Attributes\Columns\Column;
+use Sentience\Models\Enums\MySQLColumnEnum;
+use Sentience\Models\Enums\PgSQLColumnEnum;
+use Sentience\Models\Enums\SQLite3ColumnEnum;
 use Sentience\Models\Exceptions\MultipleTypesException;
+use Sentience\Models\Exceptions\UnknownDialectException;
 use Sentience\Models\Model;
 
 class ReflectionModelProperty
@@ -54,12 +61,21 @@ class ReflectionModelProperty
             $type = (new ReflectionEnum($type))->getBackingType();
         }
 
-        return $dialect->phpTypeToColumnType(
-            $type,
-            $this->isAutoIncrement(),
-            $this->isPrimaryKey(),
-            $this->isUnique()
-        );
+        return match (true) {
+            $dialect instanceof MySQLDialect => MySQLColumnEnum::getType(
+                $type,
+                $this->isPrimaryKey(),
+                $this->isUnique()
+            )->value,
+            $dialect instanceof PgSQLDialect => PgSQLColumnEnum::getType(
+                $type,
+                $this->isAutoIncrement()
+            )->value,
+            $dialect instanceof SQLiteDialect => SQLite3ColumnEnum::getType(
+                $type
+            )->value,
+            default => throw new UnknownDialectException('unknown dialect %s', $dialect::class)
+        };
     }
 
     public function getDefaultValue(): mixed

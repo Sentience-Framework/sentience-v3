@@ -2,15 +2,12 @@
 
 namespace Sentience\Database\Dialects;
 
-use DateTime;
-use DateTimeImmutable;
 use Sentience\Database\Queries\Objects\AlterColumn;
 use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\DropConstraint;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Database\Queries\Query;
-use Sentience\Timestamp\Timestamp;
 
 class MySQLDialect extends SQLDialect implements DialectInterface
 {
@@ -111,27 +108,5 @@ class MySQLDialect extends SQLDialect implements DialectInterface
         $stringifiedDropConstraint = parent::buildAlterTableDropConstraint($dropConstraint);
 
         return substr_replace($stringifiedDropConstraint, 'INDEX', 5, 10);
-    }
-
-    public function phpTypeToColumnType(string $type, bool $autoIncrement, bool $isPrimaryKey, bool $inConstraint): string
-    {
-        if ($isPrimaryKey && $type == 'string') {
-            return 'VARCHAR(64)';
-        }
-
-        if ($inConstraint && $type == 'string') {
-            return 'VARCHAR(255)';
-        }
-
-        return match ($type) {
-            'bool' => 'TINYINT',
-            'int' => 'INT',
-            'float' => 'FLOAT',
-            'string' => 'LONGTEXT',
-            Timestamp::class,
-            DateTime::class,
-            DateTimeImmutable::class => 'DATETIME(6)',
-            default => 'VARCHAR(255)'
-        };
     }
 }

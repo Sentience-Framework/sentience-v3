@@ -24,5 +24,4 @@ interface DialectInterface
     public function castTimestamp(DateTimeInterface $timestamp): mixed;
     public function parseBool(mixed $bool): bool;
     public function parseTimestamp(string $string): ?Timestamp;
-    public function phpTypeToColumnType(string $type, bool $autoIncrement, bool $isPrimaryKey, bool $inConstraint): string;
 }
