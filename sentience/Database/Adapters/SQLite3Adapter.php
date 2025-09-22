@@ -56,6 +56,17 @@ class SQLite3Adapter extends AdapterAbstract
             static::REGEXP_FUNCTION_ARGUMENTS_COUNT
         );
 
+        $this->query(
+            sprintf(
+                'PRAGMA journal_mode=%s;',
+                $options[static::OPTIONS_SQLITE_JOURNAL_MODE]
+            )
+        );
+
+        if ($options[static::OPTIONS_SQLITE_FOREIGN_KEYS]) {
+            $this->query('PRAGMA foreign_keys=ON;');
+        }
+
         foreach ($queries as $query) {
             $this->query($query);
         }

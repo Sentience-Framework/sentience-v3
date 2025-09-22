@@ -90,9 +90,7 @@ class PDOAdapter extends AdapterAbstract
         );
 
         if ($driver == Driver::MYSQL) {
-            if (array_key_exists(static::OPTIONS_MYSQL_CHARSET, $options)) {
-                $dsn .= sprintf(';charset=%s' . (string) $options['charset']);
-            }
+            $dsn .= sprintf(';charset=%s' . (string) $options['charset']);
         }
 
         return $dsn;
@@ -106,6 +104,17 @@ class PDOAdapter extends AdapterAbstract
                 fn (string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
                 static::REGEXP_FUNCTION_ARGUMENTS_COUNT
             );
+        }
+
+        $this->query(
+            sprintf(
+                'PRAGMA journal_mode=%s;',
+                (string) $options[static::OPTIONS_SQLITE_JOURNAL_MODE]
+            )
+        );
+
+        if ($options[static::OPTIONS_SQLITE_FOREIGN_KEYS]) {
+            $this->query('PRAGMA foreign_keys=ON;');
         }
     }
 

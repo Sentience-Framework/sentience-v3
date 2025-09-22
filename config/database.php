@@ -26,6 +26,8 @@ return [
     'sqlite' => [
         'file' => env('DB_FILE', Filesystem::path(SENTIENCE_DIR, 'sqlite', 'sentience.sqlite3')),
         'queries' => env('DB_QUERIES', ['PRAGMA journal_mode=WAL;']),
+        'journal_mode' => env('DB_SQLITE_JOURNAL_MODE', 'WAL'),
+        'foreign_keys' => env('DB_SQLITE_FOREIGN_KEYS', true),
 
         /**
          * The SQLite3 class contains a bug that executes queries multiple times.
