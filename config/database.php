@@ -10,7 +10,15 @@ return [
         'name' => env('DB_NAME', 'sentience'),
         'username' => env('DB_USERNAME', 'root'),
         'password' => env('DB_PASSWORD', ''),
+
+        /**
+         * Highly expirimental!
+         *
+         * Asynchronous writes:
+         * 'queries' => ['SET GLOBAL innodb_flush_log_at_trx_commit=0;','SET GLOBAL sync_binlog=0;']
+         */
         'queries' => env('DB_QUERIES', []),
+
         'charset' => env('DB_CHARSET', 'utf8mb4'),
         'use_pdo' => env('DB_USE_PDO', false)
     ],
@@ -20,12 +28,28 @@ return [
         'name' => env('DB_NAME', 'sentience'),
         'username' => env('DB_USERNAME', 'postgres'),
         'password' => env('DB_PASSWORD', ''),
+
+        /**
+         * Highly expirimental!
+         *
+         * Asynchronous writes:
+         * 'queries' => ['SET synchronous_commit=OFF;']
+         */
         'queries' => env('DB_QUERIES', []),
+
         'use_pdo' => env('DB_USE_PDO', false)
     ],
     'sqlite' => [
         'file' => env('DB_FILE', Filesystem::path(SENTIENCE_DIR, 'sqlite', 'sentience.sqlite3')),
-        'queries' => env('DB_QUERIES', ['PRAGMA journal_mode=WAL;']),
+
+        /**
+         * Highly expirimental!
+         *
+         * Asynchronous writes:
+         * 'queries' => ['PRAGMA synchronous=OFF']
+         */
+        'queries' => env('DB_QUERIES', []),
+
         'journal_mode' => env('DB_SQLITE_JOURNAL_MODE', 'WAL'),
         'foreign_keys' => env('DB_SQLITE_FOREIGN_KEYS', true),
 
