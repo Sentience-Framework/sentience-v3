@@ -39,7 +39,21 @@ class Config
 
     public static function set(string $key, mixed $value): mixed
     {
-        return static::$config[$key] = $value;
+        $pointers = explode('->', $key);
+
+        $reference = &static::$config;
+
+        foreach ($pointers as $pointer) {
+            if (!array_key_exists($pointer, $reference) || !is_array($reference[$pointer])) {
+                $reference[$pointer] = [];
+            }
+
+            $reference = &$reference[$pointer];
+        }
+
+        $reference = $value;
+
+        return $value;
     }
 
     public static function loadFiles(string $path): void
