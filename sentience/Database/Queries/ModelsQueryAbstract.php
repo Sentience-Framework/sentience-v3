@@ -18,7 +18,7 @@ abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
     {
         parent::__construct($database, $dialect);
 
-        if (\count($models) == 0) {
+        if (count($models) == 0) {
             throw new QueryException('array of models is empty');
         }
     }
@@ -29,7 +29,7 @@ abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
             throw new QueryException('%s is not a model', get_debug_type($model));
         }
 
-        if (!\is_object($model) && $mustBeInstance) {
+        if (!is_object($model) && $mustBeInstance) {
             throw new QueryException('model is not an instance');
         }
 
@@ -38,7 +38,7 @@ abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
 
     protected function mapAssocToModel(string|Model $model, array $assoc): Model
     {
-        if (\is_string($model)) {
+        if (is_string($model)) {
             $model = new $model();
         }
 
@@ -50,13 +50,13 @@ abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
             $column = $reflectionModelProperty->getColumn();
             $type = $reflectionModelProperty->getType();
 
-            if (!\array_key_exists($column, $assoc)) {
+            if (!array_key_exists($column, $assoc)) {
                 continue;
             }
 
             $value = $assoc[$column];
 
-            if (\is_null($value)) {
+            if (is_null($value)) {
                 $model->{$property} = null;
 
                 continue;

@@ -425,7 +425,7 @@ trait WhereTrait
             return $this;
         }
 
-        if (\count($conditionGroup->getConditions()) == 0) {
+        if (count($conditionGroup->getConditions()) == 0) {
             return $this;
         }
 

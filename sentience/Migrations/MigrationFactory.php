@@ -18,7 +18,7 @@ class MigrationFactory
         $lines[] = '    {';
 
         foreach ($apply as $line) {
-            $lines[] = \sprintf('        %s', $line);
+            $lines[] = sprintf('        %s', $line);
         }
 
         $lines[] = '    }';
@@ -27,7 +27,7 @@ class MigrationFactory
         $lines[] = '    {';
 
         foreach ($rollback as $line) {
-            $lines[] = \sprintf('        %s', $line);
+            $lines[] = sprintf('        %s', $line);
         }
 
         $lines[] = '    }';

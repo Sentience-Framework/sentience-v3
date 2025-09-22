@@ -43,7 +43,7 @@ class AlterModelQuery extends ModelsQueryAbstract
         $columnsToDrop = [];
 
         foreach ($columns as $column => $reflectionModelProperty) {
-            if (\in_array($column, $columnsInDatabase)) {
+            if (in_array($column, $columnsInDatabase)) {
                 continue;
             }
 
@@ -51,14 +51,14 @@ class AlterModelQuery extends ModelsQueryAbstract
         }
 
         foreach ($columnsInDatabase as $column) {
-            if (\array_key_exists($column, $columns)) {
+            if (array_key_exists($column, $columns)) {
                 continue;
             }
 
             $columnsToDrop[] = $column;
         }
 
-        if ((\count($columnsToAdd) + \count($columnsToDrop)) == 0) {
+        if ((count($columnsToAdd) + count($columnsToDrop)) == 0) {
             return null;
         }
 

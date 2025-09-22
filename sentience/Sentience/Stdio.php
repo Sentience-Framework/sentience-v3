@@ -21,12 +21,12 @@ class Stdio
 
     public static function printF(string $input, ...$values)
     {
-        static::print(\sprintf($input, ...$values));
+        static::print(sprintf($input, ...$values));
     }
 
     public static function printFLn(string $input, ...$values)
     {
-        static::printLn(\sprintf($input, ...$values));
+        static::printLn(sprintf($input, ...$values));
     }
 
     public static function error(string $input)
@@ -41,11 +41,11 @@ class Stdio
 
     public static function errorF(string $input, ...$values)
     {
-        static::error(\sprintf($input, ...$values));
+        static::error(sprintf($input, ...$values));
     }
 
     public static function errorFLn(string $input, ...$values)
     {
-        static::errorLn(\sprintf($input, ...$values));
+        static::errorLn(sprintf($input, ...$values));
     }
 }

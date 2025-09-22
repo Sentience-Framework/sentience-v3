@@ -75,7 +75,7 @@ class AlterTableQuery extends ResultQueryAbstract
 
     public function addPrimaryKeys(string|array $columns): static
     {
-        $this->alters[] = new AddPrimaryKeys(\is_string($columns) ? [$columns] : $columns);
+        $this->alters[] = new AddPrimaryKeys(is_string($columns) ? [$columns] : $columns);
 
         return $this;
     }

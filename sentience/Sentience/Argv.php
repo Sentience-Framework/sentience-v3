@@ -15,6 +15,6 @@ class Argv
 
     public function getArgs(): array
     {
-        return \array_slice($this->argv, 2);
+        return array_slice($this->argv, 2);
     }
 }

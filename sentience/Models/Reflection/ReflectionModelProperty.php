@@ -91,7 +91,7 @@ class ReflectionModelProperty
 
     public function isPrimaryKey(): bool
     {
-        return \in_array(
+        return in_array(
             $this->getColumn(),
             $this->reflectionModel->getPrimaryKeys()
         );
@@ -105,7 +105,7 @@ class ReflectionModelProperty
             return false;
         }
 
-        return \in_array(
+        return in_array(
             $this->getColumn(),
             $uniqueConstraint->columns
         );

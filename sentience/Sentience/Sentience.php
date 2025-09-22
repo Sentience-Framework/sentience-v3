@@ -194,11 +194,11 @@ class Sentience
 
         $args = $this->executeMiddleware($dependencyInjector, $middleware);
 
-        if (\is_array($callback)) {
+        if (is_array($callback)) {
             [$callback, $args] = $this->constructCallbackClass($dependencyInjector, $callback, $args);
         }
 
-        $callbackReflector = \is_array($callback)
+        $callbackReflector = is_array($callback)
             ? new ReflectionMethod(...$callback)
             : new ReflectionFunction($callback);
 
@@ -214,7 +214,7 @@ class Sentience
         foreach ($middleware as $callback) {
             $this->validateCallback($callback);
 
-            if (\is_array($callback)) {
+            if (is_array($callback)) {
                 [$callback, $args] = $this->constructCallbackClass($dependencyInjector, $callback, $args);
             }
 
@@ -226,7 +226,7 @@ class Sentience
 
     protected function executeMiddlewareCallback(DependencyInjector $dependencyInjector, string|array|callable $callback, array $args): array
     {
-        $callbackReflector = \is_array($callback)
+        $callbackReflector = is_array($callback)
             ? new ReflectionMethod(...$callback)
             : new ReflectionFunction($callback);
 
@@ -234,7 +234,7 @@ class Sentience
 
         $middlewareArgs = $callback(...$filteredArgs);
 
-        if (!\is_array($middlewareArgs)) {
+        if (!is_array($middlewareArgs)) {
             return [...$args, ...$filteredArgs];
         }
 
@@ -247,7 +247,7 @@ class Sentience
             return;
         }
 
-        if (\is_array($callback)) {
+        if (is_array($callback)) {
             [$class, $method] = $callback;
 
             if (!class_exists($class)) {
@@ -261,7 +261,7 @@ class Sentience
             return;
         }
 
-        if (!\function_exists($callback)) {
+        if (!function_exists($callback)) {
             throw new CallbackException('function %s does not exist', $callback);
         }
     }
@@ -275,7 +275,7 @@ class Sentience
         $isSubclassOfController = $reflectionClass->isSubclassOf(Controller::class);
         $isSubclassOfMiddleware = $reflectionClass->isSubclassOf(Middleware::class);
 
-        if (!\in_array(true, [$isSubclassOfController, $isSubclassOfMiddleware])) {
+        if (!in_array(true, [$isSubclassOfController, $isSubclassOfMiddleware])) {
             throw new CallbackException('class %s does not extend a supported base class', $class);
         }
 
@@ -300,29 +300,29 @@ class Sentience
     protected function handleExceptionCli(Throwable $exception): void
     {
         $lines = [
-            \sprintf('- Type    : %s', (new ReflectionClass($exception))->getShortName()),
-            \sprintf('- Message : %s', $exception->getMessage())
+            sprintf('- Type    : %s', (new ReflectionClass($exception))->getShortName()),
+            sprintf('- Message : %s', $exception->getMessage())
         ];
 
         if (config('sentience->errors->stack_trace', false)) {
-            $lines[] = \sprintf('- File    : %s', $exception->getFile());
-            $lines[] = \sprintf('- Line    : %d', $exception->getLine());
+            $lines[] = sprintf('- File    : %s', $exception->getFile());
+            $lines[] = sprintf('- Line    : %d', $exception->getLine());
 
             $stackTrace = array_values(
                 array_filter(
                     $exception->getTrace(),
-                    fn (array $frame): bool => \array_key_exists('file', $frame)
+                    fn (array $frame): bool => array_key_exists('file', $frame)
                 )
             );
 
-            if (\count($stackTrace) > 0) {
-                $lines[] = \sprintf('- Trace   :');
+            if (count($stackTrace) > 0) {
+                $lines[] = sprintf('- Trace   :');
 
                 foreach ($stackTrace as $index => $frame) {
                     $file = $frame['file'];
                     $line = $frame['line'];
 
-                    $function = \array_key_exists('class', $frame)
+                    $function = array_key_exists('class', $frame)
                         ? $frame['class'] . $frame['type'] . $frame['function']
                         : $frame['function'];
 
@@ -334,7 +334,7 @@ class Sentience
                         )
                     );
 
-                    $lines[] = \sprintf(
+                    $lines[] = sprintf(
                         '        %d : %s:%d %s(%s)',
                         $index + 1,
                         $file,
@@ -368,14 +368,14 @@ class Sentience
                 array_filter(
                     array_map(
                         function (array $frame): ?array {
-                            if (!\array_key_exists('file', $frame)) {
+                            if (!array_key_exists('file', $frame)) {
                                 return null;
                             }
 
                             $file = $frame['file'];
                             $line = $frame['line'];
 
-                            $function = \array_key_exists('class', $frame)
+                            $function = array_key_exists('class', $frame)
                                 ? $frame['class'] . $frame['type'] . $frame['function']
                                 : $frame['function'];
 
@@ -396,7 +396,7 @@ class Sentience
                 )
             );
 
-            if (\count($stackTrace) > 0) {
+            if (count($stackTrace) > 0) {
                 $response['error']['trace'] = $stackTrace;
             }
         }
@@ -407,7 +407,7 @@ class Sentience
     protected function cliNotFound(Argv $argv): void
     {
         $lines = array_map(
-            fn (Command $command): string => \sprintf('- %s', $command->command),
+            fn (Command $command): string => sprintf('- %s', $command->command),
             $this->cliRouter->commands
         );
 

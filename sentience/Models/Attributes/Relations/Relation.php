@@ -18,6 +18,6 @@ abstract class Relation
             throw new RelationException('%s does not match model to relation join %s', $mToRJoin, static::M_TO_R_JOIN_REGEX_PATTERN);
         }
 
-        return \array_slice($matches, 1);
+        return array_slice($matches, 1);
     }
 }

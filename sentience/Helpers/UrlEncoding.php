@@ -15,15 +15,15 @@ class UrlEncoding
         $encoded = [];
 
         foreach ($assoc as $key => $value) {
-            if (\is_array($value)) {
+            if (is_array($value)) {
                 array_walk(
                     $value,
                     function (mixed $value) use ($key, &$encoded): void {
-                        if (!\is_scalar($value)) {
+                        if (!is_scalar($value)) {
                             throw new UrlEncodingException('arrays can only be nested one layer deep');
                         }
 
-                        $encoded[] = \sprintf(
+                        $encoded[] = sprintf(
                             '%s=%s',
                             urlencode($key),
                             urlencode($value)
@@ -34,7 +34,7 @@ class UrlEncoding
                 continue;
             }
 
-            $encoded[] = \sprintf(
+            $encoded[] = sprintf(
                 '%s=%s',
                 urlencode($key),
                 urlencode((string) $value)
@@ -63,7 +63,7 @@ class UrlEncoding
             $key = urldecode($urlEncodedKey);
             $value = urldecode($urlEncodedValue);
 
-            if (!\array_key_exists($key, $decoded)) {
+            if (!array_key_exists($key, $decoded)) {
                 $decoded[$key] = [];
             }
 
@@ -79,7 +79,7 @@ class UrlEncoding
 
         return array_map(
             function (array $values): mixed {
-                if (\count($values) == 1) {
+                if (count($values) == 1) {
                     return end($values);
                 }
 

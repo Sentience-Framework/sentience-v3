@@ -61,19 +61,19 @@ class DependencyInjector
         foreach ($functionParameters as $functionParameter) {
             $name = $functionParameter->getName();
 
-            if (\array_key_exists($name, $injectables)) {
+            if (array_key_exists($name, $injectables)) {
                 $parameters[$name] = $injectables[$name];
 
                 continue;
             }
 
-            if (\array_key_exists($name, $serviceProperties)) {
+            if (array_key_exists($name, $serviceProperties)) {
                 $parameters[$name] = $serviceProperties[$name];
 
                 continue;
             }
 
-            if (\array_key_exists($name, $serviceMethods)) {
+            if (array_key_exists($name, $serviceMethods)) {
                 $parameters[$name] = $serviceMethods[$name]();
 
                 continue;
@@ -90,7 +90,7 @@ class DependencyInjector
                     ...$parameters,
                     ...array_filter(
                         $injectables,
-                        fn (string $injectable): bool => !\array_key_exists($injectable, $parameters),
+                        fn (string $injectable): bool => !array_key_exists($injectable, $parameters),
                         ARRAY_FILTER_USE_KEY
                     )
                 ];

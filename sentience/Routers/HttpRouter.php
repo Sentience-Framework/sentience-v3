@@ -32,8 +32,8 @@ class HttpRouter
                 continue;
             }
 
-            if (!\array_key_exists($method, $methods)) {
-                if (\array_key_exists('*', $methods)) {
+            if (!array_key_exists($method, $methods)) {
+                if (array_key_exists('*', $methods)) {
                     return [null, null, 405];
                 }
 
@@ -75,7 +75,7 @@ class HttpRouter
 
                 return '(.[^\/]*)';
             },
-            \sprintf(
+            sprintf(
                 '/^%s$/',
                 Strings::escapeChars($route, ['-', '+', '*', '/', '^', '=', '!', '?', '$', '.', '|', '<', '>', '[', ']', '(', ')'])
             )
@@ -87,7 +87,7 @@ class HttpRouter
             return [false, null];
         }
 
-        $values = \array_slice($matches, 1);
+        $values = array_slice($matches, 1);
 
         $pathVars = [];
 
@@ -109,7 +109,7 @@ class HttpRouter
         $pathComponents = explode('/', $path);
         $routeComponents = explode('/', $route);
 
-        if (\count($pathComponents) != \count($routeComponents)) {
+        if (count($pathComponents) != count($routeComponents)) {
             return false;
         }
 
@@ -178,7 +178,7 @@ class HttpRouter
     {
         $key = $routeWithPrefixes ?? $route->route;
 
-        if (!\array_key_exists($key, $mappedRoutes)) {
+        if (!array_key_exists($key, $mappedRoutes)) {
             $mappedRoutes[$key] = [];
         }
 

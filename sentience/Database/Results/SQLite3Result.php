@@ -33,7 +33,7 @@ class SQLite3Result implements ResultInterface
     {
         $assoc = $this->fetchAssoc();
 
-        if (\is_null($assoc)) {
+        if (is_null($assoc)) {
             return null;
         }
 
@@ -53,7 +53,7 @@ class SQLite3Result implements ResultInterface
         while (true) {
             $object = $this->fetchObject($class);
 
-            if (\is_null($object)) {
+            if (is_null($object)) {
                 break;
             }
 
@@ -67,7 +67,7 @@ class SQLite3Result implements ResultInterface
     {
         $assoc = $this->sqlite3Result->fetchArray(SQLITE3_ASSOC);
 
-        if (\is_bool($assoc)) {
+        if (is_bool($assoc)) {
             return null;
         }
 
@@ -81,7 +81,7 @@ class SQLite3Result implements ResultInterface
         while (true) {
             $assoc = $this->fetchAssoc();
 
-            if (\is_null($assoc)) {
+            if (is_null($assoc)) {
                 break;
             }
 

@@ -50,7 +50,7 @@ class InsertModelsQuery extends ModelsQueryAbstract
 
             $insertQuery->values($values);
 
-            if (!\is_null($this->onDuplicateUpdate)) {
+            if (!is_null($this->onDuplicateUpdate)) {
                 $uniqueConstraint = $reflectionModel->getUniqueConstraint();
 
                 $columns = $uniqueConstraint
@@ -59,7 +59,7 @@ class InsertModelsQuery extends ModelsQueryAbstract
 
                 $columns = array_filter(
                     $columns,
-                    fn (string $column): bool => !\in_array($column, $this->onDuplicateUpdateExcludeColumns)
+                    fn (string $column): bool => !in_array($column, $this->onDuplicateUpdateExcludeColumns)
                 );
 
                 $this->onDuplicateUpdate

@@ -74,14 +74,14 @@ class PDOAdapter extends AdapterAbstract
         array $options
     ): string {
         if ($driver == Driver::SQLITE) {
-            return \sprintf(
+            return sprintf(
                 '%s:%s',
                 $driver->value,
                 $name
             );
         }
 
-        $dsn = \sprintf(
+        $dsn = sprintf(
             '%s:host=%s;port=%s;dbname=%s',
             $driver->value,
             $host,
@@ -90,8 +90,8 @@ class PDOAdapter extends AdapterAbstract
         );
 
         if ($driver == Driver::MYSQL) {
-            if (\array_key_exists(static::OPTIONS_MYSQL_CHARSET, $options)) {
-                $dsn .= \sprintf(';charset=%s' . (string) $options['charset']);
+            if (array_key_exists(static::OPTIONS_MYSQL_CHARSET, $options)) {
+                $dsn .= sprintf(';charset=%s' . (string) $options['charset']);
             }
         }
 
@@ -204,7 +204,7 @@ class PDOAdapter extends AdapterAbstract
     {
         $lastInserId = $this->pdo->lastInsertId($name);
 
-        if (\is_bool($lastInserId)) {
+        if (is_bool($lastInserId)) {
             return null;
         }
 

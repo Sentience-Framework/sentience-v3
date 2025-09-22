@@ -48,12 +48,12 @@ class SQLDialect implements DialectInterface
         }
 
         $query .= ' ';
-        $query .= \count($config['columns']) > 0
+        $query .= count($config['columns']) > 0
             ? implode(
                 ', ',
                 array_map(
                     function (string|array|Alias|Raw $column): string {
-                        if (\is_array($column)) {
+                        if (is_array($column)) {
                             return $this->escapeIdentifier($column);
                         }
 
@@ -90,7 +90,7 @@ class SQLDialect implements DialectInterface
 
     public function insert(array $config): QueryWithParams
     {
-        if (\count($config['values']) == 0) {
+        if (count($config['values']) == 0) {
             throw new QueryException('no insert values specified');
         }
 
@@ -101,7 +101,7 @@ class SQLDialect implements DialectInterface
 
         $this->buildTable($query, $config['table']);
 
-        $query .= \sprintf(
+        $query .= sprintf(
             ' (%s)',
             implode(
                 ', ',
@@ -122,7 +122,7 @@ class SQLDialect implements DialectInterface
             )
         );
 
-        $query .= \sprintf(
+        $query .= sprintf(
             ' VALUES (%s)',
             implode(
                 ', ',
@@ -141,7 +141,7 @@ class SQLDialect implements DialectInterface
             )
         );
 
-        if (\array_key_exists('onConflict', $config)) {
+        if (array_key_exists('onConflict', $config)) {
             $this->buildOnConflict(
                 $query,
                 $params,
@@ -161,7 +161,7 @@ class SQLDialect implements DialectInterface
 
     public function update(array $config): QueryWithParams
     {
-        if (\count($config['values']) == 0) {
+        if (count($config['values']) == 0) {
             throw new QueryException('no update values specified');
         }
 
@@ -178,7 +178,7 @@ class SQLDialect implements DialectInterface
             array_map(
                 function (mixed $value, string $key) use (&$params): string {
                     if ($value instanceof Raw) {
-                        return \sprintf(
+                        return sprintf(
                             '%s = %s',
                             $this->escapeIdentifier($key),
                             $value->expression
@@ -187,7 +187,7 @@ class SQLDialect implements DialectInterface
 
                     $params[] = $value;
 
-                    return \sprintf('%s = ?', $this->escapeIdentifier($key));
+                    return sprintf('%s = ?', $this->escapeIdentifier($key));
                 },
                 $config['values'],
                 array_keys($config['values'])
@@ -220,11 +220,11 @@ class SQLDialect implements DialectInterface
 
     public function createTable(array $config): QueryWithParams
     {
-        if (\count($config['columns']) == 0) {
+        if (count($config['columns']) == 0) {
             throw new QueryException('no table columns specified');
         }
 
-        if (\count($config['primaryKeys']) == 0) {
+        if (count($config['primaryKeys']) == 0) {
             throw new QueryException('no table primary key(s) specified');
         }
 
@@ -245,7 +245,7 @@ class SQLDialect implements DialectInterface
             $definitions[] = $this->buildColumnDefinition($column);
         }
 
-        $definitions[] = \sprintf(
+        $definitions[] = sprintf(
             'PRIMARY KEY (%s)',
             implode(
                 ', ',
@@ -264,7 +264,7 @@ class SQLDialect implements DialectInterface
             $definitions[] = $this->buildForeignKeyConstraintDefinition($foreignKeyConstraint);
         }
 
-        $query .= \sprintf(' (%s)', implode(', ', $definitions));
+        $query .= sprintf(' (%s)', implode(', ', $definitions));
         $query .= ';';
 
         return new QueryWithParams($query, $params);
@@ -272,7 +272,7 @@ class SQLDialect implements DialectInterface
 
     public function alterTable(array $config): array
     {
-        if (\count($config['alters']) == 0) {
+        if (count($config['alters']) == 0) {
             throw new QueryException('no table alters specified');
         }
 
@@ -343,7 +343,7 @@ class SQLDialect implements DialectInterface
 
     protected function buildJoins(string &$query, array $joins): void
     {
-        if (\count($joins) == 0) {
+        if (count($joins) == 0) {
             return;
         }
 
@@ -360,7 +360,7 @@ class SQLDialect implements DialectInterface
                 continue;
             }
 
-            $query .= \sprintf(
+            $query .= sprintf(
                 '%s %s ON %s.%s = %s.%s',
                 $join->join->value,
                 $this->escapeIdentifierWithAlias($join->joinTable, $join->joinTableAlias),
@@ -374,7 +374,7 @@ class SQLDialect implements DialectInterface
 
     protected function buildWhere(string &$query, array &$params, array $where): void
     {
-        if (\count($where) == 0) {
+        if (count($where) == 0) {
             return;
         }
 
@@ -390,19 +390,19 @@ class SQLDialect implements DialectInterface
     protected function buildCondition(string &$query, array &$params, int $index, Condition $condition): void
     {
         if ($index > 0) {
-            $query .= \sprintf(' %s ', $condition->chain->value);
+            $query .= sprintf(' %s ', $condition->chain->value);
         }
 
         if ($condition->condition == ConditionEnum::RAW) {
-            $query .= \sprintf('(%s)', $condition->expression);
+            $query .= sprintf('(%s)', $condition->expression);
 
             array_push($params, ...$condition->value);
 
             return;
         }
 
-        if (\is_null($condition->value)) {
-            $query .= \sprintf(
+        if (is_null($condition->value)) {
+            $query .= sprintf(
                 '%s %s',
                 $this->escapeIdentifier($condition->expression),
                 $condition->condition == ConditionEnum::EQUALS ? 'IS NULL' : 'IS NOT NULL'
@@ -411,8 +411,8 @@ class SQLDialect implements DialectInterface
             return;
         }
 
-        if (\in_array($condition->condition, [ConditionEnum::BETWEEN, ConditionEnum::NOT_BETWEEN])) {
-            $query .= \sprintf(
+        if (in_array($condition->condition, [ConditionEnum::BETWEEN, ConditionEnum::NOT_BETWEEN])) {
+            $query .= sprintf(
                 '%s %s ? AND ?',
                 $this->escapeIdentifier($condition->expression),
                 $condition->condition->value,
@@ -425,18 +425,18 @@ class SQLDialect implements DialectInterface
             return;
         }
 
-        if (\is_array($condition->value)) {
-            if (\count($condition->value) == 0) {
+        if (is_array($condition->value)) {
+            if (count($condition->value) == 0) {
                 $query .= $condition->condition == ConditionEnum::IN ? '1 <> 1' : '1 = 1';
 
                 return;
             }
 
-            $query .= \sprintf(
+            $query .= sprintf(
                 '%s %s (%s)',
                 $this->escapeIdentifier($condition->expression),
                 $condition->condition->value,
-                implode(', ', array_fill(0, \count($condition->value), '?'))
+                implode(', ', array_fill(0, count($condition->value), '?'))
             );
 
             array_push($params, ...$condition->value);
@@ -444,8 +444,8 @@ class SQLDialect implements DialectInterface
             return;
         }
 
-        if (\in_array($condition->condition, [ConditionEnum::REGEX, ConditionEnum::NOT_REGEX])) {
-            $query .= \sprintf(
+        if (in_array($condition->condition, [ConditionEnum::REGEX, ConditionEnum::NOT_REGEX])) {
+            $query .= sprintf(
                 '%s %s ?',
                 $this->escapeIdentifier($condition->expression),
                 $condition->condition == ConditionEnum::REGEX ? $this::REGEX_FUNCTION : $this::NOT_REGEX_FUNCTION
@@ -456,7 +456,7 @@ class SQLDialect implements DialectInterface
             return;
         }
 
-        $query .= \sprintf(
+        $query .= sprintf(
             '%s %s ?',
             $this->escapeIdentifier($condition->expression),
             $condition->condition->value
@@ -468,7 +468,7 @@ class SQLDialect implements DialectInterface
     protected function buildConditionGroup(string &$query, array &$params, int $index, ConditionGroup $group): void
     {
         if ($index > 0) {
-            $query .= \sprintf(' %s ', $group->chain->value);
+            $query .= sprintf(' %s ', $group->chain->value);
         }
 
         $conditions = $group->getConditions();
@@ -486,11 +486,11 @@ class SQLDialect implements DialectInterface
 
     protected function buildGroupBy(string &$query, array $groupBy): void
     {
-        if (\count($groupBy) == 0) {
+        if (count($groupBy) == 0) {
             return;
         }
 
-        $query .= \sprintf(
+        $query .= sprintf(
             ' GROUP BY %s',
             implode(
                 ', ',
@@ -504,7 +504,7 @@ class SQLDialect implements DialectInterface
 
     protected function buildHaving(string &$query, array &$params, ?QueryWithParams $having): void
     {
-        if (\is_null($having)) {
+        if (is_null($having)) {
             return;
         }
 
@@ -515,16 +515,16 @@ class SQLDialect implements DialectInterface
 
     protected function buildOrderBy(string &$query, array $orderBy): void
     {
-        if (\count($orderBy) == 0) {
+        if (count($orderBy) == 0) {
             return;
         }
 
-        $query .= \sprintf(
+        $query .= sprintf(
             ' ORDER BY %s',
             implode(
                 ', ',
                 array_map(
-                    fn (OrderBy $orderBy): string => \sprintf(
+                    fn (OrderBy $orderBy): string => sprintf(
                         '%s %s',
                         $this->escapeIdentifier($orderBy->column),
                         $orderBy->direction->value
@@ -537,7 +537,7 @@ class SQLDialect implements DialectInterface
 
     protected function buildLimit(string &$query, ?int $limit): void
     {
-        if (\is_null($limit)) {
+        if (is_null($limit)) {
             return;
         }
 
@@ -546,11 +546,11 @@ class SQLDialect implements DialectInterface
 
     protected function buildOffset(string &$query, ?int $limit, ?int $offset): void
     {
-        if (\is_null($limit)) {
+        if (is_null($limit)) {
             return;
         }
 
-        if (\is_null($offset)) {
+        if (is_null($offset)) {
             return;
         }
 
@@ -568,7 +568,7 @@ class SQLDialect implements DialectInterface
 
     protected function buildReturning(string &$query, ?array $returning): void
     {
-        if (\is_null($returning)) {
+        if (is_null($returning)) {
             return;
         }
 
@@ -587,7 +587,7 @@ class SQLDialect implements DialectInterface
 
     protected function buildColumnDefinition(Column $column): string
     {
-        $stringifiedColumn = \sprintf(
+        $stringifiedColumn = sprintf(
             '%s %s',
             $this->escapeIdentifier($column->name),
             $column->type
@@ -597,7 +597,7 @@ class SQLDialect implements DialectInterface
             $stringifiedColumn .= ' NOT NULL';
         }
 
-        if (!\is_null($column->defaultValue) && !$column->autoIncrement) {
+        if (!is_null($column->defaultValue) && !$column->autoIncrement) {
             $defaultValue = preg_match('/^.*\(.*\)$/', (string) $column->defaultValue)
                 ? (string) $column->defaultValue
                 : $this->castToQuery($column->defaultValue);
@@ -610,7 +610,7 @@ class SQLDialect implements DialectInterface
 
     protected function buildUniqueConstraintDefinition(UniqueConstraint $uniqueConstraint): string
     {
-        $stringifiedUniqueConstraint = \sprintf(
+        $stringifiedUniqueConstraint = sprintf(
             'UNIQUE (%s)',
             implode(
                 ', ',
@@ -622,7 +622,7 @@ class SQLDialect implements DialectInterface
         );
 
         if ($uniqueConstraint->name) {
-            return \sprintf(
+            return sprintf(
                 'CONSTRAINT %s %s',
                 $this->escapeIdentifier($uniqueConstraint->name),
                 $stringifiedUniqueConstraint
@@ -634,7 +634,7 @@ class SQLDialect implements DialectInterface
 
     protected function buildForeignKeyConstraintDefinition(ForeignKeyConstraint $foreignKeyConstraint): string
     {
-        $stringifiedForeignKeyConstraint = \sprintf(
+        $stringifiedForeignKeyConstraint = sprintf(
             'FOREIGN KEY (%s) REFERENCES %s (%s)',
             $foreignKeyConstraint->column,
             $foreignKeyConstraint->referenceTable,
@@ -642,7 +642,7 @@ class SQLDialect implements DialectInterface
         );
 
         if ($foreignKeyConstraint->name) {
-            return \sprintf(
+            return sprintf(
                 'CONSTRAINT %s %s',
                 $this->escapeIdentifier($foreignKeyConstraint->name),
                 $stringifiedForeignKeyConstraint
@@ -654,7 +654,7 @@ class SQLDialect implements DialectInterface
 
     protected function buildAlterTableAddColumn(AddColumn $addColumn): string
     {
-        return \sprintf(
+        return sprintf(
             'ADD COLUMN %s',
             $this->buildColumnDefinition($addColumn)
         );
@@ -662,7 +662,7 @@ class SQLDialect implements DialectInterface
 
     protected function buildAlterTableAlterColumn(AlterColumn $alterColumn): string
     {
-        return \sprintf(
+        return sprintf(
             'ALTER COLUMN %s %s',
             $this->escapeIdentifier($alterColumn->column),
             $alterColumn->options
@@ -671,7 +671,7 @@ class SQLDialect implements DialectInterface
 
     protected function buildAlterTableRenameColumn(RenameColumn $renameColumn): string
     {
-        return \sprintf(
+        return sprintf(
             'RENAME COLUMN %s TO %s',
             $this->escapeIdentifier($renameColumn->oldName),
             $this->escapeIdentifier($renameColumn->newName)
@@ -680,7 +680,7 @@ class SQLDialect implements DialectInterface
 
     protected function buildAlterTableDropColumn(DropColumn $dropColumn): string
     {
-        return \sprintf(
+        return sprintf(
             'DROP COLUMN %s',
             $this->escapeIdentifier($dropColumn->column)
         );
@@ -688,7 +688,7 @@ class SQLDialect implements DialectInterface
 
     protected function buildAlterTableAddPrimaryKeys(AddPrimaryKeys $addPrimaryKeys): string
     {
-        return \sprintf(
+        return sprintf(
             'ADD PRIMARY KEY (%s)',
             implode(
                 ', ',
@@ -702,7 +702,7 @@ class SQLDialect implements DialectInterface
 
     protected function buildAlterTableAddUniqueConstraint(AddUniqueConstraint $addUniqueConstraint): string
     {
-        return \sprintf(
+        return sprintf(
             'ADD %s',
             $this->buildUniqueConstraintDefinition($addUniqueConstraint)
         );
@@ -710,7 +710,7 @@ class SQLDialect implements DialectInterface
 
     protected function buildAlterTableAddForeignKeyConstraint(AddForeignKeyConstraint $addForeignKeyConstraint): string
     {
-        return \sprintf(
+        return sprintf(
             'ADD %s',
             $this->buildForeignKeyConstraintDefinition($addForeignKeyConstraint)
         );
@@ -718,7 +718,7 @@ class SQLDialect implements DialectInterface
 
     protected function buildAlterTableDropConstraint(DropConstraint $dropConstraint): string
     {
-        return \sprintf(
+        return sprintf(
             'DROP CONSTRAINT %s',
             $this->escapeIdentifier($dropConstraint->constraint)
         );
@@ -732,7 +732,7 @@ class SQLDialect implements DialectInterface
             return $escapedIdentifier;
         }
 
-        return \sprintf('%s AS %s', $escapedIdentifier, $this->escapeIdentifier($alias));
+        return sprintf('%s AS %s', $escapedIdentifier, $this->escapeIdentifier($alias));
     }
 
     public function escapeIdentifier(string|array|Raw $identifier): string
@@ -741,7 +741,7 @@ class SQLDialect implements DialectInterface
             return $identifier->expression;
         }
 
-        return \is_array($identifier)
+        return is_array($identifier)
             ? implode(
                 '.',
                 array_map(
@@ -768,7 +768,7 @@ class SQLDialect implements DialectInterface
 
     public function castToDriver(mixed $value): mixed
     {
-        if (\is_bool($value)) {
+        if (is_bool($value)) {
             return $this->castBool($value);
         }
 
@@ -781,19 +781,19 @@ class SQLDialect implements DialectInterface
 
     public function castToQuery(mixed $value): mixed
     {
-        if (\is_string($value)) {
+        if (is_string($value)) {
             return $this->escapeString($value);
         }
 
-        if (\is_bool($value)) {
+        if (is_bool($value)) {
             $bool = $this->castBool($value);
 
-            return \is_string($bool)
+            return is_string($bool)
                 ? $this->escapeString($bool)
                 : $bool;
         }
 
-        if (\is_null($value)) {
+        if (is_null($value)) {
             return 'NULL';
         }
 

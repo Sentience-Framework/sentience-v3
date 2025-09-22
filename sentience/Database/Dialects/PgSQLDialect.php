@@ -14,13 +14,13 @@ class PgSQLDialect extends SQLDialect implements DialectInterface
 
     public function buildOnConflict(string &$query, array &$params, null|string|array $conflict, ?array $conflictUpdates, ?string $primaryKey, array $insertValues): void
     {
-        if (\is_null($conflict)) {
+        if (is_null($conflict)) {
             return;
         }
 
-        $expression = \is_string($conflict)
-            ? \sprintf('ON CONSTRAINT %s', $this->escapeIdentifier($conflict))
-            : \sprintf(
+        $expression = is_string($conflict)
+            ? sprintf('ON CONSTRAINT %s', $this->escapeIdentifier($conflict))
+            : sprintf(
                 '(%s)',
                 implode(
                     ', ',
@@ -31,15 +31,15 @@ class PgSQLDialect extends SQLDialect implements DialectInterface
                 )
             );
 
-        if (\is_null($conflictUpdates)) {
-            $query .= \sprintf(' ON CONFLICT %s DO NOTHING', $expression);
+        if (is_null($conflictUpdates)) {
+            $query .= sprintf(' ON CONFLICT %s DO NOTHING', $expression);
 
             return;
         }
 
         $updates = !empty($conflictUpdates) ? $conflictUpdates : $insertValues;
 
-        $query .= \sprintf(
+        $query .= sprintf(
             ' ON CONFLICT %s DO UPDATE SET %s',
             $expression,
             implode(
@@ -47,7 +47,7 @@ class PgSQLDialect extends SQLDialect implements DialectInterface
                 array_map(
                     function (mixed $value, string $key) use (&$params): string {
                         if ($value instanceof Raw) {
-                            return \sprintf(
+                            return sprintf(
                                 '%s = %s',
                                 $this->escapeIdentifier($key),
                                 $value->expression
@@ -56,7 +56,7 @@ class PgSQLDialect extends SQLDialect implements DialectInterface
 
                         $params[] = $value;
 
-                        return \sprintf('%s = ?', $this->escapeIdentifier($key));
+                        return sprintf('%s = ?', $this->escapeIdentifier($key));
                     },
                     $updates,
                     array_keys($updates)
@@ -67,7 +67,7 @@ class PgSQLDialect extends SQLDialect implements DialectInterface
 
     public function castToQuery(mixed $value): mixed
     {
-        if (\is_bool($value)) {
+        if (is_bool($value)) {
             return $value ? 'TRUE' : 'FALSE';
         }
 

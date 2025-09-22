@@ -49,7 +49,7 @@ class CreateTableQuery extends ResultQueryAbstract
 
     public function primaryKeys(string|array $keys): static
     {
-        $this->primaryKeys = \is_string($keys)
+        $this->primaryKeys = is_string($keys)
             ? [$keys]
             : $keys;
 
