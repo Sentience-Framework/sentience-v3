@@ -30,13 +30,13 @@ return new class () {
                 $end = microtime(true);
 
                 $lines = [
-                    sprintf('Timestamp : %s', date('Y-m-d H:i:s')),
-                    sprintf('Query     : %s', $query),
-                    sprintf('Time      : %.2f ms', ($end - $start) * 1000)
+                    \sprintf('Timestamp : %s', date('Y-m-d H:i:s')),
+                    \sprintf('Query     : %s', $query),
+                    \sprintf('Time      : %.2f ms', ($end - $start) * 1000)
                 ];
 
                 if ($error) {
-                    $lines[] = sprintf('Error     : %s', $error);
+                    $lines[] = \sprintf('Error     : %s', $error);
                 }
 
                 Log::stderrBetweenEqualSigns('Query', $lines);

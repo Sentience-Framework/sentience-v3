@@ -24,7 +24,7 @@ class Timestamp extends DateTime implements JsonSerializable
 
         $instance = static::createFromFormat(
             'U.u',
-            sprintf(
+            \sprintf(
                 '%d.%d',
                 $timestamp,
                 $hasMicroseconds ? (int) $microsecondMatches[1] : 0
@@ -38,7 +38,7 @@ class Timestamp extends DateTime implements JsonSerializable
         $hasTimezoneOffset = preg_match('/([\+\-])([0-9]+)\:?([0-9]*)$/', $string, $timezoneOffsetMatches);
 
         if ($hasTimezoneOffset) {
-            [$modifier, $timezoneOffsetHours, $timezoneOffsetMinutes] = array_slice($timezoneOffsetMatches, 1);
+            [$modifier, $timezoneOffsetHours, $timezoneOffsetMinutes] = \array_slice($timezoneOffsetMatches, 1);
 
             $multiplier = ((int) $timezoneOffsetHours + (int) $timezoneOffsetMinutes / 60) * ($modifier == '+' ? 1 : -1);
 

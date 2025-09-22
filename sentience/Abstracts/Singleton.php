@@ -8,7 +8,7 @@ abstract class Singleton
 
     public static function getInstance(): static
     {
-        if (!array_key_exists(static::class, self::$instances)) {
+        if (!\array_key_exists(static::class, self::$instances)) {
             self::$instances[static::class] = static::createInstance();
         }
 

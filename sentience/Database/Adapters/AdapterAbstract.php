@@ -29,7 +29,7 @@ abstract class AdapterAbstract implements AdapterInterface
     protected function regexpFunction(string $pattern, string $value): bool
     {
         return preg_match(
-            sprintf(
+            \sprintf(
                 '/%s/u',
                 Strings::escapeChars($pattern, ['/'])
             ),

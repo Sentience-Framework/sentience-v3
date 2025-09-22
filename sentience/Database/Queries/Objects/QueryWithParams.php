@@ -13,7 +13,7 @@ class QueryWithParams
 
     public function toRawQuery(DialectInterface $dialect): string
     {
-        if (count($this->params) == 0) {
+        if (\count($this->params) == 0) {
             return $this->query;
         }
 
@@ -27,7 +27,7 @@ class QueryWithParams
         return preg_replace_callback(
             '/\?(?=(?:[^\'\"\`\\\\]|\'(?:\\\\.|[^\\\\\'])*\'|\"(?:\\\\.|[^\\\\\"])*\"|\`(?:\\\\.|[^\\\\\`])*\`)*$)/',
             function () use ($params, &$index): mixed {
-                if (!array_key_exists($index, $params)) {
+                if (!\array_key_exists($index, $params)) {
                     throw new QueryWithParamsException('placeholder and value count do not match');
                 }
 

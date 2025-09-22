@@ -48,7 +48,7 @@ class MySQLiAdapter extends AdapterAbstract
             $port
         );
 
-        if (array_key_exists(static::OPTIONS_MYSQL_CHARSET, $options)) {
+        if (\array_key_exists(static::OPTIONS_MYSQL_CHARSET, $options)) {
             $this->mysqli->set_charset((string) $options['charset']);
         }
 
@@ -103,7 +103,7 @@ class MySQLiAdapter extends AdapterAbstract
             $paramValues[] = $value;
         }
 
-        if (count($paramValues) > 0) {
+        if (\count($paramValues) > 0) {
             $mysqliStatement->bind_param(
                 implode(
                     '',

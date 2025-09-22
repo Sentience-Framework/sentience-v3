@@ -43,7 +43,7 @@ class MySQLiResult implements ResultInterface
 
         $object = $this->mysqliResult->fetch_object($class);
 
-        if (is_bool($object)) {
+        if (\is_bool($object)) {
             return null;
         }
 
@@ -80,7 +80,7 @@ class MySQLiResult implements ResultInterface
 
         $assoc = $this->mysqliResult->fetch_assoc();
 
-        if (is_bool($assoc)) {
+        if (\is_bool($assoc)) {
             return null;
         }
 

@@ -8,7 +8,7 @@ class Strings
     {
         foreach ($chars as $char) {
             $string = preg_replace(
-                sprintf(
+                \sprintf(
                     $pattern,
                     preg_quote((string) $char, '/')
                 ),
@@ -23,7 +23,7 @@ class Strings
     public static function extractChars(string $string, array $chars): string
     {
         return preg_replace(
-            sprintf(
+            \sprintf(
                 '/[^%s]/',
                 preg_quote(
                     implode(

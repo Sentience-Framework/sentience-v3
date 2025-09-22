@@ -10,12 +10,12 @@ class Xml
 {
     public static function encode(array|object $value, ?callable $pluralToSingular = null): ?string
     {
-        $rootTag = is_object($value)
+        $rootTag = \is_object($value)
             ? (new ReflectionClass($value))->getShortName()
             : 'root';
 
         $simpleXmlElement = new SimpleXMLElement(
-            sprintf(
+            \sprintf(
                 '<?xml version="1.0" encoding="UTF-8"?><%s></%s>',
                 $rootTag,
                 $rootTag
@@ -38,13 +38,13 @@ class Xml
                         throw new XmlException('XML does not support tags that start with xml');
                     }
 
-                    if (is_null($value)) {
+                    if (\is_null($value)) {
                         $simpleXmlElement->addChild($key, '');
 
                         return;
                     }
 
-                    if (is_scalar($value)) {
+                    if (\is_scalar($value)) {
                         $simpleXmlElement->addChild($key, htmlspecialchars((string) $value));
 
                         return;
@@ -61,7 +61,7 @@ class Xml
 
         $xml = $simpleXmlElement->asXML();
 
-        if (is_bool($xml)) {
+        if (\is_bool($xml)) {
             return null;
         }
 
@@ -72,7 +72,7 @@ class Xml
     {
         $simpleXmlElement = simplexml_load_string($xml);
 
-        if (is_bool($simpleXmlElement)) {
+        if (\is_bool($simpleXmlElement)) {
             return null;
         }
 

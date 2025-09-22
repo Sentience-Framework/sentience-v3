@@ -63,9 +63,9 @@ class SelectQuery extends ResultQueryAbstract
         $this->columns = [
             Query::alias(
                 Query::raw(
-                    sprintf(
+                    \sprintf(
                         'COUNT(%s)',
-                        !is_null($column)
+                        !\is_null($column)
                         ? ($previousDistinct ? 'DISTINCT ' : '') . $this->dialect->escapeIdentifier($column)
                         : '*'
                     )

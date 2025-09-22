@@ -36,7 +36,7 @@ class PDOResult implements ResultInterface
     {
         $object = $this->pdoStatement->fetchObject($class);
 
-        if (is_bool($object)) {
+        if (\is_bool($object)) {
             return null;
         }
 
@@ -52,7 +52,7 @@ class PDOResult implements ResultInterface
     {
         $assoc = $this->pdoStatement->fetch(PDO::FETCH_ASSOC);
 
-        if (is_bool($assoc)) {
+        if (\is_bool($assoc)) {
             return null;
         }
 

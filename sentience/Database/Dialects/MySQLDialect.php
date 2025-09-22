@@ -33,11 +33,11 @@ class MySQLDialect extends SQLDialect implements DialectInterface
 
     public function buildOnConflict(string &$query, array &$params, null|string|array $conflict, ?array $conflictUpdates, ?string $primaryKey, array $insertValues): void
     {
-        if (is_null($conflict)) {
+        if (\is_null($conflict)) {
             return;
         }
 
-        if (is_null($conflictUpdates) && !$primaryKey) {
+        if (\is_null($conflictUpdates) && !$primaryKey) {
             $query = substr_replace($query, 'INSERT IGNORE', 0, 6);
 
             return;
@@ -47,25 +47,25 @@ class MySQLDialect extends SQLDialect implements DialectInterface
 
         if ($primaryKey) {
             $lastInsertId = Query::raw(
-                sprintf(
+                \sprintf(
                     'LAST_INSERT_ID(%s)',
                     $this->escapeIdentifier($primaryKey)
                 )
             );
 
-            $updates = is_null($conflictUpdates)
+            $updates = \is_null($conflictUpdates)
                 ? [$primaryKey => $lastInsertId]
                 : [...$updates, $primaryKey => $lastInsertId];
         }
 
-        $query .= sprintf(
+        $query .= \sprintf(
             ' ON DUPLICATE KEY UPDATE %s',
             implode(
                 ', ',
                 array_map(
                     function (mixed $value, string $key) use (&$params): string {
                         if ($value instanceof Raw) {
-                            return sprintf(
+                            return \sprintf(
                                 '%s = %s',
                                 $this->escapeIdentifier($key),
                                 $value->expression
@@ -74,7 +74,7 @@ class MySQLDialect extends SQLDialect implements DialectInterface
 
                         $params[] = $value;
 
-                        return sprintf('%s = ?', $this->escapeIdentifier($key));
+                        return \sprintf('%s = ?', $this->escapeIdentifier($key));
                     },
                     $updates,
                     array_keys($updates)

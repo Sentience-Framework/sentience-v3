@@ -11,7 +11,7 @@ class Request
 {
     public static function createFromSuperGlobals(): static
     {
-        $url = (array_key_exists('HTTPS', $_SERVER) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $url = (\array_key_exists('HTTPS', $_SERVER) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $path = (string) strtok($_SERVER['REQUEST_URI'], '?');
         $method = strtoupper((string) $_SERVER['REQUEST_METHOD']);
         $headers = array_change_key_case(getallheaders(), CASE_LOWER);
@@ -37,7 +37,7 @@ class Request
 
     public function getHeader(string $key, ?string $default = null): ?string
     {
-        if (!array_key_exists($key, $this->headers)) {
+        if (!\array_key_exists($key, $this->headers)) {
             return $default;
         }
 
@@ -46,7 +46,7 @@ class Request
 
     public function getQueryParam(string $key, null|string|array $default = null): mixed
     {
-        if (!array_key_exists($key, $this->queryParams)) {
+        if (!\array_key_exists($key, $this->queryParams)) {
             return $default;
         }
 
@@ -55,7 +55,7 @@ class Request
 
     public function getCookie(string $key, ?string $default = null): ?string
     {
-        if (!array_key_exists($key, $this->cookies)) {
+        if (!\array_key_exists($key, $this->cookies)) {
             return $default;
         }
 

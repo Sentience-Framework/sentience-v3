@@ -17,7 +17,7 @@ class Env
         $keys = (array) $key;
 
         foreach ($keys as $key) {
-            if (!array_key_exists($key, static::$env)) {
+            if (!\array_key_exists($key, static::$env)) {
                 continue;
             }
 
@@ -172,7 +172,7 @@ class Env
             function (array $matches) use ($parsedVariables): mixed {
                 [$original, $key] = $matches;
 
-                if (array_key_exists($key, $parsedVariables)) {
+                if (\array_key_exists($key, $parsedVariables)) {
                     return $parsedVariables[$key];
                 }
 
@@ -184,7 +184,7 @@ class Env
 
     protected static function parseStringValue(string $value, string $quote): string
     {
-        $quoteLength = strlen($quote);
+        $quoteLength = \strlen($quote);
 
         $valueWithoutQuotes = trim(
             substr(
@@ -198,7 +198,7 @@ class Env
         $quoteChar = substr($quote, 0, 1);
 
         return str_replace(
-            sprintf('\\%s', $quoteChar),
+            \sprintf('\\%s', $quoteChar),
             $quoteChar,
             $valueWithoutQuotes
         );

@@ -10,7 +10,7 @@ class Log
     {
         $consoleWidth = Console::getWidth($useCachedWidth);
 
-        $equalSigns = (($consoleWidth - strlen($type)) / 2) - 1;
+        $equalSigns = (($consoleWidth - \strlen($type)) / 2) - 1;
 
         Stdio::errorFLn(
             '%s %s %s',

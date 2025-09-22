@@ -70,7 +70,7 @@ class Response
 
     public static function header(string $key, string $value, bool $replace = true): void
     {
-        header(sprintf('%s: %s', $key, $value), $replace);
+        header(\sprintf('%s: %s', $key, $value), $replace);
     }
 
     public static function cookie(string $key, string $value = '', int $expiresOrOptions = 0, string $path = '', string $domain = '', bool $secure = false, bool $httpOnly = false): void
@@ -387,7 +387,7 @@ class Response
     {
         http_response_code($statusCode);
 
-        if (is_null($content)) {
+        if (\is_null($content)) {
             static::header('Content-Type', '');
 
             echo '';
@@ -395,10 +395,10 @@ class Response
             exit;
         }
 
-        if (is_scalar($content)) {
+        if (\is_scalar($content)) {
             static::header('Content-Type', 'text/plain');
 
-            echo strval($content);
+            echo \strval($content);
 
             exit;
         }

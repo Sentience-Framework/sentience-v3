@@ -21,11 +21,11 @@ class SentienceController extends Controller
     public function startServer(): void
     {
         $dir = escapeshellarg(Filesystem::path(SENTIENCE_DIR, 'public'));
-        $bin = escapeshellarg(defined(PHP_BINARY) ? PHP_BINARY : 'php');
+        $bin = escapeshellarg(\defined(PHP_BINARY) ? PHP_BINARY : 'php');
         $host = config('sentience->server->host', 'localhost');
         $port = config('sentience->server->port', 8000);
 
-        $command = sprintf('cd %s && %s -S %s:%d', $dir, $bin, $host, $port);
+        $command = \sprintf('cd %s && %s -S %s:%d', $dir, $bin, $host, $port);
 
         if (PHP_OS_FAMILY == 'Windows') {
             passthru($command);
@@ -77,7 +77,7 @@ class SentienceController extends Controller
                         $requestId = $matches[1];
                         $status = $matches[2];
 
-                        if (!array_key_exists($requestId, $requests)) {
+                        if (!\array_key_exists($requestId, $requests)) {
                             $requests[$requestId] = [];
                         }
 
@@ -90,7 +90,7 @@ class SentienceController extends Controller
                         if ($status == 'Closing') {
                             $requests[$requestId]['end'] = microtime(true);
 
-                            if (array_key_exists('path', $requests[$requestId])) {
+                            if (\array_key_exists('path', $requests[$requestId])) {
                                 Stdio::errorFLn(
                                     '%s (%.2f ms) %s',
                                     date('Y-m-d H:i:s'),
@@ -111,7 +111,7 @@ class SentienceController extends Controller
                         $requestId = $matches[1];
                         $path = $matches[2];
 
-                        if (!array_key_exists($requestId, $requests)) {
+                        if (!\array_key_exists($requestId, $requests)) {
                             $requests[$requestId] = [];
                         }
 
@@ -157,7 +157,7 @@ class SentienceController extends Controller
             }
         );
 
-        if (count($migrations) == 0) {
+        if (\count($migrations) == 0) {
             Stdio::printLn('No migrations found');
 
             return;
@@ -227,7 +227,7 @@ class SentienceController extends Controller
             }
         );
 
-        if (count($migrations) == 0) {
+        if (\count($migrations) == 0) {
             Stdio::printLn('No migrations found');
 
             return;
@@ -279,7 +279,7 @@ class SentienceController extends Controller
     {
         $name = $flags['name'] ?? $words[0] ?? null;
 
-        if (is_null($name)) {
+        if (\is_null($name)) {
             Stdio::errorLn('Please provide a name for the migration');
 
             return;
@@ -287,7 +287,7 @@ class SentienceController extends Controller
 
         $timestamp = date('YmdHis');
 
-        $migrationFilename = sprintf('%s_%s.php', $timestamp, $name);
+        $migrationFilename = \sprintf('%s_%s.php', $timestamp, $name);
 
         $migrationFilepath = Filesystem::path(
             SENTIENCE_DIR,
@@ -313,7 +313,7 @@ class SentienceController extends Controller
         }
 
         $class = !str_contains('\\', (string) $class)
-            ? $class = sprintf('\\Src\\Models\\%s', $class)
+            ? $class = \sprintf('\\Src\\Models\\%s', $class)
             : $class;
 
         if (!class_exists($class)) {
@@ -324,7 +324,7 @@ class SentienceController extends Controller
 
         $model = new $class($database);
 
-        $migrationName = sprintf(
+        $migrationName = \sprintf(
             '%s_create_%s_table.php',
             date('YmdHis'),
             $model::getTable()
@@ -332,12 +332,12 @@ class SentienceController extends Controller
 
         $migrationFileContents = MigrationFactory::create(
             [
-                sprintf('$database->createModel(%s::class)', $class),
+                \sprintf('$database->createModel(%s::class)', $class),
                 '    ->ifNotExists()',
                 '    ->execute();'
             ],
             [
-                sprintf('$database->dropModel(%s::class)', $class),
+                \sprintf('$database->dropModel(%s::class)', $class),
                 '    ->ifExists()',
                 '    ->execute();'
             ]
@@ -394,7 +394,7 @@ class SentienceController extends Controller
         }
 
         $class = !str_contains('\\', (string) $class)
-            ? $class = sprintf('\\Src\\Models\\%s', $class)
+            ? $class = \sprintf('\\Src\\Models\\%s', $class)
             : $class;
 
         if (!class_exists($class)) {
@@ -405,7 +405,7 @@ class SentienceController extends Controller
 
         $model = new $class($database);
 
-        $migrationName = sprintf(
+        $migrationName = \sprintf(
             '%s_alter_%s_table.php',
             date('YmdHis'),
             $model::getTable()
@@ -413,11 +413,11 @@ class SentienceController extends Controller
 
         $migrationFileContents = MigrationFactory::create(
             [
-                sprintf('$database->alterModel(%s::class)', $class),
+                \sprintf('$database->alterModel(%s::class)', $class),
                 '    ->execute();'
             ],
             [
-                sprintf('$database->alterModel(%s::class)', $class),
+                \sprintf('$database->alterModel(%s::class)', $class),
                 '    ->execute();'
             ]
         );
@@ -473,7 +473,7 @@ class SentienceController extends Controller
         }
 
         $class = !str_contains('\\', (string) $class)
-            ? $class = sprintf('\\Src\\Models\\%s', $class)
+            ? $class = \sprintf('\\Src\\Models\\%s', $class)
             : $class;
 
         if (!class_exists($class)) {
@@ -484,7 +484,7 @@ class SentienceController extends Controller
 
         $model = new $class($database);
 
-        $migrationName = sprintf(
+        $migrationName = \sprintf(
             '%s_reset_%s_table.php',
             date('YmdHis'),
             $model::getTable()
@@ -492,11 +492,11 @@ class SentienceController extends Controller
 
         $migrationFileContents = MigrationFactory::create(
             [
-                sprintf('$database->dropModel(%s::class)', $class),
+                \sprintf('$database->dropModel(%s::class)', $class),
                 '    ->ifExists()',
                 '    ->execute();',
                 '',
-                sprintf('$database->createModel(%s::class)', $class),
+                \sprintf('$database->createModel(%s::class)', $class),
                 '    ->ifNotExists()',
                 '    ->execute();'
             ]
@@ -556,14 +556,14 @@ class SentienceController extends Controller
         $missingVariables = [];
 
         foreach ($dotEnvExampleVariables as $key => $value) {
-            if (array_key_exists($key, $dotEnvVariables)) {
+            if (\array_key_exists($key, $dotEnvVariables)) {
                 continue;
             }
 
             $missingVariables[$key] = $value;
         }
 
-        if (count($missingVariables) == 0) {
+        if (\count($missingVariables) == 0) {
             Stdio::printFLn(
                 '%s is up to date',
                 $dotEnv
@@ -580,15 +580,15 @@ class SentienceController extends Controller
             $lines[] = '';
         }
 
-        $lines[] = sprintf(
+        $lines[] = \sprintf(
             '# imported %s variables from %s on %s',
-            count($missingVariables),
+            \count($missingVariables),
             $dotEnvExample,
             date('Y-m-d H:i:s')
         );
 
         foreach ($missingVariables as $key => $value) {
-            $lines[] = sprintf(
+            $lines[] = \sprintf(
                 '%s=%s',
                 $key,
                 $value
@@ -601,6 +601,6 @@ class SentienceController extends Controller
 
         file_put_contents($dotEnvFilepath, $modifiedDotEnvFileContents);
 
-        Stdio::printFLn('Added %d variables to %s', count($missingVariables), $dotEnv);
+        Stdio::printFLn('Added %d variables to %s', \count($missingVariables), $dotEnv);
     }
 }

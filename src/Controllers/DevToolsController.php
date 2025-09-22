@@ -89,7 +89,7 @@ class DevToolsController extends Controller
                 )
             );
 
-            Stdio::printFLn('Sorted %d imports in: %s', count($sortedImports), $file);
+            Stdio::printFLn('Sorted %d imports in: %s', \count($sortedImports), $file);
         }
 
         Stdio::printLn(str_repeat('=', $consoleWidth));
@@ -136,7 +136,7 @@ class DevToolsController extends Controller
                 $fileContents
             );
 
-            if (is_null($modifiedFileContents)) {
+            if (\is_null($modifiedFileContents)) {
                 continue;
             }
 
@@ -189,7 +189,7 @@ class DevToolsController extends Controller
                 $fileContents
             );
 
-            if (is_null($modifiedFileContents)) {
+            if (\is_null($modifiedFileContents)) {
                 continue;
             }
 

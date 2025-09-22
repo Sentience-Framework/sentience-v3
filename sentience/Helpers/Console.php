@@ -25,7 +25,7 @@ class Console
         $stdout = '';
         $stderr = '';
 
-        if (!is_resource($process)) {
+        if (!\is_resource($process)) {
             return 1;
         }
 
@@ -36,7 +36,7 @@ class Console
         fwrite($pipes[0], '');
         fclose($pipes[0]);
 
-        while (is_resource($process)) {
+        while (\is_resource($process)) {
             $stdout .= stream_get_contents($pipes[1]);
             $stderr .= stream_get_contents($pipes[2]);
 
@@ -74,7 +74,7 @@ class Console
         $stdout = '';
         $stderr = '';
 
-        if (!is_resource($process)) {
+        if (!\is_resource($process)) {
             return 1;
         }
 
@@ -84,13 +84,13 @@ class Console
 
         fwrite($pipes[0], '');
 
-        while (is_resource($process)) {
+        while (\is_resource($process)) {
             $stdout = stream_get_contents($pipes[1]);
             $stderr = stream_get_contents($pipes[2]);
 
             $stdin = $callback($stdout, $stderr);
 
-            if (is_int($stdin)) {
+            if (\is_int($stdin)) {
                 fclose($pipes[0]);
                 fclose($pipes[1]);
                 fclose($pipes[2]);
@@ -100,7 +100,7 @@ class Console
                 return (int) $stdin;
             }
 
-            if (is_string($stdin)) {
+            if (\is_string($stdin)) {
                 fwrite($pipes[0], $stdin);
             }
 
@@ -159,7 +159,7 @@ class Console
         $exitCode = static::exec('stty size < /dev/tty', $stdout, $stderr, 0);
 
         if (preg_match('/(\d+)\s(\d+)/', (string) $stdout, $matches)) {
-            [$height, $width] = array_slice($matches, 1);
+            [$height, $width] = \array_slice($matches, 1);
 
             return (int) $width;
         }
