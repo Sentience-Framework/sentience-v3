@@ -67,9 +67,9 @@ class InsertModelsQuery extends ModelsQueryAbstract
                     : $insertQuery->onConflictIgnore($columns, $autoIncrementPrimaryKeyColumn);
             }
 
-            $results = $insertQuery->execute();
+            $result = $insertQuery->execute();
 
-            $insertedRow = $results->fetchAssoc();
+            $insertedRow = $result->fetchAssoc();
 
             if ($insertedRow) {
                 $this->mapAssocToModel($model, $insertedRow);

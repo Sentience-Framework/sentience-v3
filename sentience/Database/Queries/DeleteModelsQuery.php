@@ -48,9 +48,9 @@ class DeleteModelsQuery extends ModelsQueryAbstract
             $deleteQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(ChainEnum::AND, $this->where));
             $deleteQuery->returning($columns);
 
-            $results = $deleteQuery->execute();
+            $result = $deleteQuery->execute();
 
-            $deletedRow = $results->fetchAssoc();
+            $deletedRow = $result->fetchAssoc();
 
             if ($deletedRow) {
                 $this->mapAssocToModel($model, $deletedRow);

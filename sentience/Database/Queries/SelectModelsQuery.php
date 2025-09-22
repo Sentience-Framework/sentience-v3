@@ -63,11 +63,11 @@ class SelectModelsQuery extends ModelsQueryAbstract
             $selectQuery->offset($this->offset);
         }
 
-        $results = $selectQuery->execute();
+        $result = $selectQuery->execute();
 
         return array_map(
             fn (array $row): object => $this->mapAssocToModel($model, $row),
-            $results->fetchAssocs()
+            $result->fetchAssocs()
         );
     }
 }

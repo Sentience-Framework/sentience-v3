@@ -8,22 +8,22 @@ use Throwable;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
 use Sentience\Database\Queries\Objects\QueryWithParams;
-use Sentience\Database\Results\PDOResults;
+use Sentience\Database\Results\PDOResult;
 
 class PDOAdapter extends AdapterAbstract
 {
     protected PDO $pdo;
 
     public function __construct(
-        protected Driver $driver,
-        protected string $host,
-        protected int $port,
-        protected string $name,
-        protected string $username,
-        protected string $password,
-        protected array $queries,
-        protected ?Closure $debug,
-        protected array $options
+        Driver $driver,
+        string $host,
+        int $port,
+        string $name,
+        string $username,
+        string $password,
+        array $queries,
+        ?Closure $debug,
+        array $options
     ) {
         parent::__construct(
             $driver,
@@ -124,7 +124,7 @@ class PDOAdapter extends AdapterAbstract
         $this->debug($query, $start);
     }
 
-    public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): PDOResults
+    public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): PDOResult
     {
         $query = $queryWithParams->toRawQuery($dialect);
 
@@ -165,7 +165,7 @@ class PDOAdapter extends AdapterAbstract
 
         $this->debug($query, $start);
 
-        return new PDOResults($pdoStatement);
+        return new PDOResult($pdoStatement);
     }
 
     public function beginTransaction(): void

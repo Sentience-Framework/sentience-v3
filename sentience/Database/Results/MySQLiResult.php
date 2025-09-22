@@ -4,7 +4,7 @@ namespace Sentience\Database\Results;
 
 use mysqli_result;
 
-class MySQLiResults implements ResultsInterface
+class MySQLiResult implements ResultInterface
 {
     public function __construct(protected bool|mysqli_result $mysqliResult)
     {

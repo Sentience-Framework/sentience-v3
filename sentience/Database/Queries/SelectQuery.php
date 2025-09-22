@@ -13,9 +13,9 @@ use Sentience\Database\Queries\Traits\LimitTrait;
 use Sentience\Database\Queries\Traits\OffsetTrait;
 use Sentience\Database\Queries\Traits\OrderByTrait;
 use Sentience\Database\Queries\Traits\WhereTrait;
-use Sentience\Database\Results\ResultsInterface;
+use Sentience\Database\Results\ResultInterface;
 
-class SelectQuery extends ResultsQueryAbstract
+class SelectQuery extends ResultQueryAbstract
 {
     use ColumnsTrait;
     use DistinctTrait;
@@ -48,7 +48,7 @@ class SelectQuery extends ResultsQueryAbstract
         return parent::toRawQuery();
     }
 
-    public function execute(): ResultsInterface
+    public function execute(): ResultInterface
     {
         return parent::execute();
     }

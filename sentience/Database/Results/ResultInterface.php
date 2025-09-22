@@ -2,7 +2,7 @@
 
 namespace Sentience\Database\Results;
 
-interface ResultsInterface
+interface ResultInterface
 {
     public function getColumns(): array;
     public function fetchObject(string $class = 'stdClass'): ?object;

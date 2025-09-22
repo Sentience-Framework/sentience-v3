@@ -11,9 +11,9 @@ use Sentience\Database\Queries\Objects\DropColumn;
 use Sentience\Database\Queries\Objects\DropConstraint;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Objects\RenameColumn;
-use Sentience\Database\Results\ResultsInterface;
+use Sentience\Database\Results\ResultInterface;
 
-class AlterTableQuery extends ResultsQueryAbstract
+class AlterTableQuery extends ResultQueryAbstract
 {
     protected array $alters = [];
 
@@ -40,7 +40,7 @@ class AlterTableQuery extends ResultsQueryAbstract
         $queries = $this->toQueryWithParams();
 
         return array_map(
-            fn (QueryWithParams $queryWithParams): ResultsInterface => $this->database->queryWithParams($queryWithParams),
+            fn (QueryWithParams $queryWithParams): ResultInterface => $this->database->queryWithParams($queryWithParams),
             $queries
         );
     }

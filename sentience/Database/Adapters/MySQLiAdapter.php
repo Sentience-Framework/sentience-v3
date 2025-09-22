@@ -8,7 +8,7 @@ use Throwable;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
 use Sentience\Database\Queries\Objects\QueryWithParams;
-use Sentience\Database\Results\MySQLiResults;
+use Sentience\Database\Results\MySQLiResult;
 
 class MySQLiAdapter extends AdapterAbstract
 {
@@ -16,15 +16,15 @@ class MySQLiAdapter extends AdapterAbstract
     protected bool $inTransaction = false;
 
     public function __construct(
-        protected Driver $driver,
-        protected string $host,
-        protected int $port,
-        protected string $name,
-        protected string $username,
-        protected string $password,
-        protected array $queries,
-        protected ?Closure $debug,
-        protected array $options
+        Driver $driver,
+        string $host,
+        int $port,
+        string $name,
+        string $username,
+        string $password,
+        array $queries,
+        ?Closure $debug,
+        array $options
     ) {
         parent::__construct(
             $driver,
@@ -72,7 +72,7 @@ class MySQLiAdapter extends AdapterAbstract
         $this->debug($query, $start);
     }
 
-    public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): MySQLiResults
+    public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): MySQLiResult
     {
         $query = $queryWithParams->toRawQuery($dialect);
 
@@ -121,11 +121,11 @@ class MySQLiAdapter extends AdapterAbstract
             throw $exception;
         }
 
-        $results = $mysqliStatement->get_result();
+        $result = $mysqliStatement->get_result();
 
         $this->debug($query, $start);
 
-        return new MySQLiResults($results);
+        return new MySQLiResult($result);
     }
 
     public function beginTransaction(): void

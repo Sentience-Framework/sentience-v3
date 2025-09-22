@@ -56,9 +56,9 @@ class UpdateModelsQuery extends ModelsQueryAbstract
             $updateQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(ChainEnum::AND, $this->where));
             $updateQuery->returning($columns);
 
-            $results = $updateQuery->execute();
+            $result = $updateQuery->execute();
 
-            $updatedRow = $results->fetchAssoc();
+            $updatedRow = $result->fetchAssoc();
 
             if ($updatedRow) {
                 $this->mapAssocToModel($model, $updatedRow);

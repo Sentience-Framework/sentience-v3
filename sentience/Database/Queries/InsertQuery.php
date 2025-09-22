@@ -6,9 +6,9 @@ use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Traits\OnConflictTrait;
 use Sentience\Database\Queries\Traits\ReturningTrait;
 use Sentience\Database\Queries\Traits\ValuesTrait;
-use Sentience\Database\Results\ResultsInterface;
+use Sentience\Database\Results\ResultInterface;
 
-class InsertQuery extends ResultsQueryAbstract
+class InsertQuery extends ResultQueryAbstract
 {
     use OnConflictTrait;
     use ReturningTrait;
@@ -33,7 +33,7 @@ class InsertQuery extends ResultsQueryAbstract
         return parent::toRawQuery();
     }
 
-    public function execute(): ResultsInterface
+    public function execute(): ResultInterface
     {
         return parent::execute();
     }

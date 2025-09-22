@@ -4,9 +4,9 @@ namespace Sentience\Database\Queries;
 
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Traits\IfExistsTrait;
-use Sentience\Database\Results\ResultsInterface;
+use Sentience\Database\Results\ResultInterface;
 
-class DropTableQuery extends ResultsQueryAbstract
+class DropTableQuery extends ResultQueryAbstract
 {
     use IfExistsTrait;
 
@@ -23,7 +23,7 @@ class DropTableQuery extends ResultsQueryAbstract
         return parent::toRawQuery();
     }
 
-    public function execute(): ResultsInterface
+    public function execute(): ResultInterface
     {
         return parent::execute();
     }

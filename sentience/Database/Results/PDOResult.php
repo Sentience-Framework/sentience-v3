@@ -5,7 +5,7 @@ namespace Sentience\Database\Results;
 use PDO;
 use PDOStatement;
 
-class PDOResults implements ResultsInterface
+class PDOResult implements ResultInterface
 {
     public function __construct(protected PDOStatement $pdoStatement)
     {

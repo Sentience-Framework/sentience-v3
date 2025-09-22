@@ -8,7 +8,7 @@ use Throwable;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
 use Sentience\Database\Queries\Objects\QueryWithParams;
-use Sentience\Database\Results\SQLite3Results;
+use Sentience\Database\Results\SQLite3Result;
 
 class SQLite3Adapter extends AdapterAbstract
 {
@@ -20,15 +20,15 @@ class SQLite3Adapter extends AdapterAbstract
     protected bool $inTransaction = false;
 
     public function __construct(
-        protected Driver $driver,
-        protected string $host,
-        protected int $port,
-        protected string $name,
-        protected string $username,
-        protected string $password,
-        protected array $queries,
-        protected ?Closure $debug,
-        protected array $options
+        Driver $driver,
+        string $host,
+        int $port,
+        string $name,
+        string $username,
+        string $password,
+        array $queries,
+        ?Closure $debug,
+        array $options
     ) {
         parent::__construct(
             $driver,
@@ -76,7 +76,7 @@ class SQLite3Adapter extends AdapterAbstract
         $this->debug($query, $start);
     }
 
-    public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): SQLite3Results
+    public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): SQLite3Result
     {
         $query = $queryWithParams->toRawQuery($dialect);
 
@@ -107,7 +107,7 @@ class SQLite3Adapter extends AdapterAbstract
         }
 
         try {
-            $sqlite3Results = $sqlite3Statement->execute();
+            $sqlite3Result = $sqlite3Statement->execute();
         } catch (Throwable $exception) {
             $this->debug($query, $start, $exception);
 
@@ -116,7 +116,7 @@ class SQLite3Adapter extends AdapterAbstract
 
         $this->debug($query, $start);
 
-        return new SQLite3Results($sqlite3Results);
+        return new SQLite3Result($sqlite3Result);
     }
 
     public function beginTransaction(): void

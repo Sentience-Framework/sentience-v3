@@ -23,7 +23,7 @@ use Sentience\Database\Queries\SelectModelsQuery;
 use Sentience\Database\Queries\SelectQuery;
 use Sentience\Database\Queries\UpdateModelsQuery;
 use Sentience\Database\Queries\UpdateQuery;
-use Sentience\Database\Results\ResultsInterface;
+use Sentience\Database\Results\ResultInterface;
 use Sentience\Helpers\Arrays;
 use Sentience\Models\Model;
 
@@ -67,12 +67,12 @@ class Database
         $this->adapter->query($query);
     }
 
-    public function prepared(string $query, array $params = []): ResultsInterface
+    public function prepared(string $query, array $params = []): ResultInterface
     {
         return $this->queryWithParams(new QueryWithParams($query, $params));
     }
 
-    public function queryWithParams(QueryWithParams $queryWithParams): ResultsInterface
+    public function queryWithParams(QueryWithParams $queryWithParams): ResultInterface
     {
         return $this->adapter->queryWithParams($this->dialect, $queryWithParams);
     }

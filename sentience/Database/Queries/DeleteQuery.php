@@ -5,9 +5,9 @@ namespace Sentience\Database\Queries;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Traits\ReturningTrait;
 use Sentience\Database\Queries\Traits\WhereTrait;
-use Sentience\Database\Results\ResultsInterface;
+use Sentience\Database\Results\ResultInterface;
 
-class DeleteQuery extends ResultsQueryAbstract
+class DeleteQuery extends ResultQueryAbstract
 {
     use ReturningTrait;
     use WhereTrait;
@@ -26,7 +26,7 @@ class DeleteQuery extends ResultsQueryAbstract
         return parent::toRawQuery();
     }
 
-    public function execute(): ResultsInterface
+    public function execute(): ResultInterface
     {
         return parent::execute();
     }

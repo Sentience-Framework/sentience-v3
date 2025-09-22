@@ -6,9 +6,9 @@ use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Traits\ConstraintsTrait;
 use Sentience\Database\Queries\Traits\IfNotExistsTrait;
-use Sentience\Database\Results\ResultsInterface;
+use Sentience\Database\Results\ResultInterface;
 
-class CreateTableQuery extends ResultsQueryAbstract
+class CreateTableQuery extends ResultQueryAbstract
 {
     use ConstraintsTrait;
     use IfNotExistsTrait;
@@ -35,7 +35,7 @@ class CreateTableQuery extends ResultsQueryAbstract
         return parent::toRawQuery();
     }
 
-    public function execute(): ResultsInterface
+    public function execute(): ResultInterface
     {
         return parent::execute();
     }

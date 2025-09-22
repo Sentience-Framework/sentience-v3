@@ -4,7 +4,7 @@ namespace Sentience\Database\Queries;
 
 use Sentience\Database\Queries\Objects\QueryWithParams;
 
-interface ResultsQueryInterface
+interface ResultQueryInterface
 {
     public function toQueryWithParams(): array|QueryWithParams;
     public function toRawQuery(): string|array;

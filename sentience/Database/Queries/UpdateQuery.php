@@ -6,9 +6,9 @@ use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Traits\ReturningTrait;
 use Sentience\Database\Queries\Traits\ValuesTrait;
 use Sentience\Database\Queries\Traits\WhereTrait;
-use Sentience\Database\Results\ResultsInterface;
+use Sentience\Database\Results\ResultInterface;
 
-class UpdateQuery extends ResultsQueryAbstract
+class UpdateQuery extends ResultQueryAbstract
 {
     use ReturningTrait;
     use ValuesTrait;
@@ -29,7 +29,7 @@ class UpdateQuery extends ResultsQueryAbstract
         return parent::toRawQuery();
     }
 
-    public function execute(): ResultsInterface
+    public function execute(): ResultInterface
     {
         return parent::execute();
     }
