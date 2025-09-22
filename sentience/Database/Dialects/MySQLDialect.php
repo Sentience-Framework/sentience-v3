@@ -31,7 +31,7 @@ class MySQLDialect extends SQLDialect implements DialectInterface
         return $queryWithParams;
     }
 
-    public function addOnConflict(string &$query, array &$params, null|string|array $conflict, ?array $conflictUpdates, ?string $primaryKey, array $insertValues): void
+    public function buildOnConflict(string &$query, array &$params, null|string|array $conflict, ?array $conflictUpdates, ?string $primaryKey, array $insertValues): void
     {
         if (is_null($conflict)) {
             return;
@@ -83,14 +83,14 @@ class MySQLDialect extends SQLDialect implements DialectInterface
         );
     }
 
-    public function addReturning(string &$query, ?array $returning): void
+    public function buildReturning(string &$query, ?array $returning): void
     {
         return;
     }
 
-    public function stringifyColumnDefinition(Column $column): string
+    public function buildColumnDefinition(Column $column): string
     {
-        $stringifiedColumn = parent::stringifyColumnDefinition($column);
+        $stringifiedColumn = parent::buildColumnDefinition($column);
 
         if ($column->autoIncrement && str_contains(strtolower($column->type), 'int')) {
             $stringifiedColumn .= ' AUTO_INCREMENT';
@@ -99,16 +99,16 @@ class MySQLDialect extends SQLDialect implements DialectInterface
         return $stringifiedColumn;
     }
 
-    public function stringifyAlterTableAlterColumn(AlterColumn $alterColumn): string
+    public function buildAlterTableAlterColumn(AlterColumn $alterColumn): string
     {
-        $stringifiedAlterColumn = parent::stringifyAlterTableAlterColumn($alterColumn);
+        $stringifiedAlterColumn = parent::buildAlterTableAlterColumn($alterColumn);
 
         return substr_replace($stringifiedAlterColumn, 'MODIFY', 0, 5);
     }
 
-    public function stringifyAlterTableDropConstraint(DropConstraint $dropConstraint): string
+    public function buildAlterTableDropConstraint(DropConstraint $dropConstraint): string
     {
-        $stringifiedDropConstraint = parent::stringifyAlterTableDropConstraint($dropConstraint);
+        $stringifiedDropConstraint = parent::buildAlterTableDropConstraint($dropConstraint);
 
         return substr_replace($stringifiedDropConstraint, 'INDEX', 5, 10);
     }

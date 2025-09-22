@@ -38,10 +38,6 @@ class SQLDialect implements DialectInterface
 
     public function select(array $config): QueryWithParams
     {
-        if (!$config['table']) {
-            throw new QueryException('no table specified');
-        }
-
         $query = '';
         $params = [];
 
@@ -78,14 +74,14 @@ class SQLDialect implements DialectInterface
 
         $query .= ' FROM';
 
-        $this->addTable($query, $config['table']);
-        $this->addJoins($query, $config['joins']);
-        $this->addWhere($query, $params, $config['where']);
-        $this->addGroupBy($query, $config['groupBy']);
-        $this->addHaving($query, $params, $config['having']);
-        $this->addOrderBy($query, $config['orderBy']);
-        $this->addLimit($query, $config['limit']);
-        $this->addOffset($query, $config['limit'], $config['offset']);
+        $this->buildTable($query, $config['table']);
+        $this->buildJoins($query, $config['joins']);
+        $this->buildWhere($query, $params, $config['where']);
+        $this->buildGroupBy($query, $config['groupBy']);
+        $this->buildHaving($query, $params, $config['having']);
+        $this->buildOrderBy($query, $config['orderBy']);
+        $this->buildLimit($query, $config['limit']);
+        $this->buildOffset($query, $config['limit'], $config['offset']);
 
         $query .= ';';
 
@@ -94,10 +90,6 @@ class SQLDialect implements DialectInterface
 
     public function insert(array $config): QueryWithParams
     {
-        if (!$config['table']) {
-            throw new QueryException('no table specified');
-        }
-
         if (count($config['values']) == 0) {
             throw new QueryException('no insert values specified');
         }
@@ -107,7 +99,7 @@ class SQLDialect implements DialectInterface
 
         $query .= 'INSERT INTO';
 
-        $this->addTable($query, $config['table']);
+        $this->buildTable($query, $config['table']);
 
         $query .= sprintf(
             ' (%s)',
@@ -150,7 +142,7 @@ class SQLDialect implements DialectInterface
         );
 
         if (array_key_exists('onConflict', $config)) {
-            $this->addOnConflict(
+            $this->buildOnConflict(
                 $query,
                 $params,
                 $config['onConflict']['conflict'],
@@ -160,7 +152,7 @@ class SQLDialect implements DialectInterface
             );
         }
 
-        $this->addReturning($query, $config['returning']);
+        $this->buildReturning($query, $config['returning']);
 
         $query .= ';';
 
@@ -169,10 +161,6 @@ class SQLDialect implements DialectInterface
 
     public function update(array $config): QueryWithParams
     {
-        if (!$config['table']) {
-            throw new QueryException('no table specified');
-        }
-
         if (count($config['values']) == 0) {
             throw new QueryException('no update values specified');
         }
@@ -182,7 +170,7 @@ class SQLDialect implements DialectInterface
 
         $query .= 'UPDATE';
 
-        $this->addTable($query, $config['table']);
+        $this->buildTable($query, $config['table']);
 
         $query .= ' SET ';
         $query .= implode(
@@ -206,8 +194,8 @@ class SQLDialect implements DialectInterface
             )
         );
 
-        $this->addWhere($query, $params, $config['where']);
-        $this->addReturning($query, $config['returning']);
+        $this->buildWhere($query, $params, $config['where']);
+        $this->buildReturning($query, $config['returning']);
 
         $query .= ';';
 
@@ -216,18 +204,14 @@ class SQLDialect implements DialectInterface
 
     public function delete(array $config): QueryWithParams
     {
-        if (!$config['table']) {
-            throw new QueryException('no table specified');
-        }
-
         $query = '';
         $params = [];
 
         $query .= 'DELETE FROM';
 
-        $this->addTable($query, $config['table']);
-        $this->addWhere($query, $params, $config['where']);
-        $this->addReturning($query, $config['returning']);
+        $this->buildTable($query, $config['table']);
+        $this->buildWhere($query, $params, $config['where']);
+        $this->buildReturning($query, $config['returning']);
 
         $query .= ';';
 
@@ -236,10 +220,6 @@ class SQLDialect implements DialectInterface
 
     public function createTable(array $config): QueryWithParams
     {
-        if (!$config['table']) {
-            throw new QueryException('no table specified');
-        }
-
         if (count($config['columns']) == 0) {
             throw new QueryException('no table columns specified');
         }
@@ -257,12 +237,12 @@ class SQLDialect implements DialectInterface
             $query .= ' IF NOT EXISTS';
         }
 
-        $this->addTable($query, $config['table']);
+        $this->buildTable($query, $config['table']);
 
         $definitions = [];
 
         foreach ($config['columns'] as $column) {
-            $definitions[] = $this->stringifyColumnDefinition($column);
+            $definitions[] = $this->buildColumnDefinition($column);
         }
 
         $definitions[] = sprintf(
@@ -277,11 +257,11 @@ class SQLDialect implements DialectInterface
         );
 
         foreach ($config['constraints']['unique'] as $uniqueConstraint) {
-            $definitions[] = $this->stringifyUniqueConstraintDefinition($uniqueConstraint);
+            $definitions[] = $this->buildUniqueConstraintDefinition($uniqueConstraint);
         }
 
-        foreach ($config['constraints']['foreignKey'] as $foreignKeyConstraint) {
-            $definitions[] = $this->stringifyForeignKeyConstraintDefinition($foreignKeyConstraint);
+        foreach ($config['constraints']['foreignKeys'] as $foreignKeyConstraint) {
+            $definitions[] = $this->buildForeignKeyConstraintDefinition($foreignKeyConstraint);
         }
 
         $query .= sprintf(' (%s)', implode(', ', $definitions));
@@ -292,10 +272,6 @@ class SQLDialect implements DialectInterface
 
     public function alterTable(array $config): array
     {
-        if (!$config['table']) {
-            throw new QueryException('no table specified');
-        }
-
         if (count($config['alters']) == 0) {
             throw new QueryException('no table alters specified');
         }
@@ -304,19 +280,19 @@ class SQLDialect implements DialectInterface
             function (object $alter) use ($config): QueryWithParams {
                 $query = 'ALTER TABLE';
 
-                $this->addTable($query, $config['table']);
+                $this->buildTable($query, $config['table']);
 
                 $query .= ' ';
 
                 $query .= match (true) {
-                    $alter instanceof AddColumn => $this->stringifyAlterTableAddColumn($alter),
-                    $alter instanceof AlterColumn => $this->stringifyAlterTableAlterColumn($alter),
-                    $alter instanceof RenameColumn => $this->stringifyAlterTableRenameColumn($alter),
-                    $alter instanceof DropColumn => $this->stringifyAlterTableDropColumn($alter),
-                    $alter instanceof AddPrimaryKeys => $this->stringifyAlterTableAddPrimaryKeys($alter),
-                    $alter instanceof AddUniqueConstraint => $this->stringifyAlterTableAddUniqueConstraint($alter),
-                    $alter instanceof AddForeignKeyConstraint => $this->stringifyAlterTableAddForeignKeyConstraint($alter),
-                    $alter instanceof DropConstraint => $this->stringifyAlterTableDropConstraint($alter),
+                    $alter instanceof AddColumn => $this->buildAlterTableAddColumn($alter),
+                    $alter instanceof AlterColumn => $this->buildAlterTableAlterColumn($alter),
+                    $alter instanceof RenameColumn => $this->buildAlterTableRenameColumn($alter),
+                    $alter instanceof DropColumn => $this->buildAlterTableDropColumn($alter),
+                    $alter instanceof AddPrimaryKeys => $this->buildAlterTableAddPrimaryKeys($alter),
+                    $alter instanceof AddUniqueConstraint => $this->buildAlterTableAddUniqueConstraint($alter),
+                    $alter instanceof AddForeignKeyConstraint => $this->buildAlterTableAddForeignKeyConstraint($alter),
+                    $alter instanceof DropConstraint => $this->buildAlterTableDropConstraint($alter),
                     default => throw new QueryException('unsupported table alter %s', $alter::class)
                 };
 
@@ -330,10 +306,6 @@ class SQLDialect implements DialectInterface
 
     public function dropTable(array $config): QueryWithParams
     {
-        if (!$config['table']) {
-            throw new QueryException('no table specified');
-        }
-
         $query = '';
         $params = [];
 
@@ -343,14 +315,14 @@ class SQLDialect implements DialectInterface
             $query .= ' IF EXISTS';
         }
 
-        $this->addTable($query, $config['table']);
+        $this->buildTable($query, $config['table']);
 
         $query .= ';';
 
         return new QueryWithParams($query, $params);
     }
 
-    protected function addTable(string &$query, string|array|Alias|Raw $table): void
+    protected function buildTable(string &$query, string|array|Alias|Raw $table): void
     {
         $query .= ' ';
 
@@ -369,7 +341,7 @@ class SQLDialect implements DialectInterface
         $query .= $this->escapeIdentifier($table);
     }
 
-    protected function addJoins(string &$query, array $joins): void
+    protected function buildJoins(string &$query, array $joins): void
     {
         if (count($joins) == 0) {
             return;
@@ -400,7 +372,7 @@ class SQLDialect implements DialectInterface
         }
     }
 
-    protected function addWhere(string &$query, array &$params, array $where): void
+    protected function buildWhere(string &$query, array &$params, array $where): void
     {
         if (count($where) == 0) {
             return;
@@ -410,12 +382,12 @@ class SQLDialect implements DialectInterface
 
         foreach ($where as $index => $condition) {
             $condition instanceof Condition
-                ? $this->addCondition($query, $params, $index, $condition)
-                : $this->addConditionGroup($query, $params, $index, $condition);
+                ? $this->buildCondition($query, $params, $index, $condition)
+                : $this->buildConditionGroup($query, $params, $index, $condition);
         }
     }
 
-    protected function addCondition(string &$query, array &$params, int $index, Condition $condition): void
+    protected function buildCondition(string &$query, array &$params, int $index, Condition $condition): void
     {
         if ($index > 0) {
             $query .= sprintf(' %s ', $condition->chain->value);
@@ -493,7 +465,7 @@ class SQLDialect implements DialectInterface
         array_push($params, $condition->value);
     }
 
-    protected function addConditionGroup(string &$query, array &$params, int $index, ConditionGroup $group): void
+    protected function buildConditionGroup(string &$query, array &$params, int $index, ConditionGroup $group): void
     {
         if ($index > 0) {
             $query .= sprintf(' %s ', $group->chain->value);
@@ -505,14 +477,14 @@ class SQLDialect implements DialectInterface
 
         foreach ($conditions as $index => $condition) {
             $condition instanceof Condition
-                ? $this->addCondition($query, $params, $index, $condition)
-                : $this->addConditionGroup($query, $params, $index, $condition);
+                ? $this->buildCondition($query, $params, $index, $condition)
+                : $this->buildConditionGroup($query, $params, $index, $condition);
         }
 
         $query .= ')';
     }
 
-    protected function addGroupBy(string &$query, array $groupBy): void
+    protected function buildGroupBy(string &$query, array $groupBy): void
     {
         if (count($groupBy) == 0) {
             return;
@@ -530,7 +502,7 @@ class SQLDialect implements DialectInterface
         );
     }
 
-    protected function addHaving(string &$query, array &$params, ?QueryWithParams $having): void
+    protected function buildHaving(string &$query, array &$params, ?QueryWithParams $having): void
     {
         if (is_null($having)) {
             return;
@@ -541,7 +513,7 @@ class SQLDialect implements DialectInterface
         array_push($params, ...$having->params);
     }
 
-    protected function addOrderBy(string &$query, array $orderBy): void
+    protected function buildOrderBy(string &$query, array $orderBy): void
     {
         if (count($orderBy) == 0) {
             return;
@@ -563,7 +535,7 @@ class SQLDialect implements DialectInterface
         );
     }
 
-    protected function addLimit(string &$query, ?int $limit): void
+    protected function buildLimit(string &$query, ?int $limit): void
     {
         if (is_null($limit)) {
             return;
@@ -572,7 +544,7 @@ class SQLDialect implements DialectInterface
         $query .= ' LIMIT ' . $limit;
     }
 
-    protected function addOffset(string &$query, ?int $limit, ?int $offset): void
+    protected function buildOffset(string &$query, ?int $limit, ?int $offset): void
     {
         if (is_null($limit)) {
             return;
@@ -585,7 +557,7 @@ class SQLDialect implements DialectInterface
         $query .= ' OFFSET ' . $offset;
     }
 
-    protected function addOnConflict(string &$query, array &$params, null|string|array $conflict, ?array $conflictUpdates, ?string $primaryKey, array $insertValues): void
+    protected function buildOnConflict(string &$query, array &$params, null|string|array $conflict, ?array $conflictUpdates, ?string $primaryKey, array $insertValues): void
     {
         /**
          * The official SQL standard does not define a clear way to handle conflicts
@@ -594,7 +566,7 @@ class SQLDialect implements DialectInterface
         return;
     }
 
-    protected function addReturning(string &$query, ?array $returning): void
+    protected function buildReturning(string &$query, ?array $returning): void
     {
         if (is_null($returning)) {
             return;
@@ -613,7 +585,7 @@ class SQLDialect implements DialectInterface
         $query .= ' RETURNING ' . $columns;
     }
 
-    protected function stringifyColumnDefinition(Column $column): string
+    protected function buildColumnDefinition(Column $column): string
     {
         $stringifiedColumn = sprintf(
             '%s %s',
@@ -636,7 +608,7 @@ class SQLDialect implements DialectInterface
         return $stringifiedColumn;
     }
 
-    protected function stringifyUniqueConstraintDefinition(UniqueConstraint $uniqueConstraint): string
+    protected function buildUniqueConstraintDefinition(UniqueConstraint $uniqueConstraint): string
     {
         $stringifiedUniqueConstraint = sprintf(
             'UNIQUE (%s)',
@@ -660,7 +632,7 @@ class SQLDialect implements DialectInterface
         return $stringifiedUniqueConstraint;
     }
 
-    protected function stringifyForeignKeyConstraintDefinition(ForeignKeyConstraint $foreignKeyConstraint): string
+    protected function buildForeignKeyConstraintDefinition(ForeignKeyConstraint $foreignKeyConstraint): string
     {
         $stringifiedForeignKeyConstraint = sprintf(
             'FOREIGN KEY (%s) REFERENCES %s (%s)',
@@ -680,15 +652,15 @@ class SQLDialect implements DialectInterface
         return $stringifiedForeignKeyConstraint;
     }
 
-    protected function stringifyAlterTableAddColumn(AddColumn $addColumn): string
+    protected function buildAlterTableAddColumn(AddColumn $addColumn): string
     {
         return sprintf(
             'ADD COLUMN %s',
-            $this->stringifyColumnDefinition($addColumn)
+            $this->buildColumnDefinition($addColumn)
         );
     }
 
-    protected function stringifyAlterTableAlterColumn(AlterColumn $alterColumn): string
+    protected function buildAlterTableAlterColumn(AlterColumn $alterColumn): string
     {
         return sprintf(
             'ALTER COLUMN %s %s',
@@ -697,7 +669,7 @@ class SQLDialect implements DialectInterface
         );
     }
 
-    protected function stringifyAlterTableRenameColumn(RenameColumn $renameColumn): string
+    protected function buildAlterTableRenameColumn(RenameColumn $renameColumn): string
     {
         return sprintf(
             'RENAME COLUMN %s TO %s',
@@ -706,7 +678,7 @@ class SQLDialect implements DialectInterface
         );
     }
 
-    protected function stringifyAlterTableDropColumn(DropColumn $dropColumn): string
+    protected function buildAlterTableDropColumn(DropColumn $dropColumn): string
     {
         return sprintf(
             'DROP COLUMN %s',
@@ -714,7 +686,7 @@ class SQLDialect implements DialectInterface
         );
     }
 
-    protected function stringifyAlterTableAddPrimaryKeys(AddPrimaryKeys $addPrimaryKeys): string
+    protected function buildAlterTableAddPrimaryKeys(AddPrimaryKeys $addPrimaryKeys): string
     {
         return sprintf(
             'ADD PRIMARY KEY (%s)',
@@ -728,23 +700,23 @@ class SQLDialect implements DialectInterface
         );
     }
 
-    protected function stringifyAlterTableAddUniqueConstraint(AddUniqueConstraint $addUniqueConstraint): string
+    protected function buildAlterTableAddUniqueConstraint(AddUniqueConstraint $addUniqueConstraint): string
     {
         return sprintf(
             'ADD %s',
-            $this->stringifyUniqueConstraintDefinition($addUniqueConstraint)
+            $this->buildUniqueConstraintDefinition($addUniqueConstraint)
         );
     }
 
-    protected function stringifyAlterTableAddForeignKeyConstraint(AddForeignKeyConstraint $addForeignKeyConstraint): string
+    protected function buildAlterTableAddForeignKeyConstraint(AddForeignKeyConstraint $addForeignKeyConstraint): string
     {
         return sprintf(
             'ADD %s',
-            $this->stringifyForeignKeyConstraintDefinition($addForeignKeyConstraint)
+            $this->buildForeignKeyConstraintDefinition($addForeignKeyConstraint)
         );
     }
 
-    protected function stringifyAlterTableDropConstraint(DropConstraint $dropConstraint): string
+    protected function buildAlterTableDropConstraint(DropConstraint $dropConstraint): string
     {
         return sprintf(
             'DROP CONSTRAINT %s',

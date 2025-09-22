@@ -15,7 +15,7 @@ use Sentience\Timestamp\Timestamp;
 
 class SQLiteDialect extends SQLDialect implements DialectInterface
 {
-    public function addOnConflict(string &$query, array &$params, null|string|array $conflict, ?array $conflictUpdates, ?string $primaryKey, array $insertValues): void
+    public function buildOnConflict(string &$query, array &$params, null|string|array $conflict, ?array $conflictUpdates, ?string $primaryKey, array $insertValues): void
     {
         if (is_null($conflict)) {
             return;
@@ -70,27 +70,27 @@ class SQLiteDialect extends SQLDialect implements DialectInterface
         );
     }
 
-    public function stringifyAlterTableAlterColumn(AlterColumn $alterColumn): string
+    public function buildAlterTableAlterColumn(AlterColumn $alterColumn): string
     {
         throw new QueryException('SQLite does not support altering columns');
     }
 
-    protected function stringifyAlterTableAddPrimaryKeys(AddPrimaryKeys $addPrimaryKeys): string
+    protected function buildAlterTableAddPrimaryKeys(AddPrimaryKeys $addPrimaryKeys): string
     {
         throw new QueryException('SQLite does not support adding primary keys by altering the table');
     }
 
-    protected function stringifyAlterTableAddUniqueConstraint(AddUniqueConstraint $addUniqueConstraint): string
+    protected function buildAlterTableAddUniqueConstraint(AddUniqueConstraint $addUniqueConstraint): string
     {
         throw new QueryException('SQLite does not support adding constraints by altering the table');
     }
 
-    protected function stringifyAlterTableAddForeignKeyConstraint(AddForeignKeyConstraint $addForeignKeyConstraint): string
+    protected function buildAlterTableAddForeignKeyConstraint(AddForeignKeyConstraint $addForeignKeyConstraint): string
     {
         throw new QueryException('SQLite does not support adding constraints by altering the table');
     }
 
-    protected function stringifyAlterTableDropConstraint(DropConstraint $dropConstraint): string
+    protected function buildAlterTableDropConstraint(DropConstraint $dropConstraint): string
     {
         throw new QueryException('SQLite does not support dropping constraints by altering the table');
     }

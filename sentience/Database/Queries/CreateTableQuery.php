@@ -25,7 +25,7 @@ class CreateTableQuery extends ResultQueryAbstract
             'primaryKeys' => $this->primaryKeys,
             'constraints' => [
                 'unique' => $this->uniqueConstraints,
-                'foreignKey' => $this->foreignKeyConstraints
+                'foreignKeys' => $this->foreignKeyConstraints
             ]
         ]);
     }

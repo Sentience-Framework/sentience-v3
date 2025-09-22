@@ -12,7 +12,7 @@ class PgSQLDialect extends SQLDialect implements DialectInterface
     public const string REGEX_FUNCTION = '~';
     public const string NOT_REGEX_FUNCTION = '!~';
 
-    public function addOnConflict(string &$query, array &$params, null|string|array $conflict, ?array $conflictUpdates, ?string $primaryKey, array $insertValues): void
+    public function buildOnConflict(string &$query, array &$params, null|string|array $conflict, ?array $conflictUpdates, ?string $primaryKey, array $insertValues): void
     {
         if (is_null($conflict)) {
             return;
