@@ -8,7 +8,7 @@ use Sentience\Database\Queries\Traits\ReturningTrait;
 use Sentience\Database\Queries\Traits\ValuesTrait;
 use Sentience\Database\Results\ResultInterface;
 
-class InsertQuery extends ResultQueryAbstract
+class InsertQuery extends Query
 {
     use OnConflictTrait;
     use ReturningTrait;

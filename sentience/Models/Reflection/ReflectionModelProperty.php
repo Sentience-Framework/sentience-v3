@@ -3,6 +3,8 @@
 namespace Sentience\Models\Reflection;
 
 use BackedEnum;
+use DateTime;
+use DateTimeInterface;
 use ReflectionEnum;
 use ReflectionNamedType;
 use ReflectionProperty;
@@ -14,12 +16,13 @@ use Sentience\Helpers\Arrays;
 use Sentience\Helpers\Strings;
 use Sentience\Models\Attributes\Columns\AutoIncrement;
 use Sentience\Models\Attributes\Columns\Column;
-use Sentience\Models\Enums\MySQLColumnEnum;
-use Sentience\Models\Enums\PgSQLColumnEnum;
-use Sentience\Models\Enums\SQLite3ColumnEnum;
+use Sentience\Models\Database\Enums\MySQLColumnEnum;
+use Sentience\Models\Database\Enums\PgSQLColumnEnum;
+use Sentience\Models\Database\Enums\SQLite3ColumnEnum;
 use Sentience\Models\Exceptions\MultipleTypesException;
 use Sentience\Models\Exceptions\UnknownDialectException;
 use Sentience\Models\Model;
+use Sentience\Timestamp\Timestamp;
 
 class ReflectionModelProperty
 {
@@ -74,7 +77,16 @@ class ReflectionModelProperty
             $dialect instanceof SQLiteDialect => SQLite3ColumnEnum::getType(
                 $type
             )->value,
-            default => throw new UnknownDialectException('unknown dialect %s', $dialect::class)
+            default => match ($type) {
+                    'bool' => 'INT',
+                    'int' => 'INT',
+                    'float' => 'FLOAT',
+                    'string' => 'TEXT',
+                    Timestamp::class,
+                    DateTime::class,
+                    DateTimeInterface::class => 'DATETIME',
+                    default => 'TEXT'
+                }
         };
     }
 

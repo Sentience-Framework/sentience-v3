@@ -8,7 +8,7 @@ use Sentience\Database\Queries\Traits\ConstraintsTrait;
 use Sentience\Database\Queries\Traits\IfNotExistsTrait;
 use Sentience\Database\Results\ResultInterface;
 
-class CreateTableQuery extends ResultQueryAbstract
+class CreateTableQuery extends Query
 {
     use ConstraintsTrait;
     use IfNotExistsTrait;

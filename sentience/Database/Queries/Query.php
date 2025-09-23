@@ -9,10 +9,22 @@ use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Helpers\Strings;
 use Sentience\Timestamp\Timestamp;
 
-abstract class Query
+abstract class Query implements QueryInterface
 {
-    public function __construct(protected Database $database, protected DialectInterface $dialect)
+    public function __construct(protected Database $database, protected DialectInterface $dialect, protected string|array|Alias|Raw $table)
     {
+    }
+
+    public function toRawQuery(): string|array
+    {
+        return $this->toQueryWithParams()->toRawQuery($this->dialect);
+    }
+
+    public function execute(): mixed
+    {
+        $queryWithParams = $this->toQueryWithParams();
+
+        return $this->database->queryWithParams($queryWithParams);
     }
 
     public static function alias(string|array|Raw $name, string $alias): Alias

@@ -6,7 +6,7 @@ use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Traits\IfExistsTrait;
 use Sentience\Database\Results\ResultInterface;
 
-class DropTableQuery extends ResultQueryAbstract
+class DropTableQuery extends Query
 {
     use IfExistsTrait;
 

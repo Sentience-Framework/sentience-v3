@@ -15,7 +15,7 @@ use Sentience\Database\Queries\Traits\OrderByTrait;
 use Sentience\Database\Queries\Traits\WhereTrait;
 use Sentience\Database\Results\ResultInterface;
 
-class SelectQuery extends ResultQueryAbstract
+class SelectQuery extends Query
 {
     use ColumnsTrait;
     use DistinctTrait;

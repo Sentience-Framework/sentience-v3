@@ -1,6 +1,6 @@
 <?php
 
-namespace Sentience\Database\Queries\Traits;
+namespace Sentience\Models\Database\Queries\Traits;
 
 trait RelationsTrait
 {

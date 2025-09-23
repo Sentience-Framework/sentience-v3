@@ -1,6 +1,6 @@
 <?php
 
-namespace Sentience\Database\Queries;
+namespace Sentience\Models\Database\Queries;
 
 use BackedEnum;
 use DateTime;
@@ -8,16 +8,15 @@ use DateTimeImmutable;
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Exceptions\QueryException;
+use Sentience\Database\Queries\Query;
 use Sentience\Models\Model;
 use Sentience\Models\Reflection\ReflectionModel;
 use Sentience\Timestamp\Timestamp;
 
-abstract class ModelsQueryAbstract extends Query implements ModelsQueryInterface
+abstract class ModelsQueryAbstract implements ModelsQueryInterface
 {
-    public function __construct(Database $database, DialectInterface $dialect, protected array $models)
+    public function __construct(protected Database $database, protected DialectInterface $dialect, protected array $models)
     {
-        parent::__construct($database, $dialect);
-
         if (count($models) == 0) {
             throw new QueryException('array of models is empty');
         }

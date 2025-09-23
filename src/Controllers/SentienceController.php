@@ -2,6 +2,7 @@
 
 namespace Src\Controllers;
 
+use Sentience\Models\Database\DatabaseWithModels;
 use Throwable;
 use Sentience\Abstracts\Controller;
 use Sentience\Database\Database;
@@ -129,7 +130,7 @@ class SentienceController extends Controller
         );
     }
 
-    public function initMigrations(Database $database): void
+    public function initMigrations(DatabaseWithModels $database): void
     {
         $database->createModel(Migration::class)
             ->ifNotExists()
@@ -138,7 +139,7 @@ class SentienceController extends Controller
         Stdio::printLn('Migrations table created');
     }
 
-    public function applyMigrations(Database $database): void
+    public function applyMigrations(DatabaseWithModels $database): void
     {
         $migrationsDir = Filesystem::path(SENTIENCE_DIR, 'migrations');
 
@@ -191,7 +192,7 @@ class SentienceController extends Controller
 
             $migration = include $filepath;
 
-            $database->transactionInCallback(function (Database $database) use ($migration): void {
+            $database->transactionInCallback(function (DatabaseWithModels $database) use ($migration): void {
                 $migration->apply($database);
             });
 
@@ -208,7 +209,7 @@ class SentienceController extends Controller
         }
     }
 
-    public function rollbackMigrations(Database $database): void
+    public function rollbackMigrations(DatabaseWithModels $database): void
     {
         $migrationsDir = Filesystem::path(SENTIENCE_DIR, 'migrations');
 
@@ -302,7 +303,7 @@ class SentienceController extends Controller
         Stdio::printFLn('Migration %s created successfully', $migrationFilename);
     }
 
-    public function initModel(Database $database, array $words, array $flags): void
+    public function initModel(DatabaseWithModels $database, array $words, array $flags): void
     {
         $class = $flags['model'] ?? $words[0] ?? null;
 
@@ -383,7 +384,7 @@ class SentienceController extends Controller
         Stdio::printFLn('Migration for model %s created successfully', $model::class);
     }
 
-    public function updateModel(Database $database, array $words, array $flags): void
+    public function updateModel(DatabaseWithModels $database, array $words, array $flags): void
     {
         $class = $flags['model'] ?? $words[0] ?? null;
 
@@ -462,7 +463,7 @@ class SentienceController extends Controller
         Stdio::printFLn('Migration for model %s created successfully', $model::class);
     }
 
-    public function resetModel(Database $database, array $words, array $flags): void
+    public function resetModel(DatabaseWithModels $database, array $words, array $flags): void
     {
         $class = $flags['model'] ?? $words[0] ?? null;
 

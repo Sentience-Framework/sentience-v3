@@ -1,6 +1,6 @@
 <?php
 
-namespace Sentience\Database\Queries\Enums;
+namespace Sentience\Models\Database\Enums;
 
 use DateTime;
 use DateTimeImmutable;

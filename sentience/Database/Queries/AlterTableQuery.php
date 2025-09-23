@@ -13,7 +13,7 @@ use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Objects\RenameColumn;
 use Sentience\Database\Results\ResultInterface;
 
-class AlterTableQuery extends ResultQueryAbstract
+class AlterTableQuery extends Query
 {
     protected array $alters = [];
 
@@ -30,7 +30,7 @@ class AlterTableQuery extends ResultQueryAbstract
         $queriesWithParams = $this->toQueryWithParams();
 
         return array_map(
-            fn (QueryWithParams $queryWithParams): string => $queryWithParams->toRawQuery($this->dialect),
+            fn(QueryWithParams $queryWithParams): string => $queryWithParams->toRawQuery($this->dialect),
             $queriesWithParams
         );
     }
@@ -40,7 +40,7 @@ class AlterTableQuery extends ResultQueryAbstract
         $queries = $this->toQueryWithParams();
 
         return array_map(
-            fn (QueryWithParams $queryWithParams): ResultInterface => $this->database->queryWithParams($queryWithParams),
+            fn(QueryWithParams $queryWithParams): ResultInterface => $this->database->queryWithParams($queryWithParams),
             $queries
         );
     }

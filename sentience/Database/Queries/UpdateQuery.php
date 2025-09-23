@@ -8,7 +8,7 @@ use Sentience\Database\Queries\Traits\ValuesTrait;
 use Sentience\Database\Queries\Traits\WhereTrait;
 use Sentience\Database\Results\ResultInterface;
 
-class UpdateQuery extends ResultQueryAbstract
+class UpdateQuery extends Query
 {
     use ReturningTrait;
     use ValuesTrait;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Sentience\Database\Queries;
+namespace Sentience\Models\Database\Queries;
 
 interface ModelsQueryInterface
 {
