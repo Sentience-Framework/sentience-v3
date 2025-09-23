@@ -10,7 +10,7 @@ use Sentience\Helpers\Strings;
 abstract class AdapterAbstract implements AdapterInterface
 {
     public const string REGEXP_FUNCTION = 'REGEXP';
-    public const int REGEXP_FUNCTION_ARGUMENTS_COUNT = 2;
+    public const int REGEXP_FUNCTION_PARAMETER_COUNT = 2;
     public const string OPTIONS_MYSQL_CHARSET = 'charset';
     public const string OPTIONS_SQLITE_JOURNAL_MODE = 'journal_mode';
     public const string OPTIONS_SQLITE_FOREIGN_KEYS = 'foreign_keys';
@@ -23,8 +23,8 @@ abstract class AdapterAbstract implements AdapterInterface
         protected string $username,
         protected string $password,
         protected array $queries,
-        protected ?Closure $debug,
-        protected array $options
+        protected array $options,
+        protected ?Closure $debug
     ) {
     }
 
@@ -37,6 +37,25 @@ abstract class AdapterAbstract implements AdapterInterface
             ),
             $value
         );
+    }
+
+    protected function sqliteJournalMode(string $journalMode): void
+    {
+        $this->query(
+            sprintf(
+                'PRAGMA journal_mode=%s;',
+                $journalMode
+            )
+        );
+    }
+
+    protected function sqliteForeignKeys(bool $foreignKeys): void
+    {
+        if (!$foreignKeys) {
+            return;
+        }
+
+        $this->query('PRAGMA foreign_keys=ON;');
     }
 
     protected function debug(string $query, float $start, null|string|Throwable $error = null): void

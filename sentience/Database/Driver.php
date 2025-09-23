@@ -26,8 +26,8 @@ enum Driver: string
         string $username,
         string $password,
         array $queries,
+        array $options,
         ?Closure $debug,
-        array $options = [],
         bool $usePDOAdapter = false
     ): AdapterInterface {
         $adapter = !$usePDOAdapter
@@ -47,8 +47,8 @@ enum Driver: string
             $username,
             $password,
             $queries,
-            $debug,
-            $options
+            $options,
+            $debug
         );
     }
 

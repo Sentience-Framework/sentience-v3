@@ -26,6 +26,7 @@ return new class () {
             $username,
             $password,
             $queries,
+            $options,
             $debug ? function (string $query, float $start, ?string $error = null): void {
                 $end = microtime(true);
 
@@ -41,7 +42,6 @@ return new class () {
 
                 Log::stderrBetweenEqualSigns('Query', $lines);
             } : null,
-            $options,
             $usePDO
         );
     }

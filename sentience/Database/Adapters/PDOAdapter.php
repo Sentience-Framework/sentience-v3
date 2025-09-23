@@ -22,8 +22,8 @@ class PDOAdapter extends AdapterAbstract
         string $username,
         string $password,
         array $queries,
-        ?Closure $debug,
-        array $options
+        array $options,
+        ?Closure $debug
     ) {
         parent::__construct(
             $driver,
@@ -33,8 +33,8 @@ class PDOAdapter extends AdapterAbstract
             $username,
             $password,
             $queries,
-            $debug,
-            $options
+            $options,
+            $debug
         );
 
         $dsn = $this->dsn(
@@ -102,20 +102,12 @@ class PDOAdapter extends AdapterAbstract
             $this->pdo->sqliteCreateFunction(
                 static::REGEXP_FUNCTION,
                 fn (string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
-                static::REGEXP_FUNCTION_ARGUMENTS_COUNT
+                static::REGEXP_FUNCTION_PARAMETER_COUNT
             );
         }
 
-        $this->query(
-            sprintf(
-                'PRAGMA journal_mode=%s;',
-                (string) $options[static::OPTIONS_SQLITE_JOURNAL_MODE]
-            )
-        );
-
-        if ($options[static::OPTIONS_SQLITE_FOREIGN_KEYS]) {
-            $this->query('PRAGMA foreign_keys=ON;');
-        }
+        $this->sqliteJournalMode((string) $options[static::OPTIONS_SQLITE_JOURNAL_MODE]);
+        $this->sqliteForeignKeys((bool) $options[static::OPTIONS_SQLITE_FOREIGN_KEYS]);
     }
 
     public function query(string $query): void
@@ -147,21 +139,21 @@ class PDOAdapter extends AdapterAbstract
             throw $exception;
         }
 
-        foreach ($queryWithParams->params as $index => $param) {
+        foreach ($queryWithParams->params as $key => $param) {
             $value = $dialect->castToDriver($param);
 
-            $pdoStatement->bindValue(
-                $index + 1,
-                $value,
-                match (get_debug_type($value)) {
-                    'null' => PDO::PARAM_NULL,
-                    'bool' => PDO::PARAM_BOOL,
-                    'int' => PDO::PARAM_INT,
-                    'float' => PDO::PARAM_STR,
-                    'string' => PDO::PARAM_STR,
-                    default => PDO::PARAM_STR
-                }
-            );
+            $type = match (get_debug_type($value)) {
+                'null' => PDO::PARAM_NULL,
+                'bool' => PDO::PARAM_BOOL,
+                'int' => PDO::PARAM_INT,
+                'float' => PDO::PARAM_STR,
+                'string' => PDO::PARAM_STR,
+                default => PDO::PARAM_STR
+            };
+
+            is_numeric($key)
+                ? $pdoStatement->bindValue($key + 1, $value, $type)
+                : $pdoStatement->bindParam($key, $value, $type);
         }
 
         try {

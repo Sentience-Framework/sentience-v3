@@ -238,6 +238,8 @@ class ExampleController extends Controller
         $database->deleteModels($models)
             ->execute();
 
+        $database->prepared('SELECT * FROM migrations WHERE id > :id', [':id' => 1]);
+
         $end = microtime(true);
 
         echo json_encode($models, JSON_PRETTY_PRINT);

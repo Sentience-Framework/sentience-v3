@@ -1,6 +1,8 @@
 <?php
 
-namespace Sentience\Exceptions;
+namespace Sentience\Database\Exceptions;
+
+use Sentience\Exceptions\CustomException;
 
 class QueryWithParamsException extends CustomException
 {

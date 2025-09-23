@@ -23,8 +23,8 @@ class MySQLiAdapter extends AdapterAbstract
         string $username,
         string $password,
         array $queries,
-        ?Closure $debug,
-        array $options
+        array $options,
+        ?Closure $debug
     ) {
         parent::__construct(
             $driver,
@@ -34,8 +34,8 @@ class MySQLiAdapter extends AdapterAbstract
             $username,
             $password,
             $queries,
-            $debug,
-            $options
+            $options,
+            $debug
         );
 
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
@@ -72,9 +72,14 @@ class MySQLiAdapter extends AdapterAbstract
 
     public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): MySQLiResult
     {
+        $queryWithParams->namedParamsToQuestionMarks();
+
         $query = $queryWithParams->toRawQuery($dialect);
 
         $start = microtime(true);
+
+        foreach ($queryWithParams->params as $key => $value) {
+        }
 
         try {
             $mysqliStatement = $this->mysqli->prepare($queryWithParams->query);
@@ -90,7 +95,7 @@ class MySQLiAdapter extends AdapterAbstract
         foreach ($queryWithParams->params as $param) {
             $value = $dialect->castToDriver($param);
 
-            $paramTypes[] = match (get_debug_type($value)) {
+            $type = match (get_debug_type($value)) {
                 'null' => 's',
                 'int' => 'i',
                 'float' => 'd',
@@ -98,6 +103,7 @@ class MySQLiAdapter extends AdapterAbstract
                 default => 's'
             };
 
+            $paramTypes[] = $type;
             $paramValues[] = $value;
         }
 

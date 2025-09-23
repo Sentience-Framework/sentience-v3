@@ -24,8 +24,6 @@ class InsertModelsQuery extends ModelsQueryAbstract
             $reflectionModel = new ReflectionModel($model);
             $reflectionModelProperties = $reflectionModel->getProperties();
 
-            $reflectionModel = new ReflectionModel($model);
-
             $table = $reflectionModel->getTable();
 
             $insertQuery = $this->database->insert($table);

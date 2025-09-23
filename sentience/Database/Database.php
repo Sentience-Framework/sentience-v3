@@ -31,8 +31,8 @@ class Database
         protected string $username,
         protected string $password,
         protected array $queries,
-        protected ?Closure $debug,
         protected array $options,
+        protected ?Closure $debug,
         bool $usePDOAdapter = false
     ) {
         $adapter = $driver->getAdapter(
@@ -42,8 +42,8 @@ class Database
             $username,
             $password,
             $queries,
-            $debug,
             $options,
+            $debug,
             $usePDOAdapter
         );
 

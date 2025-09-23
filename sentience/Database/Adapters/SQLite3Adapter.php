@@ -27,8 +27,8 @@ class SQLite3Adapter extends AdapterAbstract
         string $username,
         string $password,
         array $queries,
-        ?Closure $debug,
-        array $options
+        array $options,
+        ?Closure $debug
     ) {
         parent::__construct(
             $driver,
@@ -38,8 +38,8 @@ class SQLite3Adapter extends AdapterAbstract
             $username,
             $password,
             $queries,
-            $debug,
-            $options
+            $options,
+            $debug
         );
 
         $this->sqlite = new SQLite3(
@@ -53,19 +53,11 @@ class SQLite3Adapter extends AdapterAbstract
         $this->sqlite->createFunction(
             static::REGEXP_FUNCTION,
             fn (string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
-            static::REGEXP_FUNCTION_ARGUMENTS_COUNT
+            static::REGEXP_FUNCTION_PARAMETER_COUNT
         );
 
-        $this->query(
-            sprintf(
-                'PRAGMA journal_mode=%s;',
-                $options[static::OPTIONS_SQLITE_JOURNAL_MODE]
-            )
-        );
-
-        if ($options[static::OPTIONS_SQLITE_FOREIGN_KEYS]) {
-            $this->query('PRAGMA foreign_keys=ON;');
-        }
+        $this->sqliteJournalMode((string) $options[static::OPTIONS_SQLITE_JOURNAL_MODE]);
+        $this->sqliteForeignKeys((bool) $options[static::OPTIONS_SQLITE_FOREIGN_KEYS]);
 
         foreach ($queries as $query) {
             $this->query($query);
@@ -101,20 +93,20 @@ class SQLite3Adapter extends AdapterAbstract
             throw $exception;
         }
 
-        foreach ($queryWithParams->params as $index => $param) {
+        foreach ($queryWithParams->params as $key => $param) {
             $value = $dialect->castToDriver($param);
 
-            $sqlite3Statement->bindValue(
-                $index + 1,
-                $value,
-                match (get_debug_type($value)) {
-                    'null' => SQLITE3_NULL,
-                    'int' => SQLITE3_INTEGER,
-                    'float' => SQLITE3_FLOAT,
-                    'string' => SQLITE3_TEXT,
-                    default => SQLITE3_TEXT
-                }
-            );
+            $type = match (get_debug_type($value)) {
+                'null' => SQLITE3_NULL,
+                'int' => SQLITE3_INTEGER,
+                'float' => SQLITE3_FLOAT,
+                'string' => SQLITE3_TEXT,
+                default => SQLITE3_TEXT
+            };
+
+            is_numeric($key)
+                ? $sqlite3Statement->bindValue($key + 1, $value, $type)
+                : $sqlite3Statement->bindParam($key, $value, $type);
         }
 
         try {
