@@ -2,12 +2,12 @@
 
 namespace Sentience\Database\Queries;
 
+use DateTime;
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Objects\Alias;
 use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Helpers\Strings;
-use Sentience\Timestamp\Timestamp;
 
 abstract class Query implements QueryInterface
 {
@@ -37,9 +37,9 @@ abstract class Query implements QueryInterface
         return new Raw($expression);
     }
 
-    public static function now(): Timestamp
+    public static function now(): DateTime
     {
-        return new Timestamp();
+        return new DateTime();
     }
 
     public static function escapeLikeChars(string $string, bool $escapeBackslash = false): string

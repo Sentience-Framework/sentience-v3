@@ -26,9 +26,9 @@ enum SQLite3ColumnEnum: string
             'int' => static::INTEGER,
             'float' => static::REAL,
             'string' => static::TEXT,
-            Timestamp::class,
             DateTime::class,
-            DateTimeImmutable::class => static::DATETIME,
+            DateTimeImmutable::class,
+            Timestamp::class => static::DATETIME,
             default => static::TEXT
         };
     }

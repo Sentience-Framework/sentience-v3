@@ -2,8 +2,8 @@
 
 namespace Sentience\Database\Dialects;
 
+use DateTime;
 use Sentience\Database\Queries\Objects\Raw;
-use Sentience\Timestamp\Timestamp;
 
 class PgSQLDialect extends SQLDialect implements DialectInterface
 {
@@ -82,12 +82,12 @@ class PgSQLDialect extends SQLDialect implements DialectInterface
         return $bool;
     }
 
-    public function parseTimestamp(string $string): ?Timestamp
+    public function parseDateTime(string $string): ?DateTime
     {
         if (preg_match('/[\+\-][0-9]{2}$/', $string)) {
             $string .= ':00';
         }
 
-        return parent::parseTimestamp($string);
+        return parent::parseDateTime($string);
     }
 }

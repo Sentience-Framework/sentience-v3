@@ -20,7 +20,6 @@ use Sentience\Models\Database\Enums\MySQLColumnEnum;
 use Sentience\Models\Database\Enums\PgSQLColumnEnum;
 use Sentience\Models\Database\Enums\SQLite3ColumnEnum;
 use Sentience\Models\Exceptions\MultipleTypesException;
-use Sentience\Models\Exceptions\UnknownDialectException;
 use Sentience\Models\Model;
 use Sentience\Timestamp\Timestamp;
 
@@ -78,15 +77,15 @@ class ReflectionModelProperty
                 $type
             )->value,
             default => match ($type) {
-                    'bool' => 'INT',
-                    'int' => 'INT',
-                    'float' => 'FLOAT',
-                    'string' => 'TEXT',
-                    Timestamp::class,
-                    DateTime::class,
-                    DateTimeInterface::class => 'DATETIME',
-                    default => 'TEXT'
-                }
+                'bool' => 'INT',
+                'int' => 'INT',
+                'float' => 'FLOAT',
+                'string' => 'TEXT',
+                Timestamp::class,
+                DateTime::class,
+                DateTimeInterface::class => 'DATETIME',
+                default => 'TEXT'
+            }
         };
     }
 

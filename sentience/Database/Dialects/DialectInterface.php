@@ -2,10 +2,10 @@
 
 namespace Sentience\Database\Dialects;
 
+use DateTime;
 use DateTimeInterface;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Objects\Raw;
-use Sentience\Timestamp\Timestamp;
 
 interface DialectInterface
 {
@@ -21,7 +21,7 @@ interface DialectInterface
     public function castToDriver(mixed $value): mixed;
     public function castToQuery(mixed $value): mixed;
     public function castBool(bool $bool): mixed;
-    public function castTimestamp(DateTimeInterface $timestamp): mixed;
+    public function castDateTime(DateTimeInterface $dateTime): mixed;
     public function parseBool(mixed $bool): bool;
-    public function parseTimestamp(string $string): ?Timestamp;
+    public function parseDateTime(string $string): ?DateTime;
 }

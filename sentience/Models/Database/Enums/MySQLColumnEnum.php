@@ -49,9 +49,9 @@ enum MySQLColumnEnum: string
             'int' => static::BIGINT,
             'float' => static::FLOAT,
             'string' => static::LONGTEXT,
-            Timestamp::class,
             DateTime::class,
-            DateTimeImmutable::class => static::DATETIME_WITH_MICROSECONDS,
+            DateTimeImmutable::class,
+            Timestamp::class => static::DATETIME_WITH_MICROSECONDS,
             default => static::LONG_VARCHAR
         };
     }

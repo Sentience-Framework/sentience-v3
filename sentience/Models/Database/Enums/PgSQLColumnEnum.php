@@ -36,9 +36,9 @@ enum PgSQLColumnEnum: string
             'int' => static::BIGINT,
             'float' => static::FLOAT,
             'string' => static::TEXT,
-            Timestamp::class,
             DateTime::class,
-            DateTimeImmutable::class => static::TIMESTAMP,
+            DateTimeImmutable::class,
+            Timestamp::class => static::TIMESTAMP,
             default => static::TEXT
         };
     }

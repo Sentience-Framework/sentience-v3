@@ -8,7 +8,6 @@ use DateTimeImmutable;
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Exceptions\QueryException;
-use Sentience\Database\Queries\Query;
 use Sentience\Models\Model;
 use Sentience\Models\Reflection\ReflectionModel;
 use Sentience\Timestamp\Timestamp;
@@ -66,9 +65,9 @@ abstract class ModelsQueryAbstract implements ModelsQueryInterface
                 'int' => (int) $value,
                 'float' => (float) $value,
                 'string' => (string) $value,
-                Timestamp::class => $this->dialect->parseTimestamp($value),
-                DateTime::class => $this->dialect->parseTimestamp($value)->toDateTime(),
-                DateTimeImmutable::class => $this->dialect->parseTimestamp($value)->toDateTimeImmutable(),
+                DateTime::class => $this->dialect->parseDateTime($value),
+                DateTimeImmutable::class => DateTimeImmutable::createFromMutable($this->dialect->parseDateTime($value)),
+                Timestamp::class => Timestamp::createFromInterface($this->dialect->parseDateTime($value)),
                 default => is_subclass_of($type, BackedEnum::class) ? $type::from($value) : $value
             };
         }

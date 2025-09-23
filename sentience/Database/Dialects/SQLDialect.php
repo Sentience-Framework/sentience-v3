@@ -2,7 +2,9 @@
 
 namespace Sentience\Database\Dialects;
 
+use DateTime;
 use DateTimeInterface;
+use DateTimeZone;
 use Sentience\Database\Exceptions\QueryException;
 use Sentience\Database\Queries\Enums\ConditionEnum;
 use Sentience\Database\Queries\Objects\AddColumn;
@@ -23,7 +25,6 @@ use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Database\Queries\Objects\RenameColumn;
 use Sentience\Database\Queries\Objects\UniqueConstraint;
 use Sentience\Helpers\Strings;
-use Sentience\Timestamp\Timestamp;
 
 class SQLDialect implements DialectInterface
 {
@@ -771,7 +772,7 @@ class SQLDialect implements DialectInterface
         }
 
         if ($value instanceof DateTimeInterface) {
-            return $this->castTimestamp($value);
+            return $this->castDateTime($value);
         }
 
         return $value;
@@ -796,7 +797,7 @@ class SQLDialect implements DialectInterface
         }
 
         if ($value instanceof DateTimeInterface) {
-            return $this->escapeString($this->castTimestamp($value));
+            return $this->escapeString($this->castDateTime($value));
         }
 
         return $value;
@@ -807,7 +808,7 @@ class SQLDialect implements DialectInterface
         return $bool ? 1 : 0;
     }
 
-    public function castTimestamp(DateTimeInterface $dateTimeInterface): mixed
+    public function castDateTime(DateTimeInterface $dateTimeInterface): mixed
     {
         return $dateTimeInterface->format($this::DATETIME_FORMAT);
     }
@@ -817,14 +818,49 @@ class SQLDialect implements DialectInterface
         return $value == 1 ? true : false;
     }
 
-    public function parseTimestamp(string $string): ?Timestamp
+    public function parseDateTime(string $string): ?DateTime
     {
-        $timestamp = Timestamp::createFromFormat($this::DATETIME_FORMAT, $string);
+        $dateTime = DateTime::createFromFormat($this::DATETIME_FORMAT, $string);
 
-        if ($timestamp) {
-            return $timestamp;
+        if ($dateTime) {
+            return $dateTime;
         }
 
-        return Timestamp::createFromString($string);
+        $timestamp = strtotime($string);
+
+        if (!$timestamp) {
+            return null;
+        }
+
+        $hasMicroseconds = preg_match('/\.([0-9]{0,6})[\+\-]?/', $string, $microsecondMatches);
+
+        $dateTime = DateTime::createFromFormat(
+            'U.u',
+            sprintf(
+                '%d.%d',
+                $timestamp,
+                $hasMicroseconds ? (int) $microsecondMatches[1] : 0
+            )
+        );
+
+        if (!$dateTime) {
+            return null;
+        }
+
+        $hasTimezoneOffset = preg_match('/([\+\-])([0-9]+)\:?([0-9]*)$/', $string, $timezoneOffsetMatches);
+
+        if ($hasTimezoneOffset) {
+            [$modifier, $timezoneOffsetHours, $timezoneOffsetMinutes] = array_slice($timezoneOffsetMatches, 1);
+
+            $multiplier = ((int) $timezoneOffsetHours + (int) $timezoneOffsetMinutes / 60) * ($modifier == '+' ? 1 : -1);
+
+            $timezone = timezone_name_from_abbr('', (int) ($multiplier * 3600));
+
+            if ($timezone) {
+                $dateTime->setTimezone(new DateTimeZone($timezone));
+            }
+        }
+
+        return $dateTime;
     }
 }
