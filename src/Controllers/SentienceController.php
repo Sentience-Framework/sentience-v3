@@ -4,7 +4,6 @@ namespace Src\Controllers;
 
 use Throwable;
 use Sentience\Abstracts\Controller;
-use Sentience\Database\Database;
 use Sentience\Database\Queries\Query;
 use Sentience\Env\Env;
 use Sentience\Exceptions\BuiltInWebServerException;
@@ -13,7 +12,9 @@ use Sentience\Exceptions\MigrationException;
 use Sentience\Helpers\Console;
 use Sentience\Helpers\Filesystem;
 use Sentience\Migrations\MigrationFactory;
+use Sentience\ORM\Database\Database;
 use Sentience\Sentience\Stdio;
+use Sentience\Timestamp\Timestamp;
 use Src\Models\Migration;
 
 class SentienceController extends Controller
@@ -198,7 +199,7 @@ class SentienceController extends Controller
             $migrationModel = new Migration();
             $migrationModel->batch = $nextBatch;
             $migrationModel->filename = $filename;
-            $migrationModel->appliedAt = Query::now();
+            $migrationModel->appliedAt = new Timestamp();
 
             $database->insertModels($migrationModel)
                 // ->onDuplicateUpdate()
@@ -375,7 +376,7 @@ class SentienceController extends Controller
         $migrationModel = new Migration();
         $migrationModel->batch = $nextBatch;
         $migrationModel->filename = $migrationName;
-        $migrationModel->appliedAt = Query::now();
+        $migrationModel->appliedAt = new Timestamp();
 
         $database->insertModels($migrationModel)
             ->execute();
@@ -454,7 +455,7 @@ class SentienceController extends Controller
         $migrationModel = new Migration();
         $migrationModel->batch = $nextBatch;
         $migrationModel->filename = $migrationName;
-        $migrationModel->appliedAt = Query::now();
+        $migrationModel->appliedAt = new Timestamp();
 
         $database->insertModels($migrationModel)
             ->execute();
@@ -534,7 +535,7 @@ class SentienceController extends Controller
         $migrationModel = new Migration();
         $migrationModel->batch = $nextBatch;
         $migrationModel->filename = $migrationName;
-        $migrationModel->appliedAt = Query::now();
+        $migrationModel->appliedAt = new Timestamp();
 
         $database->insertModels($migrationModel)
             ->execute();

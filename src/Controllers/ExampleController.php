@@ -3,12 +3,13 @@
 namespace Src\Controllers;
 
 use Sentience\Abstracts\Controller;
-use Sentience\Database\Database;
 use Sentience\Database\Queries\Query;
 use Sentience\Helpers\Json;
+use Sentience\ORM\Database\Database;
 use Sentience\Sentience\Request;
 use Sentience\Sentience\Response;
 use Sentience\Sentience\Stdio;
+use Sentience\Timestamp\Timestamp;
 use Src\Models\Migration;
 
 class ExampleController extends Controller
@@ -100,12 +101,12 @@ class ExampleController extends Controller
             )
             ->join('RIGHT JOIN table2 jt ON jt.column1 = table1.column1 AND jt.column2 = table2.column2')
             ->whereEquals('column1', 10)
-            ->whereGroup(fn ($group) => $group->whereGreaterThanOrEquals('column2', 20)
+            ->whereGroup(fn($group) => $group->whereGreaterThanOrEquals('column2', 20)
                 ->orwhereIsNull('column3'))
             ->where('DATE(`created_at`) > now()')
-            ->whereGroup(fn ($group) => $group->whereIn('column4', [1, 2, 3, 4])
+            ->whereGroup(fn($group) => $group->whereIn('column4', [1, 2, 3, 4])
                 ->whereNotEquals('column5', 'test string'))
-            ->whereGroup(fn ($group) => $group)
+            ->whereGroup(fn($group) => $group)
             ->whereIn('column2', [])
             ->whereNotIn('column2', [])
             ->whereStartsWith('column2', 'a')
@@ -159,7 +160,7 @@ class ExampleController extends Controller
 
         $queries[] = $database->createTable('table_1')
             ->ifNotExists()
-            ->column('primary_key', 'int', true, null, true)
+            ->column('primary_key', 'int', true, null, ['AUTO_INCREMENT'])
             ->column('column1', 'bigint', true)
             ->column('column2', 'varchar(255)')
             ->primaryKeys(['primary_key'])
@@ -168,10 +169,10 @@ class ExampleController extends Controller
             ->toRawQuery();
 
         $queries[] = implode(
-            ' ',
+            PHP_EOL,
             $database->alterTable('table_1')
                 ->addColumn('column3', 'INT')
-                // ->alterColumn('column3', 'TEXT')
+                // ->alterColumn('column3', ['TEXT', 'AUTO_INCREMENT'])
                 ->renameColumn('column3', 'column4')
                 ->dropColumn('column4')
                 // ->addPrimaryKeys(['pk'])
@@ -210,12 +211,12 @@ class ExampleController extends Controller
         $migration = new Migration();
         $migration->batch = 1;
         $migration->filename = 'migration1' . microtime();
-        $migration->appliedAt = Query::now();
+        $migration->appliedAt = new Timestamp();
 
         $migration2 = new Migration();
         $migration2->batch = 1;
         $migration2->filename = 'migration2' . microtime() . '1';
-        $migration2->appliedAt = Query::now();
+        $migration2->appliedAt = new Timestamp();
 
         $insertedModels = [$migration, $migration2];
 
@@ -233,8 +234,10 @@ class ExampleController extends Controller
             ->updateColumn('applied_at', Query::now())
             ->execute();
 
-        $database->deleteModels($models)
-            ->execute();
+        // $database->deleteModels($models)
+        //     ->execute();
+
+        $database->prepared('SELECT * FROM migrations WHERE id > :id;', [':id' => 1]);
 
         $end = microtime(true);
 

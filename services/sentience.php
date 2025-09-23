@@ -1,8 +1,8 @@
 <?php
 
-use Sentience\Database\Database;
 use Sentience\Database\Driver;
 use Sentience\Helpers\Log;
+use Sentience\ORM\Database\Database;
 
 return new class () {
     public function database(): Database
@@ -26,6 +26,7 @@ return new class () {
             $username,
             $password,
             $queries,
+            $options,
             $debug ? function (string $query, float $start, ?string $error = null): void {
                 $end = microtime(true);
 
@@ -41,7 +42,6 @@ return new class () {
 
                 Log::stderrBetweenEqualSigns('Query', $lines);
             } : null,
-            $options,
             $usePDO
         );
     }
