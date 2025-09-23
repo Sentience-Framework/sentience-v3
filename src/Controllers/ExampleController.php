@@ -3,10 +3,9 @@
 namespace Src\Controllers;
 
 use Sentience\Abstracts\Controller;
-use Sentience\Database\Database;
 use Sentience\Database\Queries\Query;
 use Sentience\Helpers\Json;
-use Sentience\Models\Database\DatabaseWithModels;
+use Sentience\ORM\Database\Database;
 use Sentience\Sentience\Request;
 use Sentience\Sentience\Response;
 use Sentience\Sentience\Stdio;
@@ -161,7 +160,7 @@ class ExampleController extends Controller
 
         $queries[] = $database->createTable('table_1')
             ->ifNotExists()
-            ->column('primary_key', 'int', true, null, true)
+            ->column('primary_key', 'int', true, null, ['AUTO_INCREMENT'])
             ->column('column1', 'bigint', true)
             ->column('column2', 'varchar(255)')
             ->primaryKeys(['primary_key'])
@@ -170,10 +169,10 @@ class ExampleController extends Controller
             ->toRawQuery();
 
         $queries[] = implode(
-            ' ',
+            PHP_EOL,
             $database->alterTable('table_1')
                 ->addColumn('column3', 'INT')
-                // ->alterColumn('column3', 'TEXT')
+                // ->alterColumn('column3', ['TEXT', 'AUTO_INCREMENT'])
                 ->renameColumn('column3', 'column4')
                 ->dropColumn('column4')
                 // ->addPrimaryKeys(['pk'])
@@ -197,7 +196,7 @@ class ExampleController extends Controller
         Stdio::printFLn('Time: %f', $end - $start);
     }
 
-    public function select(DatabaseWithModels $database): void
+    public function select(Database $database): void
     {
         $start = microtime(true);
 

@@ -4,7 +4,6 @@ namespace Src\Controllers;
 
 use Throwable;
 use Sentience\Abstracts\Controller;
-use Sentience\Database\Database;
 use Sentience\Database\Queries\Query;
 use Sentience\Env\Env;
 use Sentience\Exceptions\BuiltInWebServerException;
@@ -13,7 +12,7 @@ use Sentience\Exceptions\MigrationException;
 use Sentience\Helpers\Console;
 use Sentience\Helpers\Filesystem;
 use Sentience\Migrations\MigrationFactory;
-use Sentience\Models\Database\DatabaseWithModels;
+use Sentience\ORM\Database\Database;
 use Sentience\Sentience\Stdio;
 use Sentience\Timestamp\Timestamp;
 use Src\Models\Migration;
@@ -131,7 +130,7 @@ class SentienceController extends Controller
         );
     }
 
-    public function initMigrations(DatabaseWithModels $database): void
+    public function initMigrations(Database $database): void
     {
         $database->createModel(Migration::class)
             ->ifNotExists()
@@ -140,7 +139,7 @@ class SentienceController extends Controller
         Stdio::printLn('Migrations table created');
     }
 
-    public function applyMigrations(DatabaseWithModels $database): void
+    public function applyMigrations(Database $database): void
     {
         $migrationsDir = Filesystem::path(SENTIENCE_DIR, 'migrations');
 
@@ -193,7 +192,7 @@ class SentienceController extends Controller
 
             $migration = include $filepath;
 
-            $database->transactionInCallback(function (DatabaseWithModels $database) use ($migration): void {
+            $database->transactionInCallback(function (Database $database) use ($migration): void {
                 $migration->apply($database);
             });
 
@@ -210,7 +209,7 @@ class SentienceController extends Controller
         }
     }
 
-    public function rollbackMigrations(DatabaseWithModels $database): void
+    public function rollbackMigrations(Database $database): void
     {
         $migrationsDir = Filesystem::path(SENTIENCE_DIR, 'migrations');
 
@@ -304,7 +303,7 @@ class SentienceController extends Controller
         Stdio::printFLn('Migration %s created successfully', $migrationFilename);
     }
 
-    public function initModel(DatabaseWithModels $database, array $words, array $flags): void
+    public function initModel(Database $database, array $words, array $flags): void
     {
         $class = $flags['model'] ?? $words[0] ?? null;
 
@@ -385,7 +384,7 @@ class SentienceController extends Controller
         Stdio::printFLn('Migration for model %s created successfully', $model::class);
     }
 
-    public function updateModel(DatabaseWithModels $database, array $words, array $flags): void
+    public function updateModel(Database $database, array $words, array $flags): void
     {
         $class = $flags['model'] ?? $words[0] ?? null;
 
@@ -464,7 +463,7 @@ class SentienceController extends Controller
         Stdio::printFLn('Migration for model %s created successfully', $model::class);
     }
 
-    public function resetModel(DatabaseWithModels $database, array $words, array $flags): void
+    public function resetModel(Database $database, array $words, array $flags): void
     {
         $class = $flags['model'] ?? $words[0] ?? null;
 

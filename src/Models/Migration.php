@@ -2,12 +2,12 @@
 
 namespace Src\Models;
 
-use Sentience\Models\Attributes\Columns\AutoIncrement;
-use Sentience\Models\Attributes\Columns\Column;
-use Sentience\Models\Attributes\Table\PrimaryKeys;
-use Sentience\Models\Attributes\Table\Table;
-use Sentience\Models\Attributes\Table\UniqueConstraint;
-use Sentience\Models\Model;
+use Sentience\ORM\Models\Attributes\Columns\AutoIncrement;
+use Sentience\ORM\Models\Attributes\Columns\Column;
+use Sentience\ORM\Models\Attributes\Table\PrimaryKeys;
+use Sentience\ORM\Models\Attributes\Table\Table;
+use Sentience\ORM\Models\Attributes\Table\UniqueConstraint;
+use Sentience\ORM\Models\Model;
 use Sentience\Timestamp\Timestamp;
 
 #[Table('migrations')]

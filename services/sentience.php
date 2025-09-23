@@ -2,10 +2,10 @@
 
 use Sentience\Database\Driver;
 use Sentience\Helpers\Log;
-use Sentience\Models\Database\DatabaseWithModels;
+use Sentience\ORM\Database\Database;
 
 return new class () {
-    public function database(): DatabaseWithModels
+    public function database(): Database
     {
         $driver = config('database->driver', '');
         $host = config("database->{$driver}->host", '');
@@ -18,7 +18,7 @@ return new class () {
         $debug = config('database->debug', false);
         $options = config("database->{$driver}", []);
 
-        return new DatabaseWithModels(
+        return new Database(
             Driver::from($driver),
             $host,
             $port,
