@@ -8,7 +8,7 @@ trait RelationsTrait
 
     public function relation(string $relation): static
     {
-        $this->relation[] = $relation;
+        $this->relations[] = $relation;
 
         return $this;
     }

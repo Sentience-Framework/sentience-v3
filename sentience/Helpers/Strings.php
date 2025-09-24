@@ -4,7 +4,7 @@ namespace Sentience\Helpers;
 
 class Strings
 {
-    public static function escapeChars(string $string, array $chars, string $replacement = '\\\$0', string $pattern = '/(?<!\\\\)(?:\\\\\\\\)*%s/'): string
+    public static function escapeChars(string $string, array $chars, string $replacement = '\\\\$0', string $pattern = '/(?<!\\\\)(?:\\\\\\\\)*%s/'): string
     {
         foreach ($chars as $char) {
             $string = preg_replace(

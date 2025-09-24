@@ -6,6 +6,7 @@ use ReflectionClass;
 use ReflectionProperty;
 use Sentience\Helpers\Arrays;
 use Sentience\Helpers\Strings;
+use Sentience\ORM\Models\Attributes\Relations\Relation;
 use Sentience\ORM\Models\Attributes\Table\PrimaryKeys;
 use Sentience\ORM\Models\Attributes\Table\Table;
 use Sentience\ORM\Models\Attributes\Table\UniqueConstraint;
@@ -14,7 +15,7 @@ class ReflectionModel
 {
     protected ReflectionClass $reflectionClass;
 
-    public function __construct(string|object $model)
+    public function __construct(protected string|object $model)
     {
         $this->reflectionClass = new ReflectionClass($model);
     }
@@ -27,6 +28,14 @@ class ReflectionModel
     public function getShortName(): string
     {
         return $this->reflectionClass->getShortName();
+    }
+
+    public function getProperty(string $property): ReflectionModelProperty
+    {
+        return new ReflectionModelProperty(
+            $this,
+            new ReflectionProperty($this->model, $property)
+        );
     }
 
     public function getProperties(?int $filter = null): array
@@ -54,19 +63,42 @@ class ReflectionModel
 
     public function getColumns(): array
     {
-        return array_map(
-            fn (ReflectionModelProperty $reflectionModelProperty): string => $reflectionModelProperty->getColumn(),
-            $this->getProperties()
-        );
+        $properties = $this->getProperties();
+
+        $columns = [];
+
+        foreach ($properties as $property) {
+            if (!$property->isColumn()) {
+                continue;
+            }
+
+            $columns[] = $property->getColumn();
+        }
+
+        return $columns;
     }
 
     public function getPrimaryKeys(): array
     {
-        return $this->reflectionClass->getAttributes(PrimaryKeys::class)[0]?->newInstance()?->columns ?? [];
+        $attributes = $this->reflectionClass->getAttributes(PrimaryKeys::class);
+
+        return !Arrays::empty($attributes) ? $attributes[0]?->newInstance()->columns : null;
     }
 
     public function getUniqueConstraint(): ?UniqueConstraint
     {
-        return $this->reflectionClass->getAttributes(UniqueConstraint::class)[0]?->newInstance() ?? null;
+        $attributes = $this->reflectionClass->getAttributes(UniqueConstraint::class);
+
+        return !Arrays::empty($attributes) ? $attributes[0]?->newInstance() : null;
+    }
+
+    public function getRelation(string $property): ?Relation
+    {
+        $reflectionPropertyClass = new ReflectionModelProperty(
+            $this,
+            new ReflectionProperty($this->model, $property)
+        );
+
+        return $reflectionPropertyClass->getRelation();
     }
 }

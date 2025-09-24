@@ -20,14 +20,14 @@ class Timestamp extends DateTime implements JsonSerializable
             return false;
         }
 
-        $hasMicroseconds = preg_match('/\.([0-9]{0,6})[\+\-]?/', $string, $microsecondMatches);
+        $hasMicroseconds = preg_match('/\.([0-9]{0,6})[\+\-]?/', $string, $microsecondsMatches);
 
         $instance = static::createFromFormat(
             'U.u',
             sprintf(
                 '%d.%d',
                 $timestamp,
-                $hasMicroseconds ? (int) $microsecondMatches[1] : 0
+                $hasMicroseconds ? (int) $microsecondsMatches[1] : 0
             )
         );
 

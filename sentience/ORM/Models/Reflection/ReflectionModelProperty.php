@@ -19,6 +19,7 @@ use Sentience\ORM\Database\Enums\PgSQLColumnEnum;
 use Sentience\ORM\Database\Enums\SQLite3ColumnEnum;
 use Sentience\ORM\Models\Attributes\Columns\AutoIncrement;
 use Sentience\ORM\Models\Attributes\Columns\Column;
+use Sentience\ORM\Models\Attributes\Relations\Relation;
 use Sentience\ORM\Models\Exceptions\MultipleTypesException;
 use Sentience\ORM\Models\Model;
 use Sentience\Timestamp\Timestamp;
@@ -42,6 +43,11 @@ class ReflectionModelProperty
     public function getValue(Model $model): string
     {
         return $this->reflectionProperty->getValue($model);
+    }
+
+    public function isColumn(): bool
+    {
+        return (bool) !$this->getRelation();
     }
 
     public function getColumn(): string
@@ -143,8 +149,25 @@ class ReflectionModelProperty
         return !Arrays::empty($this->reflectionProperty->getAttributes(AutoIncrement::class));
     }
 
+    public function getRelation(): ?Relation
+    {
+        $attributes = $this->reflectionProperty->getAttributes();
+
+        foreach ($attributes as $attribute) {
+            $instance = $attribute->newInstance();
+
+            if ($instance instanceof Relation) {
+                return $instance;
+            }
+        }
+
+        return null;
+    }
+
     protected function getColumnAttribute(): ?Column
     {
-        return $this->reflectionProperty->getAttributes(Column::class)[0]?->newInstance() ?? null;
+        $attributes = $this->reflectionProperty->getAttributes(Column::class);
+
+        return !Arrays::empty($attributes) ? $attributes[0]->newInstance() : null;
     }
 }

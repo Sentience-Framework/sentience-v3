@@ -10,12 +10,16 @@ abstract class Relation
 {
     public const string M_TO_R_JOIN_REGEX_PATTERN = '//';
 
-    protected function parseMToRJoin(string $mToRJoin): array
+    public function __construct(public string $model, protected string $mToRJoin)
     {
-        $isMatch = preg_match(static::M_TO_R_JOIN_REGEX_PATTERN, $mToRJoin, $matches);
+    }
+
+    public function parseMToRJoin(): array
+    {
+        $isMatch = preg_match(static::M_TO_R_JOIN_REGEX_PATTERN, $this->mToRJoin, $matches);
 
         if (!$isMatch) {
-            throw new RelationException('%s does not match model to relation join %s', $mToRJoin, static::M_TO_R_JOIN_REGEX_PATTERN);
+            throw new RelationException('%s does not match model to relation join %s', $this->mToRJoin, static::M_TO_R_JOIN_REGEX_PATTERN);
         }
 
         return array_slice($matches, 1);

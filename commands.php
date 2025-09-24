@@ -77,6 +77,11 @@ return [
     ),
 
     Command::register(
+        'crud',
+        [ExampleController::class, 'crud']
+    ),
+
+    Command::register(
         'select',
         [ExampleController::class, 'select']
     )

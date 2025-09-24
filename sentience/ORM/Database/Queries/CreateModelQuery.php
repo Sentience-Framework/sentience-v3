@@ -38,6 +38,10 @@ class CreateModelQuery extends ModelsQueryAbstract
         }
 
         foreach ($reflectionModelProperties as $reflectionModelProperty) {
+            if ($reflectionModelProperty->getRelation()) {
+                continue;
+            }
+
             $propertyAllowsNull = $reflectionModelProperty->allowsNull();
             $propertyDefaultValue = $reflectionModelProperty->getDefaultValue();
             $propertyHasAutoIncrementAttribute = $reflectionModelProperty->isAutoIncrement();

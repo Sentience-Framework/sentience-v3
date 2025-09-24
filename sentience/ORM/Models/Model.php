@@ -2,9 +2,9 @@
 
 namespace Sentience\ORM\Models;
 
+use DateTimeInterface;
 use JsonSerializable;
 use Sentience\ORM\Models\Reflection\ReflectionModel;
-use Sentience\ORM\Models\Reflection\ReflectionModelProperty;
 
 class Model implements JsonSerializable
 {
@@ -15,10 +15,19 @@ class Model implements JsonSerializable
 
     public static function getColumns(): array
     {
-        return array_map(
-            fn (ReflectionModelProperty $reflectionModelProperty): string => $reflectionModelProperty->getColumn(),
-            (new ReflectionModel(static::class))->getProperties()
-        );
+        $reflectionModelProperties = (new ReflectionModel(static::class))->getProperties();
+
+        $columns = [];
+
+        foreach ($reflectionModelProperties as $reflectionModelProperty) {
+            if (!$reflectionModelProperty->isColumn()) {
+                continue;
+            }
+
+            $columns[] = $reflectionModelProperty->getColumn();
+        }
+
+        return $columns;
     }
 
     public function jsonSerialize(): array
@@ -36,8 +45,11 @@ class Model implements JsonSerializable
 
             $property = $reflectionModelProperty->getProperty();
             $column = $reflectionModelProperty->getColumn();
+            $value = $this->{$property};
 
-            $values[$column] = $this->{$property};
+            $values[$column] = is_subclass_of($value, DateTimeInterface::class)
+                ? $value->format('Y-m-d\TH:i:s.v\Z')
+                : $value;
         }
 
         return $values;

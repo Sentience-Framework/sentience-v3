@@ -10,6 +10,7 @@ use Sentience\Sentience\Request;
 use Sentience\Sentience\Response;
 use Sentience\Sentience\Stdio;
 use Sentience\Timestamp\Timestamp;
+use Src\Models\Author;
 use Src\Models\Migration;
 
 class ExampleController extends Controller
@@ -101,12 +102,12 @@ class ExampleController extends Controller
             )
             ->join('RIGHT JOIN table2 jt ON jt.column1 = table1.column1 AND jt.column2 = table2.column2')
             ->whereEquals('column1', 10)
-            ->whereGroup(fn($group) => $group->whereGreaterThanOrEquals('column2', 20)
+            ->whereGroup(fn ($group) => $group->whereGreaterThanOrEquals('column2', 20)
                 ->orwhereIsNull('column3'))
             ->where('DATE(`created_at`) > now()')
-            ->whereGroup(fn($group) => $group->whereIn('column4', [1, 2, 3, 4])
+            ->whereGroup(fn ($group) => $group->whereIn('column4', [1, 2, 3, 4])
                 ->whereNotEquals('column5', 'test string'))
-            ->whereGroup(fn($group) => $group)
+            ->whereGroup(fn ($group) => $group)
             ->whereIn('column2', [])
             ->whereNotIn('column2', [])
             ->whereStartsWith('column2', 'a')
@@ -196,7 +197,7 @@ class ExampleController extends Controller
         Stdio::printFLn('Time: %f', $end - $start);
     }
 
-    public function select(Database $database): void
+    public function crud(Database $database): void
     {
         $start = microtime(true);
 
@@ -234,15 +235,38 @@ class ExampleController extends Controller
             ->updateColumn('applied_at', Query::now())
             ->execute();
 
-        // $database->deleteModels($models)
-        //     ->execute();
+        $database->deleteModels($models)
+            ->execute();
 
-        $database->prepared('SELECT * FROM migrations WHERE id > :id;', [':id' => 1]);
+        $database->prepared(
+            'SELECT * FROM migrations WHERE id > ? AND filename = ?;',
+            [
+                1,
+                '\\\"\"\"\\\'\''
+            ]
+        );
+
+        $database->prepared(
+            'SELECT * FROM migrations WHERE id > :id AND filename = :filename;',
+            [
+                ':id' => 2,
+                ':filename' => '\\\"\"\"\\\'\''
+            ]
+        );
 
         $end = microtime(true);
 
         echo json_encode($models, JSON_PRETTY_PRINT);
 
         Stdio::printFLn('Time: %.2f ms', ($end - $start) * 1000);
+    }
+
+    public function select(Database $database): void
+    {
+        $models = $database->selectModels(Author::class)
+            ->relation('books')
+            ->execute();
+
+        print_r($models);
     }
 }
