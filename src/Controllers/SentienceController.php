@@ -12,7 +12,7 @@ use Sentience\Exceptions\MigrationException;
 use Sentience\Helpers\Console;
 use Sentience\Helpers\Filesystem;
 use Sentience\Migrations\MigrationFactory;
-use Sentience\ORM\Database\Database;
+use Sentience\DataLayer\Database\Database;
 use Sentience\Sentience\Stdio;
 use Sentience\Timestamp\Timestamp;
 use Src\Models\Migration;

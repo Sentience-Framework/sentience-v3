@@ -2,7 +2,7 @@
 
 use Sentience\Database\Driver;
 use Sentience\Helpers\Log;
-use Sentience\ORM\Database\Database;
+use Sentience\DataLayer\Database\Database;
 
 return new class () {
     public function database(): Database
