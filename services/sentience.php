@@ -1,8 +1,8 @@
 <?php
 
 use Sentience\Database\Driver;
-use Sentience\Helpers\Log;
 use Sentience\DataLayer\Database\Database;
+use Sentience\Helpers\Log;
 
 return new class () {
     public function database(): Database

@@ -12,8 +12,6 @@ use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Dialects\MySQLDialect;
 use Sentience\Database\Dialects\PgSQLDialect;
 use Sentience\Database\Dialects\SQLiteDialect;
-use Sentience\Helpers\Arrays;
-use Sentience\Helpers\Strings;
 use Sentience\DataLayer\Database\Enums\MySQLColumnEnum;
 use Sentience\DataLayer\Database\Enums\PgSQLColumnEnum;
 use Sentience\DataLayer\Database\Enums\SQLite3ColumnEnum;
@@ -22,6 +20,8 @@ use Sentience\DataLayer\Models\Attributes\Columns\Column;
 use Sentience\DataLayer\Models\Attributes\Relations\Relation;
 use Sentience\DataLayer\Models\Exceptions\MultipleTypesException;
 use Sentience\DataLayer\Models\Model;
+use Sentience\Helpers\Arrays;
+use Sentience\Helpers\Strings;
 use Sentience\Timestamp\Timestamp;
 
 class ReflectionModelProperty
@@ -83,15 +83,15 @@ class ReflectionModelProperty
                 $type
             )->value,
             default => match ($type) {
-                    'bool' => 'INT',
-                    'int' => 'INT',
-                    'float' => 'FLOAT',
-                    'string' => 'TEXT',
-                    Timestamp::class,
-                    DateTime::class,
-                    DateTimeInterface::class => 'DATETIME',
-                    default => 'TEXT'
-                }
+                'bool' => 'INT',
+                'int' => 'INT',
+                'float' => 'FLOAT',
+                'string' => 'TEXT',
+                Timestamp::class,
+                DateTime::class,
+                DateTimeInterface::class => 'DATETIME',
+                default => 'TEXT'
+            }
         };
     }
 

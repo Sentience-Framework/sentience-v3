@@ -4,8 +4,8 @@ namespace Src\Controllers;
 
 use Sentience\Abstracts\Controller;
 use Sentience\Database\Queries\Query;
-use Sentience\Helpers\Json;
 use Sentience\DataLayer\Database\Database;
+use Sentience\Helpers\Json;
 use Sentience\Sentience\Request;
 use Sentience\Sentience\Response;
 use Sentience\Sentience\Stdio;
@@ -122,7 +122,7 @@ class ExampleController extends Controller
                 'column2',
                 Query::raw('rawColumn')
             ])
-            ->having('COUNT(*) > ?', 10)
+            ->having('COUNT(*) > :count', [':count' => 10])
             ->orderByAsc('column4')
             ->orderByDesc('column5')
             ->orderByAsc(Query::raw('column6'))

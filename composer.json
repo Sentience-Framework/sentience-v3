@@ -16,7 +16,8 @@
         ]
     },
     "require": {
-        "php": "^8.3"
+        "php": "^8.3",
+        "sentience/database": "^1.0"
     },
     "require-dev": {
         "rector/rector": "^2.1",

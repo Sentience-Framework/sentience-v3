@@ -4,12 +4,12 @@ namespace Sentience\DataLayer\Models\Reflection;
 
 use ReflectionClass;
 use ReflectionProperty;
-use Sentience\Helpers\Arrays;
-use Sentience\Helpers\Strings;
 use Sentience\DataLayer\Models\Attributes\Relations\Relation;
 use Sentience\DataLayer\Models\Attributes\Table\PrimaryKeys;
 use Sentience\DataLayer\Models\Attributes\Table\Table;
 use Sentience\DataLayer\Models\Attributes\Table\UniqueConstraint;
+use Sentience\Helpers\Arrays;
+use Sentience\Helpers\Strings;
 
 class ReflectionModel
 {
@@ -41,7 +41,7 @@ class ReflectionModel
     public function getProperties(?int $filter = null): array
     {
         return array_map(
-            fn(ReflectionProperty $reflectionProperty): ReflectionModelProperty => new ReflectionModelProperty($this, $reflectionProperty),
+            fn (ReflectionProperty $reflectionProperty): ReflectionModelProperty => new ReflectionModelProperty($this, $reflectionProperty),
             $this->reflectionClass->getProperties($filter)
         );
     }
