@@ -89,9 +89,9 @@ class DatabaseFactory
                 AdapterAbstract::OPTIONS_SQLITE_ENCODING => $encoding,
                 AdapterAbstract::OPTIONS_SQLITE_JOURNAL_MODE => $journalMode,
                 AdapterAbstract::OPTIONS_SQLITE_FOREIGN_KEYS => $foreignKeys,
-                SQLite3Adapter::OPTIONS_READ_ONLY => $readOnly,
-                SQLite3Adapter::OPTIONS_ENCRYPTION_KEY => $encryptionKey,
-                SQLite3Adapter::OPTIONS_BUSY_TIMEOUT => $busyTimeout,
+                AdapterAbstract::OPTIONS_SQLITE_READ_ONLY => $readOnly,
+                AdapterAbstract::OPTIONS_SQLITE_ENCRYPTION_KEY => $encryptionKey,
+                AdapterAbstract::OPTIONS_SQLITE_BUSY_TIMEOUT => $busyTimeout,
             ],
             $debug,
             $usePDOAdapter

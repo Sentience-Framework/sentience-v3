@@ -4,37 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "949e63c3d5f93324c0ad0d374351a8ae",
-    "packages": [
-        {
-            "name": "sentience/database",
-            "version": "v1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Sentience-Framework/database.git",
-                "reference": "004d02acbb1325ace742cdcac4037479616fdde7"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Sentience-Framework/database/zipball/004d02acbb1325ace742cdcac4037479616fdde7",
-                "reference": "004d02acbb1325ace742cdcac4037479616fdde7",
-                "shasum": ""
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Sentience\\Database\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "description": "The database connector for the Sentience framework",
-            "support": {
-                "issues": "https://github.com/Sentience-Framework/database/issues",
-                "source": "https://github.com/Sentience-Framework/database/tree/v1.0.0"
-            },
-            "time": "2025-09-27T22:21:54+00:00"
-        }
-    ],
+    "content-hash": "d5c84b88945f06ad2362836b4bb0cd5a",
+    "packages": [],
     "packages-dev": [
         {
             "name": "clue/ndjson-react",
