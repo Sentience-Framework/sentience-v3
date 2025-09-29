@@ -15,8 +15,8 @@ return new class () {
         $password = config("database->{$driver}->password", '');
         $queries = config("database->{$driver}->queries", []);
         $usePDO = config("database->{$driver}->use_pdo", false);
-        $debug = config('database->debug', false);
         $options = config("database->{$driver}", []);
+        $debug = config('database->debug', false);
 
         return new Database(
             Driver::from($driver),
