@@ -4,7 +4,6 @@ namespace Sentience\DataLayer\Database;
 
 use Closure;
 use Sentience\Database\Adapters\AdapterAbstract;
-use Sentience\Database\Adapters\SQLite3Adapter;
 use Sentience\Database\Driver;
 
 class DatabaseFactory
@@ -58,7 +57,7 @@ class DatabaseFactory
             $password,
             $queries,
             [
-                AdapterAbstract::OPTIONS_PGSQL_CLIENT_ENCODING => $clientEncoding,
+                AdapterAbstract::OPTIONS_PGSQL_CLIENT_ENCODING => $clientEncoding
             ],
             $debug,
             $usePDOAdapter
@@ -91,7 +90,7 @@ class DatabaseFactory
                 AdapterAbstract::OPTIONS_SQLITE_FOREIGN_KEYS => $foreignKeys,
                 AdapterAbstract::OPTIONS_SQLITE_READ_ONLY => $readOnly,
                 AdapterAbstract::OPTIONS_SQLITE_ENCRYPTION_KEY => $encryptionKey,
-                AdapterAbstract::OPTIONS_SQLITE_BUSY_TIMEOUT => $busyTimeout,
+                AdapterAbstract::OPTIONS_SQLITE_BUSY_TIMEOUT => $busyTimeout
             ],
             $debug,
             $usePDOAdapter

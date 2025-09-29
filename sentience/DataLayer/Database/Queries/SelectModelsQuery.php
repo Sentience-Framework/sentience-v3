@@ -7,7 +7,6 @@ use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Enums\ChainEnum;
 use Sentience\Database\Queries\Enums\OrderByDirectionEnum;
 use Sentience\Database\Queries\Objects\Alias;
-use Sentience\DataLayer\Database\Objects\ConditionGroup;
 use Sentience\Database\Queries\Query;
 use Sentience\Database\Queries\SelectQuery;
 use Sentience\Database\Queries\Traits\DistinctTrait;
@@ -15,6 +14,7 @@ use Sentience\Database\Queries\Traits\LimitTrait;
 use Sentience\Database\Queries\Traits\OffsetTrait;
 use Sentience\Database\Queries\Traits\OrderByTrait;
 use Sentience\Database\Queries\Traits\WhereTrait;
+use Sentience\DataLayer\Database\Objects\ConditionGroup;
 use Sentience\DataLayer\Database\Queries\Traits\RelationsTrait;
 use Sentience\DataLayer\Models\Attributes\Relations\HasMany;
 use Sentience\DataLayer\Models\Reflection\ReflectionModel;
@@ -68,7 +68,7 @@ class SelectModelsQuery extends ModelsQueryAbstract
             $selectQuery->distinct();
         }
 
-        $selectQuery->whereGroup(fn(): ConditionGroup => new ConditionGroup(ChainEnum::AND , $this->where));
+        $selectQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(ChainEnum::AND, $this->where));
 
         foreach ($this->orderBy as $orderBy) {
             $orderBy->direction == OrderByDirectionEnum::ASC
@@ -91,7 +91,7 @@ class SelectModelsQuery extends ModelsQueryAbstract
         $result = $selectQuery->execute();
 
         return array_map(
-            fn(array $row): object => $this->mapAssocToModel($model, $row),
+            fn (array $row): object => $this->mapAssocToModel($model, $row),
             $result->fetchAssocs()
         );
     }

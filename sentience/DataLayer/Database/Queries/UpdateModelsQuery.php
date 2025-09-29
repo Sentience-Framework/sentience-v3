@@ -6,8 +6,8 @@ use DateTimeInterface;
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Enums\ChainEnum;
-use Sentience\DataLayer\Database\Objects\ConditionGroup;
 use Sentience\Database\Queries\Traits\WhereTrait;
+use Sentience\DataLayer\Database\Objects\ConditionGroup;
 use Sentience\DataLayer\Models\Reflection\ReflectionModel;
 
 class UpdateModelsQuery extends ModelsQueryAbstract
@@ -53,7 +53,7 @@ class UpdateModelsQuery extends ModelsQueryAbstract
             }
 
             $updateQuery->values([...$values, ...$this->updates]);
-            $updateQuery->whereGroup(fn(): ConditionGroup => new ConditionGroup(ChainEnum::AND , $this->where));
+            $updateQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(ChainEnum::AND, $this->where));
             $updateQuery->returning($columns);
 
             $result = $updateQuery->execute();
