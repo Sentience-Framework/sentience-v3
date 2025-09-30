@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Sentience-Framework/database.git",
-                "reference": "4d475938333fe667a9434e1d27948930b5e5d54c"
+                "reference": "2db03072e43a747f9e3972c4e12b6032e301907a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Sentience-Framework/database/zipball/4d475938333fe667a9434e1d27948930b5e5d54c",
-                "reference": "4d475938333fe667a9434e1d27948930b5e5d54c",
+                "url": "https://api.github.com/repos/Sentience-Framework/database/zipball/2db03072e43a747f9e3972c4e12b6032e301907a",
+                "reference": "2db03072e43a747f9e3972c4e12b6032e301907a",
                 "shasum": ""
             },
             "type": "library",
@@ -32,7 +32,7 @@
                 "issues": "https://github.com/Sentience-Framework/database/issues",
                 "source": "https://github.com/Sentience-Framework/database/tree/v1.0.0"
             },
-            "time": "2025-09-29T22:39:53+00:00"
+            "time": "2025-09-30T11:10:37+00:00"
         }
     ],
     "packages-dev": [

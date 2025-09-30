@@ -104,7 +104,7 @@ class ExampleController extends Controller
             ->whereEquals('column1', 10)
             ->whereGroup(fn ($group) => $group->whereGreaterThanOrEquals('column2', 20)
                 ->orwhereIsNull('column3'))
-            ->where('DATE(`created_at`) > :date OR DATE(`created_at`) < now()', [':date' => Query::now()])
+            ->where('DATE(`created_at`) > :date OR DATE(`created_at`) < :date', [':date' => Query::now()])
             ->whereGroup(fn ($group) => $group->whereIn('column4', [1, 2, 3, 4])
                 ->whereNotEquals('column5', 'test string'))
             ->whereGroup(fn ($group) => $group)
