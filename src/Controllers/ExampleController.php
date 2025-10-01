@@ -102,12 +102,12 @@ class ExampleController extends Controller
             )
             ->join('RIGHT JOIN table2 jt ON jt.column1 = table1.column1 AND jt.column2 = table2.column2')
             ->whereEquals('column1', 10)
-            ->whereGroup(fn ($group) => $group->whereGreaterThanOrEquals('column2', 20)
+            ->whereGroup(fn($group) => $group->whereGreaterThanOrEquals('column2', 20)
                 ->orwhereIsNull('column3'))
             ->where('DATE(`created_at`) > :date OR DATE(`created_at`) < :date', [':date' => Query::now()])
-            ->whereGroup(fn ($group) => $group->whereIn('column4', [1, 2, 3, 4])
+            ->whereGroup(fn($group) => $group->whereIn('column4', [1, 2, 3, 4])
                 ->whereNotEquals('column5', 'test string'))
-            ->whereGroup(fn ($group) => $group)
+            ->whereGroup(fn($group) => $group)
             ->whereIn('column2', [])
             ->whereNotIn('column2', [])
             ->whereStartsWith('column2', 'a')
@@ -201,58 +201,60 @@ class ExampleController extends Controller
     {
         $start = microtime(true);
 
-        $models = [];
+        for ($i = 0; $i < 1000; $i++) {
+            $models = [];
 
-        $selectedModels = $database->selectModels(Migration::class)
-            ->whereGreaterThanOrEquals('id', 10)
-            ->execute();
+            $selectedModels = $database->selectModels(Migration::class)
+                ->whereGreaterThanOrEquals('id', 10)
+                ->execute();
 
-        array_push($models, ...$selectedModels);
+            array_push($models, ...$selectedModels);
 
-        $migration = new Migration();
-        $migration->batch = 1;
-        $migration->filename = 'migration1' . microtime();
-        $migration->appliedAt = new Timestamp();
+            $migration = new Migration();
+            $migration->batch = 1;
+            $migration->filename = 'migration1' . microtime();
+            $migration->appliedAt = new Timestamp();
 
-        $migration2 = new Migration();
-        $migration2->batch = 1;
-        $migration2->filename = 'migration2' . microtime() . '1';
-        $migration2->appliedAt = new Timestamp();
+            $migration2 = new Migration();
+            $migration2->batch = 1;
+            $migration2->filename = 'migration2' . microtime() . '1';
+            $migration2->appliedAt = new Timestamp();
 
-        $insertedModels = [$migration, $migration2];
+            $insertedModels = [$migration, $migration2];
 
-        $database->insertModels($insertedModels)
-            ->onDuplicateUpdate()
-            ->execute();
+            $database->insertModels($insertedModels)
+                ->onDuplicateUpdate()
+                ->execute();
 
-        array_push($models, ...$insertedModels);
+            array_push($models, ...$insertedModels);
 
-        foreach ($models as $model) {
-            $model->filename = md5((string) $model->id);
+            foreach ($models as $model) {
+                $model->filename = md5((string) $model->id);
+            }
+
+            $database->updateModels($models)
+                ->updateColumn('applied_at', Query::now())
+                ->execute();
+
+            $database->deleteModels($models)
+                ->execute();
+
+            $database->prepared(
+                'SELECT * FROM migrations WHERE id > ? AND filename = ?;',
+                [
+                    1,
+                    '\\\"\"\"\\\'\''
+                ]
+            );
+
+            $database->prepared(
+                'SELECT * FROM migrations WHERE id > :id AND filename = :filename;',
+                [
+                    ':id' => 2,
+                    ':filename' => '\\\"\"\"\\\'\''
+                ]
+            );
         }
-
-        $database->updateModels($models)
-            ->updateColumn('applied_at', Query::now())
-            ->execute();
-
-        $database->deleteModels($models)
-            ->execute();
-
-        $database->prepared(
-            'SELECT * FROM migrations WHERE id > ? AND filename = ?;',
-            [
-                1,
-                '\\\"\"\"\\\'\''
-            ]
-        );
-
-        $database->prepared(
-            'SELECT * FROM migrations WHERE id > :id AND filename = :filename;',
-            [
-                ':id' => 2,
-                ':filename' => '\\\"\"\"\\\'\''
-            ]
-        );
 
         $end = microtime(true);
 

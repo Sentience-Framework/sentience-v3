@@ -2,7 +2,6 @@
 
 namespace Sentience\DataLayer\Database;
 
-use Sentience\Database\Database as SentienceDatabase;
 use Sentience\DataLayer\Database\Queries\AlterModelQuery;
 use Sentience\DataLayer\Database\Queries\CreateModelQuery;
 use Sentience\DataLayer\Database\Queries\DeleteModelsQuery;
@@ -13,7 +12,7 @@ use Sentience\DataLayer\Database\Queries\UpdateModelsQuery;
 use Sentience\DataLayer\Models\Model;
 use Sentience\Helpers\Arrays;
 
-class Database extends SentienceDatabase
+class Database extends \Sentience\Database\Database
 {
     public function selectModels(string $model): SelectModelsQuery
     {

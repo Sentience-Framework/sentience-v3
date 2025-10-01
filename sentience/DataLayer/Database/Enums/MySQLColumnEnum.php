@@ -8,6 +8,8 @@ use Sentience\Timestamp\Timestamp;
 
 enum MySQLColumnEnum: string
 {
+    public const string AUTO_INCREMENT = 'AUTO_INCREMENT';
+
     case TINYINT = 'TINYINT';
     case SMALLINT = 'SMALLINT';
     case MEDIUMINT = 'MEDIUMINT';
