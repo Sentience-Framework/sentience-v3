@@ -39,6 +39,7 @@ return [
         'queries' => env('DB_QUERIES', []),
 
         'client_encoding' => env('DB_CLIENT_ENCODING', 'UTF8'),
+        'search_path' => env('DB_SEARCH_PATH', 'public'),
         'use_pdo' => env('DB_USE_PDO', false)
     ],
     'sqlite' => [

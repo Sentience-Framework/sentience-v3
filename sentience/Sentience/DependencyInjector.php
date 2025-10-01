@@ -97,8 +97,8 @@ class DependencyInjector
                 continue;
             }
 
-            if ($this->isSingleton($functionParameter)) {
-                $parameters[$name] = $this->getSingletonInstance($functionParameter);
+            if ($singleton = $this->isSingleton($functionParameter)) {
+                $parameters[$name] = $singleton::getInstance();
 
                 continue;
             }
@@ -115,9 +115,15 @@ class DependencyInjector
         return $parameters;
     }
 
-    protected function isSingleton(ReflectionParameter $reflectionParameter): bool
+    protected function isSingleton(ReflectionParameter $reflectionParameter): bool|string
     {
-        $type = $this->getType($reflectionParameter);
+        $reflectionType = $reflectionParameter->getType();
+
+        if (!($reflectionType instanceof ReflectionNamedType)) {
+            return false;
+        }
+
+        $type = $reflectionType->getName();
 
         if (!$type) {
             return false;
@@ -128,23 +134,5 @@ class DependencyInjector
         }
 
         return is_subclass_of($type, Singleton::class);
-    }
-
-    protected function getSingletonInstance(ReflectionParameter $reflectionParameter): Singleton
-    {
-        $type = $this->getType($reflectionParameter);
-
-        return $type::getInstance();
-    }
-
-    protected function getType(ReflectionParameter $reflectionParameter): ?string
-    {
-        $type = $reflectionParameter->getType();
-
-        if (!($type instanceof ReflectionNamedType)) {
-            return null;
-        }
-
-        return $type->getName();
     }
 }
