@@ -26,12 +26,12 @@ class QueryWithParams
 
         $query = preg_replace_callback(
             static::REGEX_PATTERN_NAMED_PARAMS_AND_SQL_COMMENTS,
-            function (array $matches) use (&$params): mixed {
-                if ($this->isSqlCommentMatch($matches)) {
-                    return $matches[0];
+            function (array $match) use (&$params): mixed {
+                if ($this->isSqlCommentMatch($match)) {
+                    return $match[0];
                 }
 
-                $key = $matches[1];
+                $key = $match[1];
 
                 if (!array_key_exists($key, $this->params)) {
                     throw new QueryWithParamsException("named param {$key} does not exist");
@@ -80,9 +80,9 @@ class QueryWithParams
 
         return preg_replace_callback(
             static::REGEX_PATTERN_QUESTION_MARKS_AND_SQL_COMMENTS,
-            function (array $matches) use ($params, &$index): mixed {
-                if ($this->isSqlCommentMatch($matches)) {
-                    return $matches[0];
+            function (array $match) use ($params, &$index): mixed {
+                if ($this->isSqlCommentMatch($match)) {
+                    return $match[0];
                 }
 
                 if (!array_key_exists($index, $params)) {
@@ -103,12 +103,12 @@ class QueryWithParams
     {
         return preg_replace_callback(
             static::REGEX_PATTERN_NAMED_PARAMS_AND_SQL_COMMENTS,
-            function (array $matches) use ($params): mixed {
-                if ($this->isSqlCommentMatch($matches)) {
-                    return $matches[0];
+            function (array $match) use ($params): mixed {
+                if ($this->isSqlCommentMatch($match)) {
+                    return $match[0];
                 }
 
-                $key = $matches[1];
+                $key = $match[1];
 
                 if (!array_key_exists($key, $params)) {
                     throw new QueryWithParamsException("named param {$key} does not exist");
@@ -120,8 +120,8 @@ class QueryWithParams
         );
     }
 
-    protected function isSqlCommentMatch(array $matches): bool
+    protected function isSqlCommentMatch(array $match): bool
     {
-        return count($matches) == 1;
+        return count($match) == 1;
     }
 }
