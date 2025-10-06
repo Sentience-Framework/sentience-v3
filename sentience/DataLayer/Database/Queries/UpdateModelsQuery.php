@@ -21,7 +21,7 @@ class UpdateModelsQuery extends ModelsQueryAbstract
         parent::__construct($database, $dialect, $models);
     }
 
-    public function execute(): array
+    public function execute(bool $emulatePrepare = false): array
     {
         foreach ($this->models as $model) {
             $this->validateModel($model);
@@ -53,10 +53,10 @@ class UpdateModelsQuery extends ModelsQueryAbstract
             }
 
             $updateQuery->values([...$values, ...$this->updates]);
-            $updateQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(ChainEnum::AND, $this->where));
+            $updateQuery->whereGroup(fn(): ConditionGroup => new ConditionGroup(ChainEnum::AND , $this->where));
             $updateQuery->returning($columns);
 
-            $result = $updateQuery->execute();
+            $result = $updateQuery->execute($emulatePrepare);
 
             $updatedRow = $result->fetchAssoc();
 

@@ -66,5 +66,9 @@ return [
          */
         'use_pdo' => env('DB_USE_PDO', true)
     ],
+    /**
+     * The only valid reason to enable this option, is for debugging purposes.
+     */
+    'emulate_prepares' => env('DB_EMULATE_PREPARES', false),
     'debug' => env('DB_DEBUG', false)
 ];

@@ -4,5 +4,5 @@ namespace Sentience\DataLayer\Database\Queries;
 
 interface ModelsQueryInterface
 {
-    public function execute(): ?array;
+    public function execute(bool $emulatePrepare = false): ?array;
 }

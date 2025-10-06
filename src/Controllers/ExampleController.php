@@ -199,9 +199,11 @@ class ExampleController extends Controller
 
     public function crud(Database $database): void
     {
+        $emulatePrepare = env('DB_EMULATE_PREPARES');
+
         $start = microtime(true);
 
-        for ($i = 0; $i < 1000; $i++) {
+        for ($i = 0; $i < 10; $i++) {
             $models = [];
 
             $selectedModels = $database->selectModels(Migration::class)
@@ -224,7 +226,7 @@ class ExampleController extends Controller
 
             $database->insertModels($insertedModels)
                 ->onDuplicateUpdate()
-                ->execute();
+                ->execute($emulatePrepare);
 
             array_push($models, ...$insertedModels);
 
@@ -234,25 +236,28 @@ class ExampleController extends Controller
 
             $database->updateModels($models)
                 ->updateColumn('applied_at', Query::now())
-                ->execute();
+                ->execute($emulatePrepare);
 
             $database->deleteModels($models)
-                ->execute();
+                ->execute($emulatePrepare);
 
             $database->prepared(
-                'SELECT * FROM migrations WHERE id > ? AND filename = ?;',
+                'SELECT * FROM migrations -- test comment with a ? item
+                WHERE id > ? AND filename = ?;',
                 [
                     1,
                     '\\\"\"\"\\\'\''
-                ]
+                ],
+                $emulatePrepare
             );
 
             $database->prepared(
-                'SELECT * FROM migrations WHERE id > :id AND filename = :filename;',
+                'SELECT * FROM migrations /* Random :comment comment */ WHERE id > :id AND filename = :filename;',
                 [
                     ':id' => 2,
                     ':filename' => '\\\"\"\"\\\'\''
-                ]
+                ],
+                $emulatePrepare
             );
         }
 

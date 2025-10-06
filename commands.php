@@ -84,5 +84,17 @@ return [
     Command::register(
         'select',
         [ExampleController::class, 'select']
-    )
+    ),
+
+    Command::register(
+        'select',
+        [ExampleController::class, 'select']
+    ),
+
+    Command::register(
+        'test',
+        function () {
+            print_r(PDO::getAvailableDrivers());
+        }
+    ),
 ];

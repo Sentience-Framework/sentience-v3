@@ -16,7 +16,7 @@ class DropModelQuery extends ModelsQueryAbstract
         parent::__construct($database, $dialect, [$model]);
     }
 
-    public function execute(): null
+    public function execute(bool $emulatePrepare = false): null
     {
         $model = $this->models[0];
 
@@ -32,7 +32,7 @@ class DropModelQuery extends ModelsQueryAbstract
             $query->ifExists();
         }
 
-        $query->execute();
+        $query->execute($emulatePrepare);
 
         return null;
     }

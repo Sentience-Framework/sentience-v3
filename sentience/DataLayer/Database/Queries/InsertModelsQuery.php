@@ -16,7 +16,7 @@ class InsertModelsQuery extends ModelsQueryAbstract
         parent::__construct($database, $dialect, $models);
     }
 
-    public function execute(): array
+    public function execute(bool $emulatePrepare = false): array
     {
         foreach ($this->models as $model) {
             $this->validateModel($model);
@@ -25,6 +25,7 @@ class InsertModelsQuery extends ModelsQueryAbstract
             $reflectionModelProperties = $reflectionModel->getProperties();
 
             $table = $reflectionModel->getTable();
+            $columns = $reflectionModel->getColumns();
 
             $insertQuery = $this->database->insert($table);
 
@@ -51,29 +52,29 @@ class InsertModelsQuery extends ModelsQueryAbstract
             if (!is_null($this->onDuplicateUpdate)) {
                 $uniqueConstraint = $reflectionModel->getUniqueConstraint();
 
-                $columns = $uniqueConstraint
+                $uniqueColumns = $uniqueConstraint
                     ? $uniqueConstraint->columns
                     : $reflectionModel->getPrimaryKeys();
 
-                $columns = array_filter(
-                    $columns,
-                    fn (string $column): bool => !in_array($column, $this->onDuplicateUpdateExcludeColumns)
+                $uniqueColumns = array_filter(
+                    $uniqueColumns,
+                    fn(string $column): bool => !in_array($column, $this->onDuplicateUpdateExcludeColumns)
                 );
 
                 $this->onDuplicateUpdate
-                    ? $insertQuery->onConflictUpdate($columns, $values, $autoIncrementPrimaryKeyColumn)
-                    : $insertQuery->onConflictIgnore($columns, $autoIncrementPrimaryKeyColumn);
+                    ? $insertQuery->onConflictUpdate($uniqueColumns, $values, $autoIncrementPrimaryKeyColumn)
+                    : $insertQuery->onConflictIgnore($uniqueColumns, $autoIncrementPrimaryKeyColumn);
             }
 
-            $result = $insertQuery->execute();
+            $insertQuery->returning($columns);
+
+            $result = $insertQuery->execute($emulatePrepare);
 
             $insertedRow = $result->fetchAssoc();
 
             if ($insertedRow) {
                 $this->mapAssocToModel($model, $insertedRow);
             }
-
-            $lastInsertId = $this->database->lastInsertId();
 
             if (empty($lastInsertId)) {
                 continue;

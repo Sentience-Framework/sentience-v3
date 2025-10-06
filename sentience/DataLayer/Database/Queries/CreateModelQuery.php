@@ -2,7 +2,6 @@
 
 namespace Sentience\DataLayer\Database\Queries;
 
-use Sentience\Database\Adapters\MySQLiAdapter;
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Dialects\MySQLDialect;
@@ -19,7 +18,7 @@ class CreateModelQuery extends ModelsQueryAbstract
         parent::__construct($database, $dialect, [$model]);
     }
 
-    public function execute(): null
+    public function execute(bool $emulatePrepare = false): null
     {
         $model = $this->models[0];
 
@@ -70,7 +69,7 @@ class CreateModelQuery extends ModelsQueryAbstract
             );
         }
 
-        $query->execute();
+        $query->execute($emulatePrepare);
 
         return null;
     }

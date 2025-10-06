@@ -18,7 +18,7 @@ class DeleteModelsQuery extends ModelsQueryAbstract
         parent::__construct($database, $dialect, $models);
     }
 
-    public function execute(): array
+    public function execute(bool $emulatePrepare = false): array
     {
         foreach ($this->models as $model) {
             $this->validateModel($model);
@@ -45,10 +45,10 @@ class DeleteModelsQuery extends ModelsQueryAbstract
                 }
             }
 
-            $deleteQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(ChainEnum::AND, $this->where));
+            $deleteQuery->whereGroup(fn(): ConditionGroup => new ConditionGroup(ChainEnum::AND , $this->where));
             $deleteQuery->returning($columns);
 
-            $result = $deleteQuery->execute();
+            $result = $deleteQuery->execute($emulatePrepare);
 
             $deletedRow = $result->fetchAssoc();
 
