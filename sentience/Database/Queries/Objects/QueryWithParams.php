@@ -7,8 +7,8 @@ use Sentience\Database\Exceptions\QueryWithParamsException;
 
 class QueryWithParams
 {
-    public const string REGEX_PATTERN_QUESTION_MARKS_AND_SQL_COMMENTS = '/(?:--[^\r\n]*|\/\*[\s\S]*?\*\/|#.*)|(\?)(?=(?:[^\'\`\"\\\\]|\'(?:\\\\.|[^\\\\\'])*\'|\`(?:\\.|[^\\\\\`])*\`|\"(?:\\.|[^\\\\\"])*\")*$)/';
-    public const string REGEX_PATTERN_NAMED_PARAMS_AND_SQL_COMMENTS = '/(?:--[^\r\n]*|\/\*[\s\S]*?\*\/|#.*)|(\:\w+)(?=(?:[^\'\`\"\\\\]|\'(?:\\\\.|[^\\\\\'])*\'|\`(?:\\.|[^\\\\\`])*\`|\"(?:\\.|[^\\\\\"])*\")*$)/';
+    public const string REGEX_PATTERN_QUESTION_MARKS_AND_SQL_COMMENTS = '/(?:\-\-[^\r\n]*|\/\*[\s\S]*?\*\/|\#.*)|(\?)(?=(?:[^\'\`\"\\\\]|\'(?:\\\\.|[^\\\\\'])*\'|\`(?:\\.|[^\\\\\`])*\`|\"(?:\\.|[^\\\\\"])*\")*$)/';
+    public const string REGEX_PATTERN_NAMED_PARAMS_AND_SQL_COMMENTS = '/(?:\-\-[^\r\n]*|\/\*[\s\S]*?\*\/|\#.*)|(\:\w+)(?=(?:[^\'\`\"\\\\]|\'(?:\\\\.|[^\\\\\'])*\'|\`(?:\\.|[^\\\\\`])*\`|\"(?:\\.|[^\\\\\"])*\")*$)/';
 
     public function __construct(
         public string $query,
