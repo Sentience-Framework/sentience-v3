@@ -68,7 +68,7 @@ class SelectModelsQuery extends ModelsQueryAbstract
             $selectQuery->distinct();
         }
 
-        $selectQuery->whereGroup(fn(): ConditionGroup => new ConditionGroup(ChainEnum::AND , $this->where));
+        $selectQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(ChainEnum::AND, $this->where));
 
         foreach ($this->orderBy as $orderBy) {
             $orderBy->direction == OrderByDirectionEnum::ASC
@@ -91,7 +91,7 @@ class SelectModelsQuery extends ModelsQueryAbstract
         $result = $selectQuery->execute($emulatePrepare);
 
         return array_map(
-            fn(array $row): object => $this->mapAssocToModel($model, $row),
+            fn (array $row): object => $this->mapAssocToModel($model, $row),
             $result->fetchAssocs()
         );
     }

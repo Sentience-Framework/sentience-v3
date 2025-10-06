@@ -58,7 +58,7 @@ class InsertModelsQuery extends ModelsQueryAbstract
 
                 $uniqueColumns = array_filter(
                     $uniqueColumns,
-                    fn(string $column): bool => !in_array($column, $this->onDuplicateUpdateExcludeColumns)
+                    fn (string $column): bool => !in_array($column, $this->onDuplicateUpdateExcludeColumns)
                 );
 
                 $this->onDuplicateUpdate

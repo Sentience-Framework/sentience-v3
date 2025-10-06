@@ -93,8 +93,8 @@ return [
 
     Command::register(
         'test',
-        function () {
+        function (): void {
             print_r(PDO::getAvailableDrivers());
         }
-    ),
+    )
 ];

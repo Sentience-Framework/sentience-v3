@@ -137,7 +137,7 @@ class PDOAdapter extends AdapterAbstract
         if (method_exists($this->pdo, 'sqliteCreateFunction')) {
             $this->pdo->sqliteCreateFunction(
                 static::REGEXP_FUNCTION,
-                fn(string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
+                fn (string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
                 static::REGEXP_FUNCTION_PARAMETER_COUNT
             );
         }
@@ -192,13 +192,17 @@ class PDOAdapter extends AdapterAbstract
         $this->debug($query, $start);
     }
 
-    public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): PDOResult
+    public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams, bool $emulatePrepare): PDOResult
     {
         $query = $queryWithParams->toRawQuery($dialect);
 
         $start = microtime(true);
 
         try {
+            if ($emulatePrepare) {
+                $this->emulatePrepare($query, $start);
+            }
+
             $pdoStatement = $this->pdo->prepare($queryWithParams->query);
         } catch (Throwable $exception) {
             $this->debug($query, $start, $exception);
@@ -230,6 +234,17 @@ class PDOAdapter extends AdapterAbstract
 
             throw $exception;
         }
+
+        $this->debug($query, $start);
+
+        return new PDOResult($pdoStatement);
+    }
+
+    protected function emulatePrepare(string $query, float $start): PDOResult
+    {
+        $pdoStatement = $this->pdo->prepare($query);
+
+        $pdoStatement->execute();
 
         $this->debug($query, $start);
 

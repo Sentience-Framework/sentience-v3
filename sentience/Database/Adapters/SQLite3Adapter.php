@@ -49,7 +49,7 @@ class SQLite3Adapter extends AdapterAbstract
 
         $this->sqlite3->createFunction(
             static::REGEXP_FUNCTION,
-            fn(string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
+            fn (string $pattern, string $value): bool => $this->regexpFunction($pattern, $value),
             static::REGEXP_FUNCTION_PARAMETER_COUNT
         );
 
@@ -89,13 +89,17 @@ class SQLite3Adapter extends AdapterAbstract
         $this->debug($query, $start);
     }
 
-    public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): SQLite3Result
+    public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams, bool $emulatePrepare): SQLite3Result
     {
         $query = $queryWithParams->toRawQuery($dialect);
 
         $start = microtime(true);
 
         try {
+            if ($emulatePrepare) {
+                $this->emulatePrepare($query, $start);
+            }
+
             $sqlite3Stmt = $this->sqlite3->prepare($queryWithParams->query);
         } catch (Throwable $exception) {
             $this->debug($query, $start, $exception);
@@ -132,25 +136,15 @@ class SQLite3Adapter extends AdapterAbstract
         return new SQLite3Result($sqlite3Result);
     }
 
-    public function queryWithParamsEmulatedPrepare(DialectInterface $dialect, QueryWithParams $queryWithParams): SQLite3Result
+    protected function emulatePrepare(string $query, float $start): SQLite3Result
     {
-        $query = $queryWithParams->toRawQuery($dialect);
+        $sqlite3Stmt = $this->sqlite3->prepare($query);
 
-        $start = microtime(true);
+        $result = $sqlite3Stmt->execute();
 
-        try {
-            $sqlite3Stmt = $this->sqlite3->prepare($query);
+        $this->debug($query, $start);
 
-            $this->debug($query, $start);
-
-            $result = $sqlite3Stmt->execute();
-
-            return new SQLite3Result($result);
-        } catch (Throwable $exception) {
-            $this->debug($query, $start, $exception);
-
-            throw $exception;
-        }
+        return new SQLite3Result($result);
     }
 
     public function beginTransaction(): void

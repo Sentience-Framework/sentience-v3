@@ -68,9 +68,7 @@ class Database
 
     public function queryWithParams(QueryWithParams $queryWithParams, bool $emulatePrepare = false): ResultInterface
     {
-        return $emulatePrepare
-            ? $this->adapter->queryWithParamsEmulatedPrepare($this->dialect, $queryWithParams)
-            : $this->adapter->queryWithParams($this->dialect, $queryWithParams);
+        return $this->adapter->queryWithParams($this->dialect, $queryWithParams, $emulatePrepare);
     }
 
     public function beginTransaction(): void

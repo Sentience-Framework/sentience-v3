@@ -9,8 +9,7 @@ use Sentience\Database\Results\ResultInterface;
 interface AdapterInterface
 {
     public function query(string $query): void;
-    public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): ResultInterface;
-    public function queryWithParamsEmulatedPrepare(DialectInterface $dialect, QueryWithParams $queryWithParams): ResultInterface;
+    public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams, bool $emulatePrepare): ResultInterface;
     public function beginTransaction(): void;
     public function commitTransaction(): void;
     public function rollbackTransaction(): void;

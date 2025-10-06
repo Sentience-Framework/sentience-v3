@@ -76,7 +76,7 @@ class MySQLiAdapter extends AdapterAbstract
         $this->debug($query, $start);
     }
 
-    public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams): MySQLiResult
+    public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams, bool $emulatePrepare): MySQLiResult
     {
         $queryWithParams->namedParamsToQuestionMarks();
 
@@ -85,6 +85,10 @@ class MySQLiAdapter extends AdapterAbstract
         $start = microtime(true);
 
         try {
+            if ($emulatePrepare) {
+                return $this->emulatePrepare($query, $start);
+            }
+
             $mysqliStmt = $this->mysqli->prepare($queryWithParams->query);
         } catch (Throwable $exception) {
             $this->debug($query, $start, $exception);
@@ -135,25 +139,17 @@ class MySQLiAdapter extends AdapterAbstract
         return new MySQLiResult($result);
     }
 
-    public function queryWithParamsEmulatedPrepare(DialectInterface $dialect, QueryWithParams $queryWithParams): MySQLiResult
+    protected function emulatePrepare(string $query, float $start): MySQLiResult
     {
-        $queryWithParams->namedParamsToQuestionMarks();
+        $mysqliStmt = $this->mysqli->prepare($query);
 
-        $query = $queryWithParams->toRawQuery($dialect);
+        $mysqliStmt->execute();
 
-        $start = microtime(true);
+        $this->debug($query, $start);
 
-        try {
-            $mysqliStmt = $this->mysqli->prepare($query);
+        $result = $mysqliStmt->get_result();
 
-            $this->debug($query, $start);
-
-            return new MySQLiResult($mysqliStmt);
-        } catch (Throwable $exception) {
-            $this->debug($query, $start, $exception);
-
-            throw $exception;
-        }
+        return new MySQLiResult($result);
     }
 
     public function beginTransaction(): void
