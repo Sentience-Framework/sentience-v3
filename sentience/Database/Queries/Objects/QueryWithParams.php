@@ -34,7 +34,7 @@ class QueryWithParams
                 $key = $match[1];
 
                 if (!array_key_exists($key, $this->params)) {
-                    throw new QueryWithParamsException("named param {$key} does not exist");
+                    $this->throwNamedParamDoesNotExist($key);
                 }
 
                 $params[] = $this->params[$key];
@@ -61,7 +61,7 @@ class QueryWithParams
         }
 
         $params = array_map(
-            fn (mixed $param): mixed => $dialect->castToQuery($param),
+            fn(mixed $param): mixed => $dialect->castToQuery($param),
             $this->params
         );
 
@@ -111,7 +111,7 @@ class QueryWithParams
                 $key = $match[1];
 
                 if (!array_key_exists($key, $params)) {
-                    throw new QueryWithParamsException("named param {$key} does not exist");
+                    $this->throwNamedParamDoesNotExist($key);
                 }
 
                 return $params[$key];
@@ -123,5 +123,10 @@ class QueryWithParams
     protected function isSqlCommentMatch(array $match): bool
     {
         return count($match) == 1;
+    }
+
+    protected function throwNamedParamDoesNotExist(string $key): void
+    {
+        throw new QueryWithParamsException("named param {$key} does not exist");
     }
 }
