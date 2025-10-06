@@ -200,7 +200,7 @@ class PDOAdapter extends AdapterAbstract
 
         try {
             if ($emulatePrepare) {
-                $this->emulatePrepare($query, $start);
+                $this->enableEmulatedPrepares();
             }
 
             $pdoStatement = $this->pdo->prepare($queryWithParams->query);
@@ -208,6 +208,10 @@ class PDOAdapter extends AdapterAbstract
             $this->debug($query, $start, $exception);
 
             throw $exception;
+        } finally {
+            if ($emulatePrepare) {
+                $this->disableEmulatedPrepares();
+            }
         }
 
         foreach ($queryWithParams->params as $key => $param) {
@@ -238,38 +242,6 @@ class PDOAdapter extends AdapterAbstract
         $this->debug($query, $start);
 
         return new PDOResult($pdoStatement);
-    }
-
-    protected function emulatePrepare(string $query, float $start): PDOResult
-    {
-        $pdoStatement = $this->pdo->prepare($query);
-
-        $pdoStatement->execute();
-
-        $this->debug($query, $start);
-
-        return new PDOResult($pdoStatement);
-    }
-
-    public function queryWithParamsEmulatedPrepare(DialectInterface $dialect, QueryWithParams $queryWithParams): PDOResult
-    {
-        $query = $queryWithParams->toRawQuery($dialect);
-
-        $start = microtime(true);
-
-        try {
-            $pdoStatement = $this->pdo->prepare($query);
-
-            $pdoStatement->execute();
-
-            $this->debug($query, $start);
-
-            return new PDOResult($pdoStatement);
-        } catch (Throwable $exception) {
-            $this->debug($query, $start, $exception);
-
-            throw $exception;
-        }
     }
 
     public function beginTransaction(): void
@@ -313,6 +285,16 @@ class PDOAdapter extends AdapterAbstract
         }
 
         return $lastInserId;
+    }
+
+    protected function enableEmulatedPrepares(): void
+    {
+        $this->pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+    }
+
+    protected function disableEmulatedPrepares(): void
+    {
+        $this->pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
     }
 
     protected function bindValue(PDOStatement $pdoStatement, int $key, mixed $value, int $type): void

@@ -426,7 +426,7 @@ class SQLDialect implements DialectInterface
         }
 
         if ($condition->condition == ConditionEnum::RAW) {
-            $query .= sprintf('(%s)', $condition->expression);
+            $query .= sprintf('(%s)', $condition->identifier);
 
             array_push($params, ...$condition->value);
 
@@ -436,7 +436,7 @@ class SQLDialect implements DialectInterface
         if (is_null($condition->value)) {
             $query .= sprintf(
                 '%s %s',
-                $this->escapeIdentifier($condition->expression),
+                $this->escapeIdentifier($condition->identifier),
                 $condition->condition == ConditionEnum::EQUALS ? 'IS NULL' : 'IS NOT NULL'
             );
 
@@ -446,7 +446,7 @@ class SQLDialect implements DialectInterface
         if (in_array($condition->condition, [ConditionEnum::BETWEEN, ConditionEnum::NOT_BETWEEN])) {
             $query .= sprintf(
                 '%s %s ? AND ?',
-                $this->escapeIdentifier($condition->expression),
+                $this->escapeIdentifier($condition->identifier),
                 $condition->condition->value,
                 $condition->value[0],
                 $condition->value[1]
@@ -466,7 +466,7 @@ class SQLDialect implements DialectInterface
 
             $query .= sprintf(
                 '%s %s (%s)',
-                $this->escapeIdentifier($condition->expression),
+                $this->escapeIdentifier($condition->identifier),
                 $condition->condition->value,
                 implode(', ', array_fill(0, count($condition->value), '?'))
             );
@@ -479,7 +479,7 @@ class SQLDialect implements DialectInterface
         if (in_array($condition->condition, [ConditionEnum::REGEX, ConditionEnum::NOT_REGEX])) {
             $query .= sprintf(
                 '%s %s ?',
-                $this->escapeIdentifier($condition->expression),
+                $this->escapeIdentifier($condition->identifier),
                 $condition->condition == ConditionEnum::REGEX ? $this::FUNCTION_REGEX : $this::FUNCTION_NOT_REGEX
             );
 
@@ -490,7 +490,7 @@ class SQLDialect implements DialectInterface
 
         $query .= sprintf(
             '%s %s ?',
-            $this->escapeIdentifier($condition->expression),
+            $this->escapeIdentifier($condition->identifier),
             $condition->condition->value
         );
 

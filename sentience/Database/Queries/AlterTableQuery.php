@@ -103,4 +103,11 @@ class AlterTableQuery extends Query
 
         return $this;
     }
+
+    public function alter(string $sql): static
+    {
+        $this->alters[] = Query::raw($sql);
+
+        return $this;
+    }
 }

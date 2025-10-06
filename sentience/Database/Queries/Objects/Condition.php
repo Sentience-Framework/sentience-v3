@@ -9,7 +9,7 @@ class Condition
 {
     public function __construct(
         public ConditionEnum $condition,
-        public string|array $expression,
+        public string|array $identifier,
         public mixed $value,
         public ChainEnum $chain
     ) {

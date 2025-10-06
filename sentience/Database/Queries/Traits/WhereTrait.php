@@ -129,9 +129,9 @@ trait WhereTrait
         return $this->group($callback, ChainEnum::AND);
     }
 
-    public function where(string $expression, array $values = []): static
+    public function where(string $sql, array $values = []): static
     {
-        return $this->addRawCondition($expression, $values, ChainEnum::AND);
+        return $this->addRawCondition($sql, $values, ChainEnum::AND);
     }
 
     public function orWhereEquals(string|array $column, mixed $value): static
@@ -249,9 +249,9 @@ trait WhereTrait
         return $this->group($callback, ChainEnum::OR);
     }
 
-    public function orWhere(string $expression, array $values = []): static
+    public function orWhere(string $sql, array $values = []): static
     {
-        return $this->addRawCondition($expression, $values, ChainEnum::OR);
+        return $this->addRawCondition($sql, $values, ChainEnum::OR);
     }
 
     protected function equals(string|array $column, mixed $value, ChainEnum $chain): static
@@ -393,9 +393,9 @@ trait WhereTrait
         return $this->addConditionGroup($conditionGroup);
     }
 
-    protected function addCondition(ConditionEnum $condition, string|array $expression, mixed $value, ChainEnum $chain): static
+    protected function addCondition(ConditionEnum $condition, string|array $identifier, mixed $value, ChainEnum $chain): static
     {
-        $this->where[] = new Condition($condition, $expression, $value, $chain);
+        $this->where[] = new Condition($condition, $identifier, $value, $chain);
 
         return $this;
     }
@@ -407,9 +407,9 @@ trait WhereTrait
         return $this;
     }
 
-    protected function addRawCondition(string|array $expression, array $values, ChainEnum $chain): static
+    protected function addRawCondition(string $sql, array $values, ChainEnum $chain): static
     {
-        $condition = new RawCondition($expression, $values, $chain);
+        $condition = new RawCondition($sql, $values, $chain);
 
         $this->where[] = $condition->toCondition();
 

@@ -167,6 +167,7 @@ class ExampleController extends Controller
             ->primaryKeys(['primary_key'])
             ->uniqueConstraint(['column1', 'column2'])
             ->foreignKeyConstraint('column1', 'table_2', 'reference_column', 'fk_table_1')
+            ->constraint('UNIQUE "test" COLUMNS ("column1", "column2")')
             ->toRawQuery();
 
         $queries[] = implode(
@@ -176,6 +177,7 @@ class ExampleController extends Controller
                 // ->alterColumn('column3', ['TEXT', 'AUTO_INCREMENT'])
                 ->renameColumn('column3', 'column4')
                 ->dropColumn('column4')
+                ->alter('ADD COLUMN id BIGINT REFERENCES table(id)')
                 // ->addPrimaryKeys(['pk'])
                 // ->addUniqueConstraint(['column1', 'column2'], 'unique_constraint')
                 // ->addForeignKeyConstraint('column4', 'reference_table', 'reference_column')

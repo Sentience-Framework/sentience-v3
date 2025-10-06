@@ -8,11 +8,11 @@ use Sentience\Database\Queries\Enums\ConditionEnum;
 class RawCondition extends QueryWithParams
 {
     public function __construct(
-        string $expression,
+        string $sql,
         array $values,
         public ChainEnum $chain
     ) {
-        parent::__construct($expression, $values);
+        parent::__construct($sql, $values);
 
         $this->namedParamsToQuestionMarks();
     }
