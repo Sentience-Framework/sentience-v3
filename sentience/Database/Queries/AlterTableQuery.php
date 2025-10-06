@@ -35,14 +35,14 @@ class AlterTableQuery extends Query
         );
     }
 
-    public function execute(bool $emulatePrepare = false): array
+    public function execute(bool $emulatePrepares = false): array
     {
         $queries = $this->toQueryWithParams();
 
         return array_map(
             fn(QueryWithParams $queryWithParams): ResultInterface => $this->database->queryWithParams(
                 $queryWithParams,
-                $emulatePrepare
+                $emulatePrepares
             ),
             $queries
         );

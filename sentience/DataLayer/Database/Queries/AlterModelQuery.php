@@ -13,7 +13,7 @@ class AlterModelQuery extends ModelsQueryAbstract
         parent::__construct($database, $dialect, [$model]);
     }
 
-    public function execute(bool $emulatePrepare = false): null
+    public function execute(bool $emulatePrepares = false): null
     {
         $model = $this->models[0];
 
@@ -90,7 +90,7 @@ class AlterModelQuery extends ModelsQueryAbstract
             $query->dropColumn($column);
         }
 
-        $query->execute($emulatePrepare);
+        $query->execute($emulatePrepares);
 
         return null;
     }
