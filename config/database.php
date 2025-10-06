@@ -72,7 +72,7 @@ return [
      * This option is not set at the adapter level.
      * It needs to be passed in via the query manually by calling config('database->emulate_prepares').
      *
-     * This is done because emulating prepares is never recommended due to it being a safety risk.
+     * This is done because emulating prepares is never recommended due to the safety risks involved.
      *
      * While the developer of Sentience has a lot of faith in his param casting and that of PDO.
      * The chance of an unknown sequence breaking the param injection is never zero.

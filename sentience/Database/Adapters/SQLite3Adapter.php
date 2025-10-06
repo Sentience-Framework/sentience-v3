@@ -41,10 +41,10 @@ class SQLite3Adapter extends AdapterAbstract
 
         $this->sqlite3 = new SQLite3(
             $name,
-            ($options[static::OPTIONS_SQLITE_READ_ONLY] ?? false)
-            ? SQLITE3_OPEN_READONLY | SQLITE3_OPEN_CREATE
-            : SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE,
-            $options[static::OPTIONS_SQLITE_ENCRYPTION_KEY] ?? ''
+            !($options[static::OPTIONS_SQLITE_READ_ONLY] ?? false)
+            ? SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE
+            : SQLITE3_OPEN_READONLY,
+            (string) ($options[static::OPTIONS_SQLITE_ENCRYPTION_KEY] ?? '')
         );
 
         $this->sqlite3->createFunction(
