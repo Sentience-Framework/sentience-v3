@@ -200,18 +200,18 @@ class PDOAdapter extends AdapterAbstract
 
         try {
             if ($emulatePrepare) {
-                $this->enableEmulatedPrepares();
+                $this->enableEmulatePrepares();
             }
 
             $pdoStatement = $this->pdo->prepare($queryWithParams->query);
         } catch (Throwable $exception) {
+            if ($emulatePrepare) {
+                $this->disableEmulatePrepares();
+            }
+
             $this->debug($query, $start, $exception);
 
             throw $exception;
-        } finally {
-            if ($emulatePrepare) {
-                $this->disableEmulatedPrepares();
-            }
         }
 
         foreach ($queryWithParams->params as $key => $param) {
@@ -237,6 +237,10 @@ class PDOAdapter extends AdapterAbstract
             $this->debug($query, $start, $exception);
 
             throw $exception;
+        } finally {
+            if ($emulatePrepare) {
+                $this->disableEmulatePrepares();
+            }
         }
 
         $this->debug($query, $start);
@@ -287,12 +291,12 @@ class PDOAdapter extends AdapterAbstract
         return $lastInserId;
     }
 
-    protected function enableEmulatedPrepares(): void
+    protected function enableEmulatePrepares(): void
     {
         $this->pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
     }
 
-    protected function disableEmulatedPrepares(): void
+    protected function disableEmulatePrepares(): void
     {
         $this->pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
     }

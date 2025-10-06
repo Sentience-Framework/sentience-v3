@@ -97,7 +97,7 @@ class SQLite3Adapter extends AdapterAbstract
 
         try {
             if ($emulatePrepare) {
-                $this->emulatePrepare($query, $start);
+                return $this->emulatePrepare($query, $start);
             }
 
             $sqlite3Stmt = $this->sqlite3->prepare($queryWithParams->query);
@@ -140,11 +140,11 @@ class SQLite3Adapter extends AdapterAbstract
     {
         $sqlite3Stmt = $this->sqlite3->prepare($query);
 
-        $result = $sqlite3Stmt->execute();
+        $sqlite3Result = $sqlite3Stmt->execute();
 
         $this->debug($query, $start);
 
-        return new SQLite3Result($result);
+        return new SQLite3Result($sqlite3Result);
     }
 
     public function beginTransaction(): void

@@ -34,7 +34,7 @@ return [
          * Highly expirimental!
          *
          * Asynchronous writes:
-         * 'queries' => ['SET synchronous_commit = OFF;']
+         * 'queries' => ['SET synchronous_commit TO OFF;']
          */
         'queries' => env('DB_QUERIES', []),
 
@@ -68,6 +68,14 @@ return [
     ],
     /**
      * The only valid reason to enable this option, is for debugging purposes.
+     *
+     * This option is not set at the adapter level.
+     * It needs to be passed in via the query manually by calling config('database->emulate_prepares').
+     *
+     * This is done because emulating prepares is never recommended due to it being a safety risk.
+     *
+     * While the developer of Sentience has a lot of faith in his param casting and that of PDO.
+     * The chance of an unknown sequence breaking the param injection is never zero.
      */
     'emulate_prepares' => env('DB_EMULATE_PREPARES', false),
     'debug' => env('DB_DEBUG', false)

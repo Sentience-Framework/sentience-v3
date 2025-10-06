@@ -132,11 +132,11 @@ class MySQLiAdapter extends AdapterAbstract
             throw $exception;
         }
 
-        $result = $mysqliStmt->get_result();
+        $mysqliResult = $mysqliStmt->get_result();
 
         $this->debug($query, $start);
 
-        return new MySQLiResult($result);
+        return new MySQLiResult($mysqliResult);
     }
 
     protected function emulatePrepare(string $query, float $start): MySQLiResult
@@ -147,9 +147,9 @@ class MySQLiAdapter extends AdapterAbstract
 
         $this->debug($query, $start);
 
-        $result = $mysqliStmt->get_result();
+        $mysqliResult = $mysqliStmt->get_result();
 
-        return new MySQLiResult($result);
+        return new MySQLiResult($mysqliResult);
     }
 
     public function beginTransaction(): void

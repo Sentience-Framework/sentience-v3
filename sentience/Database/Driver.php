@@ -18,7 +18,6 @@ enum Driver: string
     case MYSQL = 'mysql';
     case PGSQL = 'pgsql';
     case SQLITE = 'sqlite';
-    case ODBC = 'odbc';
 
     public function getAdapter(
         string $host,
