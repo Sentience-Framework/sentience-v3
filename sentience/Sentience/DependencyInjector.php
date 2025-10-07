@@ -91,7 +91,7 @@ class DependencyInjector
                     ...$parameters,
                     ...array_filter(
                         $injectables,
-                        fn(string $injectable): bool => !array_key_exists($injectable, $parameters),
+                        fn (string $injectable): bool => !array_key_exists($injectable, $parameters),
                         ARRAY_FILTER_USE_KEY
                     )
                 ];

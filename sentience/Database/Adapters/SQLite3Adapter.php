@@ -138,9 +138,7 @@ class SQLite3Adapter extends AdapterAbstract
 
     protected function emulatePrepare(string $query, float $start): SQLite3Result
     {
-        $sqlite3Stmt = $this->sqlite3->prepare($query);
-
-        $sqlite3Result = $sqlite3Stmt->execute();
+        $sqlite3Result = $this->sqlite3->query($query);
 
         $this->debug($query, $start);
 

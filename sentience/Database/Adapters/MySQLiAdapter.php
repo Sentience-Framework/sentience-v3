@@ -49,7 +49,10 @@ class MySQLiAdapter extends AdapterAbstract
         );
 
         if (array_key_exists(static::OPTIONS_MYSQL_CHARSET, $options)) {
-            $this->mysqli->set_charset((string) $options[static::OPTIONS_MYSQL_CHARSET]);
+            $this->mysqlNames(
+                (string) $options[static::OPTIONS_MYSQL_CHARSET],
+                $options[static::OPTIONS_MYSQL_COLLATION] ?? null
+            );
         }
 
         if (array_key_exists(static::OPTIONS_MYSQL_ENGINE, $options)) {
@@ -141,13 +144,9 @@ class MySQLiAdapter extends AdapterAbstract
 
     protected function emulatePrepare(string $query, float $start): MySQLiResult
     {
-        $mysqliStmt = $this->mysqli->prepare($query);
-
-        $mysqliStmt->execute();
+        $mysqliResult = $this->mysqli->query($query);
 
         $this->debug($query, $start);
-
-        $mysqliResult = $mysqliStmt->get_result();
 
         return new MySQLiResult($mysqliResult);
     }

@@ -20,9 +20,8 @@ enum MySQLColumnEnum: string
     case TIME = 'TIME';
     case DATETIME = 'DATETIME';
     case DATETIME_WITH_MICROSECONDS = 'DATETIME(6)';
-    case SMALL_VARCHAR = 'VARCHAR(64)';
-    case MEDUIM_VARCHAR = 'VARCHAR(128)';
-    case LONG_VARCHAR = 'VARCHAR(255)';
+    case PRIMARY_KEY_VARCHAR = 'VARCHAR(64)';
+    case VARCHAR = 'VARCHAR(255)';
     case TINYTEXT = 'TINYTEXT';
     case TEXT = 'TEXT';
     case MEDIUMTEXT = 'MEDIUMTEXT';
@@ -38,11 +37,11 @@ enum MySQLColumnEnum: string
 
         if ($type == 'string') {
             if ($isPrimaryKey) {
-                return static::SMALL_VARCHAR;
+                return static::PRIMARY_KEY_VARCHAR;
             }
 
             if ($inConstraint) {
-                return static::MEDUIM_VARCHAR;
+                return static::VARCHAR;
             }
         }
 
@@ -54,7 +53,7 @@ enum MySQLColumnEnum: string
             DateTime::class,
             DateTimeImmutable::class,
             Timestamp::class => static::DATETIME_WITH_MICROSECONDS,
-            default => static::LONG_VARCHAR
+            default => static::VARCHAR
         };
     }
 }

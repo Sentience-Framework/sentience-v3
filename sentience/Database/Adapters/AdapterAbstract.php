@@ -12,6 +12,7 @@ abstract class AdapterAbstract implements AdapterInterface
     public const string REGEXP_FUNCTION = 'REGEXP';
     public const int REGEXP_FUNCTION_PARAMETER_COUNT = 2;
     public const string OPTIONS_MYSQL_CHARSET = 'charset';
+    public const string OPTIONS_MYSQL_COLLATION = 'collation';
     public const string OPTIONS_MYSQL_ENGINE = 'engine';
     public const string OPTIONS_PGSQL_CLIENT_ENCODING = 'client_encoding';
     public const string OPTIONS_PGSQL_SEARCH_PATH = 'search_path';
@@ -44,6 +45,25 @@ abstract class AdapterAbstract implements AdapterInterface
             ),
             $value
         );
+    }
+
+    protected function mysqlNames(string $charset, ?string $collation): void
+    {
+        $query = sprintf(
+            'SET NAMES %s',
+            $charset
+        );
+
+        if ($collation) {
+            $query .= sprintf(
+                ' COLLATE %s',
+                $collation
+            );
+        }
+
+        $query .= ';';
+
+        $this->query($query);
     }
 
     protected function mysqlEngine(string $engine): void

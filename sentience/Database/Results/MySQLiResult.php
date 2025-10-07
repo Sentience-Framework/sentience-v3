@@ -12,6 +12,10 @@ class MySQLiResult implements ResultInterface
 
     public function getColumns(): array
     {
+        if (is_bool($this->mysqliResult)) {
+            return [];
+        }
+
         return array_map(
             fn (object $field): string => $field->name,
             $this->mysqliResult->fetch_fields()
@@ -20,7 +24,7 @@ class MySQLiResult implements ResultInterface
 
     public function fetchObject(string $class = 'stdClass'): ?object
     {
-        if (!$this->mysqliResult) {
+        if (is_bool($this->mysqliResult)) {
             return null;
         }
 
@@ -35,7 +39,7 @@ class MySQLiResult implements ResultInterface
 
     public function fetchObjects(string $class = 'stdClass'): array
     {
-        if (!$this->mysqliResult) {
+        if (is_bool($this->mysqliResult)) {
             return [];
         }
 
@@ -57,7 +61,7 @@ class MySQLiResult implements ResultInterface
 
     public function fetchAssoc(): ?array
     {
-        if (!$this->mysqliResult) {
+        if (is_bool($this->mysqliResult)) {
             return null;
         }
 
@@ -72,7 +76,7 @@ class MySQLiResult implements ResultInterface
 
     public function fetchAssocs(): array
     {
-        if (!$this->mysqliResult) {
+        if (is_bool($this->mysqliResult)) {
             return [];
         }
 

@@ -98,12 +98,6 @@ class PDOAdapter extends AdapterAbstract
             $name
         );
 
-        if ($driver == Driver::MYSQL) {
-            if (array_key_exists(static::OPTIONS_MYSQL_CHARSET, $options)) {
-                $dsn .= sprintf(';charset=%s', (string) $options[static::OPTIONS_MYSQL_CHARSET]);
-            }
-        }
-
         if ($driver == Driver::PGSQL) {
             if (array_key_exists(static::OPTIONS_PGSQL_CLIENT_ENCODING, $options)) {
                 $dsn .= sprintf(";options='--client_encoding=%s'", (string) $options[static::OPTIONS_PGSQL_CLIENT_ENCODING]);
@@ -115,6 +109,13 @@ class PDOAdapter extends AdapterAbstract
 
     protected function configurePDOForMySQL(array $options): void
     {
+        if (array_key_exists(static::OPTIONS_MYSQL_CHARSET, $options)) {
+            $this->mysqlNames(
+                (string) $options[static::OPTIONS_MYSQL_CHARSET],
+                $options[static::OPTIONS_MYSQL_COLLATION] ?? null
+            );
+        }
+
         if (array_key_exists(static::OPTIONS_MYSQL_ENGINE, $options)) {
             $this->mysqlEngine((string) $options[static::OPTIONS_MYSQL_ENGINE]);
         }
