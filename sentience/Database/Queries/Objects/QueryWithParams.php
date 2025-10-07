@@ -7,8 +7,8 @@ use Sentience\Database\Exceptions\QueryWithParamsException;
 
 class QueryWithParams
 {
-    public const string REGEX_PATTERN_QUESTION_MARKS_AND_SQL_COMMENTS = '/(?:\-\-[^\r\n]*|\/\*[\s\S]*?\*\/|\#.*)|(\?)(?=(?:[^\'\`\"\\\\]|\'(?:\\\\.|[^\\\\\'])*\'|\`(?:\\.|[^\\\\\`])*\`|\"(?:\\.|[^\\\\\"])*\")*$)/';
-    public const string REGEX_PATTERN_NAMED_PARAMS_AND_SQL_COMMENTS = '/(?:\-\-[^\r\n]*|\/\*[\s\S]*?\*\/|\#.*)|(\:\w+)(?=(?:[^\'\`\"\\\\]|\'(?:\\\\.|[^\\\\\'])*\'|\`(?:\\.|[^\\\\\`])*\`|\"(?:\\.|[^\\\\\"])*\")*$)/';
+    public const string REGEX_PATTERN_QUESTION_MARKS = '/(?:\'(?:\\\\.|[^\\\\\'])*\'|\"(?:\\\\.|[^\\\\\"])*\"|\`(?:\\\\.|[^\\\\\`])*\`|(\?)(?=(?:[^\'\"\`\\\\]|\'(?:\\\\.|[^\\\\\'])*\'|\"(?:\\\\.|[^\\\\\"])*\"|\`(?:\\\\.|[^\\\\\`])*\`)*$)|(?:\-\-[^\r\n]*|\/\*[\s\S]*?\*\/|\#.*))/';
+    public const string REGEX_PATTERN_NAMED_PARAMS = '/(?:\'(?:\\\\.|[^\\\\\'])*\'|\"(?:\\\\.|[^\\\\\"])*\"|\`(?:\\\\.|[^\\\\\`])*\`|(\:\w+)(?=(?:[^\'\"\`\\\\]|\'(?:\\\\.|[^\\\\\'])*\'|\"(?:\\\\.|[^\\\\\"])*\"|\`(?:\\\\.|[^\\\\\`])*\`)*$)|(?:\-\-[^\r\n]*|\/\*[\s\S]*?\*\/|\#.*))/';
 
     public function __construct(
         public string $query,
@@ -25,16 +25,16 @@ class QueryWithParams
         $params = [];
 
         $query = preg_replace_callback(
-            static::REGEX_PATTERN_NAMED_PARAMS_AND_SQL_COMMENTS,
+            static::REGEX_PATTERN_NAMED_PARAMS,
             function (array $match) use (&$params): mixed {
-                if ($this->isSqlCommentMatch($match)) {
+                if (!$this->isQuestionMarkOrNamedParamMatch($match)) {
                     return $match[0];
                 }
 
                 $key = $match[1];
 
                 if (!array_key_exists($key, $this->params)) {
-                    $this->throwNamedParamDoesNotExist($key);
+                    $this->throwNamedParamDoesNotExistException($key);
                 }
 
                 $params[] = $this->params[$key];
@@ -79,9 +79,9 @@ class QueryWithParams
         $index = 0;
 
         return preg_replace_callback(
-            static::REGEX_PATTERN_QUESTION_MARKS_AND_SQL_COMMENTS,
+            static::REGEX_PATTERN_QUESTION_MARKS,
             function (array $match) use ($params, &$index): mixed {
-                if ($this->isSqlCommentMatch($match)) {
+                if (!$this->isQuestionMarkOrNamedParamMatch($match)) {
                     return $match[0];
                 }
 
@@ -102,16 +102,16 @@ class QueryWithParams
     protected function toRawQueryNamedParams(array $params): string
     {
         return preg_replace_callback(
-            static::REGEX_PATTERN_NAMED_PARAMS_AND_SQL_COMMENTS,
+            static::REGEX_PATTERN_NAMED_PARAMS,
             function (array $match) use ($params): mixed {
-                if ($this->isSqlCommentMatch($match)) {
+                if (!$this->isQuestionMarkOrNamedParamMatch($match)) {
                     return $match[0];
                 }
 
                 $key = $match[1];
 
                 if (!array_key_exists($key, $params)) {
-                    $this->throwNamedParamDoesNotExist($key);
+                    $this->throwNamedParamDoesNotExistException($key);
                 }
 
                 return $params[$key];
@@ -120,12 +120,12 @@ class QueryWithParams
         );
     }
 
-    protected function isSqlCommentMatch(array $match): bool
+    protected function isQuestionMarkOrNamedParamMatch(array $match): bool
     {
-        return count($match) == 1;
+        return count($match) > 1;
     }
 
-    protected function throwNamedParamDoesNotExist(string $key): void
+    protected function throwNamedParamDoesNotExistException(string $key): void
     {
         throw new QueryWithParamsException("named param {$key} does not exist");
     }
