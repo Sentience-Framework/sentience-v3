@@ -4,7 +4,7 @@ namespace Src\Controllers;
 
 use Sentience\Abstracts\Controller;
 use Sentience\Database\Queries\Query;
-use Sentience\DataLayer\Database\Database;
+use Sentience\DataLayer\Database\DB;
 use Sentience\Helpers\Json;
 use Sentience\Sentience\Request;
 use Sentience\Sentience\Response;
@@ -67,13 +67,13 @@ class ExampleController extends Controller
         Response::ok($this->request);
     }
 
-    public function query(Database $database): void
+    public function query(DB $db): void
     {
         $start = microtime(true);
 
         $queries = [];
 
-        $queries[] = $database->select(Query::alias(['public', 'table_1'], 'table1'))
+        $queries[] = $db->select(Query::alias(['public', 'table_1'], 'table1'))
             ->distinct()
             ->columns([
                 'column1',
@@ -102,12 +102,18 @@ class ExampleController extends Controller
             )
             ->join('RIGHT JOIN table2 jt ON jt.column1 = table1.column1 AND jt.column2 = table2.column2')
             ->whereEquals('column1', 10)
-            ->whereGroup(fn ($group) => $group->whereGreaterThanOrEquals('column2', 20)
-                ->orwhereIsNull('column3'))
+            ->whereGroup(
+                fn($group) => $group
+                    ->whereGreaterThanOrEquals('column2', 20)
+                    ->orwhereIsNull('column3')
+            )
             ->where('DATE(`created_at`) > :date OR DATE(`created_at`) < :date', [':date' => Query::now()])
-            ->whereGroup(fn ($group) => $group->whereIn('column4', [1, 2, 3, 4])
-                ->whereNotEquals('column5', 'test string'))
-            ->whereGroup(fn ($group) => $group)
+            ->whereGroup(
+                fn($group) => $group
+                    ->whereIn('column4', [1, 2, 3, 4])
+                    ->whereNotEquals('column5', 'test string')
+            )
+            ->whereGroup(fn($group) => $group)
             ->whereIn('column2', [])
             ->whereNotIn('column2', [])
             ->whereStartsWith('column2', 'a')
@@ -131,7 +137,7 @@ class ExampleController extends Controller
             ->offset(10)
             ->toSql();
 
-        $queries[] = $database->insert(Query::alias('table_1', 'table1'))
+        $queries[] = $db->insert(Query::alias('table_1', 'table1'))
             ->values([
                 'column1' => Query::now(),
                 'column2' => true,
@@ -139,11 +145,12 @@ class ExampleController extends Controller
                 'column4' => Query::raw('column1 + 1')
             ])
             // ->onConflictUpdate(['id'], [], 'id')
-            ->onConflictIgnore(['id'], 'id')
+            // ->onConflictIgnore(['id'], 'id')
+            ->onConflictIgnore(['id'])
             ->returning(['id'])
             ->toSql();
 
-        $queries[] = $database->update('table_1')
+        $queries[] = $db->update('table_1')
             ->values([
                 'column1' => Query::now(),
                 'column2' => true,
@@ -153,13 +160,13 @@ class ExampleController extends Controller
             ->returning(['id'])
             ->toSql();
 
-        $queries[] = $database->delete('table_1')
+        $queries[] = $db->delete('table_1')
             ->whereBetween('column2', 10, 20)
             ->orWhereNotBetween('column2', 70, 80)
             ->returning(['id'])
             ->toSql();
 
-        $queries[] = $database->createTable('table_1')
+        $queries[] = $db->createTable('table_1')
             ->ifNotExists()
             ->column('primary_key', 'int', true, null, ['AUTO_INCREMENT'])
             ->column('column1', 'bigint', true)
@@ -172,7 +179,7 @@ class ExampleController extends Controller
 
         $queries[] = implode(
             PHP_EOL,
-            $database->alterTable('table_1')
+            $db->alterTable('table_1')
                 ->addColumn('column3', 'INT')
                 // ->alterColumn('column3', ['TEXT', 'AUTO_INCREMENT'])
                 ->renameColumn('column3', 'column4')
@@ -185,7 +192,7 @@ class ExampleController extends Controller
                 ->toSql()
         );
 
-        $queries[] = $database->dropTable('table_1')
+        $queries[] = $db->dropTable('table_1')
             ->ifExists()
             ->toSql();
 
@@ -199,16 +206,16 @@ class ExampleController extends Controller
         Stdio::printFLn('Time: %f', $end - $start);
     }
 
-    public function crud(Database $database): void
+    public function crud(DB $db): void
     {
-        $emulatePrepare = env('DB_EMULATE_PREPARES');
+        $emulatePrepare = config('database->emulate_prepares');
 
         $start = microtime(true);
 
         for ($i = 0; $i < 10; $i++) {
             $models = [];
 
-            $selectedModels = $database->selectModels(Migration::class)
+            $selectedModels = $db->selectModels(Migration::class)
                 ->whereGreaterThanOrEquals('id', 10)
                 ->execute();
 
@@ -226,7 +233,7 @@ class ExampleController extends Controller
 
             $insertedModels = [$migration, $migration2];
 
-            $database->insertModels($insertedModels)
+            $db->insertModels($insertedModels)
                 ->onDuplicateUpdate()
                 ->execute($emulatePrepare);
 
@@ -236,18 +243,18 @@ class ExampleController extends Controller
                 $model->filename = md5((string) $model->id);
             }
 
-            $database->updateModels($models)
+            $db->updateModels($models)
                 ->updateColumn('applied_at', Query::now())
                 ->execute($emulatePrepare);
 
-            $database->deleteModels($models)
+            $db->deleteModels($models)
                 ->execute($emulatePrepare);
 
-            $database->prepared(
+            $db->prepared(
                 'SELECT * FROM migrations -- test comment with a ? item
                 WHERE id > ? AND filename = ?
                 -- Hoi dit is een test
-                OR filename = "\'\'\'""""\'#test /* test */ --hoi "
+                OR filename = \'\'\'\'\'""""\'\'#test /* test */ --hoi \'
                 AND filename = ?;',
                 [
                     1,
@@ -257,8 +264,8 @@ class ExampleController extends Controller
                 $emulatePrepare
             );
 
-            $database->prepared(
-                'SELECT * FROM migrations /* Random :comment comment */ WHERE id > :id AND filename = "#hoi"
+            $db->prepared(
+                'SELECT * FROM migrations /* Random :comment comment */ WHERE id > :id AND filename = \'#hoi\'
                 OR filename = :filename',
                 [
                     ':id' => 2,
@@ -275,9 +282,9 @@ class ExampleController extends Controller
         Stdio::printFLn('Time: %.2f ms', ($end - $start) * 1000);
     }
 
-    public function select(Database $database): void
+    public function select(DB $db): void
     {
-        $models = $database->selectModels(Author::class)
+        $models = $db->selectModels(Author::class)
             ->relation('books')
             ->execute();
 

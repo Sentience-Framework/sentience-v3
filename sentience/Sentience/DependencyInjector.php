@@ -91,21 +91,25 @@ class DependencyInjector
                     ...$parameters,
                     ...array_filter(
                         $injectables,
-                        fn (string $injectable): bool => !array_key_exists($injectable, $parameters),
+                        fn(string $injectable): bool => !array_key_exists($injectable, $parameters),
                         ARRAY_FILTER_USE_KEY
                     )
                 ];
                 continue;
             }
 
-            if ($singleton = $this->isSingleton($functionParameter)) {
-                $parameters[$name] = $singleton::getInstance();
+            if ($instance = $this->isSingleton($functionParameter)) {
+                $this->bindInjectable($name, $instance);
+
+                $parameters[$name] = $instance;
 
                 continue;
             }
 
-            if ($class = $this->isConstructableClass($functionParameter)) {
-                $parameters[$name] = $class;
+            if ($object = $this->isConstructableClass($functionParameter)) {
+                $this->bindInjectable($name, $object);
+
+                $parameters[$name] = $object;
 
                 continue;
             }
@@ -122,7 +126,7 @@ class DependencyInjector
         return $parameters;
     }
 
-    protected function isSingleton(ReflectionParameter $reflectionParameter): bool|string
+    protected function isSingleton(ReflectionParameter $reflectionParameter): bool|object
     {
         $class = $this->getReflectionParameterClass($reflectionParameter);
 
@@ -130,7 +134,11 @@ class DependencyInjector
             return false;
         }
 
-        return is_subclass_of($class, Singleton::class) ? $class : false;
+        if (!is_subclass_of($class, Singleton::class)) {
+            return false;
+        }
+
+        return $class::getInstance();
     }
 
     protected function isConstructableClass(ReflectionParameter $reflectionParameter): bool|object

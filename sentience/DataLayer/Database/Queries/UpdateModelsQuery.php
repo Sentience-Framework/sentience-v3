@@ -30,7 +30,7 @@ class UpdateModelsQuery extends ModelsQueryAbstract
             $reflectionModelProperties = $reflectionModel->getProperties();
 
             $table = $reflectionModel->getTable();
-            $columns = $reflectionModel->getColumns();
+            // $columns = $reflectionModel->getColumns();
 
             $updateQuery = $this->database->update($table);
 
@@ -53,8 +53,8 @@ class UpdateModelsQuery extends ModelsQueryAbstract
             }
 
             $updateQuery->values([...$values, ...$this->updates]);
-            $updateQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(ChainEnum::AND, $this->where));
-            $updateQuery->returning($columns);
+            $updateQuery->whereGroup(fn(): ConditionGroup => new ConditionGroup(ChainEnum::AND , $this->where));
+            // $updateQuery->returning($columns);
 
             $result = $updateQuery->execute($emulatePrepare);
 

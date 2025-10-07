@@ -10,11 +10,11 @@ class MigrationFactory
 
         $lines[] = '<?php';
         $lines[] = '';
-        $lines[] = 'use Sentience\Database\Database;';
+        $lines[] = 'use Sentience\DataLayer\Database\DB;';
         $lines[] = 'use Sentience\Migrations\MigrationInterface;';
         $lines[] = '';
         $lines[] = 'return new class () implements MigrationInterface {';
-        $lines[] = '    public function apply(Database $database): void';
+        $lines[] = '    public function apply(DB $db): void';
         $lines[] = '    {';
 
         foreach ($apply as $line) {
@@ -23,7 +23,7 @@ class MigrationFactory
 
         $lines[] = '    }';
         $lines[] = '';
-        $lines[] = '    public function rollback(Database $database): void';
+        $lines[] = '    public function rollback(DB $db): void';
         $lines[] = '    {';
 
         foreach ($rollback as $line) {

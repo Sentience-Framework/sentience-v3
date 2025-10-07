@@ -1,11 +1,11 @@
 <?php
 
 use Sentience\Database\Driver;
-use Sentience\DataLayer\Database\Database;
+use Sentience\DataLayer\Database\DB;
 use Sentience\Helpers\Log;
 
 return new class () {
-    public function database(): Database
+    public function db(): DB
     {
         $driver = config('database->driver', '');
         $host = config("database->{$driver}->host", '');
@@ -18,7 +18,7 @@ return new class () {
         $options = config("database->{$driver}", []);
         $debug = config('database->debug', false);
 
-        return new Database(
+        return new DB(
             Driver::from($driver),
             $host,
             $port,

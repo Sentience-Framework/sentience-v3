@@ -25,7 +25,7 @@ class InsertModelsQuery extends ModelsQueryAbstract
             $reflectionModelProperties = $reflectionModel->getProperties();
 
             $table = $reflectionModel->getTable();
-            $columns = $reflectionModel->getColumns();
+            $primaryKeys = $reflectionModel->getPrimaryKeys();
 
             $insertQuery = $this->database->insert($table);
 
@@ -33,18 +33,19 @@ class InsertModelsQuery extends ModelsQueryAbstract
             $autoIncrementPrimaryKeyColumn = null;
 
             foreach ($reflectionModelProperties as $reflectionModelProperty) {
+                $column = $reflectionModelProperty->getColumn();
+
+                if ($reflectionModelProperty->isPrimaryKey() && $reflectionModelProperty->isAutoIncrement()) {
+                    $autoIncrementPrimaryKeyColumn = $column;
+                }
+
                 if (!$reflectionModelProperty->isInitialized($model)) {
                     continue;
                 }
 
                 $property = $reflectionModelProperty->getProperty();
-                $column = $reflectionModelProperty->getColumn();
 
                 $values[$column] = $this->getValueIfBackedEnum($model->{$property});
-
-                if ($reflectionModelProperty->isPrimaryKey() && $reflectionModelProperty->isAutoIncrement()) {
-                    $autoIncrementPrimaryKeyColumn = $column;
-                }
             }
 
             $insertQuery->values($values);
@@ -54,19 +55,30 @@ class InsertModelsQuery extends ModelsQueryAbstract
 
                 $uniqueColumns = $uniqueConstraint
                     ? $uniqueConstraint->columns
-                    : $reflectionModel->getPrimaryKeys();
+                    : $primaryKeys;
 
-                $uniqueColumns = array_filter(
-                    $uniqueColumns,
-                    fn (string $column): bool => !in_array($column, $this->onDuplicateUpdateExcludeColumns)
+                $updateValues = array_filter(
+                    $values,
+                    fn(string $column): bool => !in_array(
+                        $column,
+                        $this->onDuplicateUpdateExcludeColumns
+                    ),
+                    ARRAY_FILTER_USE_KEY
                 );
 
                 $this->onDuplicateUpdate
-                    ? $insertQuery->onConflictUpdate($uniqueColumns, $values, $autoIncrementPrimaryKeyColumn)
-                    : $insertQuery->onConflictIgnore($uniqueColumns, $autoIncrementPrimaryKeyColumn);
+                    ? $insertQuery->onConflictUpdate(
+                        $uniqueColumns,
+                        $updateValues,
+                        $autoIncrementPrimaryKeyColumn
+                    )
+                    : $insertQuery->onConflictIgnore(
+                        $uniqueColumns,
+                        $autoIncrementPrimaryKeyColumn
+                    );
             }
 
-            $insertQuery->returning($columns);
+            $insertQuery->returning($primaryKeys);
 
             $result = $insertQuery->execute($emulatePrepare);
 
@@ -75,6 +87,8 @@ class InsertModelsQuery extends ModelsQueryAbstract
             if ($insertedRow) {
                 $this->mapAssocToModel($model, $insertedRow);
             }
+
+            $lastInsertId = $this->database->lastInsertId();
 
             if (empty($lastInsertId)) {
                 continue;
@@ -85,7 +99,11 @@ class InsertModelsQuery extends ModelsQueryAbstract
                     continue;
                 }
 
-                $model->{$reflectionModelProperty->getProperty()} = (int) $lastInsertId;
+                $property = $reflectionModelProperty->getProperty();
+
+                $model->{$property} = (int) $lastInsertId;
+
+                break;
             }
         }
 

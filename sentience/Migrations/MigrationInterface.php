@@ -2,10 +2,10 @@
 
 namespace Sentience\Migrations;
 
-use Sentience\Database\Database;
+use Sentience\DataLayer\Database\DB;
 
 interface MigrationInterface
 {
-    public function apply(Database $database): void;
-    public function rollback(Database $database): void;
+    public function apply(DB $db): void;
+    public function rollback(DB $db): void;
 }

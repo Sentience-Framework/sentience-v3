@@ -5,7 +5,7 @@ namespace Src\Controllers;
 use Throwable;
 use Sentience\Abstracts\Controller;
 use Sentience\Database\Queries\Query;
-use Sentience\DataLayer\Database\Database;
+use Sentience\DataLayer\Database\DB;
 use Sentience\Env\Env;
 use Sentience\Exceptions\BuiltInWebServerException;
 use Sentience\Exceptions\ConsoleException;
@@ -130,16 +130,16 @@ class SentienceController extends Controller
         );
     }
 
-    public function initMigrations(Database $database): void
+    public function initMigrations(DB $db): void
     {
-        $database->createModel(Migration::class)
+        $db->createModel(Migration::class)
             ->ifNotExists()
             ->execute();
 
         Stdio::printLn('Migrations table created');
     }
 
-    public function applyMigrations(Database $database): void
+    public function applyMigrations(DB $db): void
     {
         $migrationsDir = Filesystem::path(SENTIENCE_DIR, 'migrations');
 
@@ -164,7 +164,7 @@ class SentienceController extends Controller
             return;
         }
 
-        $highestBatch = $database->select(Migration::getTable())
+        $highestBatch = $db->select(Migration::getTable())
             ->columns([
                 Query::alias(
                     Query::raw('MAX(batch)'),
@@ -180,7 +180,7 @@ class SentienceController extends Controller
         foreach ($migrations as $filepath) {
             $filename = basename((string) $filepath);
 
-            $alreadyApplied = $database->select(Migration::getTable())
+            $alreadyApplied = $db->select(Migration::getTable())
                 ->whereEquals('filename', $filename)
                 ->exists();
 
@@ -192,8 +192,8 @@ class SentienceController extends Controller
 
             $migration = include $filepath;
 
-            $database->transactionInCallback(function (Database $database) use ($migration): void {
-                $migration->apply($database);
+            $db->transactionInCallback(function (DB $db) use ($migration): void {
+                $migration->apply($db);
             });
 
             $migrationModel = new Migration();
@@ -201,7 +201,7 @@ class SentienceController extends Controller
             $migrationModel->filename = $filename;
             $migrationModel->appliedAt = new Timestamp();
 
-            $database->insertModels($migrationModel)
+            $db->insertModels($migrationModel)
                 // ->onDuplicateUpdate()
                 ->execute();
 
@@ -209,7 +209,7 @@ class SentienceController extends Controller
         }
     }
 
-    public function rollbackMigrations(Database $database): void
+    public function rollbackMigrations(DB $db): void
     {
         $migrationsDir = Filesystem::path(SENTIENCE_DIR, 'migrations');
 
@@ -234,7 +234,7 @@ class SentienceController extends Controller
             return;
         }
 
-        $highestBatch = $database->select(Migration::getTable())
+        $highestBatch = $db->select(Migration::getTable())
             ->columns([
                 Query::alias(
                     Query::raw('MAX(batch)'),
@@ -251,7 +251,7 @@ class SentienceController extends Controller
             return;
         }
 
-        $migrationsToRevert = $database->selectModels(Migration::class)
+        $migrationsToRevert = $db->selectModels(Migration::class)
             ->whereEquals('batch', $highestBatch)
             ->orderByDesc('applied_at')
             ->execute();
@@ -266,11 +266,11 @@ class SentienceController extends Controller
 
             $migration = include $filepath;
 
-            $database->transactionInCallback(function (Database $database) use ($migration): void {
-                $migration->rollback($database);
+            $db->transactionInCallback(function (DB $db) use ($migration): void {
+                $migration->rollback($db);
             });
 
-            $database->deleteModels($migrationToRevert)->execute();
+            $db->deleteModels($migrationToRevert)->execute();
 
             Stdio::printFLn('Migration %s rolled back', $filename);
         }
@@ -303,7 +303,7 @@ class SentienceController extends Controller
         Stdio::printFLn('Migration %s created successfully', $migrationFilename);
     }
 
-    public function initModel(Database $database, array $words, array $flags): void
+    public function initModel(DB $db, array $words, array $flags): void
     {
         $class = $flags['model'] ?? $words[0] ?? null;
 
@@ -323,7 +323,7 @@ class SentienceController extends Controller
             return;
         }
 
-        $model = new $class($database);
+        $model = new $class($db);
 
         $migrationName = sprintf(
             '%s_create_%s_table.php',
@@ -333,12 +333,12 @@ class SentienceController extends Controller
 
         $migrationFileContents = MigrationFactory::create(
             [
-                sprintf('$database->createModel(%s::class)', $class),
+                sprintf('$db->createModel(%s::class)', $class),
                 '    ->ifNotExists()',
                 '    ->execute();'
             ],
             [
-                sprintf('$database->dropModel(%s::class)', $class),
+                sprintf('$db->dropModel(%s::class)', $class),
                 '    ->ifExists()',
                 '    ->execute();'
             ]
@@ -351,8 +351,8 @@ class SentienceController extends Controller
         $migration = include $migrationFilepath;
 
         try {
-            $database->transactionInCallback(function (Database $database) use ($migration): void {
-                $migration->apply($database);
+            $db->transactionInCallback(function (DB $db) use ($migration): void {
+                $migration->apply($db);
             });
         } catch (Throwable $exception) {
             unlink($migrationFilepath);
@@ -360,7 +360,7 @@ class SentienceController extends Controller
             throw $exception;
         }
 
-        $highestBatch = $database->select(Migration::getTable())
+        $highestBatch = $db->select(Migration::getTable())
             ->columns([
                 Query::alias(
                     Query::raw('MAX(batch)'),
@@ -378,13 +378,13 @@ class SentienceController extends Controller
         $migrationModel->filename = $migrationName;
         $migrationModel->appliedAt = new Timestamp();
 
-        $database->insertModels($migrationModel)
+        $db->insertModels($migrationModel)
             ->execute();
 
         Stdio::printFLn('Migration for model %s created successfully', $model::class);
     }
 
-    public function updateModel(Database $database, array $words, array $flags): void
+    public function updateModel(DB $db, array $words, array $flags): void
     {
         $class = $flags['model'] ?? $words[0] ?? null;
 
@@ -404,7 +404,7 @@ class SentienceController extends Controller
             return;
         }
 
-        $model = new $class($database);
+        $model = new $class($db);
 
         $migrationName = sprintf(
             '%s_alter_%s_table.php',
@@ -414,11 +414,11 @@ class SentienceController extends Controller
 
         $migrationFileContents = MigrationFactory::create(
             [
-                sprintf('$database->alterModel(%s::class)', $class),
+                sprintf('$db->alterModel(%s::class)', $class),
                 '    ->execute();'
             ],
             [
-                sprintf('$database->alterModel(%s::class)', $class),
+                sprintf('$db->alterModel(%s::class)', $class),
                 '    ->execute();'
             ]
         );
@@ -430,8 +430,8 @@ class SentienceController extends Controller
         $migration = include $migrationFilepath;
 
         try {
-            $database->transactionInCallback(function (Database $database) use ($migration): void {
-                $migration->apply($database);
+            $db->transactionInCallback(function (DB $db) use ($migration): void {
+                $migration->apply($db);
             });
         } catch (Throwable $exception) {
             unlink($migrationFilepath);
@@ -439,7 +439,7 @@ class SentienceController extends Controller
             throw $exception;
         }
 
-        $highestBatch = $database->select(Migration::getTable())
+        $highestBatch = $db->select(Migration::getTable())
             ->columns([
                 Query::alias(
                     Query::raw('MAX(batch)'),
@@ -457,13 +457,13 @@ class SentienceController extends Controller
         $migrationModel->filename = $migrationName;
         $migrationModel->appliedAt = new Timestamp();
 
-        $database->insertModels($migrationModel)
+        $db->insertModels($migrationModel)
             ->execute();
 
         Stdio::printFLn('Migration for model %s created successfully', $model::class);
     }
 
-    public function resetModel(Database $database, array $words, array $flags): void
+    public function resetModel(DB $db, array $words, array $flags): void
     {
         $class = $flags['model'] ?? $words[0] ?? null;
 
@@ -483,7 +483,7 @@ class SentienceController extends Controller
             return;
         }
 
-        $model = new $class($database);
+        $model = new $class($db);
 
         $migrationName = sprintf(
             '%s_reset_%s_table.php',
@@ -493,11 +493,11 @@ class SentienceController extends Controller
 
         $migrationFileContents = MigrationFactory::create(
             [
-                sprintf('$database->dropModel(%s::class)', $class),
+                sprintf('$db->dropModel(%s::class)', $class),
                 '    ->ifExists()',
                 '    ->execute();',
                 '',
-                sprintf('$database->createModel(%s::class)', $class),
+                sprintf('$db->createModel(%s::class)', $class),
                 '    ->ifNotExists()',
                 '    ->execute();'
             ]
@@ -510,8 +510,8 @@ class SentienceController extends Controller
         $migration = include $migrationFilepath;
 
         try {
-            $database->transactionInCallback(function (Database $database) use ($migration): void {
-                $migration->apply($database);
+            $db->transactionInCallback(function (DB $db) use ($migration): void {
+                $migration->apply($db);
             });
         } catch (Throwable $exception) {
             unlink($migrationFilepath);
@@ -519,7 +519,7 @@ class SentienceController extends Controller
             throw $exception;
         }
 
-        $highestBatch = $database->select(Migration::getTable())
+        $highestBatch = $db->select(Migration::getTable())
             ->columns([
                 Query::alias(
                     Query::raw('MAX(batch)'),
@@ -537,7 +537,7 @@ class SentienceController extends Controller
         $migrationModel->filename = $migrationName;
         $migrationModel->appliedAt = new Timestamp();
 
-        $database->insertModels($migrationModel)
+        $db->insertModels($migrationModel)
             ->execute();
 
         Stdio::printFLn('Migration for model %s created successfully', $model::class);
