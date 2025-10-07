@@ -6,15 +6,16 @@ use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Traits\ConstraintsTrait;
 use Sentience\Database\Queries\Traits\IfNotExistsTrait;
+use Sentience\Database\Queries\Traits\PrimaryKeysTrait;
 use Sentience\Database\Results\ResultInterface;
 
 class CreateTableQuery extends Query
 {
     use ConstraintsTrait;
     use IfNotExistsTrait;
+    use PrimaryKeysTrait;
 
     protected array $columns = [];
-    protected array $primaryKeys = [];
 
     public function toQueryWithParams(): QueryWithParams
     {
@@ -40,13 +41,6 @@ class CreateTableQuery extends Query
     public function column(string $name, string $type, bool $notNull = false, mixed $default = null, array $options = []): static
     {
         $this->columns[] = new Column($name, $type, $notNull, $default, $options);
-
-        return $this;
-    }
-
-    public function primaryKeys(string|array $columns): static
-    {
-        $this->primaryKeys = (array) $columns;
 
         return $this;
     }
