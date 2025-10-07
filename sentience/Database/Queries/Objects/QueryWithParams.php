@@ -2,11 +2,13 @@
 
 namespace Sentience\Database\Queries\Objects;
 
+use Throwable;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Exceptions\QueryWithParamsException;
 
 class QueryWithParams
 {
+    public const string INI_PCRE_JIT = 'pcre.jit';
     public const string REGEX_PATTERN_QUESTION_MARKS = '/(?:\'(?:\\\\.|[^\\\\\'])*\'|\"(?:\\\\.|[^\\\\\"])*\"|\`(?:\\\\.|[^\\\\\`])*\`|(\?)(?=(?:[^\'\"\`\\\\]|\'(?:\\\\.|[^\\\\\'])*\'|\"(?:\\\\.|[^\\\\\"])*\"|\`(?:\\\\.|[^\\\\\`])*\`)*$)|(?:\-\-[^\r\n]*|\/\*[\s\S]*?\*\/|\#.*))/';
     public const string REGEX_PATTERN_NAMED_PARAMS = '/(?:\'(?:\\\\.|[^\\\\\'])*\'|\"(?:\\\\.|[^\\\\\"])*\"|\`(?:\\\\.|[^\\\\\`])*\`|(\:\w+)(?=(?:[^\'\"\`\\\\]|\'(?:\\\\.|[^\\\\\'])*\'|\"(?:\\\\.|[^\\\\\"])*\"|\`(?:\\\\.|[^\\\\\`])*\`)*$)|(?:\-\-[^\r\n]*|\/\*[\s\S]*?\*\/|\#.*))/';
 
@@ -24,7 +26,7 @@ class QueryWithParams
 
         $params = [];
 
-        $query = preg_replace_callback(
+        $query = $this->pregReplaceCallback(
             static::REGEX_PATTERN_NAMED_PARAMS,
             function (array $match) use (&$params): mixed {
                 if (!$this->isQuestionMarkOrNamedParamMatch($match)) {
@@ -78,7 +80,7 @@ class QueryWithParams
     {
         $index = 0;
 
-        return preg_replace_callback(
+        return $this->pregReplaceCallback(
             static::REGEX_PATTERN_QUESTION_MARKS,
             function (array $match) use ($params, &$index): mixed {
                 if (!$this->isQuestionMarkOrNamedParamMatch($match)) {
@@ -101,7 +103,7 @@ class QueryWithParams
 
     protected function toSqlNamedParams(array $params): string
     {
-        return preg_replace_callback(
+        return $this->pregReplaceCallback(
             static::REGEX_PATTERN_NAMED_PARAMS,
             function (array $match) use ($params): mixed {
                 if (!$this->isQuestionMarkOrNamedParamMatch($match)) {
@@ -118,6 +120,23 @@ class QueryWithParams
             },
             $this->query
         );
+    }
+
+    protected function pregReplaceCallback(string|array $pattern, callable $callback, string|array $subject): null|string|array
+    {
+        $ini = ini_get(static::INI_PCRE_JIT);
+
+        ini_set(static::INI_PCRE_JIT, '0');
+
+        try {
+            return preg_replace_callback($pattern, $callback, $subject);
+        } catch (Throwable $exception) {
+            throw $exception;
+        } finally {
+            if (!is_bool($ini)) {
+                ini_set(static::INI_PCRE_JIT, $ini);
+            }
+        }
     }
 
     protected function isQuestionMarkOrNamedParamMatch(array $match): bool

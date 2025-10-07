@@ -162,9 +162,13 @@ class SQLite3Adapter extends AdapterAbstract
             return;
         }
 
-        $this->query('COMMIT;');
-
-        $this->inTransaction = false;
+        try {
+            $this->query('COMMIT;');
+        } catch (Throwable $exception) {
+            throw $exception;
+        } finally {
+            $this->inTransaction = false;
+        }
     }
 
     public function rollbackTransaction(): void
@@ -173,9 +177,13 @@ class SQLite3Adapter extends AdapterAbstract
             return;
         }
 
-        $this->query('ROLLBACK;');
-
-        $this->inTransaction = false;
+        try {
+            $this->query('ROLLBACK;');
+        } catch (Throwable $exception) {
+            throw $exception;
+        } finally {
+            $this->inTransaction = false;
+        }
     }
 
     public function inTransaction(): bool

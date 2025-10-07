@@ -168,9 +168,13 @@ class MySQLiAdapter extends AdapterAbstract
             return;
         }
 
-        $this->mysqli->commit();
-
-        $this->inTransaction = false;
+        try {
+            $this->mysqli->commit();
+        } catch (Throwable $exception) {
+            throw $exception;
+        } finally {
+            $this->inTransaction = false;
+        }
     }
 
     public function rollbackTransaction(): void
@@ -179,9 +183,13 @@ class MySQLiAdapter extends AdapterAbstract
             return;
         }
 
-        $this->mysqli->rollback();
-
-        $this->inTransaction = false;
+        try {
+            $this->mysqli->rollback();
+        } catch (Throwable $exception) {
+            throw $exception;
+        } finally {
+            $this->inTransaction = false;
+        }
     }
 
     public function inTransaction(): bool
