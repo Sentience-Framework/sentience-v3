@@ -246,7 +246,8 @@ class ExampleController extends Controller
             $database->prepared(
                 'SELECT * FROM migrations -- test comment with a ? item
                 WHERE id > ? AND filename = ?
-                OR filename = "#test /* test */ --hoi "
+                -- Hoi dit is een test
+                OR filename = "\'\'\'""""\'#test /* test */ --hoi "
                 AND filename = ?;',
                 [
                     1,
