@@ -18,9 +18,9 @@ class DropTableQuery extends Query
         );
     }
 
-    public function toRawQuery(): string
+    public function toSql(): string
     {
-        return parent::toRawQuery();
+        return parent::toSql();
     }
 
     public function execute(bool $emulatePrepare = false): ResultInterface

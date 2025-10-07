@@ -17,9 +17,9 @@ abstract class Query implements QueryInterface
     ) {
     }
 
-    public function toRawQuery(): string|array
+    public function toSql(): string|array
     {
-        return $this->toQueryWithParams()->toRawQuery($this->dialect);
+        return $this->toQueryWithParams()->toSql($this->dialect);
     }
 
     public function execute(bool $emulatePrepare = false): mixed

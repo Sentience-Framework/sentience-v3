@@ -91,7 +91,7 @@ class SQLite3Adapter extends AdapterAbstract
 
     public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams, bool $emulatePrepare): SQLite3Result
     {
-        $query = $queryWithParams->toRawQuery($dialect);
+        $query = $queryWithParams->toSql($dialect);
 
         $start = microtime(true);
 

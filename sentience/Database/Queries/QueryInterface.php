@@ -7,6 +7,6 @@ use Sentience\Database\Queries\Objects\QueryWithParams;
 interface QueryInterface
 {
     public function toQueryWithParams(): array|QueryWithParams;
-    public function toRawQuery(): string|array;
+    public function toSql(): string|array;
     public function execute(bool $emulatePrepare = false): mixed;
 }

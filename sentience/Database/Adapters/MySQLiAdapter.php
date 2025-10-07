@@ -80,7 +80,7 @@ class MySQLiAdapter extends AdapterAbstract
     {
         $queryWithParams->namedParamsToQuestionMarks();
 
-        $query = $queryWithParams->toRawQuery($dialect);
+        $query = $queryWithParams->toSql($dialect);
 
         $start = microtime(true);
 

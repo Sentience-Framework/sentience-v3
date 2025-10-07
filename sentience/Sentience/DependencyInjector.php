@@ -2,6 +2,7 @@
 
 namespace Sentience\Sentience;
 
+use ReflectionClass;
 use ReflectionFunctionAbstract;
 use ReflectionNamedType;
 use ReflectionParameter;
@@ -103,6 +104,12 @@ class DependencyInjector
                 continue;
             }
 
+            if ($class = $this->isConstructableClass($functionParameter)) {
+                $parameters[$name] = $class;
+
+                continue;
+            }
+
             if ($functionParameter->allowsNull()) {
                 $parameters[$name] = null;
 
@@ -116,6 +123,36 @@ class DependencyInjector
     }
 
     protected function isSingleton(ReflectionParameter $reflectionParameter): bool|string
+    {
+        $class = $this->getReflectionParameterClass($reflectionParameter);
+
+        if (!$class) {
+            return false;
+        }
+
+        return is_subclass_of($class, Singleton::class) ? $class : false;
+    }
+
+    protected function isConstructableClass(ReflectionParameter $reflectionParameter): bool|object
+    {
+        $class = $this->getReflectionParameterClass($reflectionParameter);
+
+        if (!$class) {
+            return false;
+        }
+
+        $reflectionClass = new ReflectionClass($class);
+
+        $reflectionClassConstructor = $reflectionClass->getConstructor();
+
+        $functionParameters = $reflectionClassConstructor
+            ? $this->getFunctionParameters($reflectionClassConstructor)
+            : [];
+
+        return new $class(...$functionParameters);
+    }
+
+    protected function getReflectionParameterClass(ReflectionParameter $reflectionParameter): bool|string
     {
         $reflectionType = $reflectionParameter->getType();
 
@@ -133,6 +170,6 @@ class DependencyInjector
             return false;
         }
 
-        return is_subclass_of($type, Singleton::class);
+        return $type;
     }
 }

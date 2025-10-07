@@ -102,12 +102,12 @@ class ExampleController extends Controller
             )
             ->join('RIGHT JOIN table2 jt ON jt.column1 = table1.column1 AND jt.column2 = table2.column2')
             ->whereEquals('column1', 10)
-            ->whereGroup(fn($group) => $group->whereGreaterThanOrEquals('column2', 20)
+            ->whereGroup(fn ($group) => $group->whereGreaterThanOrEquals('column2', 20)
                 ->orwhereIsNull('column3'))
             ->where('DATE(`created_at`) > :date OR DATE(`created_at`) < :date', [':date' => Query::now()])
-            ->whereGroup(fn($group) => $group->whereIn('column4', [1, 2, 3, 4])
+            ->whereGroup(fn ($group) => $group->whereIn('column4', [1, 2, 3, 4])
                 ->whereNotEquals('column5', 'test string'))
-            ->whereGroup(fn($group) => $group)
+            ->whereGroup(fn ($group) => $group)
             ->whereIn('column2', [])
             ->whereNotIn('column2', [])
             ->whereStartsWith('column2', 'a')
@@ -129,7 +129,7 @@ class ExampleController extends Controller
             ->orderByDesc(Query::raw('column7'))
             ->limit(1)
             ->offset(10)
-            ->toRawQuery();
+            ->toSql();
 
         $queries[] = $database->insert(Query::alias('table_1', 'table1'))
             ->values([
@@ -141,7 +141,7 @@ class ExampleController extends Controller
             // ->onConflictUpdate(['id'], [], 'id')
             ->onConflictIgnore(['id'], 'id')
             ->returning(['id'])
-            ->toRawQuery();
+            ->toSql();
 
         $queries[] = $database->update('table_1')
             ->values([
@@ -151,13 +151,13 @@ class ExampleController extends Controller
                 'column4' => Query::raw('column1 + 1')
             ])
             ->returning(['id'])
-            ->toRawQuery();
+            ->toSql();
 
         $queries[] = $database->delete('table_1')
             ->whereBetween('column2', 10, 20)
             ->orWhereNotBetween('column2', 70, 80)
             ->returning(['id'])
-            ->toRawQuery();
+            ->toSql();
 
         $queries[] = $database->createTable('table_1')
             ->ifNotExists()
@@ -168,7 +168,7 @@ class ExampleController extends Controller
             ->uniqueConstraint(['column1', 'column2'])
             ->foreignKeyConstraint('column1', 'table_2', 'reference_column', 'fk_table_1')
             ->constraint('UNIQUE "test" COLUMNS ("column1", "column2")')
-            ->toRawQuery();
+            ->toSql();
 
         $queries[] = implode(
             PHP_EOL,
@@ -182,12 +182,12 @@ class ExampleController extends Controller
                 // ->addUniqueConstraint(['column1', 'column2'], 'unique_constraint')
                 // ->addForeignKeyConstraint('column4', 'reference_table', 'reference_column')
                 // ->dropConstraint('unique_constraint')
-                ->toRawQuery()
+                ->toSql()
         );
 
         $queries[] = $database->dropTable('table_1')
             ->ifExists()
-            ->toRawQuery();
+            ->toSql();
 
         foreach ($queries as $query) {
             Stdio::printLn($query);

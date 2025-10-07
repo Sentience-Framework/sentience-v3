@@ -194,7 +194,7 @@ class PDOAdapter extends AdapterAbstract
 
     public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams, bool $emulatePrepare): PDOResult
     {
-        $query = $queryWithParams->toRawQuery($dialect);
+        $query = $queryWithParams->toSql($dialect);
 
         $start = microtime(true);
 

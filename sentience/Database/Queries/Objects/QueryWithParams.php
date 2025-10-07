@@ -54,7 +54,7 @@ class QueryWithParams
         return $this;
     }
 
-    public function toRawQuery(DialectInterface $dialect): string
+    public function toSql(DialectInterface $dialect): string
     {
         if (count($this->params) == 0) {
             return $this->query;
@@ -67,14 +67,14 @@ class QueryWithParams
 
         foreach ($params as $key => $value) {
             if (!is_numeric($key)) {
-                return $this->toRawQueryNamedParams($params);
+                return $this->toSqlNamedParams($params);
             }
         }
 
-        return $this->toRawQueryQuestionMarks($params);
+        return $this->toSqlQuestionMarks($params);
     }
 
-    protected function toRawQueryQuestionMarks(array $params): string
+    protected function toSqlQuestionMarks(array $params): string
     {
         $index = 0;
 
@@ -99,7 +99,7 @@ class QueryWithParams
         );
     }
 
-    protected function toRawQueryNamedParams(array $params): string
+    protected function toSqlNamedParams(array $params): string
     {
         return preg_replace_callback(
             static::REGEX_PATTERN_NAMED_PARAMS,

@@ -25,12 +25,12 @@ class AlterTableQuery extends Query
         );
     }
 
-    public function toRawQuery(): array
+    public function toSql(): array
     {
         $queriesWithParams = $this->toQueryWithParams();
 
         return array_map(
-            fn (QueryWithParams $queryWithParams): string => $queryWithParams->toRawQuery($this->dialect),
+            fn (QueryWithParams $queryWithParams): string => $queryWithParams->toSql($this->dialect),
             $queriesWithParams
         );
     }
