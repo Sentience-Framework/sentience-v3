@@ -71,7 +71,7 @@ class PDOAdapter extends AdapterAbstract
         }
 
         foreach ($queries as $query) {
-            $this->query($query);
+            $this->exec($query);
         }
     }
 
@@ -124,7 +124,7 @@ class PDOAdapter extends AdapterAbstract
     protected function configurePDOForPgSQL(array $options): void
     {
         if (array_key_exists(static::OPTIONS_PGSQL_SEARCH_PATH, $options)) {
-            $this->query(
+            $this->exec(
                 sprintf(
                     "SET search_path TO %s;",
                     (string) $options[static::OPTIONS_PGSQL_SEARCH_PATH]
@@ -144,11 +144,11 @@ class PDOAdapter extends AdapterAbstract
         }
 
         if ($options[static::OPTIONS_SQLITE_READ_ONLY] ?? false) {
-            $this->query('PRAGMA query_only = ON;');
+            $this->exec('PRAGMA query_only = ON;');
         }
 
         if (array_key_exists(static::OPTIONS_SQLITE_ENCRYPTION_KEY, $options)) {
-            $this->query(
+            $this->exec(
                 sprintf(
                     "PRAGMA key = '%s';",
                     (string) $options[static::OPTIONS_SQLITE_ENCRYPTION_KEY]
@@ -157,7 +157,7 @@ class PDOAdapter extends AdapterAbstract
         }
 
         if (array_key_exists(static::OPTIONS_SQLITE_BUSY_TIMEOUT, $options)) {
-            $this->query(
+            $this->exec(
                 sprintf(
                     "PRAGMA busy_timeout = %d;",
                     (int) $options[static::OPTIONS_SQLITE_BUSY_TIMEOUT]
@@ -178,7 +178,7 @@ class PDOAdapter extends AdapterAbstract
         }
     }
 
-    public function query(string $query): void
+    public function exec(string $query): void
     {
         $start = microtime(true);
 
@@ -191,6 +191,23 @@ class PDOAdapter extends AdapterAbstract
         }
 
         $this->debug($query, $start);
+    }
+
+    public function query(string $query): PDOResult
+    {
+        $start = microtime(true);
+
+        try {
+            $pdoStatement = $this->pdo->query($query);
+
+            $this->debug($query, $start);
+
+            return new PDOResult($pdoStatement);
+        } catch (Throwable $exception) {
+            $this->debug($query, $start, $exception);
+
+            throw $exception;
+        }
     }
 
     public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams, bool $emulatePrepare): PDOResult

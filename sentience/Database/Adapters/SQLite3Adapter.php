@@ -70,11 +70,11 @@ class SQLite3Adapter extends AdapterAbstract
         }
 
         foreach ($queries as $query) {
-            $this->query($query);
+            $this->exec($query);
         }
     }
 
-    public function query(string $query): void
+    public function exec(string $query): void
     {
         $start = microtime(true);
 
@@ -89,17 +89,34 @@ class SQLite3Adapter extends AdapterAbstract
         $this->debug($query, $start);
     }
 
+    public function query(string $query): SQLite3Result
+    {
+        $start = microtime(true);
+
+        try {
+            $sqlite3Result = $this->sqlite3->query($query);
+
+            $this->debug($query, $start);
+
+            return new SQLite3Result($sqlite3Result);
+        } catch (Throwable $exception) {
+            $this->debug($query, $start, $exception);
+
+            throw $exception;
+        }
+    }
+
     public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams, bool $emulatePrepare): SQLite3Result
     {
         $query = $queryWithParams->toSql($dialect);
 
+        if ($emulatePrepare) {
+            return $this->query($query);
+        }
+
         $start = microtime(true);
 
         try {
-            if ($emulatePrepare) {
-                return $this->emulatePrepare($query, $start);
-            }
-
             $sqlite3Stmt = $this->sqlite3->prepare($queryWithParams->query);
         } catch (Throwable $exception) {
             $this->debug($query, $start, $exception);
@@ -136,22 +153,13 @@ class SQLite3Adapter extends AdapterAbstract
         return new SQLite3Result($sqlite3Result);
     }
 
-    protected function emulatePrepare(string $query, float $start): SQLite3Result
-    {
-        $sqlite3Result = $this->sqlite3->query($query);
-
-        $this->debug($query, $start);
-
-        return new SQLite3Result($sqlite3Result);
-    }
-
     public function beginTransaction(): void
     {
         if ($this->inTransaction()) {
             return;
         }
 
-        $this->query('BEGIN;');
+        $this->exec('BEGIN;');
 
         $this->inTransaction = true;
     }
@@ -163,7 +171,7 @@ class SQLite3Adapter extends AdapterAbstract
         }
 
         try {
-            $this->query('COMMIT;');
+            $this->exec('COMMIT;');
         } catch (Throwable $exception) {
             throw $exception;
         } finally {
@@ -178,7 +186,7 @@ class SQLite3Adapter extends AdapterAbstract
         }
 
         try {
-            $this->query('ROLLBACK;');
+            $this->exec('ROLLBACK;');
         } catch (Throwable $exception) {
             throw $exception;
         } finally {

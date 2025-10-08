@@ -60,11 +60,11 @@ class MySQLiAdapter extends AdapterAbstract
         }
 
         foreach ($queries as $query) {
-            $this->query($query);
+            $this->exec($query);
         }
     }
 
-    public function query(string $query): void
+    public function exec(string $query): void
     {
         $start = microtime(true);
 
@@ -79,19 +79,36 @@ class MySQLiAdapter extends AdapterAbstract
         $this->debug($query, $start);
     }
 
+    public function query(string $query): MySQLiResult
+    {
+        try {
+            $start = microtime(true);
+
+            $mysqliResult = $this->mysqli->query($query);
+
+            $this->debug($query, $start);
+
+            return new MySQLiResult($mysqliResult);
+        } catch (Throwable $exception) {
+            $this->debug($query, $start, $exception);
+
+            throw $exception;
+        }
+    }
+
     public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams, bool $emulatePrepare): MySQLiResult
     {
         $queryWithParams->namedParamsToQuestionMarks();
 
         $query = $queryWithParams->toSql($dialect);
 
+        if ($emulatePrepare) {
+            return $this->query($query);
+        }
+
         $start = microtime(true);
 
         try {
-            if ($emulatePrepare) {
-                return $this->emulatePrepare($query, $start);
-            }
-
             $mysqliStmt = $this->mysqli->prepare($queryWithParams->query);
         } catch (Throwable $exception) {
             $this->debug($query, $start, $exception);
@@ -136,15 +153,6 @@ class MySQLiAdapter extends AdapterAbstract
         }
 
         $mysqliResult = $mysqliStmt->get_result();
-
-        $this->debug($query, $start);
-
-        return new MySQLiResult($mysqliResult);
-    }
-
-    protected function emulatePrepare(string $query, float $start): MySQLiResult
-    {
-        $mysqliResult = $this->mysqli->query($query);
 
         $this->debug($query, $start);
 

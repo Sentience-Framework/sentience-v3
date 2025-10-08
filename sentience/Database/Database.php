@@ -53,9 +53,14 @@ class Database
         $this->dialect = $dialect;
     }
 
-    public function query(string $query): void
+    public function exec(string $query): void
     {
-        $this->adapter->query($query);
+        $this->adapter->exec($query);
+    }
+
+    public function query(string $query): ResultInterface
+    {
+        return $this->adapter->query($query);
     }
 
     public function prepared(string $query, array $params = [], bool $emulatePrepare = false): ResultInterface

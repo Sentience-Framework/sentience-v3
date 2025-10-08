@@ -63,12 +63,12 @@ abstract class AdapterAbstract implements AdapterInterface
 
         $query .= ';';
 
-        $this->query($query);
+        $this->exec($query);
     }
 
     protected function mysqlEngine(string $engine): void
     {
-        $this->query(
+        $this->exec(
             sprintf(
                 'SET SESSION default_storage_engine = %s;',
                 $engine
@@ -78,7 +78,7 @@ abstract class AdapterAbstract implements AdapterInterface
 
     protected function sqliteEncoding(string $encoding): void
     {
-        $this->query(
+        $this->exec(
             sprintf(
                 "PRAGMA encoding = '%s';",
                 $encoding
@@ -88,7 +88,7 @@ abstract class AdapterAbstract implements AdapterInterface
 
     protected function sqliteJournalMode(string $journalMode): void
     {
-        $this->query(
+        $this->exec(
             sprintf(
                 'PRAGMA journal_mode = %s;',
                 $journalMode
@@ -102,7 +102,7 @@ abstract class AdapterAbstract implements AdapterInterface
             return;
         }
 
-        $this->query('PRAGMA foreign_keys = ON;');
+        $this->exec('PRAGMA foreign_keys = ON;');
     }
 
     protected function debug(string $query, float $start, null|string|Throwable $error = null): void
