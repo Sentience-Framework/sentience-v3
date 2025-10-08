@@ -12,18 +12,8 @@ class SQLite3Result implements ResultInterface
     {
         $columns = [];
 
-        $index = 0;
-
-        while (true) {
-            $column = $this->sqlite3Result->columnName($index);
-
-            if (is_bool($column)) {
-                break;
-            }
-
-            $index++;
-
-            $columns[] = $column;
+        for ($i = 0; $i < $this->sqlite3Result->numColumns(); $i++) {
+            $columns[] = $this->sqlite3Result->columnName($i);
         }
 
         return $columns;

@@ -2,13 +2,15 @@
 
 namespace Sentience\Database\Queries\Objects;
 
-class Raw
+use Stringable;
+
+class Raw implements Stringable
 {
     public function __construct(public string $sql)
     {
     }
 
-    public function __tostring(): string
+    public function __toString(): string
     {
         return $this->sql;
     }
