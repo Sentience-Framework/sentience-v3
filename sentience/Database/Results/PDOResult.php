@@ -15,16 +15,8 @@ class PDOResult implements ResultInterface
     {
         $columns = [];
 
-        $index = 0;
-
-        while (true) {
-            $column = $this->pdoStatement->getColumnMeta($index);
-
-            if (is_bool($column)) {
-                break;
-            }
-
-            $index++;
+        for ($i = 0; $i < $this->pdoStatement->columnCount(); $i++) {
+            $column = $this->pdoStatement->getColumnMeta($i);
 
             $columns[] = $column['name'];
         }

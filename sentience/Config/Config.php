@@ -61,6 +61,10 @@ class Config
         $configs = Filesystem::scandir($path);
 
         foreach ($configs as $config) {
+            if (!is_file($config)) {
+                continue;
+            }
+
             $key = pathinfo($config, PATHINFO_FILENAME);
 
             static::$config[$key] = include $config;
