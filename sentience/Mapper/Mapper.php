@@ -134,6 +134,18 @@ class Mapper
                     return $value;
                 }
 
+                if ($type == 'int') {
+                    return (int) $value;
+                }
+
+                if ($type == 'float') {
+                    return (float) $value;
+                }
+
+                if ($type == 'string') {
+                    return (string) $value;
+                }
+
                 if (is_array($value) || is_object($value)) {
                     if (static::isNumericArray($value)) {
                         return static::mapArray($value, $type);
