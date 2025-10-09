@@ -57,7 +57,7 @@ class Mapper
 
             $scalarAttributes = $property->getAttributes(MapScalar::class);
 
-            if (!Arrays::empty($scalarAttributes)) {
+            if (count($scalarAttributes) > 0) {
                 $attribute = $scalarAttributes[0]->newInstance();
 
                 $key = $attribute->key;
@@ -72,7 +72,7 @@ class Mapper
 
             $arrayAttributes = $property->getAttributes(MapArray::class);
 
-            if (!Arrays::empty($arrayAttributes)) {
+            if (count($arrayAttributes) > 0) {
                 $attribute = $arrayAttributes[0]->newInstance();
 
                 $key = $attribute->key;
@@ -93,7 +93,7 @@ class Mapper
 
             $objectAttributes = $property->getAttributes(MapObject::class);
 
-            if (!Arrays::empty($objectAttributes)) {
+            if (count($objectAttributes) > 0) {
                 $attribute = $objectAttributes[0]->newInstance();
 
                 $key = $attribute->key;
@@ -110,6 +110,12 @@ class Mapper
                 }
 
                 continue;
+            }
+
+            $key = $property->getName();
+
+            if (property_exists($object, $key)) {
+                $property->setValue($object->{$key});
             }
         }
 
