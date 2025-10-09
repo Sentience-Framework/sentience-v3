@@ -3,10 +3,13 @@
 namespace Sentience\Mapper;
 
 use ReflectionClass;
+use ReflectionNamedType;
+use ReflectionProperty;
 use Sentience\Helpers\Arrays;
 use Sentience\Mapper\Attributes\MapArray;
 use Sentience\Mapper\Attributes\MapObject;
 use Sentience\Mapper\Attributes\MapScalar;
+use Sentience\Mapper\Exceptions\MapperException;
 use stdClass;
 
 class Mapper
@@ -94,14 +97,14 @@ class Mapper
                 $attribute = $objectAttributes[0]->newInstance();
 
                 $key = $attribute->key;
-                $classToMap = $attribute->class;
+                $type = static::getPropertyType($property);
                 $value = $object->{$key};
 
                 if (property_exists($object, $key)) {
                     $property->setValue(
                         $instance,
                         !is_null($value)
-                        ? static::mapToClass((object) $value, $classToMap)
+                        ? static::mapToClass((object) $value, $type)
                         : null
                     );
                 }
@@ -139,6 +142,27 @@ class Mapper
             },
             $array
         );
+    }
+
+    protected static function getPropertyType(ReflectionProperty $reflectionProperty): ?string
+    {
+        $reflectionType = $reflectionProperty->getType();
+
+        if (!($reflectionType instanceof ReflectionNamedType)) {
+            throw new MapperException('union types are not supported');
+        }
+
+        $type = $reflectionType->getName();
+
+        if (!$type) {
+            throw new MapperException('mixed types are not supported');
+        }
+
+        if (!class_exists($type)) {
+            throw new MapperException('target class does not exist');
+        }
+
+        return $type;
     }
 
     protected static function isNumericArray(mixed $array): bool

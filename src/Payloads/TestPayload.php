@@ -18,7 +18,7 @@ class TestPayload implements JsonSerializable
     #[MapScalar('name')]
     public string $name;
 
-    #[MapObject('nested_object', TestPayloadNestedObject::class)]
+    #[MapObject('nested_object')]
     public TestPayloadNestedObject $nestedObject;
 
     #[MapArray('nested_objects', TestPayloadNestedObject::class)]
