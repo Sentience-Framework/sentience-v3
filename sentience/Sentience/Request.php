@@ -2,6 +2,7 @@
 
 namespace Sentience\Sentience;
 
+use Sentience\Mapper\Mapper;
 use SimpleXMLElement;
 use Sentience\Helpers\Json;
 use Sentience\Helpers\UrlEncoding;
@@ -85,6 +86,17 @@ class Request
             'url' => $this->getUrlEncoded(),
             default => $this->body
         };
+    }
+
+    public function map(string $class = 'stdClass'): null|string|array|object
+    {
+        $decoded = $this->decode();
+
+        if (is_scalar($decoded)) {
+            return $decoded;
+        }
+
+        return Mapper::toObject($decoded, $class);
     }
 
     public function getIPAddress(): ?string

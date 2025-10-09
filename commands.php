@@ -96,5 +96,10 @@ return [
         function (): void {
             print_r(PDO::getAvailableDrivers());
         }
+    ),
+
+    Command::register(
+        'mapper',
+        [ExampleController::class, 'mapper']
     )
 ];

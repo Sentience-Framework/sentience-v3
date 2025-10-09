@@ -6,12 +6,14 @@ use Sentience\Abstracts\Controller;
 use Sentience\Database\Queries\Query;
 use Sentience\DataLayer\Database\DB;
 use Sentience\Helpers\Json;
+use Sentience\Mapper\Mapper;
 use Sentience\Sentience\Request;
 use Sentience\Sentience\Response;
 use Sentience\Sentience\Stdio;
 use Sentience\Timestamp\Timestamp;
 use Src\Models\Author;
 use Src\Models\Migration;
+use Src\Payloads\TestPayload;
 
 class ExampleController extends Controller
 {
@@ -103,17 +105,17 @@ class ExampleController extends Controller
             ->join('RIGHT JOIN table2 jt ON jt.column1 = table1.column1 AND jt.column2 = table2.column2')
             ->whereEquals('column1', 10)
             ->whereGroup(
-                fn ($group) => $group
+                fn($group) => $group
                     ->whereGreaterThanOrEquals('column2', 20)
                     ->orwhereIsNull('column3')
             )
             ->where('DATE(`created_at`) > :date OR DATE(`created_at`) < :date', [':date' => Query::now()])
             ->whereGroup(
-                fn ($group) => $group
+                fn($group) => $group
                     ->whereIn('column4', [1, 2, 3, 4])
                     ->whereNotEquals('column5', 'test string')
             )
-            ->whereGroup(fn ($group) => $group)
+            ->whereGroup(fn($group) => $group)
             ->whereIn('column2', [])
             ->whereNotIn('column2', [])
             ->whereStartsWith('column2', 'a')
@@ -289,5 +291,47 @@ class ExampleController extends Controller
             ->execute();
 
         print_r($models);
+    }
+
+    public function mapper(): void
+    {
+        $json = '[
+        {
+    "id": 1,
+    "name": "name",
+    "nested_object": {
+        "nested_id": 1,
+        "nested_name": "nested name"
+    },
+    "nested_objects":[
+        {
+            "nested_id": 1,
+            "nested_name": "nested name"
+        },
+        {
+            "nested_id": 2,
+            "nested_name": "nested name"
+        },
+        {
+            "nested_id": 3,
+            "nested_name": "nested name"
+        },
+        {
+            "nested_id": 4,
+            "nested_name": "nested name"
+        }
+    ]
+}]
+        ';
+
+        $mappedObjects = Mapper::toObject(Json::decode($json, false), TestPayload::class);
+
+        echo 'Objects:';
+        print_r($mappedObjects);
+
+        echo PHP_EOL;
+
+        echo 'Json:';
+        print_r(json_encode($mappedObjects));
     }
 }
