@@ -209,4 +209,9 @@ class MySQLiAdapter extends AdapterAbstract
     {
         return (string) $this->mysqli->insert_id;
     }
+
+    public function __destruct()
+    {
+        $this->mysqli->close();
+    }
 }

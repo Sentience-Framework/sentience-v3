@@ -213,4 +213,9 @@ class SQLite3Adapter extends AdapterAbstract
     {
         $sqlite3Stmt->bindParam($key, $value, $type);
     }
+
+    public function __destruct()
+    {
+        $this->sqlite3->close();
+    }
 }
