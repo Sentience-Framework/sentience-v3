@@ -20,7 +20,7 @@ class Mapper
             return null;
         }
 
-        if ($class === stdClass::class) {
+        if ($class == stdClass::class) {
             return $value;
         }
 
