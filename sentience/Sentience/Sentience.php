@@ -182,7 +182,6 @@ class Sentience
     {
         $this->validateCallback($callback);
 
-
         $dependencyInjector = DependencyInjector::getInstance();
 
         $dependencyInjector->bindInjectable('words', $words);
@@ -284,9 +283,13 @@ class Sentience
             throw new CallbackException('class %s does not extend a supported base class', $class);
         }
 
-        $constructorReflector = $reflectionClass->getConstructor();
+        $constructorReflectionMethod = $reflectionClass->getConstructor();
 
-        $filteredArgs = $constructorReflector ? $dependencyInjector->getFunctionParameters($constructorReflector, $args) : [];
+        $filteredArgs = $constructorReflectionMethod
+            ? $dependencyInjector->getFunctionParameters(
+                $constructorReflectionMethod,
+                $args
+            ) : [];
 
         $callback = [new $class(...$filteredArgs), $method];
 
@@ -316,7 +319,7 @@ class Sentience
             $stackTrace = array_values(
                 array_filter(
                     $exception->getTrace(),
-                    fn(array $frame): bool => array_key_exists('file', $frame)
+                    fn (array $frame): bool => array_key_exists('file', $frame)
                 )
             );
 
@@ -334,7 +337,7 @@ class Sentience
                     $args = implode(
                         ', ',
                         array_map(
-                            fn(mixed $arg): string => get_debug_type($arg),
+                            fn (mixed $arg): string => get_debug_type($arg),
                             $frame['args'] ?? []
                         )
                     );
@@ -385,7 +388,7 @@ class Sentience
                                 : $frame['function'];
 
                             $args = array_map(
-                                fn(mixed $arg): string => get_debug_type($arg),
+                                fn (mixed $arg): string => get_debug_type($arg),
                                 $frame['args'] ?? []
                             );
 
@@ -412,7 +415,7 @@ class Sentience
     protected function cliNotFound(Argv $argv): void
     {
         $lines = array_map(
-            fn(Command $command): string => sprintf('- %s', $command->command),
+            fn (Command $command): string => sprintf('- %s', $command->command),
             $this->cliRouter->commands
         );
 

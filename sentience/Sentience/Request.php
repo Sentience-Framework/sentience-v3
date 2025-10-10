@@ -2,11 +2,11 @@
 
 namespace Sentience\Sentience;
 
-use Sentience\Mapper\Mapper;
 use SimpleXMLElement;
 use Sentience\Helpers\Json;
 use Sentience\Helpers\UrlEncoding;
 use Sentience\Helpers\Xml;
+use Sentience\Mapper\Mapper;
 
 class Request
 {

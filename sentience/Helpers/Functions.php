@@ -3,6 +3,7 @@
 use Sentience\Config\Config;
 use Sentience\Env\Env;
 use Sentience\Helpers\Log;
+use Sentience\Sentience\DependencyInjector;
 use Sentience\Sentience\Stdio;
 
 function env(null|string|array $key = null, mixed $default = null): mixed
@@ -40,4 +41,22 @@ function breakpoint(array $vars, int $sleep = 5): void
     }
 
     Stdio::readLine('Press enter to continue');
+}
+
+function inject(string $class, array $injectables = []): object
+{
+    $dependencyInjector = DependencyInjector::getInstance();
+
+    $reflectionClass = new ReflectionClass($class);
+
+    $constructorReflectionMethod = $reflectionClass->getConstructor();
+
+    $parameters = $constructorReflectionMethod
+        ? $dependencyInjector->getFunctionParameters(
+            $constructorReflectionMethod,
+            $injectables
+        )
+        : [];
+
+    return new $class(...$parameters);
 }

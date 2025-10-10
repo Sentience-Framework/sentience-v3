@@ -5,12 +5,11 @@ namespace Sentience\Mapper;
 use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionProperty;
-use Sentience\Helpers\Arrays;
+use stdClass;
 use Sentience\Mapper\Attributes\MapArray;
 use Sentience\Mapper\Attributes\MapObject;
 use Sentience\Mapper\Attributes\MapScalar;
 use Sentience\Mapper\Exceptions\MapperException;
-use stdClass;
 
 class Mapper
 {
