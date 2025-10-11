@@ -101,5 +101,10 @@ return [
     Command::register(
         'mapper',
         [ExampleController::class, 'mapper']
+    ),
+
+    Command::register(
+        'fk',
+        [ExampleController::class, 'fk']
     )
 ];

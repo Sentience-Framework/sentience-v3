@@ -3,6 +3,7 @@
 namespace Src\Controllers;
 
 use Sentience\Abstracts\Controller;
+use Sentience\Database\Queries\Enums\ReferentialActionEnum;
 use Sentience\Database\Queries\Query;
 use Sentience\DataLayer\Database\DB;
 use Sentience\Helpers\Json;
@@ -175,7 +176,7 @@ class ExampleController extends Controller
             ->column('column2', 'varchar(255)')
             ->primaryKeys(['primary_key'])
             ->uniqueConstraint(['column1', 'column2'])
-            ->foreignKeyConstraint('column1', 'table_2', 'reference_column', 'fk_table_1')
+            ->foreignKeyConstraint('column1', 'table_2', 'reference_column', 'fk_table_1', [ReferentialActionEnum::ON_UPDATE_NO_ACTION])
             ->constraint('UNIQUE "test" COLUMNS ("column1", "column2")')
             ->toSql();
 
@@ -333,5 +334,31 @@ class ExampleController extends Controller
 
         echo 'Json:';
         print_r(json_encode($mappedObjects));
+    }
+
+    public function fk(DB $db): void
+    {
+        $db->dropTable('books')->ifExists()->execute();
+        $db->dropTable('authors')->ifExists()->execute();
+
+        $db->createTable('authors')
+            ->column('id', 'INTEGER')
+            ->column('name', 'TEXT')
+            ->primaryKeys('id')
+            ->execute();
+
+        $db->createTable('books')
+            ->column('id', 'INTEGER')
+            ->column('name', 'TEXT')
+            ->column('author_id', 'INTEGER')
+            ->primaryKeys('id')
+            ->foreignKeyConstraint(
+                'author_id',
+                'authors',
+                'id',
+                'author_fk',
+                [ReferentialActionEnum::ON_DELETE_SET_NULL]
+            )
+            ->execute();
     }
 }

@@ -73,7 +73,9 @@ class Database
 
     public function queryWithParams(QueryWithParams $queryWithParams, bool $emulatePrepare = false): ResultInterface
     {
-        return $this->adapter->queryWithParams($this->dialect, $queryWithParams, $emulatePrepare);
+        return count($queryWithParams->params) > 0
+            ? $this->adapter->queryWithParams($this->dialect, $queryWithParams, $emulatePrepare)
+            : $this->adapter->query($queryWithParams->query);
     }
 
     public function beginTransaction(): void

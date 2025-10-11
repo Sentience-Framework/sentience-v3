@@ -8,7 +8,8 @@ class ForeignKeyConstraint
         public string $column,
         public string $referenceTable,
         public string $referenceColumn,
-        public ?string $name
+        public ?string $name,
+        public array $referentialActions
     ) {
     }
 }

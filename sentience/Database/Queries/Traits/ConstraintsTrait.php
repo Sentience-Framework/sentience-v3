@@ -17,9 +17,9 @@ trait ConstraintsTrait
         return $this;
     }
 
-    public function foreignKeyConstraint(string $column, string $referenceTable, string $referenceColumn, ?string $name = null): static
+    public function foreignKeyConstraint(string $column, string $referenceTable, string $referenceColumn, ?string $name = null, array $referentialActions = []): static
     {
-        $this->constraints[] = new ForeignKeyConstraint($column, $referenceTable, $referenceColumn, $name);
+        $this->constraints[] = new ForeignKeyConstraint($column, $referenceTable, $referenceColumn, $name, $referentialActions);
 
         return $this;
     }

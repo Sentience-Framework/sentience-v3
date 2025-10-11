@@ -2,6 +2,7 @@
 
 namespace Sentience\Database\Dialects;
 
+use BackedEnum;
 use DateTime;
 use DateTimeInterface;
 use DateTimeZone;
@@ -50,10 +51,8 @@ class SQLDialect implements DialectInterface
         ?int $limit,
         ?int $offset
     ): QueryWithParams {
-        $query = '';
+        $query = 'SELECT';
         $params = [];
-
-        $query .= 'SELECT';
 
         if ($distinct) {
             $query .= ' DISTINCT';
@@ -110,10 +109,8 @@ class SQLDialect implements DialectInterface
             throw new QueryException('no insert values specified');
         }
 
-        $query = '';
+        $query = 'INSERT INTO';
         $params = [];
-
-        $query .= 'INSERT INTO';
 
         $this->buildTable($query, $table);
 
@@ -175,10 +172,8 @@ class SQLDialect implements DialectInterface
             throw new QueryException('no update values specified');
         }
 
-        $query = '';
+        $query = 'UPDATE';
         $params = [];
-
-        $query .= 'UPDATE';
 
         $this->buildTable($query, $table);
 
@@ -217,10 +212,8 @@ class SQLDialect implements DialectInterface
         array $where,
         ?array $returning
     ): QueryWithParams {
-        $query = '';
+        $query = 'DELETE FROM';
         $params = [];
-
-        $query .= 'DELETE FROM';
 
         $this->buildTable($query, $table);
         $this->buildWhere($query, $params, $where);
@@ -246,10 +239,7 @@ class SQLDialect implements DialectInterface
             throw new QueryException('no table primary key(s) specified');
         }
 
-        $query = '';
-        $params = [];
-
-        $query .= 'CREATE TABLE';
+        $query = 'CREATE TABLE';
 
         if ($ifNotExists) {
             $query .= ' IF NOT EXISTS';
@@ -290,7 +280,7 @@ class SQLDialect implements DialectInterface
 
         $query .= ');';
 
-        return new QueryWithParams($query, $params);
+        return new QueryWithParams($query);
     }
 
     public function alterTable(
@@ -319,6 +309,7 @@ class SQLDialect implements DialectInterface
                     $alter instanceof DropConstraint => $this->buildAlterTableDropConstraint($alter),
                     default => (string) $alter
                 };
+
                 $query .= ';';
 
                 return new QueryWithParams($query);
@@ -331,10 +322,7 @@ class SQLDialect implements DialectInterface
         bool $ifExists,
         string|array|Alias|Raw $table
     ): QueryWithParams {
-        $query = '';
-        $params = [];
-
-        $query .= 'DROP TABLE';
+        $query = 'DROP TABLE';
 
         if ($ifExists) {
             $query .= ' IF EXISTS';
@@ -344,7 +332,7 @@ class SQLDialect implements DialectInterface
 
         $query .= ';';
 
-        return new QueryWithParams($query, $params);
+        return new QueryWithParams($query);
     }
 
     protected function buildTable(string &$query, string|array|Alias|Raw $table): void
@@ -675,11 +663,18 @@ class SQLDialect implements DialectInterface
         );
 
         if ($foreignKeyConstraint->name) {
-            return sprintf(
+            $sql = sprintf(
                 'CONSTRAINT %s %s',
                 $this->escapeIdentifier($foreignKeyConstraint->name),
                 $sql
             );
+        }
+
+        foreach ($foreignKeyConstraint->referentialActions as $referentialAction) {
+            $sql .= ' ';
+            $sql .= is_subclass_of($referentialAction, BackedEnum::class)
+                ? $referentialAction->value
+                : (string) $referentialAction;
         }
 
         return $sql;
