@@ -30,7 +30,7 @@ use Sentience\Database\Queries\Objects\RenameColumn;
 use Sentience\Database\Queries\Objects\UniqueConstraint;
 use Sentience\Database\Queries\Query;
 
-class SQLDialect implements DialectInterface
+class SQLDialect extends DialectAbstract
 {
     public const bool ESCAPE_ANSI = true;
     public const string ESCAPE_IDENTIFIER = '"';

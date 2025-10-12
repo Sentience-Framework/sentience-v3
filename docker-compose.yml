@@ -1,6 +1,15 @@
 version: '3.8'
 
 services:
+  mariadb:
+    image: mariadb:10.5
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    environment:
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: yes
+    ports:
+      - 3306:3306
+
   mysql:
     image: mysql:latest
     command:
@@ -50,6 +59,7 @@ networks:
 
 
 volumes:
+  mariadb-data:
   mysql-data:
   postgres-data:
   sqlserver-data:

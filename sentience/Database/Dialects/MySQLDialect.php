@@ -2,17 +2,23 @@
 
 namespace Sentience\Database\Dialects;
 
+use Sentience\Database\Driver;
 use Sentience\Database\Queries\Objects\AlterColumn;
 use Sentience\Database\Queries\Objects\DropConstraint;
 use Sentience\Database\Queries\Objects\OnConflict;
 use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Database\Queries\Query;
 
-class MySQLDialect extends SQLDialect implements DialectInterface
+class MySQLDialect extends SQLDialect
 {
     public const bool ESCAPE_ANSI = false;
     public const string ESCAPE_IDENTIFIER = '`';
     public const string ESCAPE_STRING = '"';
+
+    public function __construct(protected Driver $driver, int|string $version)
+    {
+        parent::__construct($version);
+    }
 
     public function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values): void
     {
@@ -70,7 +76,15 @@ class MySQLDialect extends SQLDialect implements DialectInterface
 
     public function buildReturning(string &$query, ?array $returning): void
     {
-        return;
+        if ($this->driver != Driver::MARIADB) {
+            return;
+        }
+
+        if ($this->version < 100500) {
+            return;
+        }
+
+        parent::buildReturning($query, $returning);
     }
 
     public function buildAlterTableAlterColumn(AlterColumn $alterColumn): string

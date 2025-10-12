@@ -58,7 +58,7 @@ class PDOAdapter extends AdapterAbstract
             ]
         );
 
-        if ($driver == Driver::MYSQL) {
+        if (in_array($driver, [Driver::MARIADB, Driver::MYSQL])) {
             $this->configurePDOForMySQL($options);
         }
 
@@ -92,7 +92,7 @@ class PDOAdapter extends AdapterAbstract
 
         $dsn = sprintf(
             '%s:host=%s;port=%s;dbname=%s',
-            $driver->value,
+            $driver == Driver::MARIADB ? Driver::MYSQL->value : $driver->value,
             $host,
             $port,
             $name
@@ -176,6 +176,11 @@ class PDOAdapter extends AdapterAbstract
         if (array_key_exists(static::OPTIONS_SQLITE_FOREIGN_KEYS, $options)) {
             $this->sqliteForeignKeys((bool) $options[static::OPTIONS_SQLITE_FOREIGN_KEYS]);
         }
+    }
+
+    public function version(): string
+    {
+        return $this->pdo->getAttribute(PDO::ATTR_SERVER_VERSION);
     }
 
     public function exec(string $query): void

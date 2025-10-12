@@ -15,6 +15,7 @@ use Sentience\Database\Dialects\SQLiteDialect;
 
 enum Driver: string
 {
+    case MARIADB = 'mariadb';
     case MYSQL = 'mysql';
     case PGSQL = 'pgsql';
     case SQLITE = 'sqlite';
@@ -32,6 +33,7 @@ enum Driver: string
     ): AdapterInterface {
         $adapter = !$usePDOAdapter
             ? match ($this) {
+                static::MARIADB,
                 static::MYSQL => MySQLiAdapter::class,
                 static::PGSQL => PDOAdapter::class,
                 static::SQLITE => SQLite3Adapter::class,
@@ -52,13 +54,14 @@ enum Driver: string
         );
     }
 
-    public function getDialect(): DialectInterface
+    public function getDialect(int|string $version): DialectInterface
     {
         return match ($this) {
-            static::MYSQL => new MySQLDialect(),
-            static::PGSQL => new PgSQLDialect(),
-            static::SQLITE => new SQLiteDialect(),
-            default => new SQLDialect()
+            static::MARIADB,
+            static::MYSQL => new MySQLDialect($this, $version),
+            static::PGSQL => new PgSQLDialect($version),
+            static::SQLITE => new SQLiteDialect($version),
+            default => new SQLDialect($version)
         };
     }
 }

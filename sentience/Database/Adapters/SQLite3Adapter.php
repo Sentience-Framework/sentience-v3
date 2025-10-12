@@ -74,6 +74,11 @@ class SQLite3Adapter extends AdapterAbstract
         }
     }
 
+    public function version(): string
+    {
+        return SQLite3::version()['versionString'];
+    }
+
     public function exec(string $query): void
     {
         $start = microtime(true);

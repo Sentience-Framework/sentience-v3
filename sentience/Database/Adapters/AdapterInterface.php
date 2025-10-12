@@ -8,6 +8,7 @@ use Sentience\Database\Results\ResultInterface;
 
 interface AdapterInterface
 {
+    public function version(): int|string;
     public function exec(string $query): void;
     public function query(string $query): ResultInterface;
     public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams, bool $emulatePrepare): ResultInterface;

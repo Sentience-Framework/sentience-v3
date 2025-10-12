@@ -6,7 +6,7 @@ use DateTime;
 use Sentience\Database\Queries\Objects\OnConflict;
 use Sentience\Database\Queries\Objects\Raw;
 
-class PgSQLDialect extends SQLDialect implements DialectInterface
+class PgSQLDialect extends SQLDialect
 {
     public const string FUNCTION_REGEX = '~';
     public const string FUNCTION_NOT_REGEX = '!~';

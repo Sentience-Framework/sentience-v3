@@ -4,6 +4,26 @@ use Sentience\Helpers\Filesystem;
 
 return [
     'driver' => env('DB_DRIVER', 'sqlite'),
+    'mariadb' => [
+        'host' => env('DB_HOST', 'localhost'),
+        'port' => env('DB_PORT', 3306),
+        'name' => env('DB_NAME', 'sentience'),
+        'username' => env('DB_USERNAME', 'root'),
+        'password' => env('DB_PASSWORD', ''),
+
+        /**
+         * Highly expirimental!
+         *
+         * Asynchronous writes:
+         * 'queries' => ['SET GLOBAL innodb_flush_log_at_trx_commit = 0;','SET GLOBAL sync_binlog = 0;']
+         */
+        'queries' => env('DB_QUERIES', []),
+
+        'charset' => env('DB_CHARSET', 'utf8mb4'),
+        'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
+        'engine' => env('DB_ENGINE', 'InnoDB'),
+        'use_pdo' => env('DB_USE_PDO', false)
+    ],
     'mysql' => [
         'host' => env('DB_HOST', 'localhost'),
         'port' => env('DB_PORT', 3306),

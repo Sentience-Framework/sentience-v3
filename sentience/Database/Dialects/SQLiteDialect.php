@@ -11,7 +11,7 @@ use Sentience\Database\Queries\Objects\DropConstraint;
 use Sentience\Database\Queries\Objects\OnConflict;
 use Sentience\Database\Queries\Objects\Raw;
 
-class SQLiteDialect extends SQLDialect implements DialectInterface
+class SQLiteDialect extends SQLDialect
 {
     public function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values): void
     {
@@ -66,6 +66,15 @@ class SQLiteDialect extends SQLDialect implements DialectInterface
                 )
             )
         );
+    }
+
+    public function buildReturning(string &$query, ?array $returning): void
+    {
+        if ($this->version < 33500) {
+            return;
+        }
+
+        parent::buildReturning($query, $returning);
     }
 
     public function buildAlterTableAlterColumn(AlterColumn $alterColumn): string

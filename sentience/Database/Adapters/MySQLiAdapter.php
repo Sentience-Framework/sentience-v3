@@ -64,6 +64,11 @@ class MySQLiAdapter extends AdapterAbstract
         }
     }
 
+    public function version(): int
+    {
+        return $this->mysqli->server_version;
+    }
+
     public function exec(string $query): void
     {
         $start = microtime(true);

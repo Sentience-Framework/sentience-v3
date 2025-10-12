@@ -47,7 +47,9 @@ class Database
             $usePDOAdapter
         );
 
-        $dialect = $driver->getDialect();
+        $version = $adapter->version();
+
+        $dialect = $driver->getDialect($version);
 
         $this->adapter = $adapter;
         $this->dialect = $dialect;
