@@ -3,8 +3,11 @@
 namespace Sentience\DataLayer\Database;
 
 use Sentience\Database\Database;
+use Sentience\Database\Queries\Objects\Alias;
+use Sentience\Database\Queries\Objects\Raw;
 use Sentience\DataLayer\Database\Queries\AlterModelQuery;
 use Sentience\DataLayer\Database\Queries\CreateModelQuery;
+use Sentience\DataLayer\Database\Queries\CreateTableQuery;
 use Sentience\DataLayer\Database\Queries\DeleteModelsQuery;
 use Sentience\DataLayer\Database\Queries\DropModelQuery;
 use Sentience\DataLayer\Database\Queries\InsertModelsQuery;
@@ -15,6 +18,11 @@ use Sentience\Helpers\Arrays;
 
 class DB extends Database
 {
+    public function createTable(array|string|Alias|Raw $table): CreateTableQuery
+    {
+        return new CreateTableQuery($this, $this->dialect, $table);
+    }
+
     public function selectModels(string $model): SelectModelsQuery
     {
         return new SelectModelsQuery($this, $this->dialect, $model);

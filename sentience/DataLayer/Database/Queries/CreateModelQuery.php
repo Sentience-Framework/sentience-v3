@@ -6,7 +6,6 @@ use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Dialects\MySQLDialect;
 use Sentience\Database\Queries\Traits\IfNotExistsTrait;
-use Sentience\DataLayer\Database\Enums\MySQLColumnEnum;
 use Sentience\DataLayer\Models\Reflection\ReflectionModel;
 
 class CreateModelQuery extends ModelsQueryAbstract
@@ -57,7 +56,7 @@ class CreateModelQuery extends ModelsQueryAbstract
                 !$propertyAllowsNull,
                 $defaultValue,
                 $propertyHasAutoIncrementAttribute && $this->dialect instanceof MySQLDialect
-                ? [MySQLColumnEnum::AUTO_INCREMENT]
+                ? ['AUTO_INCREMENT']
                 : []
             );
         }

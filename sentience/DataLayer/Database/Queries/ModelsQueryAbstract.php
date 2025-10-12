@@ -24,7 +24,7 @@ abstract class ModelsQueryAbstract implements ModelsQueryInterface
     protected function validateModel(string|object $model, bool $mustBeInstance = true): void
     {
         if (!is_subclass_of($model, Model::class)) {
-            throw new QueryException('%s is not a model', get_debug_type($model));
+            throw new QueryException(sprintf('%s is not a model', get_debug_type($model)));
         }
 
         if (!is_object($model) && $mustBeInstance) {

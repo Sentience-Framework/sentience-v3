@@ -80,7 +80,7 @@ class AlterModelQuery extends ModelsQueryAbstract
                 !$propertyAllowsNull,
                 $defaultValue,
                 $propertyHasAutoIncrementAttribute && $this->dialect instanceof MySQLDialect
-                ? [MySQLColumnEnum::AUTO_INCREMENT]
+                ? ['AUTO_INCREMENT']
                 : []
             );
 
