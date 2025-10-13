@@ -43,24 +43,25 @@ class SelectModelsQuery extends ModelsQueryAbstract
 
         $table = $reflectionModel->getTable();
         $alias = $reflectionModel->getShortName();
-        $columns = $reflectionModel->getColumns();
 
-        // $columns = [];
+        $columns = [];
 
-        // foreach ($reflectionModel->getProperties() as $reflectionModelProperty) {
-        //     if (!$reflectionModelProperty->isColumn()) {
-        //         continue;
-        //     }
+        foreach ($reflectionModel->getProperties() as $reflectionModelProperty) {
+            if (!$reflectionModelProperty->isColumn()) {
+                continue;
+            }
 
-        //     $columns[] = Query::alias(
-        //         [$alias, $reflectionModelProperty->getColumn()],
-        //         sprintf(
-        //             '%s->%s',
-        //             $alias,
-        //             $reflectionModelProperty->getProperty()
-        //         )
-        //     );
-        // }
+            $column = $reflectionModelProperty->getColumn();
+
+            $columns[] = Query::alias(
+                [$alias, $column],
+                sprintf(
+                    '%s->%s',
+                    $alias,
+                    $reflectionModelProperty->getProperty()
+                )
+            );
+        }
 
         $selectQuery = $this->database->select(Query::alias($table, $alias));
 
@@ -68,7 +69,7 @@ class SelectModelsQuery extends ModelsQueryAbstract
             $selectQuery->distinct();
         }
 
-        $selectQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(ChainEnum::AND, $this->where));
+        $selectQuery->whereGroup(fn(): ConditionGroup => new ConditionGroup(ChainEnum::AND , $this->where));
 
         foreach ($this->orderBy as $orderBy) {
             $orderBy->direction == OrderByDirectionEnum::ASC
@@ -84,14 +85,14 @@ class SelectModelsQuery extends ModelsQueryAbstract
             $selectQuery->offset($this->offset);
         }
 
-        // $this->addRelations($selectQuery, $reflectionModel, $columns);
+        $this->addRelations($selectQuery, $reflectionModel, $columns);
 
         $selectQuery->columns($columns);
 
         $result = $selectQuery->execute($emulatePrepare);
 
         return array_map(
-            fn (array $row): object => $this->mapAssocToModel($model, $row),
+            fn(array $row): object => $this->mapAssocToModel($model, $row),
             $result->fetchAssocs()
         );
     }

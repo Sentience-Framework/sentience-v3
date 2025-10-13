@@ -12,6 +12,7 @@ use Sentience\Sentience\Request;
 use Sentience\Sentience\Response;
 use Sentience\Sentience\Stdio;
 use Src\Models\Author;
+use Src\Models\Book;
 use Src\Models\Migration;
 use Src\Payloads\TestPayload;
 
@@ -105,17 +106,17 @@ class ExampleController extends Controller
             ->join('RIGHT JOIN table2 jt ON jt.column1 = table1.column1 AND jt.column2 = table2.column2')
             ->whereEquals('column1', 10)
             ->whereGroup(
-                fn ($group) => $group
+                fn($group) => $group
                     ->whereGreaterThanOrEquals('column2', 20)
                     ->orwhereIsNull('column3')
             )
             ->where('DATE(`created_at`) > :date OR DATE(`created_at`) < :date', [':date' => Query::now()])
             ->whereGroup(
-                fn ($group) => $group
+                fn($group) => $group
                     ->whereIn('column4', [1, 2, 3, 4])
                     ->whereNotEquals('column5', 'test string')
             )
-            ->whereGroup(fn ($group) => $group)
+            ->whereGroup(fn($group) => $group)
             ->whereIn('column2', [])
             ->whereNotIn('column2', [])
             ->whereStartsWith('column2', 'a')
@@ -288,6 +289,9 @@ class ExampleController extends Controller
 
     public function select(DB $db): void
     {
+        $db->createModel(Book::class)->ifNotExists()->execute();
+        $db->createModel(Author::class)->ifNotExists()->execute();
+
         $models = $db->selectModels(Author::class)
             ->relation('books')
             ->execute();
