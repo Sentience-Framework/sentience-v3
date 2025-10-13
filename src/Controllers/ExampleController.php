@@ -227,12 +227,14 @@ class ExampleController extends Controller
             $migration = new Migration();
             $migration->batch = 1;
             $migration->filename = 'migration1' . microtime();
-            $migration->appliedAt = new Timestamp();
+            $migration->appliedAt = now();
 
             $migration2 = new Migration();
             $migration2->batch = 1;
             $migration2->filename = 'migration2' . microtime() . '1';
-            $migration2->appliedAt = new Timestamp();
+            $migration2->appliedAt = now();
+
+            breakpoint(get_defined_vars(), fn($var) => json_encode($var));
 
             $insertedModels = [$migration, $migration2];
 

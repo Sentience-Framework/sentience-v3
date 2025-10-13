@@ -66,9 +66,9 @@ class DependencyInjector extends Singleton
             }
 
             if (array_key_exists($name, $serviceProperties)) {
-                $this->bindInjectable($name, $serviceProperties[$name]);
-
                 $parameters[$name] = $serviceProperties[$name];
+
+                $this->bindInjectable($name, $serviceProperties[$name]);
 
                 continue;
             }
@@ -94,7 +94,7 @@ class DependencyInjector extends Singleton
                     ...$parameters,
                     ...array_filter(
                         $injectables,
-                        fn (string $injectable): bool => !array_key_exists($injectable, $parameters),
+                        fn(string $injectable): bool => !array_key_exists($injectable, $parameters),
                         ARRAY_FILTER_USE_KEY
                     )
                 ];
@@ -102,17 +102,17 @@ class DependencyInjector extends Singleton
             }
 
             if ($instance = $this->isSingleton($functionParameter)) {
-                $this->bindInjectable($name, $instance);
-
                 $parameters[$name] = $instance;
+
+                $this->bindInjectable($name, $instance);
 
                 continue;
             }
 
             if ($object = $this->isConstructableClass($functionParameter)) {
-                $this->bindInjectable($name, $object);
-
                 $parameters[$name] = $object;
+
+                $this->bindInjectable($name, $object);
 
                 continue;
             }
