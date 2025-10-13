@@ -59,9 +59,9 @@ enum Driver: string
         return match ($this) {
             static::MARIADB,
             static::MYSQL => new MySQLDialect($this, $version),
-            static::PGSQL => new PgSQLDialect($version),
-            static::SQLITE => new SQLiteDialect($version),
-            default => new SQLDialect($version)
+            static::PGSQL => new PgSQLDialect($this, $version),
+            static::SQLITE => new SQLiteDialect($this, $version),
+            default => new SQLDialect($this, $version)
         };
     }
 }

@@ -4,7 +4,6 @@ namespace Sentience\DataLayer\Database\Queries;
 
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
-use Sentience\DataLayer\Database\Enums\MySQLColumnEnum;
 use Sentience\DataLayer\Models\Reflection\ReflectionModel;
 
 class AlterModelQuery extends ModelsQueryAbstract

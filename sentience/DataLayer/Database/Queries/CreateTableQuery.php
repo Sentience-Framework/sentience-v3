@@ -2,11 +2,11 @@
 
 namespace Sentience\DataLayer\Database\Queries;
 
-use Sentience\Database\Dialects\SQLiteDialect;
-use Sentience\Helpers\Arrays;
 use Sentience\Database\Dialects\MySQLDialect;
 use Sentience\Database\Dialects\PgSQLDialect;
+use Sentience\Database\Dialects\SQLiteDialect;
 use Sentience\Database\Queries\Objects\Column;
+use Sentience\Helpers\Arrays;
 
 class CreateTableQuery extends \Sentience\Database\Queries\CreateTableQuery
 {

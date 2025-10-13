@@ -15,11 +15,6 @@ class MySQLDialect extends SQLDialect
     public const string ESCAPE_IDENTIFIER = '`';
     public const string ESCAPE_STRING = '"';
 
-    public function __construct(protected Driver $driver, int|string $version)
-    {
-        parent::__construct($version);
-    }
-
     public function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values): void
     {
         if (is_null($onConflict)) {
