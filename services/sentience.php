@@ -18,7 +18,7 @@ return new class () {
         $options = config("database->{$driver}", []);
         $debug = config('database->debug', false);
 
-        return new DB(
+        return DB::connect(
             Driver::from($driver),
             $host,
             $port,

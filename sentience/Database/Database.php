@@ -20,21 +20,18 @@ use Sentience\Database\Results\ResultInterface;
 
 class Database
 {
-    protected AdapterInterface $adapter;
-    protected DialectInterface $dialect;
-
-    public function __construct(
-        protected Driver $driver,
-        protected string $host,
-        protected int $port,
-        protected string $name,
-        protected string $username,
-        protected string $password,
-        protected array $queries,
-        protected array $options,
-        protected ?Closure $debug,
+    public static function connect(
+        Driver $driver,
+        string $host,
+        int $port,
+        string $name,
+        string $username,
+        string $password,
+        array $queries,
+        array $options,
+        ?Closure $debug,
         bool $usePDOAdapter = false
-    ) {
+    ): static {
         $adapter = $driver->getAdapter(
             $host,
             $port,
@@ -51,8 +48,13 @@ class Database
 
         $dialect = $driver->getDialect($version);
 
-        $this->adapter = $adapter;
-        $this->dialect = $dialect;
+        return new static($adapter, $dialect);
+    }
+
+    public function __construct(
+        protected AdapterInterface $adapter,
+        protected DialectInterface $dialect
+    ) {
     }
 
     public function exec(string $query): void
