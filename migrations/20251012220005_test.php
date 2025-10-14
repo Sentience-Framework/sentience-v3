@@ -12,6 +12,7 @@ return new class () implements MigrationInterface {
             ->int('author_id')
             ->bool('is_read', true, true)
             ->dateTime('read_at')
+            ->uniqueConstraint(['name'], 'books_uniq')
             ->execute();
     }
 

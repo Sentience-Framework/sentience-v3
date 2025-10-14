@@ -29,19 +29,17 @@ class MySQLDialect extends SQLDialect
             return;
         }
 
-        $updates = !empty($onConflict->updates) ? $onConflict->updates : $values;
+        $updates = !$insertIgnore
+            ? !empty($onConflict->updates) > 0 ? $onConflict->updates : $values
+            : [];
 
         if ($onConflict->primaryKey) {
-            $lastInsertId = Query::raw(
+            $updates[$onConflict->primaryKey] = Query::raw(
                 sprintf(
                     'LAST_INSERT_ID(%s)',
                     $this->escapeIdentifier($onConflict->primaryKey)
                 )
             );
-
-            $updates = $insertIgnore
-                ? [$onConflict->primaryKey => $lastInsertId]
-                : [...$updates, $onConflict->primaryKey => $lastInsertId];
         }
 
         $query .= sprintf(

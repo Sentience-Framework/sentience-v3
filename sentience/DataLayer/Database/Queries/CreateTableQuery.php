@@ -87,7 +87,7 @@ class CreateTableQuery extends \Sentience\Database\Queries\CreateTableQuery
             'int',
             'autoIncrement' => $size > 32 ? 'BIGINT' : 'INT',
             'float' => 'FLOAT',
-            'string' => $size > 255 ? 'LONGTEXT' : sprintf('VARCHAR(%d)', $size),
+            'string' => $this->getTextColumnTypeMySQL($size),
             'dateTime' => 'DATETIME(6)',
             default => 'VARCHAR(255)'
         };
@@ -105,9 +105,9 @@ class CreateTableQuery extends \Sentience\Database\Queries\CreateTableQuery
     {
         $columnType = match ($type) {
             'bool' => 'BOOLEAN',
-            'int' => $size > 32 ? 'INT8' : 'INT4',
+            'int' => $this->getIntColumnTypePgSQL($size),
             'autoIncrement' => $size > 32 ? 'BIGSERIAL' : 'SERIAL',
-            'float' => $size > 32 ? 'FLOAT8' : 'FLOAT4',
+            'float' => $this->getFloatColumnTypePgSQL($size),
             'string' => $size > 255 ? 'TEXT' : sprintf('VARCHAR(%d)', $size),
             'dateTime' => 'TIMESTAMP',
             default => 'TEXT'
@@ -128,7 +128,7 @@ class CreateTableQuery extends \Sentience\Database\Queries\CreateTableQuery
             'bool' => 'BOOLEAN',
             'int',
             'autoIncrement' => $size > 32 ? 'BIGINT' : 'INTEGER',
-            'float' => "REAL",
+            'float' => 'FLOAT',
             'string' => $size > 255 ? 'TEXT' : sprintf('VARCHAR(%d)', $size),
             'dateTime' => 'DATETIME',
             default => 'TEXT'
@@ -149,7 +149,7 @@ class CreateTableQuery extends \Sentience\Database\Queries\CreateTableQuery
             'bool' => 'INT',
             'int',
             'autoIncrement' => 'INT',
-            'float' => "FLOAT",
+            'float' => 'FLOAT',
             'string' => $size > 255 ? 'TEXT' : sprintf('VARCHAR(%d)', $size),
             'dateTime' => 'DATETIME',
             default => 'VARCHAR(255)'
@@ -162,6 +162,49 @@ class CreateTableQuery extends \Sentience\Database\Queries\CreateTableQuery
             $default,
             []
         );
+    }
+
+    protected function getTextColumnTypeMySQL(int $size): string
+    {
+        if ($size <= 255) {
+            return sprintf('VARCHAR(%d)', $size);
+        }
+
+        if ($size <= 65535) {
+            return 'TEXT';
+        }
+
+        if ($size <= 16777215) {
+            return 'MEDIUMTEXT';
+        }
+
+        return 'LONGTEXT';
+    }
+
+    protected function getIntColumnTypePgSQL(int $size): string
+    {
+        if ($size <= 16) {
+            return 'INT2';
+        }
+
+        if ($size <= 32) {
+            return 'INT4';
+        }
+
+        return 'INT8';
+    }
+
+    protected function getFloatColumnTypePgSQL(int $size): string
+    {
+        if ($size <= 16) {
+            return 'FLOAT2';
+        }
+
+        if ($size <= 32) {
+            return 'FLOAT4';
+        }
+
+        return 'FLOAT8';
     }
 
     public function primaryKeys(array|string $columns): static

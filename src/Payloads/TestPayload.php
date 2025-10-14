@@ -21,6 +21,9 @@ class TestPayload implements JsonSerializable
     #[MapObject('nested_object')]
     public TestPayloadNestedObject $nestedObject;
 
+    /**
+     * @var TestPayloadNestedObject[] $nestedObjects
+     */
     #[MapArray('nested_objects', TestPayloadNestedObject::class)]
     public array $nestedObjects;
 }

@@ -6,7 +6,6 @@ use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Enums\ChainEnum;
 use Sentience\Database\Queries\Enums\OrderByDirectionEnum;
-use Sentience\Database\Queries\Objects\Alias;
 use Sentience\Database\Queries\Query;
 use Sentience\Database\Queries\SelectQuery;
 use Sentience\Database\Queries\Traits\DistinctTrait;
@@ -69,7 +68,7 @@ class SelectModelsQuery extends ModelsQueryAbstract
             $selectQuery->distinct();
         }
 
-        $selectQuery->whereGroup(fn(): ConditionGroup => new ConditionGroup(ChainEnum::AND , $this->where));
+        $selectQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(ChainEnum::AND, $this->where));
 
         foreach ($this->orderBy as $orderBy) {
             $orderBy->direction == OrderByDirectionEnum::ASC
@@ -92,7 +91,7 @@ class SelectModelsQuery extends ModelsQueryAbstract
         $result = $selectQuery->execute($emulatePrepare);
 
         return array_map(
-            fn(array $row): object => $this->mapAssocToModel($model, $row),
+            fn (array $row): object => $this->mapAssocToModel($model, $row),
             $result->fetchAssocs()
         );
     }
