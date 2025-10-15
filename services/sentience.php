@@ -8,14 +8,14 @@ return new class () {
     public function db(): DB
     {
         $driver = config('database->driver', '');
-        $host = config("database->{$driver}->host", '');
-        $port = (int) config("database->{$driver}->port", '');
-        $name = config(["database->{$driver}->name", "database->{$driver}->file"], '');
-        $username = config("database->{$driver}->username", '');
-        $password = config("database->{$driver}->password", '');
-        $queries = config("database->{$driver}->queries", []);
-        $usePDO = config("database->{$driver}->use_pdo", false);
-        $options = config("database->{$driver}", []);
+        $host = config("database->settings->{$driver}->host", '');
+        $port = (int) config("database->settings->{$driver}->port", '');
+        $name = config(["database->settings->{$driver}->name", "database->settings->{$driver}->file"], '');
+        $username = config("database->settings->{$driver}->username", '');
+        $password = config("database->settings->{$driver}->password", '');
+        $queries = config("database->settings->{$driver}->queries", []);
+        $usePDO = config("database->settings->{$driver}->use_pdo", false);
+        $options = config("database->settings->{$driver}", []);
         $debug = config('database->debug', false);
 
         return DB::connect(
