@@ -30,7 +30,7 @@ class MySQLDialect extends SQLDialect
         }
 
         $updates = !$insertIgnore
-            ? !empty($onConflict->updates) > 0 ? $onConflict->updates : $values
+            ? !empty($onConflict->updates) ? $onConflict->updates : $values
             : [];
 
         if ($onConflict->primaryKey) {

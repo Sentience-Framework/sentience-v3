@@ -9,8 +9,6 @@ use Sentience\Database\Queries\Query;
 
 abstract class AdapterAbstract implements AdapterInterface
 {
-    public const string REGEXP_FUNCTION = 'REGEXP';
-    public const int REGEXP_FUNCTION_PARAMETER_COUNT = 2;
     public const string OPTIONS_MYSQL_CHARSET = 'charset';
     public const string OPTIONS_MYSQL_COLLATION = 'collation';
     public const string OPTIONS_MYSQL_ENGINE = 'engine';
@@ -22,6 +20,8 @@ abstract class AdapterAbstract implements AdapterInterface
     public const string OPTIONS_SQLITE_ENCODING = 'encoding';
     public const string OPTIONS_SQLITE_JOURNAL_MODE = 'journal_mode';
     public const string OPTIONS_SQLITE_FOREIGN_KEYS = 'foreign_keys';
+    public const string REGEXP_FUNCTION = 'REGEXP';
+    public const int REGEXP_FUNCTION_PARAMETER_COUNT = 2;
 
     public function __construct(
         protected Driver $driver,
@@ -34,17 +34,6 @@ abstract class AdapterAbstract implements AdapterInterface
         protected array $options,
         protected ?Closure $debug
     ) {
-    }
-
-    protected function regexpFunction(string $pattern, string $value): bool
-    {
-        return preg_match(
-            sprintf(
-                '/%s/u',
-                Query::escapeBackslash($pattern, ['/'])
-            ),
-            $value
-        );
     }
 
     protected function mysqlNames(string $charset, ?string $collation): void
@@ -103,6 +92,17 @@ abstract class AdapterAbstract implements AdapterInterface
         }
 
         $this->exec('PRAGMA foreign_keys = ON;');
+    }
+
+    protected function regexpFunction(string $pattern, string $value): bool
+    {
+        return preg_match(
+            sprintf(
+                '/%s/u',
+                Query::escapeBackslash($pattern, ['/'])
+            ),
+            $value
+        );
     }
 
     protected function debug(string $query, float $start, null|string|Throwable $error = null): void
