@@ -7,6 +7,7 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeZone;
 use JsonSerializable;
+use Throwable;
 
 class Timestamp extends DateTime implements JsonSerializable
 {
@@ -14,6 +15,11 @@ class Timestamp extends DateTime implements JsonSerializable
 
     public static function createFromString(string $string): bool|static
     {
+        try {
+            return new static($string);
+        } catch (Throwable $exception) {
+        }
+
         $timestamp = strtotime($string);
 
         if (!$timestamp) {
