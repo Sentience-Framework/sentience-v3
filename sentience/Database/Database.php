@@ -129,12 +129,12 @@ class Database
         return new SelectQuery($this, $this->dialect, $table);
     }
 
-    public function insert(string|array|Alias|Raw $table = null): InsertQuery
+    public function insert(string|array|Alias|Raw $table): InsertQuery
     {
         return new InsertQuery($this, $this->dialect, $table);
     }
 
-    public function update(string|array|Alias|Raw $table = null): UpdateQuery
+    public function update(string|array|Alias|Raw $table): UpdateQuery
     {
         return new UpdateQuery($this, $this->dialect, $table);
     }

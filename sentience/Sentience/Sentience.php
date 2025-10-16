@@ -203,7 +203,7 @@ class Sentience
         }
 
         $callbackReflector = is_array($callback)
-            ? new ReflectionMethod(...$callback)
+            ? (new ReflectionClass($callback[0]))->getMethod($callback[1])
             : new ReflectionFunction($callback);
 
         $filteredArgs = $dependencyInjector->getFunctionParameters($callbackReflector, $args);
@@ -231,7 +231,7 @@ class Sentience
     protected function executeMiddlewareCallback(DependencyInjector $dependencyInjector, string|array|callable $callback, array $args): array
     {
         $callbackReflector = is_array($callback)
-            ? new ReflectionMethod(...$callback)
+            ? (new ReflectionClass($callback[0]))->getMethod($callback[1])
             : new ReflectionFunction($callback);
 
         $filteredArgs = $dependencyInjector->getFunctionParameters($callbackReflector, $args);
@@ -319,7 +319,7 @@ class Sentience
             $stackTrace = array_values(
                 array_filter(
                     $exception->getTrace(),
-                    fn (array $frame): bool => array_key_exists('file', $frame)
+                    fn(array $frame): bool => array_key_exists('file', $frame)
                 )
             );
 
@@ -337,7 +337,7 @@ class Sentience
                     $args = implode(
                         ', ',
                         array_map(
-                            fn (mixed $arg): string => get_debug_type($arg),
+                            fn(mixed $arg): string => get_debug_type($arg),
                             $frame['args'] ?? []
                         )
                     );
@@ -388,7 +388,7 @@ class Sentience
                                 : $frame['function'];
 
                             $args = array_map(
-                                fn (mixed $arg): string => get_debug_type($arg),
+                                fn(mixed $arg): string => get_debug_type($arg),
                                 $frame['args'] ?? []
                             );
 
@@ -415,7 +415,7 @@ class Sentience
     protected function cliNotFound(Argv $argv): void
     {
         $lines = array_map(
-            fn (Command $command): string => sprintf('- %s', $command->command),
+            fn(Command $command): string => sprintf('- %s', $command->command),
             $this->cliRouter->commands
         );
 
