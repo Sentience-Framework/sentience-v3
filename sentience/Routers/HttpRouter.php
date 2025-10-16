@@ -33,7 +33,7 @@ class HttpRouter
             }
 
             if (!array_key_exists($method, $methods)) {
-                if (array_key_exists('*', $methods)) {
+                if (!array_key_exists('*', $methods)) {
                     return [null, null, 405];
                 }
 
