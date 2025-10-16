@@ -67,9 +67,9 @@ class HttpRouter
 
         $pattern = preg_replace_callback(
             '/\{([^\:\}]+)(?:\:([^\}]+))?\}/',
-            function (array $matches) use (&$keys): string {
-                $key = $matches[1];
-                $type = $matches[2] ?? 'string';
+            function (array $match) use (&$keys): string {
+                $key = $match[1];
+                $type = $match[2] ?? 'string';
 
                 $keys[] = [$key, $type];
 
