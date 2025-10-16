@@ -2,8 +2,10 @@
 
 namespace Sentience\Database\Queries;
 
+use DateTimeInterface;
 use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Database\Queries\Traits\ConstraintsTrait;
 use Sentience\Database\Queries\Traits\IfNotExistsTrait;
 use Sentience\Database\Queries\Traits\PrimaryKeysTrait;
@@ -38,7 +40,7 @@ class CreateTableQuery extends Query
         return parent::execute($emulatePrepare);
     }
 
-    public function column(string $name, string $type, bool $notNull = false, mixed $default = null, array $options = []): static
+    public function column(string $name, string $type, bool $notNull = false, null|bool|int|float|string|DateTimeInterface|Raw $default = null, array $options = []): static
     {
         $this->columns[] = new Column($name, $type, $notNull, $default, $options);
 

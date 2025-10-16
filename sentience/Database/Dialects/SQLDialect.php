@@ -614,9 +614,9 @@ class SQLDialect extends DialectAbstract
         }
 
         if (!is_null($column->default)) {
-            $default = preg_match('/^\w+\(\w*\)$/', (string) $column->default)
-                ? (string) $column->default
-                : $this->castToQuery($column->default);
+            $default = !($column->default instanceof Raw)
+                ? $this->castToQuery($column->default)
+                : (string) $column->default;
 
             $sql .= ' DEFAULT ' . $default;
         }

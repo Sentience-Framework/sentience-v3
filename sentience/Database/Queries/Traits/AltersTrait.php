@@ -2,6 +2,7 @@
 
 namespace Sentience\Database\Queries\Traits;
 
+use DateTimeInterface;
 use Sentience\Database\Queries\Objects\AddColumn;
 use Sentience\Database\Queries\Objects\AddForeignKeyConstraint;
 use Sentience\Database\Queries\Objects\AddPrimaryKeys;
@@ -9,6 +10,7 @@ use Sentience\Database\Queries\Objects\AddUniqueConstraint;
 use Sentience\Database\Queries\Objects\AlterColumn;
 use Sentience\Database\Queries\Objects\DropColumn;
 use Sentience\Database\Queries\Objects\DropConstraint;
+use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Database\Queries\Objects\RenameColumn;
 use Sentience\Database\Queries\Query;
 
@@ -16,7 +18,7 @@ trait AltersTrait
 {
     protected array $alters = [];
 
-    public function addColumn(string $name, string $type, bool $notNull = false, mixed $default = null, array $options = []): static
+    public function addColumn(string $name, string $type, bool $notNull = false, null|bool|int|float|string|DateTimeInterface|Raw $default = null, array $options = []): static
     {
         $this->alters[] = new AddColumn($name, $type, $notNull, $default, $options);
 

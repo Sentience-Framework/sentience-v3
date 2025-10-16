@@ -184,6 +184,7 @@ class ExampleController extends Controller
             PHP_EOL,
             $db->alterTable('table_1')
                 ->addColumn('column3', 'INT')
+                ->addColumn('columnDateTimeFunc', 'DATETIME', true, Query::raw('now()'))
                 // ->alterColumn('column3', ['TEXT', 'AUTO_INCREMENT'])
                 ->renameColumn('column3', 'column4')
                 ->dropColumn('column4')
