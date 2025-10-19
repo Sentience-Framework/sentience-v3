@@ -86,6 +86,17 @@ class SelectQuery extends Query
 
     public function exists(): bool
     {
-        return $this->count() > 0;
+        $previousLimit = $this->limit;
+        $previousOffset = $this->offset;
+
+        $this->limit = 1;
+        $this->offset = null;
+
+        $count = $this->count();
+
+        $this->limit = $previousLimit;
+        $this->offset = $previousOffset;
+
+        return $count > 0;
     }
 }
