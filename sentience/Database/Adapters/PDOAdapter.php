@@ -333,4 +333,11 @@ class PDOAdapter extends AdapterAbstract
     {
         $pdoStatement->bindParam($key, $value, $type);
     }
+
+    public function __destruct()
+    {
+        if ($this->driver == Driver::SQLITE) {
+            $this->sqliteOptimize($this->options[static::OPTIONS_SQLITE_OPTIMIZE] ?? false);
+        }
+    }
 }

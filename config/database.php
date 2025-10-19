@@ -81,6 +81,7 @@ return [
             'encoding' => env('DB_ENCODING', 'UTF8'),
             'journal_mode' => env('DB_SQLITE_JOURNAL_MODE', 'WAL'),
             'foreign_keys' => env('DB_SQLITE_FOREIGN_KEYS', true),
+            'optimize' => env('DB_SQLITE_OPTIMIZE', true),
 
             /**
              * The SQLite3 class contains a bug that executes queries multiple times.

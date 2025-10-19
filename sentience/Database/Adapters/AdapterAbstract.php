@@ -20,6 +20,7 @@ abstract class AdapterAbstract implements AdapterInterface
     public const string OPTIONS_SQLITE_ENCODING = 'encoding';
     public const string OPTIONS_SQLITE_JOURNAL_MODE = 'journal_mode';
     public const string OPTIONS_SQLITE_FOREIGN_KEYS = 'foreign_keys';
+    public const string OPTIONS_SQLITE_OPTIMIZE = 'optimize';
     public const string REGEXP_FUNCTION = 'REGEXP';
     public const int REGEXP_FUNCTION_PARAMETER_COUNT = 2;
 
@@ -92,6 +93,15 @@ abstract class AdapterAbstract implements AdapterInterface
         }
 
         $this->exec('PRAGMA foreign_keys = ON;');
+    }
+
+    protected function sqliteOptimize(bool $optimize): void
+    {
+        if (!$optimize) {
+            return;
+        }
+
+        $this->exec('PRAGMA optimize;');
     }
 
     protected function regexpFunction(string $pattern, string $value): bool
