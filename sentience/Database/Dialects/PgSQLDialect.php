@@ -15,6 +15,12 @@ class PgSQLDialect extends SQLDialect
 
     protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
     {
+        if ($this->supportsRegexpLike()) {
+            parent::buildConditionRegex($query, $params, $condition);
+
+            return;
+        }
+
         $query .= sprintf(
             '%s ~ ?',
             $this->escapeIdentifier($condition->identifier)
@@ -27,6 +33,12 @@ class PgSQLDialect extends SQLDialect
 
     protected function buildConditionNotRegex(string &$query, array &$params, Condition $condition): void
     {
+        if ($this->supportsRegexpLike()) {
+            parent::buildConditionNotRegex($query, $params, $condition);
+
+            return;
+        }
+
         $query .= sprintf(
             '%s !~ ?',
             $this->escapeIdentifier($condition->identifier)
@@ -35,6 +47,11 @@ class PgSQLDialect extends SQLDialect
         array_push($params, $condition->value);
 
         return;
+    }
+
+    protected function supportsRegexpLike(): bool
+    {
+        return $this->version >= 1500;
     }
 
     public function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values): void

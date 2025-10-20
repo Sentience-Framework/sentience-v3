@@ -40,7 +40,7 @@ class MySQLDialect extends SQLDialect
     protected function buildConditionNotRegex(string &$query, array &$params, Condition $condition): void
     {
         if ($this->supportsRegexpLike()) {
-            parent::buildConditionRegex($query, $params, $condition);
+            parent::buildConditionNotRegex($query, $params, $condition);
 
             return;
         }
