@@ -4,6 +4,7 @@ namespace Sentience\Database\Dialects;
 
 use Sentience\Database\Driver;
 use Sentience\Database\Queries\Objects\AlterColumn;
+use Sentience\Database\Queries\Objects\Condition;
 use Sentience\Database\Queries\Objects\DropConstraint;
 use Sentience\Database\Queries\Objects\OnConflict;
 use Sentience\Database\Queries\Objects\Raw;
@@ -11,9 +12,53 @@ use Sentience\Database\Queries\Query;
 
 class MySQLDialect extends SQLDialect
 {
+    public const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
     public const bool ESCAPE_ANSI = false;
     public const string ESCAPE_IDENTIFIER = '`';
     public const string ESCAPE_STRING = '"';
+    public const bool ON_CONFLICT = true;
+    public const bool RETURNING = true;
+
+    protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
+    {
+        if ($this->supportsRegexpLike()) {
+            parent::buildConditionRegex($query, $params, $condition);
+
+            return;
+        }
+
+        $query .= sprintf(
+            '%s REGEXP ?',
+            $this->escapeIdentifier($condition->identifier)
+        );
+
+        array_push($params, $condition->value);
+
+        return;
+    }
+
+    protected function buildConditionNotRegex(string &$query, array &$params, Condition $condition): void
+    {
+        if ($this->supportsRegexpLike()) {
+            parent::buildConditionRegex($query, $params, $condition);
+
+            return;
+        }
+
+        $query .= sprintf(
+            '%s NOT REGEXP ?',
+            $this->escapeIdentifier($condition->identifier)
+        );
+
+        array_push($params, $condition->value);
+
+        return;
+    }
+
+    protected function supportsRegexpLike(): bool
+    {
+        return $this->driver == Driver::MYSQL && $this->version >= 80000;
+    }
 
     public function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values): void
     {
@@ -74,6 +119,10 @@ class MySQLDialect extends SQLDialect
         }
 
         if ($this->version < 100500) {
+            return;
+        }
+
+        if (str_starts_with($query, 'UPDATE')) {
             return;
         }
 

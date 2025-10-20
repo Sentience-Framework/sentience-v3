@@ -53,7 +53,7 @@ class SelectQuery extends Query
         return parent::execute($emulatePrepare);
     }
 
-    public function count(null|string|array|Raw $column = null): int
+    public function count(null|string|array|Raw $column = null, bool $emulatePrepare = false): int
     {
         $previousDistinct = $this->distinct;
         $previousColumns = $this->columns;
@@ -75,7 +75,7 @@ class SelectQuery extends Query
         ];
         $this->orderBy = [];
 
-        $count = (int) $this->execute()->fetchObject()?->count ?? 0;
+        $count = (int) $this->execute($emulatePrepare)->fetchObject()?->count ?? 0;
 
         $this->distinct = $previousDistinct;
         $this->columns = $previousColumns;
@@ -84,7 +84,7 @@ class SelectQuery extends Query
         return $count;
     }
 
-    public function exists(): bool
+    public function exists(bool $emulatePrepare = false): bool
     {
         $previousLimit = $this->limit;
         $previousOffset = $this->offset;
@@ -92,7 +92,7 @@ class SelectQuery extends Query
         $this->limit = 1;
         $this->offset = null;
 
-        $count = $this->count();
+        $count = $this->count(null, $emulatePrepare);
 
         $this->limit = $previousLimit;
         $this->offset = $previousOffset;

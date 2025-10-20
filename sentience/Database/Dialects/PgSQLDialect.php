@@ -3,13 +3,39 @@
 namespace Sentience\Database\Dialects;
 
 use DateTime;
+use Sentience\Database\Queries\Objects\Condition;
 use Sentience\Database\Queries\Objects\OnConflict;
 use Sentience\Database\Queries\Objects\Raw;
 
 class PgSQLDialect extends SQLDialect
 {
-    public const string FUNCTION_REGEX = '~';
-    public const string FUNCTION_NOT_REGEX = '!~';
+    public const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
+    public const bool ON_CONFLICT = true;
+    public const bool RETURNING = true;
+
+    protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
+    {
+        $query .= sprintf(
+            '%s ~ ?',
+            $this->escapeIdentifier($condition->identifier)
+        );
+
+        array_push($params, $condition->value);
+
+        return;
+    }
+
+    protected function buildConditionNotRegex(string &$query, array &$params, Condition $condition): void
+    {
+        $query .= sprintf(
+            '%s !~ ?',
+            $this->escapeIdentifier($condition->identifier)
+        );
+
+        array_push($params, $condition->value);
+
+        return;
+    }
 
     public function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values): void
     {

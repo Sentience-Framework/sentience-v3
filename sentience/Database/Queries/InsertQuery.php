@@ -2,6 +2,7 @@
 
 namespace Sentience\Database\Queries;
 
+use Sentience\Database\Exceptions\QueryException;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Traits\OnConflictTrait;
 use Sentience\Database\Queries\Traits\ReturningTrait;
@@ -31,6 +32,60 @@ class InsertQuery extends Query
 
     public function execute(bool $emulatePrepare = false): ResultInterface
     {
-        return parent::execute($emulatePrepare);
+        if (!$this->onConflict || $this->dialect::ON_CONFLICT) {
+            return parent::execute($emulatePrepare);
+        }
+
+        if (is_string($this->onConflict->conflict)) {
+            throw new QueryException('database only supports an array of columns as constraints');
+        }
+
+        $selectQuery = $this->database->select($this->table);
+
+        $conflict = [];
+
+        foreach ($this->onConflict->conflict as $column) {
+            if (!array_key_exists($column, $this->values)) {
+                continue;
+            }
+
+            $value = $this->values[$column];
+
+            $conflict[$column] = $value;
+        }
+
+        foreach ($conflict as $column => $value) {
+            $selectQuery->whereEquals($column, $value);
+        }
+
+        $count = $selectQuery->count(null, $emulatePrepare);
+
+        if ($count == 0) {
+            return parent::execute($emulatePrepare);
+        }
+
+        if ($count > 1) {
+            throw new QueryException('multiple rows in constraint');
+        }
+
+        $updateQuery = $this->database->update($this->table);
+
+        $insertIgnore = is_null($this->onConflict->updates);
+
+        $updates = !$insertIgnore
+            ? !empty($onConflict->updates) ? $this->onConflict->updates : $this->values
+            : [];
+
+        $updateQuery->values($updates);
+
+        foreach ($this->onConflict->updates as $column => $value) {
+            $updateQuery->whereEquals($column, $value);
+        }
+
+        if (!is_null($this->returning)) {
+            $updateQuery->returning($this->returning);
+        }
+
+        return $updateQuery->execute($emulatePrepare);
     }
 }

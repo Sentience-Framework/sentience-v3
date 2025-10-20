@@ -32,12 +32,12 @@ use Sentience\Database\Queries\Query;
 
 class SQLDialect extends DialectAbstract
 {
+    public const string DATETIME_FORMAT = 'Y-m-d H:i:s';
     public const bool ESCAPE_ANSI = true;
     public const string ESCAPE_IDENTIFIER = '"';
     public const string ESCAPE_STRING = "'";
-    public const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
-    public const string FUNCTION_REGEX = 'REGEXP';
-    public const string FUNCTION_NOT_REGEX = 'NOT REGEXP';
+    public const bool ON_CONFLICT = false;
+    public const bool RETURNING = false;
 
     public function select(
         bool $distinct,
@@ -413,65 +413,28 @@ class SQLDialect extends DialectAbstract
             $query .= sprintf(' %s ', $condition->chain->value);
         }
 
-        if ($condition->condition == ConditionEnum::RAW) {
-            $query .= sprintf('(%s)', $condition->identifier);
+        match ($condition->condition) {
+            ConditionEnum::BETWEEN => $this->buildConditionBetween($query, $params, $condition),
+            ConditionEnum::NOT_BETWEEN => $this->buildConditionNotBetween($query, $params, $condition),
+            ConditionEnum::LIKE => $this->buildConditionLike($query, $params, $condition),
+            ConditionEnum::NOT_LIKE => $this->buildConditionNotLike($query, $params, $condition),
+            ConditionEnum::IN => $this->buildConditionIn($query, $params, $condition),
+            ConditionEnum::NOT_IN => $this->buildConditionNotIn($query, $params, $condition),
+            ConditionEnum::REGEX => $this->buildConditionRegex($query, $params, $condition),
+            ConditionEnum::NOT_REGEX => $this->buildConditionNotRegex($query, $params, $condition),
+            ConditionEnum::RAW => $this->buildConditionRaw($query, $params, $condition),
+            default => $this->buildConditionOperator($query, $params, $condition)
+        };
+    }
 
-            array_push($params, ...$condition->value);
-
-            return;
-        }
-
+    protected function buildConditionOperator(string &$query, array &$params, Condition $condition): void
+    {
         if (is_null($condition->value)) {
             $query .= sprintf(
                 '%s %s',
                 $this->escapeIdentifier($condition->identifier),
                 $condition->condition == ConditionEnum::EQUALS ? 'IS NULL' : 'IS NOT NULL'
             );
-
-            return;
-        }
-
-        if (in_array($condition->condition, [ConditionEnum::BETWEEN, ConditionEnum::NOT_BETWEEN])) {
-            $query .= sprintf(
-                '%s %s ? AND ?',
-                $this->escapeIdentifier($condition->identifier),
-                $condition->condition->value,
-                $condition->value[0],
-                $condition->value[1]
-            );
-
-            array_push($params, ...$condition->value);
-
-            return;
-        }
-
-        if (is_array($condition->value)) {
-            if (count($condition->value) == 0) {
-                $query .= $condition->condition == ConditionEnum::IN ? '1 <> 1' : '1 = 1';
-
-                return;
-            }
-
-            $query .= sprintf(
-                '%s %s (%s)',
-                $this->escapeIdentifier($condition->identifier),
-                $condition->condition->value,
-                implode(', ', array_fill(0, count($condition->value), '?'))
-            );
-
-            array_push($params, ...$condition->value);
-
-            return;
-        }
-
-        if (in_array($condition->condition, [ConditionEnum::REGEX, ConditionEnum::NOT_REGEX])) {
-            $query .= sprintf(
-                '%s %s ?',
-                $this->escapeIdentifier($condition->identifier),
-                $condition->condition == ConditionEnum::REGEX ? $this::FUNCTION_REGEX : $this::FUNCTION_NOT_REGEX
-            );
-
-            array_push($params, $condition->value);
 
             return;
         }
@@ -483,6 +446,132 @@ class SQLDialect extends DialectAbstract
         );
 
         array_push($params, $condition->value);
+    }
+
+    protected function buildConditionBetween(string &$query, array &$params, Condition $condition): void
+    {
+        $query .= sprintf(
+            '%s BETWEEN ? AND ?',
+            $this->escapeIdentifier($condition->identifier),
+            $condition->condition->value,
+            $condition->value[0],
+            $condition->value[1]
+        );
+
+        array_push($params, ...$condition->value);
+
+        return;
+    }
+
+    protected function buildConditionNotBetween(string &$query, array &$params, Condition $condition): void
+    {
+        $query .= sprintf(
+            '%s NOT BETWEEN ? AND ?',
+            $this->escapeIdentifier($condition->identifier),
+            $condition->condition->value,
+            $condition->value[0],
+            $condition->value[1]
+        );
+
+        array_push($params, ...$condition->value);
+
+        return;
+    }
+
+    protected function buildConditionLike(string &$query, array &$params, Condition $condition): void
+    {
+        $query .= sprintf(
+            '%s LIKE ?',
+            $this->escapeIdentifier($condition->identifier),
+            $condition->condition->value,
+            $condition->value
+        );
+
+        array_push($params, $condition->value);
+
+        return;
+    }
+
+    protected function buildConditionNotLike(string &$query, array &$params, Condition $condition): void
+    {
+        $query .= sprintf(
+            '%s NOT LIKE ?',
+            $this->escapeIdentifier($condition->identifier),
+            $condition->condition->value,
+            $condition->value
+        );
+
+        array_push($params, $condition->value);
+
+        return;
+    }
+
+    protected function buildConditionIn(string &$query, array &$params, Condition $condition): void
+    {
+        if (count($condition->value) == 0) {
+            $query .= '1 <> 1';
+
+            return;
+        }
+
+        $query .= sprintf(
+            '%s IN (%s)',
+            $this->escapeIdentifier($condition->identifier),
+            implode(', ', array_fill(0, count($condition->value), '?'))
+        );
+
+        array_push($params, ...$condition->value);
+
+        return;
+    }
+
+    protected function buildConditionNotIn(string &$query, array &$params, Condition $condition): void
+    {
+        if (count($condition->value) == 0) {
+            $query .= '1 = 1';
+
+            return;
+        }
+
+        $query .= sprintf(
+            '%s NOT IN (%s)',
+            $this->escapeIdentifier($condition->identifier),
+            implode(', ', array_fill(0, count($condition->value), '?'))
+        );
+
+        array_push($params, ...$condition->value);
+
+        return;
+    }
+
+    protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
+    {
+        $query .= sprintf(
+            'REGEXP_LIKE(%s, ?)',
+            $this->escapeIdentifier($condition->identifier)
+        );
+
+        array_push($params, $condition->value);
+
+        return;
+    }
+
+    protected function buildConditionNotRegex(string &$query, array &$params, Condition $condition): void
+    {
+        $query .= 'NOT ';
+
+        $this->buildConditionRegex($query, $params, $condition);
+
+        return;
+    }
+
+    protected function buildConditionRaw(string &$query, array &$params, Condition $condition): void
+    {
+        $query .= sprintf('(%s)', $condition->identifier);
+
+        array_push($params, ...$condition->value);
+
+        return;
     }
 
     protected function buildConditionGroup(string &$query, array &$params, int $index, ConditionGroup $group): void
@@ -584,6 +673,10 @@ class SQLDialect extends DialectAbstract
 
     protected function buildReturning(string &$query, ?array $returning): void
     {
+        if (!static::RETURNING) {
+            return;
+        }
+
         if (is_null($returning)) {
             return;
         }

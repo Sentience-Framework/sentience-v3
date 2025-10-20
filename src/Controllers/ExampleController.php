@@ -121,6 +121,8 @@ class ExampleController extends Controller
             ->whereNotIn('column2', [])
             ->whereStartsWith('column2', 'a')
             ->whereEndsWith('column2', 'z')
+            ->whereLike('column2', '%a%')
+            ->whereNotLike('column2', '%z%')
             ->whereEmpty('empty_column')
             ->whereNotEmpty('not_empty_column')
             ->whereRegex('column6', 'file|read|write|open')

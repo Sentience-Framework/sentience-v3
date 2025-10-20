@@ -27,4 +27,4 @@ function version(int|string $version, array $lengths = [10000, 100, 1]): int
     return $number;
 }
 
-echo version('3.50.1');
+echo version('8.0.0');
