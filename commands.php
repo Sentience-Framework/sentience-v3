@@ -1,5 +1,6 @@
 <?php
 
+use Sentience\DataLayer\Database\DB;
 use Sentience\Routers\Command;
 use Src\Controllers\DevToolsController;
 use Src\Controllers\ExampleController;
@@ -92,13 +93,6 @@ return [
     ),
 
     Command::register(
-        'test',
-        function (): void {
-            print_r(PDO::getAvailableDrivers());
-        }
-    ),
-
-    Command::register(
         'mapper',
         [ExampleController::class, 'mapper']
     ),
@@ -106,5 +100,17 @@ return [
     Command::register(
         'fk',
         [ExampleController::class, 'fk']
+    ),
+
+    Command::register(
+        'test',
+        function (DB $db): void {
+            print_r(
+                $db->select('migrations')
+                    ->whereRegex('filename', 'Zaandam')
+                    ->execute()
+                    ->fetchObjects()
+            );
+        }
     )
 ];

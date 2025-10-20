@@ -58,6 +58,8 @@ class InsertQuery extends Query
             $selectQuery->whereEquals($column, $value);
         }
 
+        $selectQuery->limit(2);
+
         $count = $selectQuery->count(null, $emulatePrepare);
 
         if ($count == 0) {
@@ -70,9 +72,9 @@ class InsertQuery extends Query
 
         $updateQuery = $this->database->update($this->table);
 
-        $insertIgnore = is_null($this->onConflict->updates);
+        $onConflictIgnore = is_null($this->onConflict->updates);
 
-        $updates = !$insertIgnore
+        $updates = !$onConflictIgnore
             ? !empty($onConflict->updates) ? $this->onConflict->updates : $this->values
             : [];
 

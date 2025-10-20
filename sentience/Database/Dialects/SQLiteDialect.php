@@ -3,6 +3,7 @@
 namespace Sentience\Database\Dialects;
 
 use Sentience\Database\Exceptions\QueryException;
+use Sentience\Database\Queries\Enums\ConditionEnum;
 use Sentience\Database\Queries\Objects\AddForeignKeyConstraint;
 use Sentience\Database\Queries\Objects\AddPrimaryKeys;
 use Sentience\Database\Queries\Objects\AddUniqueConstraint;
@@ -21,20 +22,9 @@ class SQLiteDialect extends SQLDialect
     protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
     {
         $query .= sprintf(
-            '%s REGEXP ?',
-            $this->escapeIdentifier($condition->identifier)
-        );
-
-        array_push($params, $condition->value);
-
-        return;
-    }
-
-    protected function buildConditionNotRegex(string &$query, array &$params, Condition $condition): void
-    {
-        $query .= sprintf(
-            '%s NOT REGEXP ?',
-            $this->escapeIdentifier($condition->identifier)
+            '%s %s ?',
+            $this->escapeIdentifier($condition->identifier),
+            $condition->condition == ConditionEnum::REGEX ? 'REGEXP' : 'NOT REGEXP'
         );
 
         array_push($params, $condition->value);

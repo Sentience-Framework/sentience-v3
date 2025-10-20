@@ -3,6 +3,7 @@
 namespace Sentience\Database\Dialects;
 
 use Sentience\Database\Driver;
+use Sentience\Database\Queries\Enums\ConditionEnum;
 use Sentience\Database\Queries\Objects\AlterColumn;
 use Sentience\Database\Queries\Objects\Condition;
 use Sentience\Database\Queries\Objects\DropConstraint;
@@ -21,43 +22,21 @@ class MySQLDialect extends SQLDialect
 
     protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
     {
-        if ($this->supportsRegexpLike()) {
+        if ($this->driver == Driver::MYSQL && $this->version >= 80000) {
             parent::buildConditionRegex($query, $params, $condition);
 
             return;
         }
 
         $query .= sprintf(
-            '%s REGEXP ?',
-            $this->escapeIdentifier($condition->identifier)
+            '%s %s ?',
+            $this->escapeIdentifier($condition->identifier),
+            $condition->condition == ConditionEnum::REGEX ? 'REGEXP' : 'NOT REGEXP'
         );
 
         array_push($params, $condition->value);
 
         return;
-    }
-
-    protected function buildConditionNotRegex(string &$query, array &$params, Condition $condition): void
-    {
-        if ($this->supportsRegexpLike()) {
-            parent::buildConditionNotRegex($query, $params, $condition);
-
-            return;
-        }
-
-        $query .= sprintf(
-            '%s NOT REGEXP ?',
-            $this->escapeIdentifier($condition->identifier)
-        );
-
-        array_push($params, $condition->value);
-
-        return;
-    }
-
-    protected function supportsRegexpLike(): bool
-    {
-        return $this->driver == Driver::MYSQL && $this->version >= 80000;
     }
 
     public function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values): void

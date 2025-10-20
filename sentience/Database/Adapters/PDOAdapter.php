@@ -100,7 +100,10 @@ class PDOAdapter extends AdapterAbstract
 
         if ($driver == Driver::PGSQL) {
             if (array_key_exists(static::OPTIONS_PGSQL_CLIENT_ENCODING, $options)) {
-                $dsn .= sprintf(";options='--client_encoding=%s'", (string) $options[static::OPTIONS_PGSQL_CLIENT_ENCODING]);
+                $dsn .= sprintf(
+                    ";options='--client_encoding=%s'",
+                    (string) $options[static::OPTIONS_PGSQL_CLIENT_ENCODING]
+                );
             }
         }
 
