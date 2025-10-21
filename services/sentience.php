@@ -3,6 +3,7 @@
 use Sentience\Database\Driver;
 use Sentience\DataLayer\Database\DB;
 use Sentience\Helpers\Log;
+use Sentience\Timestamp\Timestamp;
 
 return new class () {
     public function db(): DB
@@ -31,7 +32,7 @@ return new class () {
                 $end = microtime(true);
 
                 $lines = [
-                    sprintf('Timestamp : %s', date('Y-m-d H:i:s')),
+                    sprintf('Timestamp : %s', Timestamp::now()->format('Y-m-d H:i:s.u')),
                     sprintf('Query     : %s', $query),
                     sprintf('Time      : %.2f ms', ($end - $start) * 1000)
                 ];

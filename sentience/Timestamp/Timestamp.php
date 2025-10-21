@@ -13,6 +13,11 @@ class Timestamp extends DateTime implements JsonSerializable
 {
     public const string JSON = 'Y-m-d\TH:i:s.v\Z';
 
+    public static function now(): static
+    {
+        return new static();
+    }
+
     public static function createFromString(string $string): bool|static
     {
         try {

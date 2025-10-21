@@ -34,7 +34,7 @@ class MySQLDialect extends SQLDialect
             $condition->condition == ConditionEnum::REGEX ? 'REGEXP' : 'NOT REGEXP'
         );
 
-        array_push($params, $condition->value);
+        array_push($params, $condition->value[0]);
 
         return;
     }

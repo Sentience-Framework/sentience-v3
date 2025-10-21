@@ -28,7 +28,7 @@ class PgSQLDialect extends SQLDialect
             $condition->condition == ConditionEnum::REGEX ? '~' : '!~'
         );
 
-        array_push($params, $condition->value);
+        array_push($params, $condition->value[0]);
 
         return;
     }

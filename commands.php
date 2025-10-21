@@ -107,7 +107,7 @@ return [
         function (DB $db): void {
             print_r(
                 $db->select('migrations')
-                    ->whereRegex('filename', 'Zaandam')
+                    ->whereRegex('filename', 'Zaandam', 'i')
                     ->execute()
                     ->fetchObjects()
             );

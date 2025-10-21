@@ -500,11 +500,11 @@ class SQLDialect extends DialectAbstract
         }
 
         $query .= sprintf(
-            'REGEXP_LIKE(%s, ?)',
+            'REGEXP_LIKE(%s, ?, ?)',
             $this->escapeIdentifier($condition->identifier)
         );
 
-        array_push($params, $condition->value);
+        array_push($params, ...$condition->value);
 
         return;
     }
