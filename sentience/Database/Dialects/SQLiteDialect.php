@@ -12,6 +12,7 @@ use Sentience\Database\Queries\Objects\Condition;
 use Sentience\Database\Queries\Objects\DropConstraint;
 use Sentience\Database\Queries\Objects\OnConflict;
 use Sentience\Database\Queries\Objects\Raw;
+use Sentience\Database\Queries\Objects\RenameColumn;
 
 class SQLiteDialect extends SQLDialect
 {
@@ -99,6 +100,15 @@ class SQLiteDialect extends SQLDialect
     public function buildAlterTableAlterColumn(AlterColumn $alterColumn): string
     {
         throw new QueryException('SQLite does not support altering columns');
+    }
+
+    public function buildAlterTableRenameColumn(RenameColumn $renameColumn): string
+    {
+        if ($this->version < 32500) {
+            throw new QueryException('SQLite does not support renaming columns');
+        }
+
+        return parent::buildAlterTableRenameColumn($renameColumn);
     }
 
     protected function buildAlterTableAddPrimaryKeys(AddPrimaryKeys $addPrimaryKeys): string
