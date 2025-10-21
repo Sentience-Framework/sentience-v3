@@ -41,6 +41,64 @@ class SelectModelsQuery extends ModelsQueryAbstract
         $reflectionModel = new ReflectionModel($model);
 
         $table = $reflectionModel->getTable();
+
+        $columns = [];
+
+        foreach ($reflectionModel->getProperties() as $reflectionModelProperty) {
+            if (!$reflectionModelProperty->isColumn()) {
+                continue;
+            }
+
+            $column = $reflectionModelProperty->getColumn();
+
+            $columns[] = $column;
+        }
+
+        $selectQuery = $this->database->select($table)
+            ->columns($columns);
+
+        if ($this->distinct) {
+            $selectQuery->distinct();
+        }
+
+        $selectQuery->whereGroup(
+            fn(): ConditionGroup => new ConditionGroup(
+                ChainEnum::AND ,
+                $this->where
+            )
+        );
+
+        foreach ($this->orderBy as $orderBy) {
+            $orderBy->direction == OrderByDirectionEnum::ASC
+                ? $selectQuery->orderByAsc($orderBy->column)
+                : $selectQuery->orderByDesc($orderBy->column);
+        }
+
+        if ($this->limit) {
+            $selectQuery->limit($this->limit);
+        }
+
+        if ($this->offset) {
+            $selectQuery->offset($this->offset);
+        }
+
+        $result = $selectQuery->execute($emulatePrepare);
+
+        return array_map(
+            fn(array $row): object => $this->mapAssocToModel($model, $row),
+            $result->fetchAssocs()
+        );
+    }
+
+    public function executeNew(bool $emulatePrepare = false): array
+    {
+        $model = $this->models[0];
+
+        $this->validateModel($model, false);
+
+        $reflectionModel = new ReflectionModel($model);
+
+        $table = $reflectionModel->getTable();
         $alias = $reflectionModel->getShortName();
 
         $columns = [];
@@ -68,7 +126,7 @@ class SelectModelsQuery extends ModelsQueryAbstract
             $selectQuery->distinct();
         }
 
-        $selectQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(ChainEnum::AND, $this->where));
+        $selectQuery->whereGroup(fn(): ConditionGroup => new ConditionGroup(ChainEnum::AND , $this->where));
 
         foreach ($this->orderBy as $orderBy) {
             $orderBy->direction == OrderByDirectionEnum::ASC
@@ -91,7 +149,7 @@ class SelectModelsQuery extends ModelsQueryAbstract
         $result = $selectQuery->execute($emulatePrepare);
 
         return array_map(
-            fn (array $row): object => $this->mapAssocToModel($model, $row),
+            fn(array $row): object => $this->mapAssocToModel($model, $row),
             $result->fetchAssocs()
         );
     }
