@@ -36,7 +36,7 @@ class InsertQuery extends Query
     public function execute(bool $emulatePrepare = false): ResultInterface
     {
         if (!$this->onConflict || $this->dialect->onConflict()) {
-            return $this->executeLastInsertId($emulatePrepare);
+            return $this->insertLastInsertId($emulatePrepare);
         }
 
         if (is_string($this->onConflict->conflict)) {
@@ -66,7 +66,7 @@ class InsertQuery extends Query
         $count = $selectQuery->count(null, $emulatePrepare);
 
         if ($count == 0) {
-            return $this->executeLastInsertId($emulatePrepare);
+            return $this->insertLastInsertId($emulatePrepare);
         }
 
         if ($count > 1) {
@@ -92,7 +92,7 @@ class InsertQuery extends Query
         return $updateQuery->execute($emulatePrepare);
     }
 
-    protected function executeLastInsertId(bool $emulatePrepare): ResultInterface
+    protected function insertLastInsertId(bool $emulatePrepare): ResultInterface
     {
         $result = parent::execute($emulatePrepare);
 
@@ -115,6 +115,7 @@ class InsertQuery extends Query
                 )
             )
             ->whereEquals($this->lastInsertId, $lastInsertId)
+            ->limit(1)
             ->execute($emulatePrepare);
     }
 }
