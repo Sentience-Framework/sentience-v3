@@ -39,7 +39,7 @@ class MySQLDialect extends SQLDialect
         return;
     }
 
-    public function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
+    protected function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
     {
         if (is_null($onConflict)) {
             return;
@@ -91,16 +91,8 @@ class MySQLDialect extends SQLDialect
         );
     }
 
-    public function buildReturning(string &$query, ?array $returning): void
+    protected function buildReturning(string &$query, ?array $returning): void
     {
-        if ($this->driver != Driver::MARIADB) {
-            return;
-        }
-
-        if ($this->version < 100500) {
-            return;
-        }
-
         if (str_starts_with($query, 'UPDATE')) {
             return;
         }
@@ -108,7 +100,7 @@ class MySQLDialect extends SQLDialect
         parent::buildReturning($query, $returning);
     }
 
-    public function buildAlterTableAlterColumn(AlterColumn $alterColumn): string
+    protected function buildAlterTableAlterColumn(AlterColumn $alterColumn): string
     {
         return substr_replace(
             parent::buildAlterTableAlterColumn($alterColumn),
@@ -118,7 +110,7 @@ class MySQLDialect extends SQLDialect
         );
     }
 
-    public function buildAlterTableDropConstraint(DropConstraint $dropConstraint): string
+    protected function buildAlterTableDropConstraint(DropConstraint $dropConstraint): string
     {
         return substr_replace(
             parent::buildAlterTableDropConstraint($dropConstraint),
@@ -126,5 +118,18 @@ class MySQLDialect extends SQLDialect
             5,
             10
         );
+    }
+
+    public function returning(): bool
+    {
+        if ($this->driver != Driver::MARIADB) {
+            return false;
+        }
+
+        if ($this->version < 100500) {
+            return false;
+        }
+
+        return true;
     }
 }

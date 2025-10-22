@@ -18,7 +18,7 @@ class SQLiteDialect extends SQLDialect
     protected const bool ON_CONFLICT = true;
     protected const bool RETURNING = true;
 
-    public function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
+    protected function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
     {
         if (is_null($onConflict)) {
             return;
@@ -73,21 +73,12 @@ class SQLiteDialect extends SQLDialect
         );
     }
 
-    public function buildReturning(string &$query, ?array $returning): void
-    {
-        if ($this->version < 33500) {
-            return;
-        }
-
-        parent::buildReturning($query, $returning);
-    }
-
-    public function buildAlterTableAlterColumn(AlterColumn $alterColumn): string
+    protected function buildAlterTableAlterColumn(AlterColumn $alterColumn): string
     {
         throw new QueryException('SQLite does not support altering columns');
     }
 
-    public function buildAlterTableRenameColumn(RenameColumn $renameColumn): string
+    protected function buildAlterTableRenameColumn(RenameColumn $renameColumn): string
     {
         if ($this->version < 32500) {
             throw new QueryException('SQLite does not support renaming columns');
@@ -114,5 +105,15 @@ class SQLiteDialect extends SQLDialect
     protected function buildAlterTableDropConstraint(DropConstraint $dropConstraint): string
     {
         throw new QueryException('SQLite does not support dropping constraints by altering the table');
+    }
+
+    public function onConflict(): bool
+    {
+        return $this->version >= 32400;
+    }
+
+    public function returning(): bool
+    {
+        return $this->version >= 33500;
     }
 }

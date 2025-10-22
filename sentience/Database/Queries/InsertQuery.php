@@ -43,8 +43,6 @@ class InsertQuery extends Query
             throw new QueryException('database only supports an array of columns as constraints');
         }
 
-        $selectQuery = $this->database->select($this->table);
-
         $conflict = [];
 
         foreach ($this->onConflict->conflict as $column) {
@@ -56,6 +54,8 @@ class InsertQuery extends Query
 
             $conflict[$column] = $value;
         }
+
+        $selectQuery = $this->database->select($this->table);
 
         foreach ($conflict as $column => $value) {
             $selectQuery->whereEquals($column, $value);
@@ -73,23 +73,7 @@ class InsertQuery extends Query
             throw new QueryException('multiple rows in constraint');
         }
 
-        $updateQuery = $this->database->update($this->table);
-
-        $updates = is_null($this->onConflict->updates)
-            ? !empty($onConflict->updates) ? $this->onConflict->updates : $this->values
-            : [];
-
-        $updateQuery->values($updates);
-
-        foreach ($this->onConflict->updates as $column => $value) {
-            $updateQuery->whereEquals($column, $value);
-        }
-
-        if (!is_null($this->returning)) {
-            $updateQuery->returning($this->returning);
-        }
-
-        return $updateQuery->execute($emulatePrepare);
+        return $this->update($conflict, $emulatePrepare);
     }
 
     protected function insertLastInsertId(bool $emulatePrepare): ResultInterface
@@ -117,5 +101,26 @@ class InsertQuery extends Query
             ->whereEquals($this->lastInsertId, $lastInsertId)
             ->limit(1)
             ->execute($emulatePrepare);
+    }
+
+    protected function update(array $conflict, bool $emulatePrepare): ResultInterface
+    {
+        $updateQuery = $this->database->update($this->table);
+
+        $updates = is_null($this->onConflict->updates)
+            ? !empty($onConflict->updates) ? $this->onConflict->updates : $this->values
+            : [];
+
+        $updateQuery->values($updates);
+
+        foreach ($conflict as $column => $value) {
+            $updateQuery->whereEquals($column, $value);
+        }
+
+        if (!is_null($this->returning)) {
+            $updateQuery->returning($this->returning);
+        }
+
+        return $updateQuery->execute($emulatePrepare);
     }
 }

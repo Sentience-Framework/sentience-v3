@@ -618,7 +618,7 @@ class SQLDialect extends DialectAbstract
 
     protected function buildReturning(string &$query, ?array $returning): void
     {
-        if (!static::RETURNING) {
+        if (!$this->returning()) {
             return;
         }
 
