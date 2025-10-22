@@ -19,7 +19,7 @@ class SQLite3Result implements ResultInterface
         return $columns;
     }
 
-    public function fetchObject(string $class = 'stdClass'): ?object
+    public function fetchObject(string $class = 'stdClass', array $constructorArgs = []): ?object
     {
         $assoc = $this->fetchAssoc();
 
@@ -27,7 +27,7 @@ class SQLite3Result implements ResultInterface
             return null;
         }
 
-        $object = new $class();
+        $object = new $class(...$constructorArgs);
 
         foreach ($assoc as $key => $value) {
             $object->{$key} = $value;
@@ -36,12 +36,12 @@ class SQLite3Result implements ResultInterface
         return $object;
     }
 
-    public function fetchObjects(string $class = 'stdClass'): array
+    public function fetchObjects(string $class = 'stdClass', array $constructorArgs = []): array
     {
         $objects = [];
 
         while (true) {
-            $object = $this->fetchObject($class);
+            $object = $this->fetchObject($class, $constructorArgs);
 
             if (is_null($object)) {
                 break;

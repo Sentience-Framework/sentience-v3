@@ -305,12 +305,16 @@ class PDOAdapter extends AdapterAbstract
         return $this->pdo->inTransaction();
     }
 
-    public function lastInsertId(?string $name = null): ?string
+    public function lastInsertId(?string $name = null): null|int|string
     {
         $lastInserId = $this->pdo->lastInsertId($name);
 
         if (is_bool($lastInserId)) {
             return null;
+        }
+
+        if (preg_match('/[0-9]+/', $lastInserId)) {
+            return (int) $lastInserId;
         }
 
         return $lastInserId;

@@ -24,9 +24,9 @@ class PDOResult implements ResultInterface
         return $columns;
     }
 
-    public function fetchObject(string $class = 'stdClass'): ?object
+    public function fetchObject(string $class = 'stdClass', array $constructorArgs = []): ?object
     {
-        $object = $this->pdoStatement->fetchObject($class);
+        $object = $this->pdoStatement->fetchObject($class, $constructorArgs);
 
         if (is_bool($object)) {
             return null;
@@ -35,9 +35,9 @@ class PDOResult implements ResultInterface
         return $object;
     }
 
-    public function fetchObjects(string $class = 'stdClass'): array
+    public function fetchObjects(string $class = 'stdClass', array $constructorArgs = []): array
     {
-        return $this->pdoStatement->fetchAll(PDO::FETCH_CLASS, $class);
+        return $this->pdoStatement->fetchAll(PDO::FETCH_CLASS, $class, $constructorArgs);
     }
 
     public function fetchAssoc(): ?array

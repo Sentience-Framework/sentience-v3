@@ -55,15 +55,7 @@ class InsertQuery extends Query
             $conflict[$column] = $value;
         }
 
-        $selectQuery = $this->database->select($this->table);
-
-        foreach ($conflict as $column => $value) {
-            $selectQuery->whereEquals($column, $value);
-        }
-
-        $selectQuery->limit(2);
-
-        $count = $selectQuery->count(null, $emulatePrepare);
+        $count = $this->count($conflict, $emulatePrepare);
 
         if ($count == 0) {
             return $this->insert($emulatePrepare);
@@ -74,6 +66,19 @@ class InsertQuery extends Query
         }
 
         return $this->update($conflict, $emulatePrepare);
+    }
+
+    protected function count(array $conflict, bool $emulatePrepare): int
+    {
+        $selectQuery = $this->database->select($this->table);
+
+        foreach ($conflict as $column => $value) {
+            $selectQuery->whereEquals($column, $value);
+        }
+
+        $selectQuery->limit(2);
+
+        return $selectQuery->count(null, $emulatePrepare);
     }
 
     protected function insert(bool $emulatePrepare): ResultInterface

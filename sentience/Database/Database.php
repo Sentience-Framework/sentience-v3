@@ -119,7 +119,7 @@ class Database
         }
     }
 
-    public function lastInsertId(?string $name = null): ?string
+    public function lastInsertId(?string $name = null): null|int|string
     {
         return $this->adapter->lastInsertId($name);
     }

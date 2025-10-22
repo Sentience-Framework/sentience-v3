@@ -44,13 +44,14 @@ abstract class ModelsQueryAbstract implements ModelsQueryInterface
         $reflectionModelProperties = $reflectionModel->getProperties();
 
         foreach ($reflectionModelProperties as $reflectionModelProperty) {
-            $property = $reflectionModelProperty->getProperty();
             $column = $reflectionModelProperty->getColumn();
-            $type = $reflectionModelProperty->getType();
 
             if (!array_key_exists($column, $assoc)) {
                 continue;
             }
+
+            $property = $reflectionModelProperty->getProperty();
+            $type = $reflectionModelProperty->getType();
 
             $value = $assoc[$column];
 

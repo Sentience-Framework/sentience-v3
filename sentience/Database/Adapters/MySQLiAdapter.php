@@ -210,9 +210,9 @@ class MySQLiAdapter extends AdapterAbstract
         return $this->inTransaction;
     }
 
-    public function lastInsertId(?string $name = null): string
+    public function lastInsertId(?string $name = null): int|string
     {
-        return (string) $this->mysqli->insert_id;
+        return $this->mysqli->insert_id;
     }
 
     public function __destruct()

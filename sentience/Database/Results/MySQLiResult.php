@@ -22,13 +22,13 @@ class MySQLiResult implements ResultInterface
         );
     }
 
-    public function fetchObject(string $class = 'stdClass'): ?object
+    public function fetchObject(string $class = 'stdClass', array $constructorArgs = []): ?object
     {
         if (is_bool($this->mysqliResult)) {
             return null;
         }
 
-        $object = $this->mysqliResult->fetch_object($class);
+        $object = $this->mysqliResult->fetch_object($class, $constructorArgs);
 
         if (is_bool($object)) {
             return null;
@@ -37,7 +37,7 @@ class MySQLiResult implements ResultInterface
         return $object;
     }
 
-    public function fetchObjects(string $class = 'stdClass'): array
+    public function fetchObjects(string $class = 'stdClass', array $constructorArgs = []): array
     {
         if (is_bool($this->mysqliResult)) {
             return [];
@@ -46,8 +46,8 @@ class MySQLiResult implements ResultInterface
         $assocs = $this->mysqliResult->fetch_all(MYSQLI_ASSOC);
 
         return array_map(
-            function (array $assoc) use ($class): object {
-                $object = new $class();
+            function (array $assoc) use ($class, $constructorArgs): object {
+                $object = new $class(...$constructorArgs);
 
                 foreach ($assoc as $key => $value) {
                     $object->{$key} = $value;

@@ -203,9 +203,9 @@ class SQLite3Adapter extends AdapterAbstract
         return $this->inTransaction;
     }
 
-    public function lastInsertId(?string $name = null): string
+    public function lastInsertId(?string $name = null): int
     {
-        return (string) $this->sqlite3->lastInsertRowID();
+        return $this->sqlite3->lastInsertRowID();
     }
 
     protected function bindValue(SQLite3Stmt $sqlite3Stmt, int $key, mixed $value, int $type): void

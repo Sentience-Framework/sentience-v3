@@ -75,7 +75,7 @@ class InsertModelsQuery extends ModelsQueryAbstract
                     );
             }
 
-            $insertQuery->returning($primaryKeys);
+            $insertQuery->returning($reflectionModel->getColumns());
 
             $result = $insertQuery->execute($emulatePrepare);
 
@@ -83,24 +83,6 @@ class InsertModelsQuery extends ModelsQueryAbstract
 
             if ($insertedRow) {
                 $this->mapAssocToModel($model, $insertedRow);
-            }
-
-            $lastInsertId = $this->database->lastInsertId();
-
-            if (empty($lastInsertId)) {
-                continue;
-            }
-
-            foreach ($reflectionModelProperties as $reflectionModelProperty) {
-                if (!$reflectionModelProperty->isAutoIncrement()) {
-                    continue;
-                }
-
-                $property = $reflectionModelProperty->getProperty();
-
-                $model->{$property} = (int) $lastInsertId;
-
-                break;
             }
         }
 
