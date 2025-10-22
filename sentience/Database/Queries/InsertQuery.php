@@ -4,6 +4,7 @@ namespace Sentience\Database\Queries;
 
 use Sentience\Database\Exceptions\QueryException;
 use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Queries\Traits\LastInsertIdTrait;
 use Sentience\Database\Queries\Traits\OnConflictTrait;
 use Sentience\Database\Queries\Traits\ReturningTrait;
 use Sentience\Database\Queries\Traits\ValuesTrait;
@@ -11,6 +12,7 @@ use Sentience\Database\Results\ResultInterface;
 
 class InsertQuery extends Query
 {
+    use LastInsertIdTrait;
     use OnConflictTrait;
     use ReturningTrait;
     use ValuesTrait;
@@ -21,7 +23,8 @@ class InsertQuery extends Query
             $this->table,
             $this->values,
             $this->onConflict,
-            $this->returning
+            $this->returning,
+            $this->lastInsertId
         );
     }
 
@@ -32,8 +35,8 @@ class InsertQuery extends Query
 
     public function execute(bool $emulatePrepare = false): ResultInterface
     {
-        if (!$this->onConflict || $this->dialect::ON_CONFLICT) {
-            return parent::execute($emulatePrepare);
+        if (!$this->onConflict || $this->dialect->onConflict()) {
+            return $this->executeLastInsertId($emulatePrepare);
         }
 
         if (is_string($this->onConflict->conflict)) {
@@ -63,7 +66,7 @@ class InsertQuery extends Query
         $count = $selectQuery->count(null, $emulatePrepare);
 
         if ($count == 0) {
-            return parent::execute($emulatePrepare);
+            return $this->executeLastInsertId($emulatePrepare);
         }
 
         if ($count > 1) {
@@ -72,9 +75,7 @@ class InsertQuery extends Query
 
         $updateQuery = $this->database->update($this->table);
 
-        $onConflictIgnore = is_null($this->onConflict->updates);
-
-        $updates = !$onConflictIgnore
+        $updates = is_null($this->onConflict->updates)
             ? !empty($onConflict->updates) ? $this->onConflict->updates : $this->values
             : [];
 
@@ -89,5 +90,31 @@ class InsertQuery extends Query
         }
 
         return $updateQuery->execute($emulatePrepare);
+    }
+
+    protected function executeLastInsertId(bool $emulatePrepare): ResultInterface
+    {
+        $result = parent::execute($emulatePrepare);
+
+        if (!$this->lastInsertId || is_null($this->returning) || $this->dialect->returning()) {
+            return $result;
+        }
+
+        $lastInsertId = $this->database->lastInsertId();
+
+        if (empty($lastInsertId)) {
+            return $result;
+        }
+
+        return $this->database->select($this->table)
+            ->columns(
+                array_unique(
+                    count($this->returning) > 0
+                    ? [$this->lastInsertId, ...$this->returning]
+                    : []
+                )
+            )
+            ->whereEquals($this->lastInsertId, $lastInsertId)
+            ->execute($emulatePrepare);
     }
 }

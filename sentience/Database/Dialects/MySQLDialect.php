@@ -13,12 +13,12 @@ use Sentience\Database\Queries\Query;
 
 class MySQLDialect extends SQLDialect
 {
-    public const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
-    public const bool ESCAPE_ANSI = false;
-    public const string ESCAPE_IDENTIFIER = '`';
-    public const string ESCAPE_STRING = '"';
-    public const bool ON_CONFLICT = true;
-    public const bool RETURNING = true;
+    protected const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
+    protected const bool ESCAPE_ANSI = false;
+    protected const string ESCAPE_IDENTIFIER = '`';
+    protected const string ESCAPE_STRING = '"';
+    protected const bool ON_CONFLICT = true;
+    protected const bool RETURNING = true;
 
     protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
     {
@@ -39,7 +39,7 @@ class MySQLDialect extends SQLDialect
         return;
     }
 
-    public function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values): void
+    public function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
     {
         if (is_null($onConflict)) {
             return;
@@ -47,7 +47,7 @@ class MySQLDialect extends SQLDialect
 
         $insertIgnore = is_null($onConflict->updates);
 
-        if ($insertIgnore && !$onConflict->primaryKey) {
+        if ($insertIgnore && !$lastInsertId) {
             $query = substr_replace($query, 'INSERT IGNORE', 0, 6);
 
             return;
@@ -57,11 +57,11 @@ class MySQLDialect extends SQLDialect
             ? !empty($onConflict->updates) ? $onConflict->updates : $values
             : [];
 
-        if ($onConflict->primaryKey) {
-            $updates[$onConflict->primaryKey] = Query::raw(
+        if ($lastInsertId) {
+            $updates[$lastInsertId] = Query::raw(
                 sprintf(
                     'LAST_INSERT_ID(%s)',
-                    $this->escapeIdentifier($onConflict->primaryKey)
+                    $this->escapeIdentifier($lastInsertId)
                 )
             );
         }

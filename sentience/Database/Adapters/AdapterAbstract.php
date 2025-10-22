@@ -21,8 +21,7 @@ abstract class AdapterAbstract implements AdapterInterface
     public const string OPTIONS_SQLITE_JOURNAL_MODE = 'journal_mode';
     public const string OPTIONS_SQLITE_FOREIGN_KEYS = 'foreign_keys';
     public const string OPTIONS_SQLITE_OPTIMIZE = 'optimize';
-    public const string REGEXP_FUNCTION = 'REGEXP';
-    public const int REGEXP_FUNCTION_PARAMETER_COUNT = 2;
+    public const string REGEXP_LIKE_FUNCTION = 'REGEXP_LIKE';
 
     public function __construct(
         protected Driver $driver,
@@ -104,12 +103,13 @@ abstract class AdapterAbstract implements AdapterInterface
         $this->exec('PRAGMA optimize;');
     }
 
-    protected function regexpFunction(string $pattern, string $value): bool
+    protected function regexpLikeFunction(string $value, string $pattern, string $flags): bool
     {
         return preg_match(
             sprintf(
-                '/%s/u',
-                Query::escapeBackslash($pattern, ['/'])
+                '/%s/%s',
+                Query::escapeBackslash($pattern, ['/']),
+                $flags
             ),
             $value
         );

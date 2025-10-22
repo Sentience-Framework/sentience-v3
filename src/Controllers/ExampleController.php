@@ -149,10 +149,10 @@ class ExampleController extends Controller
                 'column3' => false,
                 'column4' => Query::raw('column1 + 1')
             ])
-            // ->onConflictUpdate(['id'], [], 'id')
-            ->onConflictIgnore(['id'], 'id')
+            ->onConflictUpdate(['id'], [])
             // ->onConflictIgnore(['id'])
             ->returning(['id'])
+            ->lastInsertId('id')
             ->toSql();
 
         $queries[] = $db->update('table_1')
@@ -218,7 +218,7 @@ class ExampleController extends Controller
 
         $start = microtime(true);
 
-        for ($i = 0; $i < 10000; $i++) {
+        for ($i = 0; $i < 10; $i++) {
             $models = [];
 
             $selectedModels = $db->selectModels(Migration::class)

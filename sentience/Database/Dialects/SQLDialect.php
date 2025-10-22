@@ -32,12 +32,12 @@ use Sentience\Database\Queries\Query;
 
 class SQLDialect extends DialectAbstract
 {
-    public const string DATETIME_FORMAT = 'Y-m-d H:i:s';
-    public const bool ESCAPE_ANSI = true;
-    public const string ESCAPE_IDENTIFIER = '"';
-    public const string ESCAPE_STRING = "'";
-    public const bool ON_CONFLICT = false;
-    public const bool RETURNING = false;
+    protected const string DATETIME_FORMAT = 'Y-m-d H:i:s';
+    protected const bool ESCAPE_ANSI = true;
+    protected const string ESCAPE_IDENTIFIER = '"';
+    protected const string ESCAPE_STRING = "'";
+    protected const bool ON_CONFLICT = false;
+    protected const bool RETURNING = false;
 
     public function select(
         bool $distinct,
@@ -103,7 +103,8 @@ class SQLDialect extends DialectAbstract
         string|array|Alias|Raw $table,
         array $values,
         ?OnConflict $onConflict,
-        ?array $returning
+        ?array $returning,
+        ?string $lastInsertId
     ): QueryWithParams {
         if (count($values) == 0) {
             throw new QueryException('no insert values specified');
@@ -154,7 +155,7 @@ class SQLDialect extends DialectAbstract
             )
         );
 
-        $this->buildOnConflict($query, $params, $onConflict, $values);
+        $this->buildOnConflict($query, $params, $onConflict, $values, $lastInsertId);
         $this->buildReturning($query, $returning);
 
         $query .= ';';
@@ -610,7 +611,7 @@ class SQLDialect extends DialectAbstract
         $query .= ' OFFSET ' . $offset;
     }
 
-    protected function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values): void
+    protected function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
     {
         return;
     }
@@ -936,5 +937,15 @@ class SQLDialect extends DialectAbstract
         }
 
         return $dateTime;
+    }
+
+    public function onConflict(): bool
+    {
+        return static::ON_CONFLICT;
+    }
+
+    public function returning(): bool
+    {
+        return static::RETURNING;
     }
 }

@@ -29,7 +29,8 @@ interface DialectInterface
         string|array|Alias|Raw $table,
         array $values,
         ?OnConflict $onConflict,
-        ?array $returning
+        ?array $returning,
+        ?string $lastInsertId
     ): QueryWithParams;
 
     public function update(
@@ -71,4 +72,6 @@ interface DialectInterface
     public function castDateTime(DateTimeInterface $dateTime): mixed;
     public function parseBool(mixed $bool): bool;
     public function parseDateTime(string $string): ?DateTime;
+    public function onConflict(): bool;
+    public function returning(): bool;
 }

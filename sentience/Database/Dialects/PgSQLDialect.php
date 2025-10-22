@@ -10,9 +10,9 @@ use Sentience\Database\Queries\Objects\Raw;
 
 class PgSQLDialect extends SQLDialect
 {
-    public const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
-    public const bool ON_CONFLICT = true;
-    public const bool RETURNING = true;
+    protected const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
+    protected const bool ON_CONFLICT = true;
+    protected const bool RETURNING = true;
 
     protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
     {
@@ -28,12 +28,22 @@ class PgSQLDialect extends SQLDialect
             $condition->condition == ConditionEnum::REGEX ? '~' : '!~'
         );
 
-        array_push($params, $condition->value[0]);
+        [$pattern, $flags] = $condition->value;
+
+        array_push(
+            $params,
+            !empty($flags)
+            ? sprintf(
+                '(?%s)%s',
+                $flags,
+                $pattern
+            ) : $pattern
+        );
 
         return;
     }
 
-    public function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values): void
+    public function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
     {
         if (is_null($onConflict)) {
             return;

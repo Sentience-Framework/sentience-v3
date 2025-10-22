@@ -30,13 +30,12 @@ class InsertModelsQuery extends ModelsQueryAbstract
             $insertQuery = $this->database->insert($table);
 
             $values = [];
-            $autoIncrementPrimaryKeyColumn = null;
 
             foreach ($reflectionModelProperties as $reflectionModelProperty) {
                 $column = $reflectionModelProperty->getColumn();
 
                 if ($reflectionModelProperty->isPrimaryKey() && $reflectionModelProperty->isAutoIncrement()) {
-                    $autoIncrementPrimaryKeyColumn = $column;
+                    $insertQuery->lastInsertId($column);
                 }
 
                 if (!$reflectionModelProperty->isInitialized($model)) {
@@ -69,12 +68,10 @@ class InsertModelsQuery extends ModelsQueryAbstract
                 $this->onDuplicateUpdate
                     ? $insertQuery->onConflictUpdate(
                         $uniqueColumns,
-                        $updateValues,
-                        $autoIncrementPrimaryKeyColumn
+                        $updateValues
                     )
                     : $insertQuery->onConflictIgnore(
-                        $uniqueColumns,
-                        $autoIncrementPrimaryKeyColumn
+                        $uniqueColumns
                     );
             }
 

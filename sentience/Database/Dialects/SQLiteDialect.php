@@ -3,12 +3,10 @@
 namespace Sentience\Database\Dialects;
 
 use Sentience\Database\Exceptions\QueryException;
-use Sentience\Database\Queries\Enums\ConditionEnum;
 use Sentience\Database\Queries\Objects\AddForeignKeyConstraint;
 use Sentience\Database\Queries\Objects\AddPrimaryKeys;
 use Sentience\Database\Queries\Objects\AddUniqueConstraint;
 use Sentience\Database\Queries\Objects\AlterColumn;
-use Sentience\Database\Queries\Objects\Condition;
 use Sentience\Database\Queries\Objects\DropConstraint;
 use Sentience\Database\Queries\Objects\OnConflict;
 use Sentience\Database\Queries\Objects\Raw;
@@ -16,24 +14,11 @@ use Sentience\Database\Queries\Objects\RenameColumn;
 
 class SQLiteDialect extends SQLDialect
 {
-    public const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
-    public const bool ON_CONFLICT = true;
-    public const bool RETURNING = true;
+    protected const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
+    protected const bool ON_CONFLICT = true;
+    protected const bool RETURNING = true;
 
-    protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
-    {
-        $query .= sprintf(
-            '%s %s ?',
-            $this->escapeIdentifier($condition->identifier),
-            $condition->condition == ConditionEnum::REGEX ? 'REGEXP' : 'NOT REGEXP'
-        );
-
-        array_push($params, $condition->value[0]);
-
-        return;
-    }
-
-    public function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values): void
+    public function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
     {
         if (is_null($onConflict)) {
             return;
