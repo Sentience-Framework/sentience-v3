@@ -12,6 +12,11 @@ use Sentience\Database\Results\MySQLiResult;
 
 class MySQLiAdapter extends AdapterAbstract
 {
+    public const string MYSQLI_NULL = 's';
+    public const string MYSQLI_INT = 'i';
+    public const string MYSQLI_FLOAT = 'd';
+    public const string MYSQLI_STRING = 's';
+
     protected mysqli $mysqli;
     protected bool $inTransaction = false;
 
@@ -128,11 +133,11 @@ class MySQLiAdapter extends AdapterAbstract
             $value = $dialect->castToDriver($param);
 
             $type = match (get_debug_type($value)) {
-                'null' => 's',
-                'int' => 'i',
-                'float' => 'd',
-                'string' => 's',
-                default => 's'
+                'null' => static::MYSQLI_NULL,
+                'int' => static::MYSQLI_INT,
+                'float' => static::MYSQLI_FLOAT,
+                'string' => static::MYSQLI_STRING,
+                default => static::MYSQLI_STRING
             };
 
             $paramTypes[] = $type;

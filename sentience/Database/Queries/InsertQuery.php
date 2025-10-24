@@ -114,7 +114,7 @@ class InsertQuery extends Query
 
         $updates = is_null($this->onConflict->updates)
             ? !empty($onConflict->updates) ? $this->onConflict->updates : $this->values
-            : [];
+            : $conflict;
 
         $updateQuery->values($updates);
 

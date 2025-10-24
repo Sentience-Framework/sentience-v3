@@ -360,10 +360,14 @@ class Sentience
 
     protected function handleExceptionHttp(Throwable $exception): void
     {
+        $message = config('sentience->env', 'production') != 'production'
+            ? $exception->getMessage()
+            : 'server exception';
+
         $response = [
             'error' => [
                 'type' => (new ReflectionClass($exception))->getShortName(),
-                'message' => $exception->getMessage()
+                'message' => $message
             ]
         ];
 
