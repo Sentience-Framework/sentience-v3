@@ -814,7 +814,7 @@ class SQLDialect extends DialectAbstract
             ? implode(
                 '.',
                 array_map(
-                    fn (string|Raw $identifier): string => $this->escapeIdentifier($identifier),
+                    fn (string|array|Raw $identifier): string => $this->escapeIdentifier($identifier),
                     $identifier
                 )
             )

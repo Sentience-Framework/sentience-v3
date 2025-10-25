@@ -409,9 +409,9 @@ trait WhereTrait
 
     protected function addRawCondition(string $sql, array $values, ChainEnum $chain): static
     {
-        $condition = new RawCondition($sql, $values, $chain);
+        $rawCondition = new RawCondition($sql, $values, $chain);
 
-        $this->where[] = $condition->toCondition();
+        $this->where[] = $rawCondition->toCondition();
 
         return $this;
     }
