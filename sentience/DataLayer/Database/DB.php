@@ -111,12 +111,8 @@ class DB extends Database
         return $this;
     }
 
-    protected function storeCache(string|QueryWithParams $query, ResultInterface $result): ResultInterface
+    protected function storeCache(string|QueryWithParams $query, ResultInterface $result): CachedResult
     {
-        if (!$this->storeCache) {
-            return $result;
-        }
-
         $cachedResult = CachedResult::fromInterface($result);
 
         ($this->storeCache)($query instanceof QueryWithParams ? $query->toSql($this->dialect) : $query, $cachedResult);
@@ -124,12 +120,8 @@ class DB extends Database
         return $cachedResult;
     }
 
-    protected function retrieveCache(string|QueryWithParams $query): ?ResultInterface
+    protected function retrieveCache(string|QueryWithParams $query): ?CachedResult
     {
-        if (!$this->retrieveCache) {
-            return null;
-        }
-
         return ($this->retrieveCache)($query instanceof QueryWithParams ? $query->toSql($this->dialect) : $query);
     }
 }
