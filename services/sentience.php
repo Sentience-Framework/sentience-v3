@@ -52,7 +52,7 @@ return new class () {
         $queryCache = [];
 
         return $db->cache(
-            function (string $query, ResultInterface $result) use (&$queryCache): void {
+            function (string $query, CachedResult $result) use (&$queryCache): void {
                 if (!preg_match('/^SELECT/i', $query)) {
                     return;
                 }
@@ -61,16 +61,17 @@ return new class () {
 
                 $cache = Cache::getInstance();
 
-                // print_r(serialize(CachedResult::fromInterface($result)));
-                // exit;
-
                 $cache->store(
                     $key,
-                    CachedResult::fromInterface($result),
+                    $result,
                     now()->addHours(1)
                 );
             },
-            function (string $query) use (&$queryCache): ?ResultInterface {
+            function (string $query) use (&$queryCache): ?CachedResult {
+                if (!preg_match('/^SELECT/i', $query)) {
+                    return null;
+                }
+
                 $key = md5($query);
 
                 $cache = Cache::getInstance();

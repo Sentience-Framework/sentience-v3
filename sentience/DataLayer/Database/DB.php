@@ -16,6 +16,7 @@ use Sentience\DataLayer\Database\Queries\DropModelQuery;
 use Sentience\DataLayer\Database\Queries\InsertModelsQuery;
 use Sentience\DataLayer\Database\Queries\SelectModelsQuery;
 use Sentience\DataLayer\Database\Queries\UpdateModelsQuery;
+use Sentience\DataLayer\Database\Results\CachedResult;
 use Sentience\DataLayer\Models\Model;
 use Sentience\Helpers\Arrays;
 
@@ -116,9 +117,11 @@ class DB extends Database
             return $result;
         }
 
-        ($this->storeCache)($query instanceof QueryWithParams ? $query->toSql($this->dialect) : $query, $result);
+        $cachedResult = CachedResult::fromInterface($result);
 
-        return $result;
+        ($this->storeCache)($query instanceof QueryWithParams ? $query->toSql($this->dialect) : $query, $cachedResult);
+
+        return $cachedResult;
     }
 
     protected function retrieveCache(string|QueryWithParams $query): ?ResultInterface

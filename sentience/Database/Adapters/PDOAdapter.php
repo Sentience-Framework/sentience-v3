@@ -82,6 +82,10 @@ class PDOAdapter extends AdapterAbstract
         string $name,
         array $options
     ): string {
+        if (array_key_exists(static::OPTIONS_PDO_DSN, $options)) {
+            return (string) $options[static::OPTIONS_PDO_DSN];
+        }
+
         if ($driver == Driver::SQLITE) {
             return sprintf(
                 '%s:%s',
