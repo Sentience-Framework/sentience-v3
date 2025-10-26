@@ -5,20 +5,18 @@ namespace Sentience\Database\Results;
 use PDO;
 use PDOStatement;
 
-class PDOResult implements ResultInterface
+class PDOResult extends ResultAbstract
 {
     public function __construct(protected PDOStatement $pdoStatement)
     {
     }
 
-    public function getColumns(): array
+    public function columns(): array
     {
         $columns = [];
 
         for ($i = 0; $i < $this->pdoStatement->columnCount(); $i++) {
-            $column = $this->pdoStatement->getColumnMeta($i);
-
-            $columns[] = $column['name'];
+            $columns[] = $this->pdoStatement->getColumnMeta($i)['name'];
         }
 
         return $columns;

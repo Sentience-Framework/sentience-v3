@@ -20,7 +20,7 @@ class CreateTableQuery extends \Sentience\Database\Queries\CreateTableQuery
         return $this->addColumn($column, __FUNCTION__, $notNull, $default, $size);
     }
 
-    public function autoIncrement(string $column, int $size = 64): static
+    public function autoIncrement(string $column, int $size = 32): static
     {
         if (!in_array($column, $this->primaryKeys)) {
             $this->primaryKeys[] = $column;

@@ -1,7 +1,10 @@
 <?php
 
+use Sentience\Cache\Cache;
 use Sentience\Database\Driver;
+use Sentience\Database\Results\ResultInterface;
 use Sentience\DataLayer\Database\DB;
+use Sentience\DataLayer\Database\Results\CachedResult;
 use Sentience\Helpers\Log;
 use Sentience\Timestamp\Timestamp;
 
@@ -19,7 +22,7 @@ return new class () {
         $options = config("database->settings->{$driver}", []);
         $debug = config('database->debug', false);
 
-        return DB::connect(
+        $db = DB::connect(
             Driver::from($driver),
             $host,
             $port,
@@ -44,6 +47,36 @@ return new class () {
                 Log::stderrBetweenEqualSigns('Query', $lines);
             } : null,
             $usePDO
+        );
+
+        $queryCache = [];
+
+        return $db->cache(
+            function (string $query, ResultInterface $result) use (&$queryCache): void {
+                if (!preg_match('/^SELECT/i', $query)) {
+                    return;
+                }
+
+                $key = md5($query);
+
+                $cache = Cache::getInstance();
+
+                // print_r(serialize(CachedResult::fromInterface($result)));
+                // exit;
+
+                $cache->store(
+                    $key,
+                    CachedResult::fromInterface($result),
+                    now()->addHours(1)
+                );
+            },
+            function (string $query) use (&$queryCache): ?ResultInterface {
+                $key = md5($query);
+
+                $cache = Cache::getInstance();
+
+                return $cache->retrieve($key);
+            }
         );
     }
 };

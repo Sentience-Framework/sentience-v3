@@ -37,7 +37,7 @@ class AlterModelQuery extends ModelsQueryAbstract
         $columnsInDatabase = $this->database->select($table)
             ->limit(0)
             ->execute()
-            ->getColumns();
+            ->columns();
 
         $columnsToAdd = [];
         $columnsToDrop = [];

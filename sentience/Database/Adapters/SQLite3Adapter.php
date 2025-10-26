@@ -47,6 +47,8 @@ class SQLite3Adapter extends AdapterAbstract
             (string) ($options[static::OPTIONS_SQLITE_ENCRYPTION_KEY] ?? '')
         );
 
+        $this->sqlite3->enableExceptions(true);
+
         $this->sqlite3->createFunction(
             static::REGEXP_LIKE_FUNCTION,
             fn (string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction($value, $pattern, $flags)

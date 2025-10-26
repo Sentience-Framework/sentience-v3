@@ -4,13 +4,13 @@ namespace Sentience\Database\Results;
 
 use mysqli_result;
 
-class MySQLiResult implements ResultInterface
+class MySQLiResult extends ResultAbstract
 {
     public function __construct(protected bool|mysqli_result $mysqliResult)
     {
     }
 
-    public function getColumns(): array
+    public function columns(): array
     {
         if (is_bool($this->mysqliResult)) {
             return [];
@@ -35,28 +35,6 @@ class MySQLiResult implements ResultInterface
         }
 
         return $object;
-    }
-
-    public function fetchObjects(string $class = 'stdClass', array $constructorArgs = []): array
-    {
-        if (is_bool($this->mysqliResult)) {
-            return [];
-        }
-
-        $assocs = $this->mysqliResult->fetch_all(MYSQLI_ASSOC);
-
-        return array_map(
-            function (array $assoc) use ($class, $constructorArgs): object {
-                $object = new $class(...$constructorArgs);
-
-                foreach ($assoc as $key => $value) {
-                    $object->{$key} = $value;
-                }
-
-                return $object;
-            },
-            $assocs
-        );
     }
 
     public function fetchAssoc(): ?array
