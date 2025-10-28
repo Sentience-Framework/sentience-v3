@@ -2,7 +2,6 @@
 
 use Sentience\Cache\Cache;
 use Sentience\Database\Driver;
-use Sentience\Database\Results\ResultInterface;
 use Sentience\DataLayer\Database\DB;
 use Sentience\DataLayer\Database\Results\CachedResult;
 use Sentience\Helpers\Log;
@@ -18,7 +17,7 @@ return new class () {
         $username = config("database->settings->{$driver}->username", '');
         $password = config("database->settings->{$driver}->password", '');
         $queries = config("database->settings->{$driver}->queries", []);
-        $usePDO = config("database->settings->{$driver}->use_pdo", false);
+        $usePdo = config("database->settings->{$driver}->use_pdo", false);
         $options = config("database->settings->{$driver}", []);
         $debug = config('database->debug', false);
 
@@ -46,7 +45,7 @@ return new class () {
 
                 Log::stderrBetweenEqualSigns('Query', $lines);
             } : null,
-            $usePDO
+            $usePdo
         );
 
         $queryCache = [];

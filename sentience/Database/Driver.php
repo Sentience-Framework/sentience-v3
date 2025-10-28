@@ -15,10 +15,31 @@ use Sentience\Database\Dialects\SQLiteDialect;
 
 enum Driver: string
 {
+    /**
+     * Drivers officially supported by Sentience.
+     *
+     * These drivers have their own adapter, or have excellent integration in PDO.
+     * You can connect to these databases using Database::connect();
+     */
     case MARIADB = 'mariadb';
     case MYSQL = 'mysql';
     case PGSQL = 'pgsql';
     case SQLITE = 'sqlite';
+
+    /**
+     * Drivers supported by PDO.
+     *
+     * These drivers are not officially supported by Sentience, but are supported by PDO.
+     * You can connect to these databases using Database::connectPdo();
+     */
+    case CUBRID = 'cubrid';
+    case DB2 = 'ibm';
+    case DBLIB = 'dblib';
+    case FIREBIRD = 'firebird';
+    case INFORMIX = 'informix';
+    case ODBC = 'odbc';
+    case ORACLE = 'oci';
+    case SQLSRV = 'sqlsrv';
 
     public function getAdapter(
         string $host,
@@ -29,9 +50,9 @@ enum Driver: string
         array $queries,
         array $options,
         ?Closure $debug,
-        bool $usePDOAdapter = false
+        bool $usePdoAdapter = false
     ): AdapterInterface {
-        $adapter = !$usePDOAdapter
+        $adapter = !$usePdoAdapter
             ? match ($this) {
                 static::MARIADB,
                 static::MYSQL => MySQLiAdapter::class,
@@ -41,7 +62,7 @@ enum Driver: string
             }
         : PDOAdapter::class;
 
-        return new $adapter(
+        return $adapter::connect(
             $this,
             $host,
             $port,

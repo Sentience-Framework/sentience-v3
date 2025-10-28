@@ -26,7 +26,7 @@ class SentienceController extends Controller
         $host = config('sentience->server->host', 'localhost');
         $port = config('sentience->server->port', 8000);
 
-        $command = sprintf('cd %s && %s -S %s:%d', $dir, $bin, $host, $port);
+        $command = sprintf('cd %s && %s -S %s:%d index.php', $dir, $bin, $host, $port);
 
         if (PHP_OS_FAMILY == 'Windows') {
             passthru($command);
