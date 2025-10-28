@@ -9,6 +9,7 @@ use Sentience\Database\Adapters\AdapterInterface;
 use Sentience\Database\Adapters\PDOAdapter;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Dialects\SQLDialect;
+use Sentience\Database\Exceptions\DriverException;
 use Sentience\Database\Queries\AlterTableQuery;
 use Sentience\Database\Queries\CreateTableQuery;
 use Sentience\Database\Queries\DeleteQuery;
@@ -35,6 +36,10 @@ class Database
         ?Closure $debug,
         bool $usePdoAdapter = false
     ): static {
+        if (!$driver->isSupported()) {
+            throw new DriverException('this driver requires Database::connectPdo()');
+        }
+
         $adapter = $driver->getAdapter(
             $host,
             $port,

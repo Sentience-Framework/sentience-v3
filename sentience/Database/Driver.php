@@ -15,23 +15,11 @@ use Sentience\Database\Dialects\SQLiteDialect;
 
 enum Driver: string
 {
-    /**
-     * Drivers officially supported by Sentience.
-     *
-     * These drivers have their own adapter, or have excellent integration in PDO.
-     * You can connect to these databases using Database::connect();
-     */
     case MARIADB = 'mariadb';
     case MYSQL = 'mysql';
     case PGSQL = 'pgsql';
     case SQLITE = 'sqlite';
 
-    /**
-     * Drivers supported by PDO.
-     *
-     * These drivers are not officially supported by Sentience, but are supported by PDO.
-     * You can connect to these databases using Database::connectPdo();
-     */
     case CUBRID = 'cubrid';
     case DB2 = 'ibm';
     case DBLIB = 'dblib';
@@ -83,6 +71,17 @@ enum Driver: string
             static::PGSQL => new PgSQLDialect($this, $version),
             static::SQLITE => new SQLiteDialect($this, $version),
             default => new SQLDialect($this, $version)
+        };
+    }
+
+    public function isSupported(): bool
+    {
+        return match ($this) {
+            static::MARIADB,
+            static::MYSQL,
+            static::PGSQL,
+            static::SQLITE => true,
+            default => false
         };
     }
 }
