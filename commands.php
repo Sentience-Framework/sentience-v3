@@ -105,6 +105,9 @@ return [
     Command::register(
         'test',
         function (DB $db): void {
+            print_r(PDO::getAvailableDrivers());
+            exit;
+
             print_r(
                 $db->select('migrations')
                     ->whereRegex('filename', 'Dam', 'i')

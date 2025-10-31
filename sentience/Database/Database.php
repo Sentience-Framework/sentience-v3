@@ -37,7 +37,7 @@ class Database
         bool $usePdoAdapter = false
     ): static {
         if (!$driver->isSupported()) {
-            throw new DriverException('this driver requires Database::connectPdo()');
+            throw new DriverException('this driver requires ::pdo()');
         }
 
         $adapter = $driver->getAdapter(
@@ -59,7 +59,7 @@ class Database
         return new static($adapter, $dialect);
     }
 
-    public static function connectPdo(
+    public static function pdo(
         PDO $pdo,
         Driver $driver,
         array $queries,
@@ -81,10 +81,7 @@ class Database
             ? $driver->getDialect($version)
             : new SQLDialect($driver, $version);
 
-        return new static(
-            $pdoAdapter,
-            $dialect
-        );
+        return new static($pdoAdapter, $dialect);
     }
 
     public function __construct(

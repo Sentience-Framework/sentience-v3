@@ -8,6 +8,7 @@ use Sentience\Database\Adapters\MySQLiAdapter;
 use Sentience\Database\Adapters\PDOAdapter;
 use Sentience\Database\Adapters\SQLite3Adapter;
 use Sentience\Database\Dialects\DialectInterface;
+use Sentience\Database\Dialects\FirebirdDialect;
 use Sentience\Database\Dialects\MySQLDialect;
 use Sentience\Database\Dialects\PgSQLDialect;
 use Sentience\Database\Dialects\SQLDialect;
@@ -15,6 +16,7 @@ use Sentience\Database\Dialects\SQLiteDialect;
 
 enum Driver: string
 {
+    case FIREBIRD = 'firebird';
     case MARIADB = 'mariadb';
     case MYSQL = 'mysql';
     case PGSQL = 'pgsql';
@@ -23,7 +25,6 @@ enum Driver: string
     case CUBRID = 'cubrid';
     case DB2 = 'ibm';
     case DBLIB = 'dblib';
-    case FIREBIRD = 'firebird';
     case INFORMIX = 'informix';
     case ODBC = 'odbc';
     case ORACLE = 'oci';
@@ -42,13 +43,14 @@ enum Driver: string
     ): AdapterInterface {
         $adapter = !$usePdoAdapter
             ? match ($this) {
+                static::FIREBIRD => PDOAdapter::class,
                 static::MARIADB,
                 static::MYSQL => MySQLiAdapter::class,
                 static::PGSQL => PDOAdapter::class,
                 static::SQLITE => SQLite3Adapter::class,
                 default => PDOAdapter::class
             }
-        : PDOAdapter::class;
+            : PDOAdapter::class;
 
         return $adapter::connect(
             $this,
@@ -66,6 +68,7 @@ enum Driver: string
     public function getDialect(int|string $version): DialectInterface
     {
         return match ($this) {
+            static::FIREBIRD => new FirebirdDialect($this, $version),
             static::MARIADB,
             static::MYSQL => new MySQLDialect($this, $version),
             static::PGSQL => new PgSQLDialect($this, $version),
@@ -77,6 +80,7 @@ enum Driver: string
     public function isSupported(): bool
     {
         return match ($this) {
+            static::FIREBIRD,
             static::MARIADB,
             static::MYSQL,
             static::PGSQL,

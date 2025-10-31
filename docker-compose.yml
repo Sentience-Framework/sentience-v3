@@ -54,6 +54,16 @@ services:
     volumes:
       - sqlserver-data:/var/opt/mssql
 
+  sentience:
+    build: ./docker
+    volumes:
+      - ./:/app
+    command: "php sentience.php server:start"
+    ports:
+      - 8000:8000
+    networks:
+      - public
+
 networks:
   public:
 
