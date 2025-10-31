@@ -43,10 +43,8 @@ enum Driver: string
     ): AdapterInterface {
         $adapter = !$usePdoAdapter
             ? match ($this) {
-                static::FIREBIRD => PDOAdapter::class,
                 static::MARIADB,
                 static::MYSQL => MySQLiAdapter::class,
-                static::PGSQL => PDOAdapter::class,
                 static::SQLITE => SQLite3Adapter::class,
                 default => PDOAdapter::class
             }
@@ -77,7 +75,7 @@ enum Driver: string
         };
     }
 
-    public function isSupported(): bool
+    public function isSupportedBySentience(): bool
     {
         return match ($this) {
             static::FIREBIRD,
