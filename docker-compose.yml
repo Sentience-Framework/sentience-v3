@@ -44,6 +44,20 @@ services:
       retries: 5
       start_period: 30s
 
+  firebird:
+    image: firebirdsql/firebird
+    restart: always
+    environment:
+      - FIREBIRD_ROOT_PASSWORD=firebase
+      - FIREBIRD_USER=SYSDBA
+      - FIREBIRD_PASSWORD=firebase
+      - FIREBIRD_DATABASE=sentience.fdb
+      - FIREBIRD_DATABASE_DEFAULT_CHARSET=UTF8
+    ports:
+      - 3050:3050
+    volumes:
+      - ./data:/var/lib/firebird/data
+
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:

@@ -115,5 +115,15 @@ return [
                     ->fetchObjects()
             );
         }
+    ),
+
+    Command::register(
+        'db:create',
+        function (DB $db): void {
+            print_r($db);
+            exit;
+
+            $db->exec('CREATE DATABASE "sentience"');
+        }
     )
 ];
