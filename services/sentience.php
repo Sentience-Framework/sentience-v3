@@ -36,7 +36,7 @@ return new class () {
 
                 Log::stderrBetweenEqualSigns('Query', $lines);
             }
-        : null;
+            : null;
 
         $db = $driver->isSupportedBySentience()
             ? DB::connect(
@@ -51,46 +51,46 @@ return new class () {
                 $debug,
                 $usePdo
             ) : DB::pdo(
-                new PDO(
-                    $dsn,
-                    $username,
-                    $password
-                ),
-                $driver,
-                $queries,
-                $options,
-                $debug
-            );
-
-        $queryCache = [];
-
-        return $db->cache(
-            function (string $query, CachedResult $result) use (&$queryCache): void {
-                if (!preg_match('/^SELECT/i', $query)) {
-                    return;
-                }
-
-                $key = md5($query);
-
-                $cache = Cache::getInstance();
-
-                $cache->store(
-                    $key,
-                    $result,
-                    now()->addHours(1)
+                    new PDO(
+                        $dsn,
+                        $username,
+                        $password
+                    ),
+                    $driver,
+                    $queries,
+                    $options,
+                    $debug
                 );
-            },
-            function (string $query) use (&$queryCache): ?CachedResult {
-                if (!preg_match('/^SELECT/i', $query)) {
-                    return null;
-                }
 
-                $key = md5($query);
+        return $db;
 
-                $cache = Cache::getInstance();
+        // return $db->cache(
+        //     function (string $query, CachedResult $result): void {
+        //         if (!preg_match('/^SELECT/i', $query)) {
+        //             return;
+        //         }
 
-                return $cache->retrieve($key);
-            }
-        );
+        //         $key = md5($query);
+
+        //         $cache = Cache::getInstance();
+
+        //         $cache->store(
+        //             $key,
+        //             $result,
+        //             now()->addHours(1)
+        //         );
+        //     },
+        //     function (string $query): ?CachedResult {
+        //         if (!preg_match('/^SELECT/i', $query)) {
+        //             return null;
+        //         }
+
+        //         $key = md5($query);
+
+        //         $cache = Cache::getInstance();
+
+        //         return $cache->retrieve($key);
+        //     }
+        // );
     }
 };
