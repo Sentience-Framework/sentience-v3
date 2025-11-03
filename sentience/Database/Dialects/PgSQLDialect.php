@@ -3,7 +3,6 @@
 namespace Sentience\Database\Dialects;
 
 use DateTime;
-use Sentience\Database\Queries\Enums\ConditionEnum;
 use Sentience\Database\Queries\Objects\Condition;
 use Sentience\Database\Queries\Objects\OnConflict;
 use Sentience\Database\Queries\Objects\Raw;
@@ -44,7 +43,7 @@ class PgSQLDialect extends SQLDialect
                 implode(
                     ', ',
                     array_map(
-                        fn(string|Raw $column): string => $this->escapeIdentifier($column),
+                        fn (string|Raw $column): string => $this->escapeIdentifier($column),
                         $onConflict->conflict
                     )
                 )
