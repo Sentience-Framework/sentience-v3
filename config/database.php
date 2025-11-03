@@ -54,6 +54,12 @@ return [
             'engine' => env('DB_ENGINE', 'InnoDB'),
             'use_pdo' => env('DB_USE_PDO', false)
         ],
+        // 'odbc' => [
+        //     'dsn' => env('DB_DSN', ''),
+        //     'username' => env('DB_USERNAME', ''),
+        //     'password' => env('DB_PASSWORD', ''),
+        //     'queries' => env('DB_QUERIES', [])
+        // ],
         'pgsql' => [
             'host' => env('DB_HOST', 'localhost'),
             'port' => env('DB_PORT', 5432),

@@ -10,27 +10,18 @@ use Sentience\Timestamp\Timestamp;
 return new class () {
     public function db(): DB
     {
-        $driver = config('database->driver', '');
-        $host = config("database->settings->{$driver}->host", '');
-        $port = (int) config("database->settings->{$driver}->port", '');
-        $name = config(["database->settings->{$driver}->name", "database->settings->{$driver}->file"], '');
-        $username = config("database->settings->{$driver}->username", '');
-        $password = config("database->settings->{$driver}->password", '');
-        $queries = config("database->settings->{$driver}->queries", []);
-        $usePdo = config("database->settings->{$driver}->use_pdo", false);
-        $options = config("database->settings->{$driver}", []);
-        $debug = config('database->debug', false);
-
-        $db = DB::connect(
-            Driver::from($driver),
-            $host,
-            $port,
-            $name,
-            $username,
-            $password,
-            $queries,
-            $options,
-            $debug ? function (string $query, float $start, ?string $error = null): void {
+        $driver = Driver::from(config('database->driver', ''));
+        $dsn = config("database->settings->{$driver->value}->dsn", '');
+        $host = config("database->settings->{$driver->value}->host", '');
+        $port = (int) config("database->settings->{$driver->value}->port", '');
+        $name = config(["database->settings->{$driver->value}->name", "database->settings->{$driver->value}->file"], '');
+        $username = config("database->settings->{$driver->value}->username", '');
+        $password = config("database->settings->{$driver->value}->password", '');
+        $queries = config("database->settings->{$driver->value}->queries", []);
+        $usePdo = config("database->settings->{$driver->value}->use_pdo", false);
+        $options = config("database->settings->{$driver->value}", []);
+        $debug = config('database->debug', false)
+            ? function (string $query, float $start, ?string $error = null): void {
                 $end = microtime(true);
 
                 $lines = [
@@ -44,9 +35,32 @@ return new class () {
                 }
 
                 Log::stderrBetweenEqualSigns('Query', $lines);
-            } : null,
-            $usePdo
-        );
+            }
+        : null;
+
+        $db = $driver->isSupportedBySentience()
+            ? DB::connect(
+                $driver,
+                $host,
+                $port,
+                $name,
+                $username,
+                $password,
+                $queries,
+                $options,
+                $debug,
+                $usePdo
+            ) : DB::pdo(
+                new PDO(
+                    $dsn,
+                    $username,
+                    $password
+                ),
+                $driver,
+                $queries,
+                $options,
+                $debug
+            );
 
         $queryCache = [];
 
