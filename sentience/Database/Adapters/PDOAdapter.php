@@ -24,7 +24,7 @@ class PDOAdapter extends AdapterAbstract
         array $options,
         ?Closure $debug
     ): static {
-        $dsn = (function (Driver $driver, string $host, int $port, string $name, array $options): string {
+        $dsn = (function (Driver $driver, string $host, int $port, string $name, array $options): string{
             if (array_key_exists(static::OPTIONS_PDO_DSN, $options)) {
                 return (string) $options[static::OPTIONS_PDO_DSN];
             }
@@ -138,11 +138,17 @@ class PDOAdapter extends AdapterAbstract
 
     protected function configurePdoForSQLite(array $options): void
     {
-        if (method_exists($this->pdo, 'sqliteCreateFunction')) {
-            $this->pdo->sqliteCreateFunction(
-                static::REGEXP_LIKE_FUNCTION,
-                fn (string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction($value, $pattern, $flags)
-            );
+        foreach (['sqliteCreateFunction', 'createFunction'] as $method) {
+            if (method_exists($this->pdo, $method)) {
+                [$this->pdo, $method](
+                    static::REGEXP_LIKE_FUNCTION,
+                    fn(string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction(
+                        $value,
+                        $pattern,
+                        $flags
+                    )
+                );
+            }
         }
 
         if ($options[static::OPTIONS_SQLITE_READ_ONLY] ?? false) {

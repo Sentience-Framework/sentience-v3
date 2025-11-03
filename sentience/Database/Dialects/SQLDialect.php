@@ -263,7 +263,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn (string|Raw $column): string => $this->escapeIdentifier($column),
+                    fn(string|Raw $column): string => $this->escapeIdentifier($column),
                     $primaryKeys
                 )
             )
@@ -510,6 +510,27 @@ class SQLDialect extends DialectAbstract
         return;
     }
 
+    protected function buildConditionRegexOperator(string &$query, array &$params, Condition $condition, string $equals, string $notEquals): void
+    {
+        $query .= sprintf(
+            '%s %s ?',
+            $this->escapeIdentifier($condition->identifier),
+            $condition->condition == ConditionEnum::REGEX ? $equals : $notEquals
+        );
+
+        [$pattern, $flags] = $condition->value;
+
+        array_push(
+            $params,
+            !empty($flags)
+            ? sprintf(
+                '(?%s)%s',
+                $flags,
+                $pattern
+            ) : $pattern
+        );
+    }
+
     protected function buildConditionRaw(string &$query, array &$params, Condition $condition): void
     {
         $query .= sprintf('(%s)', $condition->identifier);
@@ -549,7 +570,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn (string|array|Raw $column): string => $this->escapeIdentifier($column),
+                    fn(string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $groupBy
                 )
             )
@@ -578,7 +599,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn (OrderBy $orderBy): string => sprintf(
+                    fn(OrderBy $orderBy): string => sprintf(
                         '%s %s',
                         $this->escapeIdentifier($orderBy->column),
                         $orderBy->direction->value
@@ -630,7 +651,7 @@ class SQLDialect extends DialectAbstract
             ? implode(
                 ', ',
                 array_map(
-                    fn (string $column): string => $this->escapeIdentifier($column),
+                    fn(string $column): string => $this->escapeIdentifier($column),
                     $returning
                 )
             )
@@ -674,7 +695,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn (string $column): string => $this->escapeIdentifier($column),
+                    fn(string $column): string => $this->escapeIdentifier($column),
                     $uniqueConstraint->columns
                 )
             )
@@ -762,7 +783,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn (string|array|Raw $column): string => $this->escapeIdentifier($column),
+                    fn(string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $addPrimaryKeys->columns
                 )
             )
@@ -814,7 +835,7 @@ class SQLDialect extends DialectAbstract
             ? implode(
                 '.',
                 array_map(
-                    fn (string|array|Raw $identifier): string => $this->escapeIdentifier($identifier),
+                    fn(string|array|Raw $identifier): string => $this->escapeIdentifier($identifier),
                     $identifier
                 )
             )

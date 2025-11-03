@@ -22,22 +22,12 @@ class PgSQLDialect extends SQLDialect
             return;
         }
 
-        $query .= sprintf(
-            '%s %s ?',
-            $this->escapeIdentifier($condition->identifier),
-            $condition->condition == ConditionEnum::REGEX ? '~' : '!~'
-        );
-
-        [$pattern, $flags] = $condition->value;
-
-        array_push(
+        parent::buildConditionRegexOperator(
+            $query,
             $params,
-            !empty($flags)
-            ? sprintf(
-                '(?%s)%s',
-                $flags,
-                $pattern
-            ) : $pattern
+            $condition,
+            '~',
+            '!~'
         );
     }
 
@@ -54,7 +44,7 @@ class PgSQLDialect extends SQLDialect
                 implode(
                     ', ',
                     array_map(
-                        fn (string|Raw $column): string => $this->escapeIdentifier($column),
+                        fn(string|Raw $column): string => $this->escapeIdentifier($column),
                         $onConflict->conflict
                     )
                 )

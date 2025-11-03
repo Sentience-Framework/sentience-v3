@@ -12,6 +12,17 @@ class FirebirdDialect extends SQLDialect
 
     protected const bool RETURNING = true;
 
+    protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
+    {
+        parent::buildConditionRegexOperator(
+            $query,
+            $params,
+            $condition,
+            'SIMILAR TO',
+            'NOT SIMILAR TO'
+        );
+    }
+
     protected function buildLimit(string &$query, ?int $limit, ?int $offset): void
     {
         if (is_null($limit)) {
@@ -38,27 +49,6 @@ class FirebirdDialect extends SQLDialect
             ' ROWS %d TO %d',
             $rows,
             $to
-        );
-    }
-
-    protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
-    {
-        $query .= sprintf(
-            '%s %s ?',
-            $this->escapeIdentifier($condition->identifier),
-            $condition->condition == ConditionEnum::REGEX ? 'SIMILAR TO' : 'NOT SIMILAR TO'
-        );
-
-        [$pattern, $flags] = $condition->value;
-
-        array_push(
-            $params,
-            !empty($flags)
-            ? sprintf(
-                '(?%s)%s',
-                $flags,
-                $pattern
-            ) : $pattern
         );
     }
 
