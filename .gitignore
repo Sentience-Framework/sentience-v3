@@ -1,6 +1,9 @@
 .env
 /vendor/
 
+/firebird/**
+!/firebird/.gitkeep
+
 /sqlite/**
 !/sqlite/.gitkeep
 

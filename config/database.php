@@ -8,11 +8,12 @@ return [
         'firebird' => [
             'host' => env('DB_HOST', 'localhost'),
             'port' => env('DB_PORT', 3050),
-            'name' => env('DB_NAME', 'sentience'),
+            'file' => env('DB_NAME', 'sentience'),
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
             'queries' => env('DB_QUERIES', []),
-            'use_pdo' => env('DB_USE_PDO', false)
+            'embedded' => env('DB_FIREBIRD_EMBEDDED', false),
+            'use_pdo' => env('DB_USE_PDO', false),
         ],
         'mariadb' => [
             'host' => env('DB_HOST', 'localhost'),

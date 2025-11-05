@@ -24,9 +24,25 @@ class PDOAdapter extends AdapterAbstract
         array $options,
         ?Closure $debug
     ): static {
-        $dsn = (function (Driver $driver, string $host, int $port, string $name, array $options): string {
+        $dsn = (function (Driver $driver, string $host, int $port, string $name, array $options): string{
             if (array_key_exists(static::OPTIONS_PDO_DSN, $options)) {
                 return (string) $options[static::OPTIONS_PDO_DSN];
+            }
+
+            if ($driver == Driver::FIREBIRD) {
+                return !($options[static::OPTIONS_FIREBIRD_EMBEDDED] ?? false)
+                    ? sprintf(
+                        '%s:dbname=%s/%s:%s',
+                        $driver->value,
+                        $host,
+                        $port,
+                        $name
+                    )
+                    : sprintf(
+                        '%s:dbname=%s',
+                        $driver->value,
+                        $name
+                    );
             }
 
             if ($driver == Driver::SQLITE) {
@@ -142,7 +158,7 @@ class PDOAdapter extends AdapterAbstract
             if (method_exists($this->pdo, $method)) {
                 [$this->pdo, $method](
                     static::REGEXP_LIKE_FUNCTION,
-                    fn (string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction(
+                    fn(string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction(
                         $value,
                         $pattern,
                         $flags
