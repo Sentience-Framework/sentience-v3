@@ -76,10 +76,7 @@ class PDOAdapter extends AdapterAbstract
         $pdo = new PDO(
             $dsn,
             $username,
-            $password,
-            [
-                PDO::ATTR_PERSISTENT => true
-            ]
+            $password
         );
 
         return new static(
@@ -106,6 +103,7 @@ class PDOAdapter extends AdapterAbstract
         );
 
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->pdo->setAttribute(PDO::ATTR_PERSISTENT, $options[static::OPTIONS_PERSISTENT] ?? false);
         $this->pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
         $this->pdo->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
 

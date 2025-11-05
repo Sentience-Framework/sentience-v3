@@ -9,6 +9,7 @@ use Sentience\Database\Queries\Query;
 
 abstract class AdapterAbstract implements AdapterInterface
 {
+    public const string OPTIONS_PERSISTENT = 'persistent';
     public const string OPTIONS_PDO_DSN = 'dsn';
     public const string OPTIONS_FIREBIRD_EMBEDDED = 'embedded';
     public const string OPTIONS_MYSQL_CHARSET = 'charset';

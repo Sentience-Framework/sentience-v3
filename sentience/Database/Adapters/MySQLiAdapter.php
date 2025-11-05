@@ -31,7 +31,7 @@ class MySQLiAdapter extends AdapterAbstract
         ?Closure $debug
     ): static {
         $mysqli = new mysqli(
-            $host,
+            ($options[static::OPTIONS_PERSISTENT] ?? false) ? sprintf('p:%s', $host) : $host,
             $username,
             $password,
             $name,
