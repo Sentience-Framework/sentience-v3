@@ -243,6 +243,6 @@ class SQLite3Adapter extends AdapterAbstract
 
     public function isConnected(): bool
     {
-        return is_null($this->sqlite3);
+        return !is_null($this->sqlite3);
     }
 }

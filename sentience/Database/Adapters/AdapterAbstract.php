@@ -125,6 +125,10 @@ abstract class AdapterAbstract implements AdapterInterface
 
     public function reconnect(): void
     {
+        if ($this->isConnected()) {
+            return;
+        }
+
         static::__construct(
             $this->connect,
             $this->driver,
@@ -136,6 +140,10 @@ abstract class AdapterAbstract implements AdapterInterface
 
     public function __destruct()
     {
+        if (!$this->isConnected()) {
+            return;
+        }
+
         if ($this->driver == Driver::SQLITE) {
             $this->disconnect();
         }

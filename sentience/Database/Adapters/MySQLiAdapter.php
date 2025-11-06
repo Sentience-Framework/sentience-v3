@@ -241,6 +241,6 @@ class MySQLiAdapter extends AdapterAbstract
 
     public function isConnected(): bool
     {
-        return is_null($this->mysqli);
+        return !is_null($this->mysqli);
     }
 }

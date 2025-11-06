@@ -376,6 +376,6 @@ class PDOAdapter extends AdapterAbstract
 
     public function isConnected(): bool
     {
-        return is_null($this->pdo);
+        return !is_null($this->pdo);
     }
 }
