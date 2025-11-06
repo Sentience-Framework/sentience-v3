@@ -218,6 +218,8 @@ class Database
     {
         $this->lazy = true;
 
+        $this->adapter->disconnect();
+
         return $this;
     }
 
