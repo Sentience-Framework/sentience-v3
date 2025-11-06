@@ -110,7 +110,7 @@ class PDOAdapter extends AdapterAbstract
             if (method_exists($this->pdo, $method)) {
                 [$this->pdo, $method](
                     static::REGEXP_LIKE_FUNCTION,
-                    fn(string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction(
+                    fn (string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction(
                         $value,
                         $pattern,
                         $flags

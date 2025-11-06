@@ -36,7 +36,7 @@ return new class () {
 
                 Log::stderrBetweenEqualSigns('Query', $lines);
             }
-            : null;
+        : null;
         $lazy = config('database->lazy', false);
 
         $db = $driver->isSupportedBySentience()
@@ -53,17 +53,17 @@ return new class () {
                 $usePdo,
                 $lazy
             ) : DB::pdo(
-                    fn(): PDO => new PDO(
-                        $dsn,
-                        $username,
-                        $password
-                    ),
-                    $driver,
-                    $queries,
-                    $options,
-                    $debug,
-                    $lazy
-                );
+                fn (): PDO => new PDO(
+                    $dsn,
+                    $username,
+                    $password
+                ),
+                $driver,
+                $queries,
+                $options,
+                $debug,
+                $lazy
+            );
 
         return $db;
 
