@@ -15,8 +15,6 @@ use Sentience\Database\Queries\Objects\RenameColumn;
 class SQLiteDialect extends SQLDialect
 {
     protected const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
-    protected const bool ON_CONFLICT = true;
-    protected const bool RETURNING = true;
 
     protected function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
     {
@@ -107,23 +105,13 @@ class SQLiteDialect extends SQLDialect
         throw new QueryException('SQLite does not support dropping constraints by altering the table');
     }
 
-    // public function onConflict(): bool
-    // {
-    //     return $this->version >= 32400;
-    // }
-
-    // public function returning(): bool
-    // {
-    //     return $this->version >= 33500;
-    // }
-
     public function onConflict(): bool
     {
-        return false;
+        return $this->version >= 32400;
     }
 
     public function returning(): bool
     {
-        return false;
+        return $this->version >= 33500;
     }
 }
