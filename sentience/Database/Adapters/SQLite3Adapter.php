@@ -2,14 +2,14 @@
 
 namespace Sentience\Database\Adapters;
 
-use Sentience\Database\Exceptions\AdapterException;
-use Sentience\Database\Results\Result;
-use Sentience\Database\Results\ResultInterface;
 use SQLite3;
 use SQLite3Stmt;
 use Throwable;
 use Sentience\Database\Dialects\DialectInterface;
+use Sentience\Database\Exceptions\AdapterException;
 use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Results\Result;
+use Sentience\Database\Results\ResultInterface;
 use Sentience\Database\Results\SQLite3Result;
 
 class SQLite3Adapter extends AdapterAbstract
@@ -29,7 +29,7 @@ class SQLite3Adapter extends AdapterAbstract
 
         $this->sqlite3->createFunction(
             static::REGEXP_LIKE_FUNCTION,
-            fn(string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction($value, $pattern, $flags)
+            fn (string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction($value, $pattern, $flags)
         );
 
         if (array_key_exists(static::OPTIONS_SQLITE_BUSY_TIMEOUT, $this->options)) {

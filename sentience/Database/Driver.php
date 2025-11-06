@@ -5,6 +5,7 @@ namespace Sentience\Database;
 use Closure;
 use mysqli;
 use PDO;
+use SQLite3;
 use Sentience\Database\Adapters\AdapterAbstract;
 use Sentience\Database\Adapters\AdapterInterface;
 use Sentience\Database\Adapters\MySQLiAdapter;
@@ -17,7 +18,6 @@ use Sentience\Database\Dialects\PgSQLDialect;
 use Sentience\Database\Dialects\SQLDialect;
 use Sentience\Database\Dialects\SQLiteDialect;
 use Sentience\Database\Exceptions\DriverException;
-use SQLite3;
 
 enum Driver: string
 {
@@ -54,7 +54,7 @@ enum Driver: string
                 static::SQLITE => SQLite3Adapter::class,
                 default => PDOAdapter::class
             }
-            : PDOAdapter::class;
+        : PDOAdapter::class;
 
         return $this->connect(
             $adapter,
@@ -108,7 +108,7 @@ enum Driver: string
     ): AdapterInterface {
         if ($adapter == MySQLiAdapter::class) {
             return new MySQLiAdapter(
-                fn(): mysqli => new mysqli(
+                fn (): mysqli => new mysqli(
                     ($options[AdapterAbstract::OPTIONS_PERSISTENT] ?? false) ? sprintf('p:%s', $host) : $host,
                     $username,
                     $password,
@@ -125,7 +125,7 @@ enum Driver: string
 
         if ($adapter == SQLite3Adapter::class) {
             return new SQLite3Adapter(
-                fn(): SQLite3 => new SQLite3(
+                fn (): SQLite3 => new SQLite3(
                     $name,
                     !($options[AdapterAbstract::OPTIONS_SQLITE_READ_ONLY] ?? false)
                     ? SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE
@@ -142,7 +142,7 @@ enum Driver: string
 
         return new PDOAdapter(
             function () use ($host, $port, $name, $username, $password, $options): PDO {
-                $dsn = (function (string $host, int $port, string $name, array $options): string{
+                $dsn = (function (string $host, int $port, string $name, array $options): string {
                     if (array_key_exists(AdapterAbstract::OPTIONS_PDO_DSN, $options)) {
                         return (string) $options[AdapterAbstract::OPTIONS_PDO_DSN];
                     }

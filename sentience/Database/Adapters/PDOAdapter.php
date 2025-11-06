@@ -4,14 +4,14 @@ namespace Sentience\Database\Adapters;
 
 use PDO;
 use PDOStatement;
-use Sentience\Database\Exceptions\AdapterException;
-use Sentience\Database\Results\Result;
-use Sentience\Database\Results\ResultInterface;
 use Throwable;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
+use Sentience\Database\Exceptions\AdapterException;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Results\PDOResult;
+use Sentience\Database\Results\Result;
+use Sentience\Database\Results\ResultInterface;
 
 class PDOAdapter extends AdapterAbstract
 {

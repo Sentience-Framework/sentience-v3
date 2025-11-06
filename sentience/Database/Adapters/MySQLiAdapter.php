@@ -2,16 +2,14 @@
 
 namespace Sentience\Database\Adapters;
 
-use Closure;
 use mysqli;
-use Sentience\Database\Exceptions\AdapterException;
-use Sentience\Database\Results\Result;
-use Sentience\Database\Results\ResultInterface;
 use Throwable;
 use Sentience\Database\Dialects\DialectInterface;
-use Sentience\Database\Driver;
+use Sentience\Database\Exceptions\AdapterException;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Results\MySQLiResult;
+use Sentience\Database\Results\Result;
+use Sentience\Database\Results\ResultInterface;
 
 class MySQLiAdapter extends AdapterAbstract
 {
@@ -289,12 +287,6 @@ class MySQLiAdapter extends AdapterAbstract
             throw new AdapterException('last insert id is not support in lazy mode');
         }
 
-        $lastInsertId = $this->mysqli->insert_id;
-
-        if ($this->lazy) {
-            $this->disconnect();
-        }
-
-        return $lastInsertId;
+        return $this->mysqli->insert_id;
     }
 }

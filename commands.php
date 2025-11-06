@@ -117,10 +117,10 @@ return [
     Command::register(
         'db:create',
         function (DB $db): void {
-            print_r($db);
-            exit;
-
-            $db->exec('CREATE DATABASE "sentience"');
+            foreach (range(0, 10) as $sleep) {
+                echo $sleep . PHP_EOL;
+                sleep($sleep);
+            }
         }
     )
 ];

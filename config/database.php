@@ -124,5 +124,6 @@ return [
      * The chance of an unknown sequence breaking the param injection is never zero.
      */
     'emulate_prepares' => env('DB_EMULATE_PREPARES', false),
-    'debug' => env('DB_DEBUG', false)
+    'debug' => env('DB_DEBUG', false),
+    'lazy' => env('DB_LAZY') ?? is_cli()
 ];

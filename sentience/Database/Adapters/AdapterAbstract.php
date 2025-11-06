@@ -39,6 +39,29 @@ abstract class AdapterAbstract implements AdapterInterface
         }
     }
 
+    public function enableLazy(bool $disconnect = true): void
+    {
+        $this->lazy = true;
+
+        if ($disconnect) {
+            $this->disconnect();
+        }
+    }
+
+    public function disableLazy(bool $connect = true): void
+    {
+        $this->lazy = false;
+
+        if ($connect) {
+            $this->connect();
+        }
+    }
+
+    public function isLazy(): bool
+    {
+        return $this->lazy;
+    }
+
     protected function mysqlNames(Closure $execute, string $charset, ?string $collation): void
     {
         $query = sprintf(
@@ -125,29 +148,6 @@ abstract class AdapterAbstract implements AdapterInterface
         }
 
         ($this->debug)($query, $start, $error instanceof Throwable ? $error->getMessage() : $error);
-    }
-
-    public function enableLazy(bool $disconnect = true): void
-    {
-        $this->lazy = true;
-
-        if ($disconnect) {
-            $this->disconnect();
-        }
-    }
-
-    public function disableLazy(bool $connect = true): void
-    {
-        $this->lazy = false;
-
-        if ($connect) {
-            $this->connect();
-        }
-    }
-
-    public function isLazy(): bool
-    {
-        return $this->lazy;
     }
 
     public function __destruct()
