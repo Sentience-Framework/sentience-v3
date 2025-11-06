@@ -10,8 +10,7 @@ use Throwable;
 
 class Connection
 {
-    public const string RECONNECT = 'reconnect';
-    public const string CLOSE = 'close';
+    public const string LAZY = 'lazy';
     public const string PERSISTENT = 'persistent';
 
     public function __construct(

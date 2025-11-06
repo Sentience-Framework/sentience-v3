@@ -27,6 +27,7 @@ abstract class AdapterAbstract implements AdapterInterface
     public const string REGEXP_LIKE_FUNCTION = 'REGEXP_LIKE';
 
     public function __construct(
+        protected Closure $connect,
         protected Driver $driver,
         protected array $queries,
         protected array $options,
@@ -120,5 +121,27 @@ abstract class AdapterAbstract implements AdapterInterface
         }
 
         ($this->debug)($query, $start, $error instanceof Throwable ? $error->getMessage() : $error);
+    }
+
+    public function reconnect(): void
+    {
+        static::__construct(
+            $this->connect,
+            $this->driver,
+            $this->queries,
+            $this->options,
+            $this->debug
+        );
+    }
+
+    public function __destruct()
+    {
+        if ($this->driver == Driver::SQLITE) {
+            $this->disconnect();
+        }
+
+        if (!($this->options[static::OPTIONS_PERSISTENT] ?? false)) {
+            $this->disconnect();
+        }
     }
 }

@@ -13,6 +13,8 @@ use Sentience\Database\Results\PDOResult;
 
 class PDOAdapter extends AdapterAbstract
 {
+    protected ?PDO $pdo;
+
     public static function connect(
         Driver $driver,
         string $host,
@@ -24,63 +26,63 @@ class PDOAdapter extends AdapterAbstract
         array $options,
         ?Closure $debug
     ): static {
-        $dsn = (function (Driver $driver, string $host, int $port, string $name, array $options): string{
-            if (array_key_exists(static::OPTIONS_PDO_DSN, $options)) {
-                return (string) $options[static::OPTIONS_PDO_DSN];
-            }
+        return new static(
+            function () use ($driver, $host, $port, $name, $username, $password, $options): PDO {
+                $dsn = (function (Driver $driver, string $host, int $port, string $name, array $options): string{
+                    if (array_key_exists(static::OPTIONS_PDO_DSN, $options)) {
+                        return (string) $options[static::OPTIONS_PDO_DSN];
+                    }
 
-            if ($driver == Driver::FIREBIRD) {
-                return !($options[static::OPTIONS_FIREBIRD_EMBEDDED] ?? false)
-                    ? sprintf(
-                        '%s:dbname=%s/%s:%s',
-                        $driver->value,
+                    if ($driver == Driver::FIREBIRD) {
+                        return !($options[static::OPTIONS_FIREBIRD_EMBEDDED] ?? false)
+                            ? sprintf(
+                                '%s:dbname=%s/%s:%s',
+                                $driver->value,
+                                $host,
+                                $port,
+                                $name
+                            )
+                            : sprintf(
+                                '%s:dbname=%s',
+                                $driver->value,
+                                $name
+                            );
+                    }
+
+                    if ($driver == Driver::SQLITE) {
+                        return sprintf(
+                            '%s:%s',
+                            $driver->value,
+                            $name
+                        );
+                    }
+
+                    $dsn = sprintf(
+                        '%s:host=%s;port=%s;dbname=%s',
+                        $driver == Driver::MARIADB ? Driver::MYSQL->value : $driver->value,
                         $host,
                         $port,
                         $name
-                    )
-                    : sprintf(
-                        '%s:dbname=%s',
-                        $driver->value,
-                        $name
                     );
-            }
 
-            if ($driver == Driver::SQLITE) {
-                return sprintf(
-                    '%s:%s',
-                    $driver->value,
-                    $name
+                    if ($driver == Driver::PGSQL) {
+                        if (array_key_exists(static::OPTIONS_PGSQL_CLIENT_ENCODING, $options)) {
+                            $dsn .= sprintf(
+                                ";options='--client_encoding=%s'",
+                                (string) $options[static::OPTIONS_PGSQL_CLIENT_ENCODING]
+                            );
+                        }
+                    }
+
+                    return $dsn;
+                })($driver, $host, $port, $name, $options);
+
+                return new PDO(
+                    $dsn,
+                    $username,
+                    $password
                 );
-            }
-
-            $dsn = sprintf(
-                '%s:host=%s;port=%s;dbname=%s',
-                $driver == Driver::MARIADB ? Driver::MYSQL->value : $driver->value,
-                $host,
-                $port,
-                $name
-            );
-
-            if ($driver == Driver::PGSQL) {
-                if (array_key_exists(static::OPTIONS_PGSQL_CLIENT_ENCODING, $options)) {
-                    $dsn .= sprintf(
-                        ";options='--client_encoding=%s'",
-                        (string) $options[static::OPTIONS_PGSQL_CLIENT_ENCODING]
-                    );
-                }
-            }
-
-            return $dsn;
-        })($driver, $host, $port, $name, $options);
-
-        $pdo = new PDO(
-            $dsn,
-            $username,
-            $password
-        );
-
-        return new static(
-            $pdo,
+            },
             $driver,
             $queries,
             $options,
@@ -89,18 +91,21 @@ class PDOAdapter extends AdapterAbstract
     }
 
     public function __construct(
-        protected PDO $pdo,
+        Closure $connect,
         Driver $driver,
         array $queries,
         array $options,
         ?Closure $debug
     ) {
         parent::__construct(
+            $connect,
             $driver,
             $queries,
             $options,
             $debug
         );
+
+        $this->pdo = $connect();
 
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->pdo->setAttribute(PDO::ATTR_PERSISTENT, $options[static::OPTIONS_PERSISTENT] ?? false);
@@ -360,10 +365,17 @@ class PDOAdapter extends AdapterAbstract
         $pdoStatement->bindParam($key, $value, $type);
     }
 
-    public function __destruct()
+    public function disconnect(): void
     {
         if ($this->driver == Driver::SQLITE) {
             $this->sqliteOptimize($this->options[static::OPTIONS_SQLITE_OPTIMIZE] ?? false);
         }
+
+        $this->pdo = null;
+    }
+
+    public function isConnected(): bool
+    {
+        return is_null($this->pdo);
     }
 }
