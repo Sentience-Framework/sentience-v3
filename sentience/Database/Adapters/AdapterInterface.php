@@ -10,18 +10,9 @@ use Sentience\Database\Results\ResultInterface;
 
 interface AdapterInterface
 {
-    public static function connect(
-        Driver $driver,
-        string $host,
-        int $port,
-        string $name,
-        string $username,
-        string $password,
-        array $queries,
-        array $options,
-        ?Closure $debug
-    ): static;
-
+    public function connect(): void;
+    public function disconnect(): void;
+    public function connected(): bool;
     public function version(): int|string;
     public function exec(string $query): void;
     public function query(string $query): ResultInterface;
@@ -31,7 +22,7 @@ interface AdapterInterface
     public function rollbackTransaction(): void;
     public function inTransaction(): bool;
     public function lastInsertId(?string $name = null): null|int|string;
-    public function disconnect(): void;
-    public function reconnect(): void;
-    public function isConnected(): bool;
+    public function enableLazy(bool $disconnect = true): void;
+    public function disableLazy(bool $connect = true): void;
+    public function isLazy(): bool;
 }

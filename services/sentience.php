@@ -49,7 +49,8 @@ return new class () {
                 $queries,
                 $options,
                 $debug,
-                $usePdo
+                $usePdo,
+                false
             ) : DB::pdo(
                     fn(): PDO => new PDO(
                         $dsn,
@@ -59,12 +60,9 @@ return new class () {
                     $driver,
                     $queries,
                     $options,
-                    $debug
+                    $debug,
+                    false
                 );
-
-        if (is_cli()) {
-            $db->enableLazy();
-        }
 
         return $db;
 

@@ -33,7 +33,7 @@ class SQLiteDialect extends SQLDialect
             implode(
                 ', ',
                 array_map(
-                    fn (string|Raw $column): string => $this->escapeIdentifier($column),
+                    fn(string|Raw $column): string => $this->escapeIdentifier($column),
                     $onConflict->conflict
                 )
             )
@@ -107,13 +107,23 @@ class SQLiteDialect extends SQLDialect
         throw new QueryException('SQLite does not support dropping constraints by altering the table');
     }
 
+    // public function onConflict(): bool
+    // {
+    //     return $this->version >= 32400;
+    // }
+
+    // public function returning(): bool
+    // {
+    //     return $this->version >= 33500;
+    // }
+
     public function onConflict(): bool
     {
-        return $this->version >= 32400;
+        return false;
     }
 
     public function returning(): bool
     {
-        return $this->version >= 33500;
+        return false;
     }
 }
