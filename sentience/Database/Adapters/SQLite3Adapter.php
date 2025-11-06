@@ -28,7 +28,7 @@ class SQLite3Adapter extends AdapterAbstract
         ?Closure $debug
     ): static {
         return new static(
-            fn(): SQLite3 => new SQLite3(
+            fn (): SQLite3 => new SQLite3(
                 $name,
                 !($options[static::OPTIONS_SQLITE_READ_ONLY] ?? false)
                 ? SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE
@@ -63,7 +63,7 @@ class SQLite3Adapter extends AdapterAbstract
 
         $this->sqlite3->createFunction(
             static::REGEXP_LIKE_FUNCTION,
-            fn(string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction($value, $pattern, $flags)
+            fn (string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction($value, $pattern, $flags)
         );
 
         if (array_key_exists(static::OPTIONS_SQLITE_BUSY_TIMEOUT, $options)) {

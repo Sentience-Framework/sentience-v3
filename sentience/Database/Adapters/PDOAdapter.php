@@ -8,6 +8,7 @@ use PDOStatement;
 use Throwable;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
+use Sentience\Database\Exceptions\DriverException;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Results\PDOResult;
 
@@ -28,25 +29,13 @@ class PDOAdapter extends AdapterAbstract
     ): static {
         return new static(
             function () use ($driver, $host, $port, $name, $username, $password, $options): PDO {
-                $dsn = (function (Driver $driver, string $host, int $port, string $name, array $options): string{
+                $dsn = (function (Driver $driver, string $host, int $port, string $name, array $options): string {
                     if (array_key_exists(static::OPTIONS_PDO_DSN, $options)) {
                         return (string) $options[static::OPTIONS_PDO_DSN];
                     }
 
-                    if ($driver == Driver::FIREBIRD) {
-                        return !($options[static::OPTIONS_FIREBIRD_EMBEDDED] ?? false)
-                            ? sprintf(
-                                '%s:dbname=%s/%s:%s',
-                                $driver->value,
-                                $host,
-                                $port,
-                                $name
-                            )
-                            : sprintf(
-                                '%s:dbname=%s',
-                                $driver->value,
-                                $name
-                            );
+                    if (!in_array($driver, [Driver::MARIADB, Driver::MYSQL, Driver::PGSQL, Driver::SQLITE])) {
+                        throw new DriverException('this driver requires a dsn');
                     }
 
                     if ($driver == Driver::SQLITE) {
@@ -161,7 +150,7 @@ class PDOAdapter extends AdapterAbstract
             if (method_exists($this->pdo, $method)) {
                 [$this->pdo, $method](
                     static::REGEXP_LIKE_FUNCTION,
-                    fn(string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction(
+                    fn (string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction(
                         $value,
                         $pattern,
                         $flags

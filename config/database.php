@@ -6,14 +6,20 @@ return [
     'driver' => env('DB_DRIVER', 'sqlite'),
     'settings' => [
         'firebird' => [
-            'host' => env('DB_HOST', 'localhost'),
-            'port' => env('DB_PORT', 3050),
-            'file' => env('DB_NAME', 'sentience'),
+            'dsn' => env(
+                'DB_DSN',
+                sprintf(
+                    'firebird:%s/%s:',
+                    env('DB_HOST', 'localhost'),
+                    env('DB_PORT', 3050),
+                    env('DB_NAME', 'sentience')
+                )
+            ),
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
             'queries' => env('DB_QUERIES', []),
             'embedded' => env('DB_FIREBIRD_EMBEDDED', false),
-            'use_pdo' => env('DB_USE_PDO', false),
+            'use_pdo' => env('DB_USE_PDO', false)
         ],
         'mariadb' => [
             'host' => env('DB_HOST', 'localhost'),
