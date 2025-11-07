@@ -28,7 +28,7 @@ class SQLite3Adapter extends AdapterAbstract
 
         $this->sqlite3->createFunction(
             static::REGEXP_LIKE_FUNCTION,
-            fn(string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction($value, $pattern, $flags)
+            fn (string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction($value, $pattern, $flags)
         );
 
         if (array_key_exists(static::OPTIONS_SQLITE_BUSY_TIMEOUT, $this->options)) {
