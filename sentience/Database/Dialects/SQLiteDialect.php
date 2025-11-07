@@ -23,7 +23,7 @@ class SQLiteDialect extends SQLDialect
         }
 
         if (is_string($onConflict->conflict)) {
-            throw new QueryException('SQLite does not support named constraints. Please use an array of columns');
+            throw new QueryException('SQLite does not support named constraints');
         }
 
         $conflict = sprintf(
@@ -31,7 +31,7 @@ class SQLiteDialect extends SQLDialect
             implode(
                 ', ',
                 array_map(
-                    fn (string|Raw $column): string => $this->escapeIdentifier($column),
+                    fn(string|Raw $column): string => $this->escapeIdentifier($column),
                     $onConflict->conflict
                 )
             )
