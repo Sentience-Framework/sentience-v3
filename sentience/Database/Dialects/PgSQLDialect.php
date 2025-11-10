@@ -87,7 +87,7 @@ class PgSQLDialect extends SQLDialect
     protected function buildColumn(Column $column): string
     {
         if (!$this->generatedByDefaultAsIdentity()) {
-            $column->type = match (strtolower($column->type)) {
+            $column->type = match (strtoupper($column->type)) {
                 'SMALLINT',
                 'INTEGER',
                 'INT',
