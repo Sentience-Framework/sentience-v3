@@ -23,14 +23,8 @@ enum PgSQLColumnEnum: string
     case VARCHAR = 'VARCHAR';
     case TEXT = 'TEXT';
 
-    public static function getType(string $type, bool $isAutoIncrement): static
+    public static function getType(string $type): static
     {
-        if ($type == 'int') {
-            if ($isAutoIncrement) {
-                return static::BIGSERIAL;
-            }
-        }
-
         return match ($type) {
             'bool' => static::BOOLEAN,
             'int' => static::BIGINT,

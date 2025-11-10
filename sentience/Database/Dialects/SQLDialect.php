@@ -233,10 +233,6 @@ class SQLDialect extends DialectAbstract
             throw new QueryException('no table columns specified');
         }
 
-        if (count($primaryKeys) == 0) {
-            throw new QueryException('no table primary key(s) specified');
-        }
-
         $query = 'CREATE TABLE';
 
         if ($ifNotExists) {
@@ -255,16 +251,18 @@ class SQLDialect extends DialectAbstract
             $query .= $this->buildColumn($column);
         }
 
-        $query .= sprintf(
-            ', PRIMARY KEY (%s)',
-            implode(
-                ', ',
-                array_map(
-                    fn (string|Raw $column): string => $this->escapeIdentifier($column),
-                    $primaryKeys
+        if (count($primaryKeys) > 0) {
+            $query .= sprintf(
+                ', PRIMARY KEY (%s)',
+                implode(
+                    ', ',
+                    array_map(
+                        fn(string|Raw $column): string => $this->escapeIdentifier($column),
+                        $primaryKeys
+                    )
                 )
-            )
-        );
+            );
+        }
 
         foreach ($constraints as $constraint) {
             $query .= ', ';
@@ -567,7 +565,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn (string|array|Raw $column): string => $this->escapeIdentifier($column),
+                    fn(string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $groupBy
                 )
             )
@@ -596,7 +594,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn (OrderBy $orderBy): string => sprintf(
+                    fn(OrderBy $orderBy): string => sprintf(
                         '%s %s',
                         $this->escapeIdentifier($orderBy->column),
                         $orderBy->direction->value
@@ -648,7 +646,7 @@ class SQLDialect extends DialectAbstract
             ? implode(
                 ', ',
                 array_map(
-                    fn (string $column): string => $this->escapeIdentifier($column),
+                    fn(string $column): string => $this->escapeIdentifier($column),
                     $returning
                 )
             )
@@ -691,7 +689,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn (string $column): string => $this->escapeIdentifier($column),
+                    fn(string $column): string => $this->escapeIdentifier($column),
                     $uniqueConstraint->columns
                 )
             )
@@ -779,7 +777,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn (string|array|Raw $column): string => $this->escapeIdentifier($column),
+                    fn(string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $addPrimaryKeys->columns
                 )
             )
@@ -831,7 +829,7 @@ class SQLDialect extends DialectAbstract
             ? implode(
                 '.',
                 array_map(
-                    fn (string|array|Raw $identifier): string => $this->escapeIdentifier($identifier),
+                    fn(string|array|Raw $identifier): string => $this->escapeIdentifier($identifier),
                     $identifier
                 )
             )

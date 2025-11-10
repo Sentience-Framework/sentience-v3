@@ -75,23 +75,18 @@ class ReflectionModelProperty
                 $this->isPrimaryKey(),
                 $this->isUnique()
             )->value,
-            $dialect instanceof PgSQLDialect => PgSQLColumnEnum::getType(
-                $type,
-                $this->isAutoIncrement()
-            )->value,
-            $dialect instanceof SQLiteDialect => SQLite3ColumnEnum::getType(
-                $type
-            )->value,
+            $dialect instanceof PgSQLDialect => PgSQLColumnEnum::getType($type)->value,
+            $dialect instanceof SQLiteDialect => SQLite3ColumnEnum::getType($type)->value,
             default => match ($type) {
-                'bool' => 'INT',
-                'int' => 'INT',
-                'float' => 'FLOAT',
-                'string' => 'TEXT',
-                Timestamp::class,
-                DateTime::class,
-                DateTimeInterface::class => 'DATETIME',
-                default => 'TEXT'
-            }
+                    'bool' => 'INT',
+                    'int' => 'INT',
+                    'float' => 'FLOAT',
+                    'string' => 'TEXT',
+                    Timestamp::class,
+                    DateTime::class,
+                    DateTimeInterface::class => 'DATETIME',
+                    default => 'TEXT'
+                }
         };
     }
 

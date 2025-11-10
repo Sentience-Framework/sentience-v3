@@ -6,9 +6,12 @@ use Sentience\Database\Exceptions\QueryException;
 use Sentience\Database\Queries\Objects\AddForeignKeyConstraint;
 use Sentience\Database\Queries\Objects\AddPrimaryKeys;
 use Sentience\Database\Queries\Objects\AddUniqueConstraint;
+use Sentience\Database\Queries\Objects\Alias;
 use Sentience\Database\Queries\Objects\AlterColumn;
+use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\DropConstraint;
 use Sentience\Database\Queries\Objects\OnConflict;
+use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Database\Queries\Objects\RenameColumn;
 
@@ -16,6 +19,31 @@ class SQLiteDialect extends SQLDialect
 {
     protected const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
     protected const bool GENERATED_BY_DEFAULT_AS_IDENTITY = false;
+
+    public function createTable(
+        bool $ifNotExists,
+        string|array|Alias|Raw $table,
+        array $columns,
+        array $primaryKeys,
+        array $constraints
+    ): QueryWithParams {
+        foreach ($columns as $column) {
+            if ($column->generatedByDefaultAsIdentity) {
+                $primaryKeys = array_filter(
+                    $primaryKeys,
+                    fn(string $primaryKey): bool => $primaryKey != $column->name
+                );
+            }
+        }
+
+        return parent::createTable(
+            $ifNotExists,
+            $table,
+            $columns,
+            $primaryKeys,
+            $constraints
+        );
+    }
 
     protected function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
     {
@@ -32,7 +60,7 @@ class SQLiteDialect extends SQLDialect
             implode(
                 ', ',
                 array_map(
-                    fn (string|Raw $column): string => $this->escapeIdentifier($column),
+                    fn(string|Raw $column): string => $this->escapeIdentifier($column),
                     $onConflict->conflict
                 )
             )
@@ -70,6 +98,17 @@ class SQLiteDialect extends SQLDialect
                 )
             )
         );
+    }
+
+    protected function buildColumn(Column $column): string
+    {
+        $sql = parent::buildColumn($column);
+
+        if ($column->generatedByDefaultAsIdentity) {
+            $sql .= ' PRIMARY KEY AUTOINCREMENT';
+        }
+
+        return $sql;
     }
 
     protected function buildAlterTableAlterColumn(AlterColumn $alterColumn): string
