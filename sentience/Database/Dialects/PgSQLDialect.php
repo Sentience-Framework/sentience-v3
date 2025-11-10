@@ -88,8 +88,9 @@ class PgSQLDialect extends SQLDialect
     {
         if (!$this->generatedByDefaultAsIdentity()) {
             $column->type = match (strtolower($column->type)) {
-                'INT',
+                'SMALLINT',
                 'INTEGER',
+                'INT',
                 'INT2',
                 'INT4' => 'SERIAL',
                 'BIGINT',
