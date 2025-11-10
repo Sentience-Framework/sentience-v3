@@ -2,7 +2,6 @@
 
 namespace Sentience\Database\Dialects;
 
-use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\Condition;
 
 class FirebirdDialect extends SQLDialect

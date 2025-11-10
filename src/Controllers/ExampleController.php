@@ -125,7 +125,7 @@ class ExampleController extends Controller
             ->whereNotLike('column2', '%z%')
             ->whereEmpty('empty_column')
             ->whereNotEmpty('not_empty_column')
-            ->whereRegex('column6', 'file|read|write|open')
+            ->whereRegex('column6', '/file|read|write|open/i')
             ->whereNotRegex('column6', 'error')
             ->whereContains('column7', 'draft')
             ->groupBy([
@@ -173,7 +173,7 @@ class ExampleController extends Controller
 
         $queries[] = $db->createTable('table_1')
             ->ifNotExists()
-            ->column('primary_key', 'int', true, null, ['AUTO_INCREMENT'])
+            ->column('primary_key', 'int', true, null, true)
             ->column('column1', 'bigint', true)
             ->column('column2', 'varchar(255)')
             ->primaryKeys(['primary_key'])

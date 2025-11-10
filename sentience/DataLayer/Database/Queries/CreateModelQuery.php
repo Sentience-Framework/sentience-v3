@@ -4,7 +4,6 @@ namespace Sentience\DataLayer\Database\Queries;
 
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
-use Sentience\Database\Dialects\MySQLDialect;
 use Sentience\Database\Queries\Traits\IfNotExistsTrait;
 use Sentience\DataLayer\Models\Reflection\ReflectionModel;
 

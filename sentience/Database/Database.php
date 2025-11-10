@@ -63,7 +63,9 @@ class Database
             }
         }
 
-        $version = $adapter->version();
+        $version = array_key_exists(AdapterInterface::OPTIONS_VERSION, $options)
+            ? (string) $options[AdapterInterface::OPTIONS_VERSION]
+            : $adapter->version();
 
         $dialect = $driver->getDialect($version);
 
@@ -98,7 +100,9 @@ class Database
             }
         }
 
-        $version = $adapter->version();
+        $version = array_key_exists(AdapterInterface::OPTIONS_VERSION, $options)
+            ? (string) $options[AdapterInterface::OPTIONS_VERSION]
+            : $adapter->version();
 
         $dialect = $driver->getDialect($version);
 

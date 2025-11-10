@@ -106,7 +106,7 @@ class MySQLDialect extends SQLDialect
             $sql .= ' AUTO_INCREMENT';
         }
 
-        return parent::buildColumn($column);
+        return $sql;
     }
 
     protected function buildAlterTableAlterColumn(AlterColumn $alterColumn): string

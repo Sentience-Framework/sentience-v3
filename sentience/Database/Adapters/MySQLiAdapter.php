@@ -86,8 +86,7 @@ class MySQLiAdapter extends AdapterAbstract
             return false;
         }
 
-        $this->disconnect();
-        $this->connect();
+        $this->reconnect();
 
         return true;
     }

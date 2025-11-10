@@ -11,23 +11,6 @@ use Sentience\Database\Queries\Query;
 
 abstract class AdapterAbstract implements AdapterInterface
 {
-    public const string OPTIONS_PERSISTENT = 'persistent';
-    public const string OPTIONS_PDO_DSN = 'dsn';
-    public const string OPTIONS_FIREBIRD_EMBEDDED = 'embedded';
-    public const string OPTIONS_MYSQL_CHARSET = 'charset';
-    public const string OPTIONS_MYSQL_COLLATION = 'collation';
-    public const string OPTIONS_MYSQL_ENGINE = 'engine';
-    public const string OPTIONS_PGSQL_CLIENT_ENCODING = 'client_encoding';
-    public const string OPTIONS_PGSQL_SEARCH_PATH = 'search_path';
-    public const string OPTIONS_SQLITE_READ_ONLY = 'read_only';
-    public const string OPTIONS_SQLITE_ENCRYPTION_KEY = 'encryption_key';
-    public const string OPTIONS_SQLITE_BUSY_TIMEOUT = 'busy_timeout';
-    public const string OPTIONS_SQLITE_ENCODING = 'encoding';
-    public const string OPTIONS_SQLITE_JOURNAL_MODE = 'journal_mode';
-    public const string OPTIONS_SQLITE_FOREIGN_KEYS = 'foreign_keys';
-    public const string OPTIONS_SQLITE_OPTIMIZE = 'optimize';
-    public const string REGEXP_LIKE_FUNCTION = 'REGEXP_LIKE';
-
     public function __construct(
         protected Closure $connect,
         protected Driver $driver,
@@ -70,8 +53,7 @@ abstract class AdapterAbstract implements AdapterInterface
             return false;
         }
 
-        $this->disconnect();
-        $this->connect();
+        $this->reconnect();
 
         return true;
     }
