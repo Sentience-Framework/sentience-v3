@@ -4,6 +4,7 @@ namespace Sentience\Database\Dialects;
 
 use Sentience\Database\Driver;
 use Sentience\Database\Queries\Objects\AlterColumn;
+use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\Condition;
 use Sentience\Database\Queries\Objects\DropConstraint;
 use Sentience\Database\Queries\Objects\OnConflict;
@@ -12,12 +13,11 @@ use Sentience\Database\Queries\Query;
 
 class MySQLDialect extends SQLDialect
 {
-    public const string AUTO_INCREMENT = 'AUTO_INCREMENT';
-
     protected const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
     protected const bool ESCAPE_ANSI = false;
     protected const string ESCAPE_IDENTIFIER = '`';
     protected const string ESCAPE_STRING = '"';
+    protected const bool GENERATED_BY_DEFAULT_AS_IDENTITY = false;
     protected const bool ON_CONFLICT = true;
 
     protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
@@ -96,6 +96,17 @@ class MySQLDialect extends SQLDialect
         }
 
         parent::buildReturning($query, $returning);
+    }
+
+    protected function buildColumn(Column $column): string
+    {
+        $sql = parent::buildColumn($column);
+
+        if ($column->generatedByDefaultAsIdentity) {
+            $sql .= ' AUTO_INCREMENT';
+        }
+
+        return parent::buildColumn($column);
     }
 
     protected function buildAlterTableAlterColumn(AlterColumn $alterColumn): string

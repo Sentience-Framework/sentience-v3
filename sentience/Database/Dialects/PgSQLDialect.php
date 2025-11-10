@@ -3,6 +3,7 @@
 namespace Sentience\Database\Dialects;
 
 use DateTime;
+use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\Condition;
 use Sentience\Database\Queries\Objects\OnConflict;
 use Sentience\Database\Queries\Objects\Raw;
@@ -43,7 +44,7 @@ class PgSQLDialect extends SQLDialect
                 implode(
                     ', ',
                     array_map(
-                        fn (string|Raw $column): string => $this->escapeIdentifier($column),
+                        fn(string|Raw $column): string => $this->escapeIdentifier($column),
                         $onConflict->conflict
                     )
                 )
@@ -83,6 +84,23 @@ class PgSQLDialect extends SQLDialect
         );
     }
 
+    protected function buildColumn(Column $column): string
+    {
+        if (!$this->generatedByDefaultAsIdentity()) {
+            $column->type = match (strtolower($column->type)) {
+                'INT',
+                'INTEGER',
+                'INT2',
+                'INT4' => 'SERIAL',
+                'BIGINT',
+                'INT8' => 'BIGSERIAL',
+                default => $column->type
+            };
+        }
+
+        return parent::buildColumn($column);
+    }
+
     public function castToQuery(mixed $value): mixed
     {
         if (is_bool($value)) {
@@ -109,5 +127,10 @@ class PgSQLDialect extends SQLDialect
         }
 
         return parent::parseDateTime($string);
+    }
+
+    public function generatedByDefaultAsIdentity(): bool
+    {
+        return $this->version >= 1700;
     }
 }

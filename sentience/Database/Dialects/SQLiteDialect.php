@@ -15,6 +15,7 @@ use Sentience\Database\Queries\Objects\RenameColumn;
 class SQLiteDialect extends SQLDialect
 {
     protected const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
+    protected const bool GENERATED_BY_DEFAULT_AS_IDENTITY = false;
 
     protected function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
     {
@@ -31,7 +32,7 @@ class SQLiteDialect extends SQLDialect
             implode(
                 ', ',
                 array_map(
-                    fn (string|Raw $column): string => $this->escapeIdentifier($column),
+                    fn(string|Raw $column): string => $this->escapeIdentifier($column),
                     $onConflict->conflict
                 )
             )

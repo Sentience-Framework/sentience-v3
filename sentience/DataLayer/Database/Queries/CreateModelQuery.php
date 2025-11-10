@@ -55,9 +55,7 @@ class CreateModelQuery extends ModelsQueryAbstract
                 $columnType,
                 !$propertyAllowsNull,
                 $defaultValue,
-                $propertyHasAutoIncrementAttribute && $this->dialect instanceof MySQLDialect
-                ? ['AUTO_INCREMENT']
-                : []
+                $propertyHasAutoIncrementAttribute
             );
         }
 

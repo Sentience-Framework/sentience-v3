@@ -18,9 +18,9 @@ trait AltersTrait
 {
     protected array $alters = [];
 
-    public function addColumn(string $name, string $type, bool $notNull = false, null|bool|int|float|string|DateTimeInterface|Raw $default = null, array $options = []): static
+    public function addColumn(string $name, string $type, bool $notNull = false, null|bool|int|float|string|DateTimeInterface|Raw $default = null, bool $generatedByDefaultAsIdentity = false): static
     {
-        $this->alters[] = new AddColumn($name, $type, $notNull, $default, $options);
+        $this->alters[] = new AddColumn($name, $type, $notNull, $default, $generatedByDefaultAsIdentity);
 
         return $this;
     }
