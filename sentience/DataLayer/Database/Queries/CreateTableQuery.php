@@ -139,7 +139,7 @@ class CreateTableQuery extends \Sentience\Database\Queries\CreateTableQuery
             $columnType,
             $notNull,
             $default,
-            []
+            'type' == 'autoIncrement'
         );
     }
 
@@ -160,7 +160,7 @@ class CreateTableQuery extends \Sentience\Database\Queries\CreateTableQuery
             $columnType,
             $notNull,
             $default,
-            []
+            $type == 'autoIncrement'
         );
     }
 

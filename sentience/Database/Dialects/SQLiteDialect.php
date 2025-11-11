@@ -31,7 +31,7 @@ class SQLiteDialect extends SQLDialect
             if ($column->generatedByDefaultAsIdentity) {
                 $primaryKeys = array_filter(
                     $primaryKeys,
-                    fn(string $primaryKey): bool => $primaryKey != $column->name
+                    fn (string $primaryKey): bool => $primaryKey != $column->name
                 );
             }
         }
@@ -60,7 +60,7 @@ class SQLiteDialect extends SQLDialect
             implode(
                 ', ',
                 array_map(
-                    fn(string|Raw $column): string => $this->escapeIdentifier($column),
+                    fn (string|Raw $column): string => $this->escapeIdentifier($column),
                     $onConflict->conflict
                 )
             )
@@ -102,13 +102,14 @@ class SQLiteDialect extends SQLDialect
 
     protected function buildColumn(Column $column): string
     {
-        $sql = parent::buildColumn($column);
-
         if ($column->generatedByDefaultAsIdentity) {
-            $sql .= ' PRIMARY KEY AUTOINCREMENT';
+            return sprintf(
+                '%s INTEGER PRIMARY KEY AUTOINCREMENT',
+                $this->escapeIdentifier($column->name)
+            );
         }
 
-        return $sql;
+        return parent::buildColumn($column);
     }
 
     protected function buildAlterTableAlterColumn(AlterColumn $alterColumn): string
