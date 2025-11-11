@@ -28,12 +28,14 @@ class SQLiteDialect extends SQLDialect
         array $constraints
     ): QueryWithParams {
         foreach ($columns as $column) {
-            if ($column->generatedByDefaultAsIdentity) {
-                $primaryKeys = array_filter(
-                    $primaryKeys,
-                    fn (string $primaryKey): bool => $primaryKey != $column->name
-                );
+            if (!$column->generatedByDefaultAsIdentity) {
+                continue;
             }
+
+            $primaryKeys = array_filter(
+                $primaryKeys,
+                fn (string $primaryKey): bool => $primaryKey != $column->name
+            );
         }
 
         return parent::createTable(
@@ -103,18 +105,14 @@ class SQLiteDialect extends SQLDialect
     protected function buildColumn(Column $column): string
     {
         if ($column->generatedByDefaultAsIdentity) {
-            $column->type = 'INTEGER';
-            $column->notNull = false;
-            $column->default = null;
+            return sprintf(
+                '%s INTEGER PRIMARY KEY AUTOINCREMENT',
+                $this->escapeIdentifier($column->name)
+            );
         }
 
-        $sql = parent::buildColumn($column);
-
-        if ($column->generatedByDefaultAsIdentity) {
-            $sql .= ' PRIMARY KEY AUTOINCREMENT';
-        }
-
-        return $sql;
+        return parent::buildColumn($column);
+        ;
     }
 
     protected function buildAlterTableAlterColumn(AlterColumn $alterColumn): string

@@ -8,7 +8,6 @@ use DateTimeInterface;
 use DateTimeZone;
 use Throwable;
 use Sentience\Database\Exceptions\QueryException;
-use Sentience\Database\Queries\Enums\ColumnTypeEnum;
 use Sentience\Database\Queries\Enums\ConditionEnum;
 use Sentience\Database\Queries\Objects\AddColumn;
 use Sentience\Database\Queries\Objects\AddForeignKeyConstraint;
@@ -661,7 +660,7 @@ class SQLDialect extends DialectAbstract
         $sql = sprintf(
             '%s %s',
             $this->escapeIdentifier($column->name),
-            $column->type instanceof ColumnTypeEnum ? $column->type->value : $column->type
+            $column->type
         );
 
         if ($column->generatedByDefaultAsIdentity && $this->generatedByDefaultAsIdentity()) {

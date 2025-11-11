@@ -3,7 +3,6 @@
 namespace Src\Controllers;
 
 use Sentience\Abstracts\Controller;
-use Sentience\Database\Queries\Enums\ColumnTypeEnum;
 use Sentience\Database\Queries\Enums\ReferentialActionEnum;
 use Sentience\Database\Queries\Query;
 use Sentience\DataLayer\Database\DB;
@@ -174,9 +173,9 @@ class ExampleController extends Controller
 
         $queries[] = $db->createTable('table_1')
             ->ifNotExists()
-            ->column('primary_key', ColumnTypeEnum::INT, false, null, true)
-            ->column('column1', ColumnTypeEnum::INT, true)
-            ->column('column2', ColumnTypeEnum::varchar(255))
+            ->column('primary_key', 'BIGINT', false, null, true)
+            ->column('column1', 'INTEGER', true)
+            ->column('column2', 'VARCHAR(255)')
             ->column('column2', 'DATETIME(6)')
             ->primaryKeys(['primary_key'])
             ->uniqueConstraint(['column1', 'column2'])

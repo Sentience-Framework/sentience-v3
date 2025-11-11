@@ -3,7 +3,6 @@
 namespace Sentience\Database\Queries\Traits;
 
 use DateTimeInterface;
-use Sentience\Database\Queries\Enums\ColumnTypeEnum;
 use Sentience\Database\Queries\Objects\AddColumn;
 use Sentience\Database\Queries\Objects\AddForeignKeyConstraint;
 use Sentience\Database\Queries\Objects\AddPrimaryKeys;
@@ -19,7 +18,7 @@ trait AltersTrait
 {
     protected array $alters = [];
 
-    public function addColumn(string $name, string|ColumnTypeEnum $type, bool $notNull = false, null|bool|int|float|string|DateTimeInterface|Raw $default = null, bool $generatedByDefaultAsIdentity = false): static
+    public function addColumn(string $name, string $type, bool $notNull = false, null|bool|int|float|string|DateTimeInterface|Raw $default = null, bool $generatedByDefaultAsIdentity = false): static
     {
         $this->alters[] = new AddColumn($name, $type, $notNull, $default, $generatedByDefaultAsIdentity);
 
