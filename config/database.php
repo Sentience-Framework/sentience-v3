@@ -18,7 +18,6 @@ return [
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
             'queries' => env('DB_QUERIES', []),
-            'embedded' => env('DB_FIREBIRD_EMBEDDED', false),
             'use_pdo' => env('DB_USE_PDO', false)
         ],
         'mariadb' => [
@@ -112,6 +111,7 @@ return [
             'use_pdo' => env('DB_USE_PDO', true)
         ]
     ],
+
     /**
      * The only valid reason to enable this option, is for debugging purposes.
      *
@@ -124,6 +124,15 @@ return [
      * The chance of an unknown sequence breaking the param injection is never zero.
      */
     'emulate_prepares' => env('DB_EMULATE_PREPARES', false),
+
+    /**
+     * Overrides the version automatically set by the adapter
+     * 
+     * This is useful for when the adapter doesn't parse the version string correct.
+     * In lazy mode it also prevents the adapter having to connect to the database just to retrieve a version
+     */
+    'version' => env('DB_VERSION'),
+
     'debug' => env('DB_DEBUG', false),
     'lazy' => env('DB_LAZY') ?? is_cli()
 ];
