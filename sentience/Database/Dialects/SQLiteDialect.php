@@ -31,7 +31,7 @@ class SQLiteDialect extends SQLDialect
             if ($column->generatedByDefaultAsIdentity) {
                 $primaryKeys = array_filter(
                     $primaryKeys,
-                    fn(string $primaryKey): bool => $primaryKey != $column->name
+                    fn (string $primaryKey): bool => $primaryKey != $column->name
                 );
             }
         }
@@ -60,7 +60,7 @@ class SQLiteDialect extends SQLDialect
             implode(
                 ', ',
                 array_map(
-                    fn(string|Raw $column): string => $this->escapeIdentifier($column),
+                    fn (string|Raw $column): string => $this->escapeIdentifier($column),
                     $onConflict->conflict
                 )
             )

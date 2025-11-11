@@ -26,9 +26,9 @@ trait AltersTrait
         return $this;
     }
 
-    public function alterColumn(string $column, array $options): static
+    public function alterColumn(string $column, string $sql): static
     {
-        $this->alters[] = new AlterColumn($column, $options);
+        $this->alters[] = new AlterColumn($column, $sql);
 
         return $this;
     }

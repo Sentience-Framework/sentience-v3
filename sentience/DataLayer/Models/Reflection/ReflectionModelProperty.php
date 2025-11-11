@@ -80,15 +80,15 @@ class ReflectionModelProperty
                 $type
             )->value,
             default => match ($type) {
-                    'bool' => 'INT',
-                    'int' => 'INT',
-                    'float' => 'FLOAT',
-                    'string' => 'TEXT',
-                    Timestamp::class,
-                    DateTime::class,
-                    DateTimeInterface::class => 'DATETIME',
-                    default => 'TEXT'
-                }
+                'bool' => 'INT',
+                'int' => 'INT',
+                'float' => 'FLOAT',
+                'string' => 'TEXT',
+                Timestamp::class,
+                DateTime::class,
+                DateTimeInterface::class => 'DATETIME',
+                default => 'TEXT'
+            }
         };
     }
 
