@@ -3,12 +3,9 @@
 namespace Sentience\Database;
 
 use Closure;
-use PDO;
 use Throwable;
 use Sentience\Database\Adapters\AdapterInterface;
-use Sentience\Database\Adapters\PDOAdapter;
 use Sentience\Database\Dialects\DialectInterface;
-use Sentience\Database\Dialects\SQLDialect;
 use Sentience\Database\Queries\AlterTableQuery;
 use Sentience\Database\Queries\CreateTableQuery;
 use Sentience\Database\Queries\DeleteQuery;
@@ -33,7 +30,7 @@ class Database
         array $queries,
         array $options,
         ?Closure $debug,
-        bool $usePdoAdapter = false
+        bool $usePDOAdapter = false
     ): static {
         $adapter = $driver->getAdapter(
             $host,
@@ -44,7 +41,7 @@ class Database
             $queries,
             $options,
             $debug,
-            $usePdoAdapter
+            $usePDOAdapter
         );
 
         $version = $adapter->version();
@@ -52,34 +49,6 @@ class Database
         $dialect = $driver->getDialect($version);
 
         return new static($adapter, $dialect);
-    }
-
-    public static function connectPdo(
-        PDO $pdo,
-        Driver $driver,
-        array $queries,
-        array $options,
-        ?Closure $debug,
-        bool $useSqlDialect = false
-    ): static {
-        $pdoAdapter = new PDOAdapter(
-            $pdo,
-            $driver,
-            $queries,
-            $options,
-            $debug
-        );
-
-        $version = $pdoAdapter->version();
-
-        $dialect = !$useSqlDialect
-            ? $driver->getDialect($version)
-            : new SQLDialect($driver, $version);
-
-        return new static(
-            $pdoAdapter,
-            $dialect
-        );
     }
 
     public function __construct(

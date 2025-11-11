@@ -3,6 +3,7 @@
 namespace Sentience\Database\Queries;
 
 use DateTimeInterface;
+use Sentience\Database\Queries\Enums\ColumnTypeEnum;
 use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Objects\Raw;
@@ -40,9 +41,9 @@ class CreateTableQuery extends Query
         return parent::execute($emulatePrepare);
     }
 
-    public function column(string $name, string $type, bool $notNull = false, null|bool|int|float|string|DateTimeInterface|Raw $default = null, array $options = []): static
+    public function column(string $name, string|ColumnTypeEnum $type, bool $notNull = false, null|bool|int|float|string|DateTimeInterface|Raw $default = null, bool $generatedByDefaultAsIdentity = false): static
     {
-        $this->columns[] = new Column($name, $type, $notNull, $default, $options);
+        $this->columns[] = new Column($name, $type, $notNull, $default, $generatedByDefaultAsIdentity);
 
         return $this;
     }

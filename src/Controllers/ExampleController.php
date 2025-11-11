@@ -3,6 +3,7 @@
 namespace Src\Controllers;
 
 use Sentience\Abstracts\Controller;
+use Sentience\Database\Queries\Enums\ColumnTypeEnum;
 use Sentience\Database\Queries\Enums\ReferentialActionEnum;
 use Sentience\Database\Queries\Query;
 use Sentience\DataLayer\Database\DB;
@@ -106,17 +107,17 @@ class ExampleController extends Controller
             ->join('RIGHT JOIN table2 jt ON jt.column1 = table1.column1 AND jt.column2 = table2.column2')
             ->whereEquals('column1', 10)
             ->whereGroup(
-                fn ($group) => $group
+                fn($group) => $group
                     ->whereGreaterThanOrEquals('column2', 20)
                     ->orwhereIsNull('column3')
             )
             ->where('DATE(`created_at`) > :date OR DATE(`created_at`) < :date', [':date' => Query::now()])
             ->whereGroup(
-                fn ($group) => $group
+                fn($group) => $group
                     ->whereIn('column4', [1, 2, 3, 4])
                     ->whereNotEquals('column5', 'test string')
             )
-            ->whereGroup(fn ($group) => $group)
+            ->whereGroup(fn($group) => $group)
             ->whereIn('column2', [])
             ->whereNotIn('column2', [])
             ->whereStartsWith('column2', 'a')
@@ -173,9 +174,10 @@ class ExampleController extends Controller
 
         $queries[] = $db->createTable('table_1')
             ->ifNotExists()
-            ->column('primary_key', 'int', true, null, ['AUTO_INCREMENT'])
-            ->column('column1', 'bigint', true)
-            ->column('column2', 'varchar(255)')
+            ->column('primary_key', ColumnTypeEnum::INT, false, null, true)
+            ->column('column1', ColumnTypeEnum::INT, true)
+            ->column('column2', ColumnTypeEnum::varchar(255))
+            ->column('column2', ColumnTypeEnum::DATETIME)
             ->primaryKeys(['primary_key'])
             ->uniqueConstraint(['column1', 'column2'])
             ->foreignKeyConstraint('column1', 'table_2', 'reference_column', 'fk_table_1', [ReferentialActionEnum::ON_UPDATE_NO_ACTION])
@@ -187,7 +189,7 @@ class ExampleController extends Controller
             $db->alterTable('table_1')
                 ->addColumn('column3', 'INT')
                 ->addColumn('columnDateTimeFunc', 'DATETIME', true, Query::raw('now()'))
-                // ->alterColumn('column3', ['TEXT', 'AUTO_INCREMENT'])
+                ->alterColumn('column3', ['TEXT', 'AUTO_INCREMENT'])
                 ->renameColumn('column3', 'column4')
                 ->dropColumn('column4')
                 ->alter('ADD COLUMN id BIGINT REFERENCES table(id)')

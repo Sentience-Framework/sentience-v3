@@ -9,6 +9,7 @@ use Sentience\Database\Queries\Query;
 
 abstract class AdapterAbstract implements AdapterInterface
 {
+    public const string OPTIONS_PERSISTENT = 'persistent';
     public const string OPTIONS_PDO_DSN = 'dsn';
     public const string OPTIONS_MYSQL_CHARSET = 'charset';
     public const string OPTIONS_MYSQL_COLLATION = 'collation';
@@ -26,6 +27,11 @@ abstract class AdapterAbstract implements AdapterInterface
 
     public function __construct(
         protected Driver $driver,
+        protected string $host,
+        protected int $port,
+        protected string $name,
+        protected string $username,
+        protected string $password,
         protected array $queries,
         protected array $options,
         protected ?Closure $debug

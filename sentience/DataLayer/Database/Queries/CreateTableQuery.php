@@ -97,7 +97,7 @@ class CreateTableQuery extends \Sentience\Database\Queries\CreateTableQuery
             $columnType,
             $notNull,
             $default,
-            $type == 'autoIncrement' ? ['AUTO_INCREMENT'] : []
+            $type == 'autoIncrement'
         );
     }
 
@@ -106,7 +106,7 @@ class CreateTableQuery extends \Sentience\Database\Queries\CreateTableQuery
         $columnType = match ($type) {
             'bool' => 'BOOLEAN',
             'int' => $this->getIntColumnTypePgSQL($size),
-            'autoIncrement' => $size > 32 ? 'BIGSERIAL' : 'SERIAL',
+            'autoIncrement' => $this->getIntColumnTypePgSQL($size),
             'float' => $this->getFloatColumnTypePgSQL($size),
             'string' => $size > 255 ? 'TEXT' : sprintf('VARCHAR(%d)', $size),
             'dateTime' => 'TIMESTAMP',
@@ -118,7 +118,7 @@ class CreateTableQuery extends \Sentience\Database\Queries\CreateTableQuery
             $columnType,
             $notNull,
             $default,
-            []
+            $type == 'autoIncrement'
         );
     }
 
@@ -127,7 +127,7 @@ class CreateTableQuery extends \Sentience\Database\Queries\CreateTableQuery
         $columnType = match ($type) {
             'bool' => 'BOOLEAN',
             'int',
-            'autoIncrement' => $size > 32 ? 'BIGINT' : 'INTEGER',
+            'autoIncrement' => $size > 32 ? 'INTEGER' : 'INTEGER',
             'float' => 'FLOAT',
             'string' => $size > 255 ? 'TEXT' : sprintf('VARCHAR(%d)', $size),
             'dateTime' => 'DATETIME',
@@ -139,7 +139,7 @@ class CreateTableQuery extends \Sentience\Database\Queries\CreateTableQuery
             $columnType,
             $notNull,
             $default,
-            []
+            $type == 'autoIncrement'
         );
     }
 

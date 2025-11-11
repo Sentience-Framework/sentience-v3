@@ -3,8 +3,8 @@
 namespace Sentience\Database\Dialects;
 
 use Sentience\Database\Driver;
-use Sentience\Database\Queries\Enums\ConditionEnum;
 use Sentience\Database\Queries\Objects\AlterColumn;
+use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\Condition;
 use Sentience\Database\Queries\Objects\DropConstraint;
 use Sentience\Database\Queries\Objects\OnConflict;
@@ -17,8 +17,8 @@ class MySQLDialect extends SQLDialect
     protected const bool ESCAPE_ANSI = false;
     protected const string ESCAPE_IDENTIFIER = '`';
     protected const string ESCAPE_STRING = '"';
+    protected const bool GENERATED_BY_DEFAULT_AS_IDENTITY = false;
     protected const bool ON_CONFLICT = true;
-    protected const bool RETURNING = true;
 
     protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
     {
@@ -28,25 +28,13 @@ class MySQLDialect extends SQLDialect
             return;
         }
 
-        $query .= sprintf(
-            '%s %s ?',
-            $this->escapeIdentifier($condition->identifier),
-            $condition->condition == ConditionEnum::REGEX ? 'REGEXP' : 'NOT REGEXP'
-        );
-
-        [$pattern, $flags] = $condition->value;
-
-        array_push(
+        parent::buildConditionRegexOperator(
+            $query,
             $params,
-            !empty($flags)
-            ? sprintf(
-                '(?%s)%s',
-                $flags,
-                $pattern
-            ) : $pattern
+            $condition,
+            'REGEXP',
+            'NOT REGEXP'
         );
-
-        return;
     }
 
     protected function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
@@ -108,6 +96,17 @@ class MySQLDialect extends SQLDialect
         }
 
         parent::buildReturning($query, $returning);
+    }
+
+    protected function buildColumn(Column $column): string
+    {
+        $sql = parent::buildColumn($column);
+
+        if ($column->generatedByDefaultAsIdentity) {
+            $sql .= ' AUTO_INCREMENT';
+        }
+
+        return $sql;
     }
 
     protected function buildAlterTableAlterColumn(AlterColumn $alterColumn): string

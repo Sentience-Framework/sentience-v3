@@ -17,9 +17,10 @@ class MySQLiAdapter extends AdapterAbstract
     public const string MYSQLI_FLOAT = 'd';
     public const string MYSQLI_STRING = 's';
 
+    protected mysqli $mysqli;
     protected bool $inTransaction = false;
 
-    public static function connect(
+    public function __construct(
         Driver $driver,
         string $host,
         int $port,
@@ -29,39 +30,28 @@ class MySQLiAdapter extends AdapterAbstract
         array $queries,
         array $options,
         ?Closure $debug
-    ): static {
-        $mysqli = new mysqli(
-            $host,
-            $username,
-            $password,
-            $name,
-            $port
-        );
-
-        return new static(
-            $mysqli,
-            $driver,
-            $queries,
-            $options,
-            $debug
-        );
-    }
-
-    public function __construct(
-        protected mysqli $mysqli,
-        Driver $driver,
-        array $queries,
-        array $options,
-        ?Closure $debug
     ) {
         parent::__construct(
             $driver,
+            $host,
+            $port,
+            $name,
+            $username,
+            $password,
             $queries,
             $options,
             $debug
         );
 
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+        $this->mysqli = new mysqli(
+            ($options[static::OPTIONS_PERSISTENT] ?? false) ? sprintf('p:%s', $host) : $host,
+            $username,
+            $password,
+            $name,
+            $port
+        );
 
         if (array_key_exists(static::OPTIONS_MYSQL_CHARSET, $options)) {
             $this->mysqlNames(
@@ -232,6 +222,8 @@ class MySQLiAdapter extends AdapterAbstract
 
     public function __destruct()
     {
-        $this->mysqli->close();
+        if (!($this->options[static::OPTIONS_PERSISTENT] ?? false)) {
+            $this->mysqli->close();
+        }
     }
 }

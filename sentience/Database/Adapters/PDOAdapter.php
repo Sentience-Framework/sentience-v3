@@ -13,7 +13,9 @@ use Sentience\Database\Results\PDOResult;
 
 class PDOAdapter extends AdapterAbstract
 {
-    public static function connect(
+    protected PDO $pdo;
+
+    public function __construct(
         Driver $driver,
         string $host,
         int $port,
@@ -23,86 +25,49 @@ class PDOAdapter extends AdapterAbstract
         array $queries,
         array $options,
         ?Closure $debug
-    ): static {
-        $dsn = (function (Driver $driver, string $host, int $port, string $name, array $options): string {
-            if (array_key_exists(static::OPTIONS_PDO_DSN, $options)) {
-                return (string) $options[static::OPTIONS_PDO_DSN];
-            }
+    ) {
+        parent::__construct(
+            $driver,
+            $host,
+            $port,
+            $name,
+            $username,
+            $password,
+            $queries,
+            $options,
+            $debug
+        );
 
-            if ($driver == Driver::SQLITE) {
-                return sprintf(
-                    '%s:%s',
-                    $driver->value,
-                    $name
-                );
-            }
+        $dsn = $this->dsn(
+            $driver,
+            $host,
+            $port,
+            $name,
+            $options
+        );
 
-            $dsn = sprintf(
-                '%s:host=%s;port=%s;dbname=%s',
-                $driver == Driver::MARIADB ? Driver::MYSQL->value : $driver->value,
-                $host,
-                $port,
-                $name
-            );
-
-            if ($driver == Driver::PGSQL) {
-                if (array_key_exists(static::OPTIONS_PGSQL_CLIENT_ENCODING, $options)) {
-                    $dsn .= sprintf(
-                        ";options='--client_encoding=%s'",
-                        (string) $options[static::OPTIONS_PGSQL_CLIENT_ENCODING]
-                    );
-                }
-            }
-
-            return $dsn;
-        })($driver, $host, $port, $name, $options);
-
-        $pdo = new PDO(
+        $this->pdo = new PDO(
             $dsn,
             $username,
             $password,
             [
-                PDO::ATTR_PERSISTENT => true
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_PERSISTENT => $options[static::OPTIONS_PERSISTENT] ?? false,
+                PDO::ATTR_EMULATE_PREPARES => false,
+                PDO::ATTR_STRINGIFY_FETCHES => false
             ]
         );
 
-        return new static(
-            $pdo,
-            $driver,
-            $queries,
-            $options,
-            $debug
-        );
-    }
-
-    public function __construct(
-        protected PDO $pdo,
-        Driver $driver,
-        array $queries,
-        array $options,
-        ?Closure $debug
-    ) {
-        parent::__construct(
-            $driver,
-            $queries,
-            $options,
-            $debug
-        );
-
-        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $this->pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-        $this->pdo->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
-
         if (in_array($driver, [Driver::MARIADB, Driver::MYSQL])) {
-            $this->configurePdoForMySQL($options);
+            $this->configurePDOForMySQL($options);
         }
 
         if ($driver == Driver::PGSQL) {
-            $this->configurePdoForPgSQL($options);
+            $this->configurePDOForPgSQL($options);
         }
 
         if ($driver == Driver::SQLITE) {
-            $this->configurePdoForSQLite($options);
+            $this->configurePDOForSQLite($options);
         }
 
         foreach ($queries as $query) {
@@ -110,7 +75,46 @@ class PDOAdapter extends AdapterAbstract
         }
     }
 
-    protected function configurePdoForMySQL(array $options): void
+    protected function dsn(
+        Driver $driver,
+        string $host,
+        int $port,
+        string $name,
+        array $options
+    ): string {
+        if (array_key_exists(static::OPTIONS_PDO_DSN, $options)) {
+            return (string) $options[static::OPTIONS_PDO_DSN];
+        }
+
+        if ($driver == Driver::SQLITE) {
+            return sprintf(
+                '%s:%s',
+                $driver->value,
+                $name
+            );
+        }
+
+        $dsn = sprintf(
+            '%s:host=%s;port=%s;dbname=%s',
+            $driver == Driver::MARIADB ? Driver::MYSQL->value : $driver->value,
+            $host,
+            $port,
+            $name
+        );
+
+        if ($driver == Driver::PGSQL) {
+            if (array_key_exists(static::OPTIONS_PGSQL_CLIENT_ENCODING, $options)) {
+                $dsn .= sprintf(
+                    ";options='--client_encoding=%s'",
+                    (string) $options[static::OPTIONS_PGSQL_CLIENT_ENCODING]
+                );
+            }
+        }
+
+        return $dsn;
+    }
+
+    protected function configurePDOForMySQL(array $options): void
     {
         if (array_key_exists(static::OPTIONS_MYSQL_CHARSET, $options)) {
             $this->mysqlNames(
@@ -124,7 +128,7 @@ class PDOAdapter extends AdapterAbstract
         }
     }
 
-    protected function configurePdoForPgSQL(array $options): void
+    protected function configurePDOForPgSQL(array $options): void
     {
         if (array_key_exists(static::OPTIONS_PGSQL_SEARCH_PATH, $options)) {
             $this->exec(
@@ -136,13 +140,19 @@ class PDOAdapter extends AdapterAbstract
         }
     }
 
-    protected function configurePdoForSQLite(array $options): void
+    protected function configurePDOForSQLite(array $options): void
     {
-        if (method_exists($this->pdo, 'sqliteCreateFunction')) {
-            $this->pdo->sqliteCreateFunction(
-                static::REGEXP_LIKE_FUNCTION,
-                fn (string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction($value, $pattern, $flags)
-            );
+        foreach (['sqliteCreateFunction', 'createFunction'] as $method) {
+            if (method_exists($this->pdo, $method)) {
+                [$this->pdo, $method](
+                    static::REGEXP_LIKE_FUNCTION,
+                    fn (string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction(
+                        $value,
+                        $pattern,
+                        $flags
+                    )
+                );
+            }
         }
 
         if ($options[static::OPTIONS_SQLITE_READ_ONLY] ?? false) {
@@ -305,19 +315,19 @@ class PDOAdapter extends AdapterAbstract
         return $this->pdo->inTransaction();
     }
 
-    public function lastInsertId(?string $name = null): null|int|string
+    public function lastInsertId(?string $name = null): int|string
     {
-        $lastInserId = $this->pdo->lastInsertId($name);
+        $lastInsertId = $this->pdo->lastInsertId($name);
 
-        if (is_bool($lastInserId)) {
-            return null;
+        if (is_bool($lastInsertId)) {
+            return 0;
         }
 
-        if (preg_match('/[0-9]+/', $lastInserId)) {
-            return (int) $lastInserId;
+        if (preg_match('/[0-9]+/', $lastInsertId)) {
+            return (int) $lastInsertId;
         }
 
-        return $lastInserId;
+        return $lastInsertId;
     }
 
     protected function enableEmulatePrepares(): void
