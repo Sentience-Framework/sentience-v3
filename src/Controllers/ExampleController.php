@@ -187,7 +187,7 @@ class ExampleController extends Controller
             $db->alterTable('table_1')
                 ->addColumn('column3', 'INT')
                 ->addColumn('columnDateTimeFunc', 'DATETIME', true, Query::raw('now()'))
-                // ->alterColumn('column3', ['TEXT', 'AUTO_INCREMENT'])
+                // ->alterColumn('column3', 'TEXT AUTO_INCREMENT')
                 ->renameColumn('column3', 'column4')
                 ->dropColumn('column4')
                 ->alter('ADD COLUMN id BIGINT REFERENCES table(id)')

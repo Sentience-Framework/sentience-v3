@@ -746,10 +746,7 @@ class SQLDialect extends DialectAbstract
         return sprintf(
             'ALTER COLUMN %s %s',
             $this->escapeIdentifier($alterColumn->column),
-            implode(
-                ' ',
-                $alterColumn->options
-            )
+            $alterColumn->sql
         );
     }
 
