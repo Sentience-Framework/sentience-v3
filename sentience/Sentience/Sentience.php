@@ -11,9 +11,9 @@ use Sentience\Abstracts\Middleware;
 use Sentience\Exceptions\CallbackException;
 use Sentience\Exceptions\DeprecatedException;
 use Sentience\Exceptions\FatalErrorException;
-use Sentience\Exceptions\NoticeException;
-use Sentience\Exceptions\ParseException;
-use Sentience\Exceptions\WarningException;
+use Sentience\Exceptions\NoticeErrorException;
+use Sentience\Exceptions\ParseErrorException;
+use Sentience\Exceptions\WarningErrorException;
 use Sentience\Helpers\Log;
 use Sentience\Routers\CliRouter;
 use Sentience\Routers\Command;
@@ -113,14 +113,14 @@ class Sentience
 
                 return match ($s) {
                     E_NOTICE,
-                    E_USER_NOTICE => throw new NoticeException($m, 0, $s, $f, $l),
+                    E_USER_NOTICE => throw new NoticeErrorException($m, 0, $s, $f, $l),
                     E_WARNING,
                     E_CORE_WARNING,
                     E_COMPILE_WARNING,
-                    E_USER_WARNING => throw new WarningException($m, 0, $s, $f, $l),
+                    E_USER_WARNING => throw new WarningErrorException($m, 0, $s, $f, $l),
                     E_DEPRECATED,
                     E_USER_DEPRECATED => throw new DeprecatedException($m, 0, $s, $f, $l),
-                    E_PARSE => throw new ParseException($m, 0, $s, $f, $l),
+                    E_PARSE => throw new ParseErrorException($m, 0, $s, $f, $l),
                     default => false
                 };
             }

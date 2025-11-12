@@ -4,6 +4,6 @@ namespace Sentience\Exceptions;
 
 use ErrorException;
 
-class NoticeException extends ErrorException
+class WarningErrorException extends ErrorException
 {
 }
