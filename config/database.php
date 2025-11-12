@@ -127,7 +127,7 @@ return [
 
     /**
      * Overrides the version automatically set by the adapter
-     * 
+     *
      * This is useful for when the adapter doesn't parse the version string correct.
      * In lazy mode it also prevents the adapter having to connect to the database just to retrieve a version
      */

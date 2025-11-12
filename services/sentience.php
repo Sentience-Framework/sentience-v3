@@ -39,7 +39,18 @@ return new class () {
         : null;
         $lazy = config('database->lazy', false);
 
-        $db = $driver->isSupportedBySentience()
+        $supportedBySentience = in_array(
+            $driver,
+            [
+                Driver::FIREBIRD,
+                Driver::MARIADB,
+                Driver::MYSQL,
+                Driver::PGSQL,
+                Driver::SQLITE
+            ]
+        );
+
+        $db = $supportedBySentience
             ? DB::connect(
                 $driver,
                 $host,
