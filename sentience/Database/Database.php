@@ -158,7 +158,7 @@ class Database
 
     public function select(string|array|Raw|SelectQuery $table, ?string $alias = null): SelectQuery
     {
-        return new SelectQuery($this, $this->dialect, !$alias ? Query::alias($table, $alias) : $table);
+        return new SelectQuery($this, $this->dialect, $alias ? Query::alias($table, $alias) : $table);
     }
 
     public function insert(string|array|Raw $table): InsertQuery

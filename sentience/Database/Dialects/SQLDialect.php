@@ -322,20 +322,22 @@ class SQLDialect extends DialectAbstract
         return new QueryWithParams($query, $params);
     }
 
-    protected function buildTable(string &$query, &$params, string|array|Alias|Raw $table): void
+    protected function buildTable(string &$query, &$params, string|array|Alias|Raw|SelectQuery $table): void
     {
         $query .= ' ';
 
+        if ($table instanceof SelectQuery) {
+            throw new QueryException('table sub select requires an alias');
+        }
+
         if ($table instanceof Alias) {
             if ($table->identifier instanceof SelectQuery) {
-                $queryWithParams = $table->identifier->toQueryWithParams();
-
-                $query .= ' ';
-                $query .= $queryWithParams->query;
-
-                array_push($params, ...$queryWithParams->params);
-
-                return;
+                $table->identifier = Query::raw(
+                    $this->buildSubSelectQuery(
+                        $params,
+                        $table->identifier
+                    )
+                );
             }
 
             $query .= $this->escapeIdentifierWithAlias($table->identifier, $table->alias);
@@ -420,6 +422,8 @@ class SQLDialect extends DialectAbstract
             ConditionEnum::NOT_IN => $this->buildConditionIn($query, $params, $condition),
             ConditionEnum::REGEX,
             ConditionEnum::NOT_REGEX => $this->buildConditionRegex($query, $params, $condition),
+            ConditionEnum::EXISTS,
+            ConditionEnum::NOT_EXISTS => $this->buildConditionExists($query, $params, $condition),
             ConditionEnum::RAW => $this->buildConditionRaw($query, $params, $condition),
             default => $this->buildConditionOperator($query, $params, $condition)
         };
@@ -437,21 +441,16 @@ class SQLDialect extends DialectAbstract
             return;
         }
 
-        $isSelectQuery = $condition->condition->value instanceof SelectQuery;
-
-        if ($isSelectQuery) {
-            $queryWithParams = $condition->value->toQueryWithParams();
-        }
+        $isSelectQuery = $condition->value instanceof SelectQuery;
 
         $query .= sprintf(
             '%s %s %s',
             $this->escapeIdentifier($condition->identifier),
-            $isSelectQuery ? $queryWithParams->query : '?'
+            $condition->condition->value,
+            $isSelectQuery ? $this->buildSubSelectQuery($params, $condition->value) : '?'
         );
 
         if ($isSelectQuery) {
-            array_push($params, ...$queryWithParams->params);
-
             return;
         }
 
@@ -471,21 +470,16 @@ class SQLDialect extends DialectAbstract
 
     protected function buildConditionLike(string &$query, array &$params, Condition $condition): void
     {
-        $isSelectQuery = $condition->condition->value instanceof SelectQuery;
-
-        if ($isSelectQuery) {
-            $queryWithParams = $condition->value->toQueryWithParams();
-        }
+        $isSelectQuery = $condition->value instanceof SelectQuery;
 
         $query .= sprintf(
-            '%s %s ?',
+            '%s %s %s',
             $this->escapeIdentifier($condition->identifier),
-            $isSelectQuery ? $queryWithParams->query : '?'
+            $condition->condition->value,
+            $isSelectQuery ? $this->buildSubSelectQuery($params, $condition->value) : '?'
         );
 
         if ($isSelectQuery) {
-            array_push($params, ...$queryWithParams->params);
-
             return;
         }
 
@@ -494,18 +488,26 @@ class SQLDialect extends DialectAbstract
 
     protected function buildConditionIn(string &$query, array &$params, Condition $condition): void
     {
-        if (count($condition->value) == 0) {
+        $isSelectQuery = $condition->value instanceof SelectQuery;
+
+        if (!$isSelectQuery && count($condition->value) == 0) {
             $query .= $condition->condition == ConditionEnum::IN ? '1 <> 1' : '1 = 1';
 
             return;
         }
 
         $query .= sprintf(
-            '%s %s (%s)',
+            '%s %s %s',
             $this->escapeIdentifier($condition->identifier),
             $condition->condition->value,
-            implode(', ', array_fill(0, count($condition->value), '?'))
+            !$isSelectQuery
+            ? '(' . implode(', ', array_fill(0, count($condition->value), '?')) . ')'
+            : $this->buildSubSelectQuery($params, $condition->value)
         );
+
+        if ($isSelectQuery) {
+            return;
+        }
 
         array_push($params, ...$condition->value);
     }
@@ -542,6 +544,15 @@ class SQLDialect extends DialectAbstract
                 $flags,
                 $pattern
             ) : $pattern
+        );
+    }
+
+    protected function buildConditionExists(string &$query, array &$params, Condition $condition): void
+    {
+        $query .= sprintf(
+            '%s %s',
+            $condition->condition->value,
+            $this->buildSubSelectQuery($params, $condition->value)
         );
     }
 
@@ -670,6 +681,18 @@ class SQLDialect extends DialectAbstract
             : '*';
 
         $query .= ' RETURNING ' . $columns;
+    }
+
+    protected function buildSubSelectQuery(array &$params, SelectQuery $selectQuery): string
+    {
+        $queryWithParams = $selectQuery->toQueryWithParams();
+
+        array_push($params, ...$queryWithParams->params);
+
+        return sprintf(
+            '(%s)',
+            $queryWithParams->query
+        );
     }
 
     protected function buildColumn(Column $column): string

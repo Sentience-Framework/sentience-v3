@@ -62,8 +62,8 @@ class SelectModelsQuery extends ModelsQueryAbstract
         }
 
         $selectQuery->whereGroup(
-            fn (): ConditionGroup => new ConditionGroup(
-                ChainEnum::AND,
+            fn(): ConditionGroup => new ConditionGroup(
+                ChainEnum::AND ,
                 $this->where
             )
         );
@@ -85,7 +85,7 @@ class SelectModelsQuery extends ModelsQueryAbstract
         $result = $selectQuery->execute($emulatePrepare);
 
         return array_map(
-            fn (array $row): object => $this->mapAssocToModel($model, $row),
+            fn(array $row): object => $this->mapAssocToModel($model, $row),
             $result->fetchAssocs()
         );
     }
@@ -120,13 +120,13 @@ class SelectModelsQuery extends ModelsQueryAbstract
             );
         }
 
-        $selectQuery = $this->database->select(Query::alias($table, $alias));
+        $selectQuery = $this->database->select($table, $alias);
 
         if ($this->distinct) {
             $selectQuery->distinct();
         }
 
-        $selectQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(ChainEnum::AND, $this->where));
+        $selectQuery->whereGroup(fn(): ConditionGroup => new ConditionGroup(ChainEnum::AND , $this->where));
 
         foreach ($this->orderBy as $orderBy) {
             $orderBy->direction == OrderByDirectionEnum::ASC
@@ -149,7 +149,7 @@ class SelectModelsQuery extends ModelsQueryAbstract
         $result = $selectQuery->execute($emulatePrepare);
 
         return array_map(
-            fn (array $row): object => $this->mapAssocToModel($model, $row),
+            fn(array $row): object => $this->mapAssocToModel($model, $row),
             $result->fetchAssocs()
         );
     }

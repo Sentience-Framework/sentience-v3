@@ -76,7 +76,7 @@ class ExampleController extends Controller
 
         $queries = [];
 
-        $queries[] = $db->select(Query::alias(['public', 'table_1'], 'table1'))
+        $queries[] = $db->select(['public', 'table_1'], 'table1')
             ->distinct()
             ->columns([
                 'column1',
@@ -106,17 +106,17 @@ class ExampleController extends Controller
             ->join('RIGHT JOIN table2 jt ON jt.column1 = table1.column1 AND jt.column2 = table2.column2')
             ->whereEquals('column1', 10)
             ->whereGroup(
-                fn ($group) => $group
+                fn($group) => $group
                     ->whereGreaterThanOrEquals('column2', 20)
                     ->orwhereIsNull('column3')
             )
             ->where('DATE(`created_at`) > :date OR DATE(`created_at`) < :date', [':date' => Query::now()])
             ->whereGroup(
-                fn ($group) => $group
+                fn($group) => $group
                     ->whereIn('column4', [1, 2, 3, 4])
                     ->whereNotEquals('column5', 'test string')
             )
-            ->whereGroup(fn ($group) => $group)
+            ->whereGroup(fn($group) => $group)
             ->whereIn('column2', [])
             ->whereNotIn('column2', [])
             ->whereStartsWith('column2', 'a')
@@ -142,7 +142,7 @@ class ExampleController extends Controller
             ->offset(10)
             ->toSql();
 
-        $queries[] = $db->insert(Query::alias('table_1', 'table1'))
+        $queries[] = $db->insert('table_1')
             ->values([
                 'column1' => Query::now(),
                 'column2' => true,
@@ -162,6 +162,27 @@ class ExampleController extends Controller
                 'column3' => false,
                 'column4' => Query::raw('column1 + 1')
             ])
+            ->whereExists($db->select('sub_table_1')
+                ->columns([
+                    'id',
+                    'name',
+                    'created_at',
+                    'updated_at'
+                ])
+                ->whereIn(
+                    'id',
+                    $db->select('sub_sub_table_1')
+                        ->columns(['id'])
+                        ->whereEquals('deleted_at', null)
+                ))
+            ->orWhereLessThanOrEquals(
+                'count',
+                $db->select('sub_table_2')
+                    ->columns([
+                        Query::raw('MAX(id)')
+                    ])
+                    ->whereBetween('column_5', 1, 2)
+            )
             ->returning(['id'])
             ->toSql();
 
