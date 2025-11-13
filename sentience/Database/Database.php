@@ -47,7 +47,7 @@ class Database
             $lazy
         );
 
-        $version = array_key_exists(AdapterInterface::OPTIONS_VERSION, $options)
+        $version = ($options[AdapterInterface::OPTIONS_VERSION] ?? null)
             ? (string) $options[AdapterInterface::OPTIONS_VERSION]
             : $adapter->version();
 
@@ -73,7 +73,7 @@ class Database
             $lazy
         );
 
-        $version = array_key_exists(AdapterInterface::OPTIONS_VERSION, $options)
+        $version = ($options[AdapterInterface::OPTIONS_VERSION] ?? null)
             ? (string) $options[AdapterInterface::OPTIONS_VERSION]
             : $adapter->version();
 
