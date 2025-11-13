@@ -6,7 +6,6 @@ use BackedEnum;
 use DateTime;
 use DateTimeInterface;
 use DateTimeZone;
-use Sentience\Database\Queries\SelectQuery;
 use Throwable;
 use Sentience\Database\Exceptions\QueryException;
 use Sentience\Database\Queries\Enums\ConditionEnum;
@@ -30,6 +29,7 @@ use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Database\Queries\Objects\RenameColumn;
 use Sentience\Database\Queries\Objects\UniqueConstraint;
 use Sentience\Database\Queries\Query;
+use Sentience\Database\Queries\SelectQuery;
 
 class SQLDialect extends DialectAbstract
 {
@@ -251,7 +251,7 @@ class SQLDialect extends DialectAbstract
                 implode(
                     ', ',
                     array_map(
-                        fn(string|Raw $column): string => $this->escapeIdentifier($column),
+                        fn (string|Raw $column): string => $this->escapeIdentifier($column),
                         $primaryKeys
                     )
                 )
@@ -593,7 +593,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn(string|array|Raw $column): string => $this->escapeIdentifier($column),
+                    fn (string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $groupBy
                 )
             )
@@ -622,7 +622,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn(OrderBy $orderBy): string => sprintf(
+                    fn (OrderBy $orderBy): string => sprintf(
                         '%s %s',
                         $this->escapeIdentifier($orderBy->column),
                         $orderBy->direction->value
@@ -674,7 +674,7 @@ class SQLDialect extends DialectAbstract
             ? implode(
                 ', ',
                 array_map(
-                    fn(string $column): string => $this->escapeIdentifier($column),
+                    fn (string $column): string => $this->escapeIdentifier($column),
                     $returning
                 )
             )
@@ -729,7 +729,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn(string $column): string => $this->escapeIdentifier($column),
+                    fn (string $column): string => $this->escapeIdentifier($column),
                     $uniqueConstraint->columns
                 )
             )
@@ -814,7 +814,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn(string|array|Raw $column): string => $this->escapeIdentifier($column),
+                    fn (string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $addPrimaryKeys->columns
                 )
             )
@@ -866,7 +866,7 @@ class SQLDialect extends DialectAbstract
             ? implode(
                 '.',
                 array_map(
-                    fn(string|array|Raw $identifier): string => $this->escapeIdentifier($identifier),
+                    fn (string|array|Raw $identifier): string => $this->escapeIdentifier($identifier),
                     $identifier
                 )
             )

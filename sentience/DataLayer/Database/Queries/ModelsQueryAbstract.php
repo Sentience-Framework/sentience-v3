@@ -30,7 +30,6 @@ abstract class ModelsQueryAbstract implements ModelsQueryInterface
         if (!is_object($model) && $mustBeInstance) {
             throw new QueryException('model is not an instance');
         }
-
     }
 
     protected function mapAssocToModel(string|Model $model, array $assoc): Model

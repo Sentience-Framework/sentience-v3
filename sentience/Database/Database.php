@@ -3,7 +3,6 @@
 namespace Sentience\Database;
 
 use Closure;
-use Sentience\Database\Queries\Query;
 use Throwable;
 use Sentience\Database\Adapters\AdapterInterface;
 use Sentience\Database\Adapters\PDOAdapter;
@@ -13,9 +12,9 @@ use Sentience\Database\Queries\CreateTableQuery;
 use Sentience\Database\Queries\DeleteQuery;
 use Sentience\Database\Queries\DropTableQuery;
 use Sentience\Database\Queries\InsertQuery;
-use Sentience\Database\Queries\Objects\Alias;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Objects\Raw;
+use Sentience\Database\Queries\Query;
 use Sentience\Database\Queries\SelectQuery;
 use Sentience\Database\Queries\UpdateQuery;
 use Sentience\Database\Results\ResultInterface;
