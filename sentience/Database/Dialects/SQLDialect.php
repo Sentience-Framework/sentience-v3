@@ -452,8 +452,6 @@ class SQLDialect extends DialectAbstract
         );
 
         array_push($params, ...$condition->value);
-
-        return;
     }
 
     protected function buildConditionLike(string &$query, array &$params, Condition $condition): void
@@ -465,8 +463,6 @@ class SQLDialect extends DialectAbstract
         );
 
         array_push($params, $condition->value);
-
-        return;
     }
 
     protected function buildConditionIn(string &$query, array &$params, Condition $condition): void
@@ -485,8 +481,6 @@ class SQLDialect extends DialectAbstract
         );
 
         array_push($params, ...$condition->value);
-
-        return;
     }
 
     protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
@@ -501,8 +495,6 @@ class SQLDialect extends DialectAbstract
         );
 
         array_push($params, ...$condition->value);
-
-        return;
     }
 
     protected function buildConditionRegexOperator(string &$query, array &$params, Condition $condition, string $equals, string $notEquals): void
@@ -531,8 +523,6 @@ class SQLDialect extends DialectAbstract
         $query .= sprintf('(%s)', $condition->identifier);
 
         array_push($params, ...$condition->value);
-
-        return;
     }
 
     protected function buildConditionGroup(string &$query, array &$params, int $index, ConditionGroup $group): void
