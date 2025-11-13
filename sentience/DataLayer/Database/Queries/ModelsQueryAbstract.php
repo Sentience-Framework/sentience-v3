@@ -31,7 +31,6 @@ abstract class ModelsQueryAbstract implements ModelsQueryInterface
             throw new QueryException('model is not an instance');
         }
 
-        return;
     }
 
     protected function mapAssocToModel(string|Model $model, array $assoc): Model

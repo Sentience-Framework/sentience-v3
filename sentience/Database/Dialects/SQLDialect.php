@@ -6,6 +6,7 @@ use BackedEnum;
 use DateTime;
 use DateTimeInterface;
 use DateTimeZone;
+use Sentience\Database\Queries\SelectQuery;
 use Throwable;
 use Sentience\Database\Exceptions\QueryException;
 use Sentience\Database\Queries\Enums\ConditionEnum;
@@ -82,7 +83,7 @@ class SQLDialect extends DialectAbstract
 
         $query .= ' FROM';
 
-        $this->buildTable($query, $table);
+        $this->buildTable($query, $params, $table);
         $this->buildJoins($query, $joins);
         $this->buildWhere($query, $params, $where);
         $this->buildGroupBy($query, $groupBy);
@@ -90,8 +91,6 @@ class SQLDialect extends DialectAbstract
         $this->buildOrderBy($query, $orderBy);
         $this->buildLimit($query, $limit, $offset);
         $this->buildOffset($query, $limit, $offset);
-
-        $query .= ';';
 
         return new QueryWithParams($query, $params);
     }
@@ -110,7 +109,7 @@ class SQLDialect extends DialectAbstract
         $query = 'INSERT INTO';
         $params = [];
 
-        $this->buildTable($query, $table);
+        $this->buildTable($query, $params, $table);
 
         $query .= sprintf(
             ' (%s)',
@@ -155,8 +154,6 @@ class SQLDialect extends DialectAbstract
         $this->buildOnConflict($query, $params, $onConflict, $values, $lastInsertId);
         $this->buildReturning($query, $returning);
 
-        $query .= ';';
-
         return new QueryWithParams($query, $params);
     }
 
@@ -173,7 +170,7 @@ class SQLDialect extends DialectAbstract
         $query = 'UPDATE';
         $params = [];
 
-        $this->buildTable($query, $table);
+        $this->buildTable($query, $params, $table);
 
         $query .= ' SET ';
         $query .= implode(
@@ -200,8 +197,6 @@ class SQLDialect extends DialectAbstract
         $this->buildWhere($query, $params, $where);
         $this->buildReturning($query, $returning);
 
-        $query .= ';';
-
         return new QueryWithParams($query, $params);
     }
 
@@ -213,11 +208,9 @@ class SQLDialect extends DialectAbstract
         $query = 'DELETE FROM';
         $params = [];
 
-        $this->buildTable($query, $table);
+        $this->buildTable($query, $params, $table);
         $this->buildWhere($query, $params, $where);
         $this->buildReturning($query, $returning);
-
-        $query .= ';';
 
         return new QueryWithParams($query, $params);
     }
@@ -234,12 +227,13 @@ class SQLDialect extends DialectAbstract
         }
 
         $query = 'CREATE TABLE';
+        $params = [];
 
         if ($ifNotExists) {
             $query .= ' IF NOT EXISTS';
         }
 
-        $this->buildTable($query, $table);
+        $this->buildTable($query, $params, $table);
 
         $query .= ' (';
 
@@ -257,7 +251,7 @@ class SQLDialect extends DialectAbstract
                 implode(
                     ', ',
                     array_map(
-                        fn (string|Raw $column): string => $this->escapeIdentifier($column),
+                        fn(string|Raw $column): string => $this->escapeIdentifier($column),
                         $primaryKeys
                     )
                 )
@@ -273,9 +267,9 @@ class SQLDialect extends DialectAbstract
             };
         }
 
-        $query .= ');';
+        $query .= ')';
 
-        return new QueryWithParams($query);
+        return new QueryWithParams($query, $params);
     }
 
     public function alterTable(
@@ -289,8 +283,9 @@ class SQLDialect extends DialectAbstract
         return array_map(
             function (object $alter) use ($table): QueryWithParams {
                 $query = 'ALTER TABLE';
+                $params = [];
 
-                $this->buildTable($query, $table);
+                $this->buildTable($query, $params, $table);
 
                 $query .= ' ';
                 $query .= match (true) {
@@ -305,9 +300,7 @@ class SQLDialect extends DialectAbstract
                     default => (string) $alter
                 };
 
-                $query .= ';';
-
-                return new QueryWithParams($query);
+                return new QueryWithParams($query, $params);
             },
             $alters
         );
@@ -318,23 +311,33 @@ class SQLDialect extends DialectAbstract
         string|array|Alias|Raw $table
     ): QueryWithParams {
         $query = 'DROP TABLE';
+        $params = [];
 
         if ($ifExists) {
             $query .= ' IF EXISTS';
         }
 
-        $this->buildTable($query, $table);
+        $this->buildTable($query, $params, $table);
 
-        $query .= ';';
-
-        return new QueryWithParams($query);
+        return new QueryWithParams($query, $params);
     }
 
-    protected function buildTable(string &$query, string|array|Alias|Raw $table): void
+    protected function buildTable(string &$query, &$params, string|array|Alias|Raw $table): void
     {
         $query .= ' ';
 
         if ($table instanceof Alias) {
+            if ($table->identifier instanceof SelectQuery) {
+                $queryWithParams = $table->identifier->toQueryWithParams();
+
+                $query .= ' ';
+                $query .= $queryWithParams->query;
+
+                array_push($params, ...$queryWithParams->params);
+
+                return;
+            }
+
             $query .= $this->escapeIdentifierWithAlias($table->identifier, $table->alias);
 
             return;
@@ -434,11 +437,23 @@ class SQLDialect extends DialectAbstract
             return;
         }
 
+        $isSelectQuery = $condition->condition->value instanceof SelectQuery;
+
+        if ($isSelectQuery) {
+            $queryWithParams = $condition->value->toQueryWithParams();
+        }
+
         $query .= sprintf(
-            '%s %s ?',
+            '%s %s %s',
             $this->escapeIdentifier($condition->identifier),
-            $condition->condition->value
+            $isSelectQuery ? $queryWithParams->query : '?'
         );
+
+        if ($isSelectQuery) {
+            array_push($params, ...$queryWithParams->params);
+
+            return;
+        }
 
         array_push($params, $condition->value);
     }
@@ -452,21 +467,29 @@ class SQLDialect extends DialectAbstract
         );
 
         array_push($params, ...$condition->value);
-
-        return;
     }
 
     protected function buildConditionLike(string &$query, array &$params, Condition $condition): void
     {
+        $isSelectQuery = $condition->condition->value instanceof SelectQuery;
+
+        if ($isSelectQuery) {
+            $queryWithParams = $condition->value->toQueryWithParams();
+        }
+
         $query .= sprintf(
             '%s %s ?',
             $this->escapeIdentifier($condition->identifier),
-            $condition->condition->value
+            $isSelectQuery ? $queryWithParams->query : '?'
         );
 
-        array_push($params, $condition->value);
+        if ($isSelectQuery) {
+            array_push($params, ...$queryWithParams->params);
 
-        return;
+            return;
+        }
+
+        array_push($params, $condition->value);
     }
 
     protected function buildConditionIn(string &$query, array &$params, Condition $condition): void
@@ -485,8 +508,6 @@ class SQLDialect extends DialectAbstract
         );
 
         array_push($params, ...$condition->value);
-
-        return;
     }
 
     protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
@@ -501,8 +522,6 @@ class SQLDialect extends DialectAbstract
         );
 
         array_push($params, ...$condition->value);
-
-        return;
     }
 
     protected function buildConditionRegexOperator(string &$query, array &$params, Condition $condition, string $equals, string $notEquals): void
@@ -531,8 +550,6 @@ class SQLDialect extends DialectAbstract
         $query .= sprintf('(%s)', $condition->identifier);
 
         array_push($params, ...$condition->value);
-
-        return;
     }
 
     protected function buildConditionGroup(string &$query, array &$params, int $index, ConditionGroup $group): void
@@ -565,7 +582,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn (string|array|Raw $column): string => $this->escapeIdentifier($column),
+                    fn(string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $groupBy
                 )
             )
@@ -594,7 +611,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn (OrderBy $orderBy): string => sprintf(
+                    fn(OrderBy $orderBy): string => sprintf(
                         '%s %s',
                         $this->escapeIdentifier($orderBy->column),
                         $orderBy->direction->value
@@ -646,7 +663,7 @@ class SQLDialect extends DialectAbstract
             ? implode(
                 ', ',
                 array_map(
-                    fn (string $column): string => $this->escapeIdentifier($column),
+                    fn(string $column): string => $this->escapeIdentifier($column),
                     $returning
                 )
             )
@@ -689,7 +706,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn (string $column): string => $this->escapeIdentifier($column),
+                    fn(string $column): string => $this->escapeIdentifier($column),
                     $uniqueConstraint->columns
                 )
             )
@@ -774,7 +791,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn (string|array|Raw $column): string => $this->escapeIdentifier($column),
+                    fn(string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $addPrimaryKeys->columns
                 )
             )
@@ -826,7 +843,7 @@ class SQLDialect extends DialectAbstract
             ? implode(
                 '.',
                 array_map(
-                    fn (string|array|Raw $identifier): string => $this->escapeIdentifier($identifier),
+                    fn(string|array|Raw $identifier): string => $this->escapeIdentifier($identifier),
                     $identifier
                 )
             )
