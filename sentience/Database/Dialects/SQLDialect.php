@@ -138,13 +138,7 @@ class SQLDialect extends DialectAbstract
                 ', ',
                 array_map(
                     function (mixed $value) use (&$params): string {
-                        if ($value instanceof Raw) {
-                            return (string) $value;
-                        }
-
-                        $params[] = $value;
-
-                        return '?';
+                        return $this->buildPlaceholder($params, $value);
                     },
                     $values
                 )
@@ -177,17 +171,11 @@ class SQLDialect extends DialectAbstract
             ', ',
             array_map(
                 function (mixed $value, string $key) use (&$params): string {
-                    if ($value instanceof Raw) {
-                        return sprintf(
-                            '%s = %s',
-                            $this->escapeIdentifier($key),
-                            (string) $value
-                        );
-                    }
-
-                    $params[] = $value;
-
-                    return sprintf('%s = ?', $this->escapeIdentifier($key));
+                    return sprintf(
+                        '%s = %s',
+                        $this->escapeIdentifier($key),
+                        $this->buildPlaceholder($params, $value)
+                    );
                 },
                 $values,
                 array_keys($values)
@@ -441,56 +429,50 @@ class SQLDialect extends DialectAbstract
             return;
         }
 
-        $isSelectQuery = $condition->value instanceof SelectQuery;
-
         $query .= sprintf(
             '%s %s %s',
             $this->escapeIdentifier($condition->identifier),
             $condition->condition->value,
-            $isSelectQuery ? $this->buildSubSelectQuery($params, $condition->value) : '?'
+            $condition->value instanceof SelectQuery
+            ? $this->buildSubSelectQuery($params, $condition->value)
+            : $this->buildPlaceholder($params, $condition->value)
         );
-
-        if ($isSelectQuery) {
-            return;
-        }
-
-        array_push($params, $condition->value);
     }
 
     protected function buildConditionBetween(string &$query, array &$params, Condition $condition): void
     {
-        $query .= sprintf(
-            '%s %s ? AND ?',
-            $this->escapeIdentifier($condition->identifier),
-            $condition->condition->value
-        );
+        $min = $condition->value[0] instanceof SelectQuery
+            ? $this->buildSubSelectQuery($params, $condition->value[0])
+            : $this->buildPlaceholder($params, $condition->value[0]);
 
-        array_push($params, ...$condition->value);
+        $max = $condition->value[0] instanceof SelectQuery
+            ? $this->buildSubSelectQuery($params, $condition->value[1])
+            : $this->buildPlaceholder($params, $condition->value[1]);
+
+        $query .= sprintf(
+            '%s %s %s AND %s',
+            $this->escapeIdentifier($condition->identifier),
+            $condition->condition->value,
+            $min,
+            $max
+        );
     }
 
     protected function buildConditionLike(string &$query, array &$params, Condition $condition): void
     {
-        $isSelectQuery = $condition->value instanceof SelectQuery;
-
         $query .= sprintf(
             '%s %s %s',
             $this->escapeIdentifier($condition->identifier),
             $condition->condition->value,
-            $isSelectQuery ? $this->buildSubSelectQuery($params, $condition->value) : '?'
+            $condition->value instanceof SelectQuery
+            ? $this->buildSubSelectQuery($params, $condition->value)
+            : $this->buildPlaceholder($params, $condition->value)
         );
-
-        if ($isSelectQuery) {
-            return;
-        }
-
-        array_push($params, $condition->value);
     }
 
     protected function buildConditionIn(string &$query, array &$params, Condition $condition): void
     {
-        $isSelectQuery = $condition->value instanceof SelectQuery;
-
-        if (!$isSelectQuery && count($condition->value) == 0) {
+        if (!($condition->value instanceof SelectQuery) && count($condition->value) == 0) {
             $query .= $condition->condition == ConditionEnum::IN ? '1 <> 1' : '1 = 1';
 
             return;
@@ -500,16 +482,10 @@ class SQLDialect extends DialectAbstract
             '%s %s %s',
             $this->escapeIdentifier($condition->identifier),
             $condition->condition->value,
-            !$isSelectQuery
-            ? '(' . implode(', ', array_fill(0, count($condition->value), '?')) . ')'
-            : $this->buildSubSelectQuery($params, $condition->value)
+            $condition->value instanceof SelectQuery
+            ? $this->buildSubSelectQuery($params, $condition->value)
+            : $this->buildPlaceholder($params, $condition->value)
         );
-
-        if ($isSelectQuery) {
-            return;
-        }
-
-        array_push($params, ...$condition->value);
     }
 
     protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
@@ -519,31 +495,30 @@ class SQLDialect extends DialectAbstract
         }
 
         $query .= sprintf(
-            'REGEXP_LIKE(%s, ?, ?)',
-            $this->escapeIdentifier($condition->identifier)
+            'REGEXP_LIKE(%s, %s, %s)',
+            $this->escapeIdentifier($condition->identifier),
+            $this->buildPlaceholder($params, $condition->value[0]),
+            $this->buildPlaceholder($params, $condition->value[1])
         );
-
-        array_push($params, ...$condition->value);
     }
 
     protected function buildConditionRegexOperator(string &$query, array &$params, Condition $condition, string $equals, string $notEquals): void
     {
-        $query .= sprintf(
-            '%s %s ?',
-            $this->escapeIdentifier($condition->identifier),
-            $condition->condition == ConditionEnum::REGEX ? $equals : $notEquals
-        );
-
         [$pattern, $flags] = $condition->value;
 
-        array_push(
-            $params,
-            !empty($flags)
-            ? sprintf(
-                '(?%s)%s',
-                $flags,
-                $pattern
-            ) : $pattern
+        $query .= sprintf(
+            '%s %s %s',
+            $this->escapeIdentifier($condition->identifier),
+            $condition->condition == ConditionEnum::REGEX ? $equals : $notEquals,
+            $this->buildPlaceholder(
+                $params,
+                !empty($flags)
+                ? sprintf(
+                    '(?%s)%s',
+                    $flags,
+                    $pattern
+                ) : $pattern
+            )
         );
     }
 
@@ -681,6 +656,33 @@ class SQLDialect extends DialectAbstract
             : '*';
 
         $query .= ' RETURNING ' . $columns;
+    }
+
+    protected function buildPlaceholder(array &$params, mixed $value): string
+    {
+        if ($value instanceof Raw) {
+            return $value;
+        }
+
+        if (is_array($value)) {
+            array_push($params, ...$value);
+
+            return sprintf(
+                '(%s)',
+                implode(
+                    ', ',
+                    array_fill(
+                        0,
+                        count($value),
+                        '?'
+                    )
+                )
+            );
+        }
+
+        array_push($params, $value);
+
+        return '?';
     }
 
     protected function buildSubSelectQuery(array &$params, SelectQuery $selectQuery): string

@@ -38,7 +38,8 @@ return [
             'charset' => env('DB_CHARSET', 'utf8mb4'),
             'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
             'engine' => env('DB_ENGINE', 'InnoDB'),
-            'use_pdo' => env('DB_USE_PDO', false)
+            'use_pdo' => env('DB_USE_PDO', false),
+            'version' => env('DB_VERSION')
         ],
         'mysql' => [
             'host' => env('DB_HOST', 'localhost'),
@@ -58,7 +59,8 @@ return [
             'charset' => env('DB_CHARSET', 'utf8mb4'),
             'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
             'engine' => env('DB_ENGINE', 'InnoDB'),
-            'use_pdo' => env('DB_USE_PDO', false)
+            'use_pdo' => env('DB_USE_PDO', false),
+            'version' => env('DB_VERSION')
         ],
         // 'odbc' => [
         //     'dsn' => env('DB_DSN', ''),
@@ -83,7 +85,8 @@ return [
 
             'client_encoding' => env('DB_CLIENT_ENCODING', 'UTF8'),
             'search_path' => env('DB_SEARCH_PATH', 'public'),
-            'use_pdo' => env('DB_USE_PDO', false)
+            'use_pdo' => env('DB_USE_PDO', false),
+            'version' => env('DB_VERSION')
         ],
         'sqlite' => [
             'file' => env('DB_FILE', Filesystem::path(SENTIENCE_DIR, 'sqlite', 'sentience.sqlite3')),
@@ -108,7 +111,8 @@ return [
              * The SQLite3 class contains a bug that executes queries multiple times.
              * For now it is recommended to use the PDO adapter.
              */
-            'use_pdo' => env('DB_USE_PDO', true)
+            'use_pdo' => env('DB_USE_PDO', true),
+            'version' => env('DB_VERSION')
         ]
     ],
 
@@ -124,14 +128,6 @@ return [
      * The chance of an unknown sequence breaking the param injection is never zero.
      */
     'emulate_prepares' => env('DB_EMULATE_PREPARES', false),
-
-    /**
-     * Overrides the version automatically set by the adapter
-     *
-     * This is useful for when the adapter doesn't parse the version string correct.
-     * In lazy mode it also prevents the adapter having to connect to the database just to retrieve a version
-     */
-    'version' => env('DB_VERSION'),
 
     'debug' => env('DB_DEBUG', false),
     'lazy' => env('DB_LAZY') ?? is_cli()
