@@ -24,6 +24,16 @@ trait WhereTrait
         return $this->notEquals($column, $value, ChainEnum::AND);
     }
 
+    public function whereIsNull(string|array $column): static
+    {
+        return $this->isNull($column, ChainEnum::AND);
+    }
+
+    public function whereIsNotNull(string|array $column): static
+    {
+        return $this->isNotNull($column, ChainEnum::AND);
+    }
+
     public function whereLike(string|array $column, string $value): static
     {
         return $this->like($column, $value, ChainEnum::AND);
@@ -94,16 +104,6 @@ trait WhereTrait
         return $this->notBetween($column, $min, $max, ChainEnum::AND);
     }
 
-    public function whereIsNull(string|array $column): static
-    {
-        return $this->isNull($column, ChainEnum::AND);
-    }
-
-    public function whereIsNotNull(string|array $column): static
-    {
-        return $this->isNotNull($column, ChainEnum::AND);
-    }
-
     public function whereEmpty(string|array $column): static
     {
         return $this->empty($column, ChainEnum::AND);
@@ -142,6 +142,16 @@ trait WhereTrait
     public function orWhereNotEquals(string|array $column, mixed $value): static
     {
         return $this->notEquals($column, $value, ChainEnum::OR);
+    }
+
+    public function orWhereIsNull(string|array $column): static
+    {
+        return $this->isNull($column, ChainEnum::OR);
+    }
+
+    public function orWhereIsNotNull(string|array $column): static
+    {
+        return $this->isNotNull($column, ChainEnum::OR);
     }
 
     public function orWhereLike(string|array $column, string $value): static
@@ -214,16 +224,6 @@ trait WhereTrait
         return $this->notBetween($column, $min, $max, ChainEnum::OR);
     }
 
-    public function orWhereIsNull(string|array $column): static
-    {
-        return $this->isNull($column, ChainEnum::OR);
-    }
-
-    public function orWhereIsNotNull(string|array $column): static
-    {
-        return $this->isNotNull($column, ChainEnum::OR);
-    }
-
     public function orWhereEmpty(string|array $column): static
     {
         return $this->empty($column, ChainEnum::AND);
@@ -262,6 +262,16 @@ trait WhereTrait
     protected function notEquals(string|array $column, mixed $value, ChainEnum $chain): static
     {
         return $this->addCondition(ConditionEnum::NOT_EQUALS, $column, $value, $chain);
+    }
+
+    protected function isNull(string|array $column, ChainEnum $chain): static
+    {
+        return $this->addCondition(ConditionEnum::EQUALS, $column, null, $chain);
+    }
+
+    protected function isNotNull(string|array $column, ChainEnum $chain): static
+    {
+        return $this->addCondition(ConditionEnum::NOT_EQUALS, $column, null, $chain);
     }
 
     protected function like(string|array $column, string $value, ChainEnum $chain): static
@@ -332,16 +342,6 @@ trait WhereTrait
     protected function notBetween(string|array $column, int|float|string|DateTimeInterface $min, int|float|string|DateTimeInterface $max, ChainEnum $chain): static
     {
         return $this->addCondition(ConditionEnum::NOT_BETWEEN, $column, [$min, $max], $chain);
-    }
-
-    protected function isNull(string|array $column, ChainEnum $chain): static
-    {
-        return $this->addCondition(ConditionEnum::EQUALS, $column, null, $chain);
-    }
-
-    protected function isNotNull(string|array $column, ChainEnum $chain): static
-    {
-        return $this->addCondition(ConditionEnum::NOT_EQUALS, $column, null, $chain);
     }
 
     protected function empty(string|array $column, ChainEnum $chain): static
