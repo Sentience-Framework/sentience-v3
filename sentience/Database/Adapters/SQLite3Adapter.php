@@ -118,10 +118,8 @@ class SQLite3Adapter extends AdapterAbstract
 
     public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams, bool $emulatePrepare): SQLite3Result
     {
-        $query = $queryWithParams->toSql($dialect);
-
         if ($emulatePrepare) {
-            return $this->query($query);
+            return $this->query($queryWithParams->toSql($dialect));
         }
 
         $start = microtime(true);
@@ -129,7 +127,7 @@ class SQLite3Adapter extends AdapterAbstract
         try {
             $sqlite3Stmt = $this->sqlite3->prepare($queryWithParams->query);
         } catch (Throwable $exception) {
-            $this->debug($query, $start, $exception);
+            $this->debug(fn (): string => $queryWithParams->toSql($dialect), $start, $exception);
 
             throw $exception;
         }
@@ -153,12 +151,12 @@ class SQLite3Adapter extends AdapterAbstract
         try {
             $sqlite3Result = $sqlite3Stmt->execute();
         } catch (Throwable $exception) {
-            $this->debug($query, $start, $exception);
+            $this->debug(fn (): string => $queryWithParams->toSql($dialect), $start, $exception);
 
             throw $exception;
         }
 
-        $this->debug($query, $start);
+        $this->debug(fn (): string => $queryWithParams->toSql($dialect), $start);
 
         return new SQLite3Result($sqlite3Result);
     }

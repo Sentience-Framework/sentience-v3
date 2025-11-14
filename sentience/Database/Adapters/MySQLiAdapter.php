@@ -110,10 +110,8 @@ class MySQLiAdapter extends AdapterAbstract
     {
         $queryWithParams->namedParamsToQuestionMarks();
 
-        $query = $queryWithParams->toSql($dialect);
-
         if ($emulatePrepare) {
-            return $this->query($query);
+            return $this->query($queryWithParams->toSql($dialect));
         }
 
         $start = microtime(true);
@@ -121,7 +119,7 @@ class MySQLiAdapter extends AdapterAbstract
         try {
             $mysqliStmt = $this->mysqli->prepare($queryWithParams->query);
         } catch (Throwable $exception) {
-            $this->debug($query, $start, $exception);
+            $this->debug(fn (): string => $queryWithParams->toSql($dialect), $start, $exception);
 
             throw $exception;
         }
@@ -157,14 +155,14 @@ class MySQLiAdapter extends AdapterAbstract
         try {
             $mysqliStmt->execute();
         } catch (Throwable $exception) {
-            $this->debug($query, $start, $exception);
+            $this->debug(fn (): string => $queryWithParams->toSql($dialect), $start, $exception);
 
             throw $exception;
         }
 
         $mysqliResult = $mysqliStmt->get_result();
 
-        $this->debug($query, $start);
+        $this->debug(fn (): string => $queryWithParams->toSql($dialect), $start);
 
         return new MySQLiResult($mysqliResult);
     }

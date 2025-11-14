@@ -229,8 +229,6 @@ class PDOAdapter extends AdapterAbstract
 
     public function queryWithParams(DialectInterface $dialect, QueryWithParams $queryWithParams, bool $emulatePrepare): PDOResult
     {
-        $query = $queryWithParams->toSql($dialect);
-
         $start = microtime(true);
 
         try {
@@ -244,7 +242,7 @@ class PDOAdapter extends AdapterAbstract
                 $this->disableEmulatePrepares();
             }
 
-            $this->debug($query, $start, $exception);
+            $this->debug(fn (): string => $queryWithParams->toSql($dialect), $start, $exception);
 
             throw $exception;
         }
@@ -269,7 +267,7 @@ class PDOAdapter extends AdapterAbstract
         try {
             $pdoStatement->execute();
         } catch (Throwable $exception) {
-            $this->debug($query, $start, $exception);
+            $this->debug(fn (): string => $queryWithParams->toSql($dialect), $start, $exception);
 
             throw $exception;
         } finally {
@@ -278,7 +276,7 @@ class PDOAdapter extends AdapterAbstract
             }
         }
 
-        $this->debug($query, $start);
+        $this->debug(fn (): string => $queryWithParams->toSql($dialect), $start);
 
         return new PDOResult($pdoStatement);
     }
