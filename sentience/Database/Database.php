@@ -11,9 +11,9 @@ use Sentience\Database\Queries\CreateTableQuery;
 use Sentience\Database\Queries\DeleteQuery;
 use Sentience\Database\Queries\DropTableQuery;
 use Sentience\Database\Queries\InsertQuery;
-use Sentience\Database\Queries\Objects\Alias;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Objects\Raw;
+use Sentience\Database\Queries\Query;
 use Sentience\Database\Queries\SelectQuery;
 use Sentience\Database\Queries\UpdateQuery;
 use Sentience\Database\Results\ResultInterface;
@@ -124,37 +124,37 @@ class Database
         return $this->adapter->lastInsertId($name);
     }
 
-    public function select(string|array|Alias|Raw $table): SelectQuery
+    public function select(string|array|Raw|SelectQuery $table, ?string $alias = null): SelectQuery
     {
-        return new SelectQuery($this, $this->dialect, $table);
+        return new SelectQuery($this, $this->dialect, $alias ? Query::alias($table, $alias) : $table);
     }
 
-    public function insert(string|array|Alias|Raw $table): InsertQuery
+    public function insert(string|array|Raw $table): InsertQuery
     {
         return new InsertQuery($this, $this->dialect, $table);
     }
 
-    public function update(string|array|Alias|Raw $table): UpdateQuery
+    public function update(string|array|Raw $table): UpdateQuery
     {
         return new UpdateQuery($this, $this->dialect, $table);
     }
 
-    public function delete(string|array|Alias|Raw $table): DeleteQuery
+    public function delete(string|array|Raw $table): DeleteQuery
     {
         return new DeleteQuery($this, $this->dialect, $table);
     }
 
-    public function createTable(string|array|Alias|Raw $table): CreateTableQuery
+    public function createTable(string|array|Raw $table): CreateTableQuery
     {
         return new CreateTableQuery($this, $this->dialect, $table);
     }
 
-    public function alterTable(string|array|Alias|Raw $table): AlterTableQuery
+    public function alterTable(string|array|Raw $table): AlterTableQuery
     {
         return new AlterTableQuery($this, $this->dialect, $table);
     }
 
-    public function dropTable(string|array|Alias|Raw $table): DropTableQuery
+    public function dropTable(string|array|Raw $table): DropTableQuery
     {
         return new DropTableQuery($this, $this->dialect, $table);
     }

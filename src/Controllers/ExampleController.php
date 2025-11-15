@@ -76,7 +76,7 @@ class ExampleController extends Controller
 
         $queries = [];
 
-        $queries[] = $db->select(Query::alias(['public', 'table_1'], 'table1'))
+        $queries[] = $db->select(['public', 'table_1'], 'table1')
             ->distinct()
             ->columns([
                 'column1',
@@ -142,7 +142,7 @@ class ExampleController extends Controller
             ->offset(10)
             ->toSql();
 
-        $queries[] = $db->insert(Query::alias('table_1', 'table1'))
+        $queries[] = $db->insert('table_1')
             ->values([
                 'column1' => Query::now(),
                 'column2' => true,
