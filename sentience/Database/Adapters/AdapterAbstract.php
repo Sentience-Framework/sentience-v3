@@ -174,13 +174,13 @@ abstract class AdapterAbstract implements AdapterInterface
         );
     }
 
-    protected function debug(string $query, float $start, null|string|Throwable $error = null): void
+    protected function debug(string|callable $query, float $start, null|string|Throwable $error = null): void
     {
         if (!$this->debug) {
             return;
         }
 
-        ($this->debug)($query, $start, $error instanceof Throwable ? $error->getMessage() : $error);
+        ($this->debug)(is_callable($query) ? $query() : $query, $start, $error instanceof Throwable ? $error->getMessage() : $error);
     }
 
     public function __destruct()
