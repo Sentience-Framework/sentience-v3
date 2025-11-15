@@ -13,6 +13,7 @@ class PgSQLDialect extends SQLDialect
     protected const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
     protected const bool ON_CONFLICT = true;
     protected const bool RETURNING = true;
+    protected const bool SAFEPOINTS = true;
 
     protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
     {
@@ -44,7 +45,7 @@ class PgSQLDialect extends SQLDialect
                 implode(
                     ', ',
                     array_map(
-                        fn (string|Raw $column): string => $this->escapeIdentifier($column),
+                        fn(string|Raw $column): string => $this->escapeIdentifier($column),
                         $onConflict->conflict
                     )
                 )

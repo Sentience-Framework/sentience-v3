@@ -19,6 +19,9 @@ class SQLiteDialect extends SQLDialect
 {
     protected const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
     protected const bool GENERATED_BY_DEFAULT_AS_IDENTITY = false;
+    protected const bool ON_CONFLICT = true;
+    protected const bool RETURNING = true;
+    protected const bool SAFEPOINTS = true;
 
     public function createTable(
         bool $ifNotExists,
@@ -31,7 +34,7 @@ class SQLiteDialect extends SQLDialect
             if ($column->generatedByDefaultAsIdentity) {
                 $primaryKeys = array_filter(
                     $primaryKeys,
-                    fn (string $primaryKey): bool => $primaryKey != $column->name
+                    fn(string $primaryKey): bool => $primaryKey != $column->name
                 );
             }
         }
@@ -60,7 +63,7 @@ class SQLiteDialect extends SQLDialect
             implode(
                 ', ',
                 array_map(
-                    fn (string|Raw $column): string => $this->escapeIdentifier($column),
+                    fn(string|Raw $column): string => $this->escapeIdentifier($column),
                     $onConflict->conflict
                 )
             )
