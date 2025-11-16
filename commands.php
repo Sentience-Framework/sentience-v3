@@ -88,8 +88,8 @@ return [
     ),
 
     Command::register(
-        'select',
-        [ExampleController::class, 'select']
+        'transactions',
+        [ExampleController::class, 'transactions']
     ),
 
     Command::register(

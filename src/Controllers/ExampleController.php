@@ -324,6 +324,23 @@ class ExampleController extends Controller
         print_r($models);
     }
 
+    public function transactions(DB $db): void
+    {
+        $db->transactionInCallback(
+            function (DB $db): void {
+                $db->exec('-- First transaction');
+                $db->exec('SELECT 1');
+
+                $db->transactionInCallback(
+                    function (DB $db): void {
+                        $db->exec('-- Second transaction');
+                        $db->exec('SELECT 1');
+                    }
+                );
+            }
+        );
+    }
+
     public function mapper(): void
     {
         $json = '[
