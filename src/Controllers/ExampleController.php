@@ -328,13 +328,23 @@ class ExampleController extends Controller
     {
         $db->transactionInCallback(
             function (DB $db): void {
-                $db->exec('-- First transaction');
-                $db->exec('SELECT 1');
+                $db->exec('SELECT 1 -- First transaction');
 
                 $db->transactionInCallback(
                     function (DB $db): void {
-                        $db->exec('-- Second transaction');
-                        $db->exec('SELECT 1');
+                        $db->exec('SELECT 1 -- Second transaction');
+
+                        $db->transactionInCallback(
+                            function (DB $db): void {
+                                $db->exec('SELECT 1 -- Third transaction');
+
+                                $db->transactionInCallback(
+                                    function (DB $db): void {
+                                        $db->exec('SELECT 1 -- Fourth transaction');
+                                    }
+                                );
+                            }
+                        );
                     }
                 );
             }
