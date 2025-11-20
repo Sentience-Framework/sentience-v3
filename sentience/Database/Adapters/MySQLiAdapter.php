@@ -33,7 +33,7 @@ class MySQLiAdapter extends AdapterAbstract
         bool $lazy = false
     ): static {
         return new static(
-            fn (): mysqli => new mysqli(
+            fn(): mysqli => new mysqli(
                 ($options[static::OPTIONS_PERSISTENT] ?? false)
                 ? sprintf('p:%s', $host)
                 : $host,
