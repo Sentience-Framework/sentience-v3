@@ -16,15 +16,12 @@ class Cache extends Singleton
         return new static(
             DB::connect(
                 Driver::SQLITE,
-                '',
-                0,
                 Filesystem::path(
                     SENTIENCE_DIR,
                     'sqlite',
                     'cache.sqlite3'
                 ),
-                '',
-                '',
+                null,
                 [
                     'PRAGMA synchronous = OFF'
                 ],

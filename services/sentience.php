@@ -2,6 +2,8 @@
 
 use Sentience\Cache\Cache;
 use Sentience\Database\Driver;
+use Sentience\Database\Sockets\NetworkSocket;
+use Sentience\Database\Sockets\UnixSocket;
 use Sentience\DataLayer\Database\DB;
 use Sentience\DataLayer\Database\Results\CachedResult;
 use Sentience\Helpers\Log;
@@ -12,9 +14,10 @@ return new class () {
     {
         $driver = Driver::from(config('database->driver', ''));
         $dsn = config("database->settings->{$driver->value}->dsn", '');
+        $name = config(["database->settings->{$driver->value}->name", "database->settings->{$driver->value}->file"], '');
         $host = config("database->settings->{$driver->value}->host", '');
         $port = (int) config("database->settings->{$driver->value}->port", '');
-        $name = config(["database->settings->{$driver->value}->name", "database->settings->{$driver->value}->file"], '');
+        $unixSocket = config("database->settings->{$driver->value}->unix_socket", null);
         $username = config("database->settings->{$driver->value}->username", '');
         $password = config("database->settings->{$driver->value}->password", '');
         $queries = config("database->settings->{$driver->value}->queries", []);
@@ -36,8 +39,12 @@ return new class () {
 
                 Log::stderrBetweenEqualSigns('Query', $lines);
             }
-        : null;
+            : null;
         $lazy = config('database->lazy', false);
+
+        $socket = !$unixSocket
+            ? new NetworkSocket($host, $port, $username, $password)
+            : new UnixSocket($unixSocket, $username, $password);
 
         $supportedBySentience = in_array(
             $driver,
@@ -53,28 +60,25 @@ return new class () {
         $db = $supportedBySentience
             ? DB::connect(
                 $driver,
-                $host,
-                $port,
                 $name,
-                $username,
-                $password,
+                $socket,
                 $queries,
                 $options,
                 $debug,
                 $usePdo,
                 $lazy
             ) : DB::pdo(
-                fn (): PDO => new PDO(
-                    $dsn,
-                    $username,
-                    $password
-                ),
-                $driver,
-                $queries,
-                $options,
-                $debug,
-                $lazy
-            );
+                    fn(): PDO => new PDO(
+                        $dsn,
+                        $username,
+                        $password
+                    ),
+                    $driver,
+                    $queries,
+                    $options,
+                    $debug,
+                    $lazy
+                );
 
         return $db;
 
