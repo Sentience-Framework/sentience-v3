@@ -84,6 +84,22 @@ class InsertModelsQuery extends ModelsQueryAbstract
             if ($insertedRow) {
                 $this->mapAssocToModel($model, $insertedRow);
             }
+
+            $lastInsertId = $this->database->lastInsertId();
+
+            if ($lastInsertId) {
+                foreach ($reflectionModelProperties as $reflectionModelProperty) {
+                    if (!$reflectionModelProperty->isAutoIncrement()) {
+                        continue;
+                    }
+
+                    $property = $reflectionModelProperty->getProperty();
+
+                    $model->{$property} = $lastInsertId;
+
+                    break;
+                }
+            }
         }
 
         return $this->models;
