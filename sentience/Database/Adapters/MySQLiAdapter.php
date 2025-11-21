@@ -10,6 +10,7 @@ use Sentience\Database\Driver;
 use Sentience\Database\Exceptions\AdapterException;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Results\MySQLiResult;
+use Sentience\Database\Sockets\NetworkSocket;
 use Sentience\Database\Sockets\SocketInterface;
 
 class MySQLiAdapter extends AdapterAbstract

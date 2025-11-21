@@ -11,6 +11,7 @@ use Sentience\Database\Driver;
 use Sentience\Database\Exceptions\AdapterException;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Results\PDOResult;
+use Sentience\Database\Sockets\NetworkSocket;
 use Sentience\Database\Sockets\SocketInterface;
 
 class PDOAdapter extends AdapterAbstract
@@ -92,11 +93,18 @@ class PDOAdapter extends AdapterAbstract
             throw new AdapterException('this driver requires a socket');
         }
 
-        $dsn = $socket instanceof NetworkSocket
+        $isNetworkSocket = $socket instanceof NetworkSocket;
+
+        if ($isNetworkSocket) {
+            [$host, $port] = $socket->address();
+        }
+
+        $dsn = $isNetworkSocket
             ? sprintf(
                 '%s:host=%s;port=%s;dbname=%s',
                 $driver == Driver::MARIADB ? Driver::MYSQL->value : $driver->value,
-                ...$socket->address(),
+                $host,
+                $port,
                 $name
             )
             : sprintf(
@@ -104,8 +112,7 @@ class PDOAdapter extends AdapterAbstract
                 $driver == Driver::MARIADB ? Driver::MYSQL->value : $driver->value,
                 $socket->address(),
                 $name
-            )
-        ;
+            );
 
         if ($driver == Driver::PGSQL) {
             if (array_key_exists(static::OPTIONS_PGSQL_CLIENT_ENCODING, $options)) {
