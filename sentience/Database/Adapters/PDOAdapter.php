@@ -70,8 +70,7 @@ class PDOAdapter extends AdapterAbstract
                             $driver == Driver::MARIADB ? Driver::MYSQL->value : $driver->value,
                             $socket->address(),
                             $name
-                        )
-                    ;
+                        );
 
                     if ($driver == Driver::PGSQL) {
                         if (array_key_exists(static::OPTIONS_PGSQL_CLIENT_ENCODING, $options)) {
