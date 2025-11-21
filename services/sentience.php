@@ -2,6 +2,8 @@
 
 use Sentience\Cache\Cache;
 use Sentience\Database\Driver;
+use Sentience\Database\Sockets\NetworkSocket;
+use Sentience\Database\Sockets\UnixSocket;
 use Sentience\DataLayer\Database\DB;
 use Sentience\DataLayer\Database\Results\CachedResult;
 use Sentience\Helpers\Log;
@@ -11,9 +13,10 @@ return new class () {
     public function db(): DB
     {
         $driver = config('database->driver', '');
+        $name = config(["database->settings->{$driver}->name", "database->settings->{$driver}->file"], '');
         $host = config("database->settings->{$driver}->host", '');
         $port = (int) config("database->settings->{$driver}->port", '');
-        $name = config(["database->settings->{$driver}->name", "database->settings->{$driver}->file"], '');
+        $unixSocket = (int) config("database->settings->{$driver}->unix_socket", null);
         $username = config("database->settings->{$driver}->username", '');
         $password = config("database->settings->{$driver}->password", '');
         $queries = config("database->settings->{$driver}->queries", []);
@@ -21,13 +24,14 @@ return new class () {
         $options = config("database->settings->{$driver}", []);
         $debug = config('database->debug', false);
 
+        $socket = !$unixSocket
+            ? new NetworkSocket($host, $port, $username, $password)
+            : new UnixSocket($unixSocket, $username, $password);
+
         $db = DB::connect(
             Driver::from($driver),
-            $host,
-            $port,
             $name,
-            $username,
-            $password,
+            $socket,
             $queries,
             $options,
             $debug ? function (string $query, float $start, ?string $error = null): void {
@@ -47,6 +51,8 @@ return new class () {
             } : null,
             $usePdo
         );
+
+        return $db;
 
         $queryCache = [];
 

@@ -12,6 +12,7 @@ use Sentience\Database\Dialects\MySQLDialect;
 use Sentience\Database\Dialects\PgSQLDialect;
 use Sentience\Database\Dialects\SQLDialect;
 use Sentience\Database\Dialects\SQLiteDialect;
+use Sentience\Database\Sockets\SocketInterface;
 
 enum Driver: string
 {
@@ -21,21 +22,18 @@ enum Driver: string
     case SQLITE = 'sqlite';
 
     public function getAdapter(
-        string $host,
-        int $port,
         string $name,
-        string $username,
-        string $password,
+        ?SocketInterface $socket,
         array $queries,
         array $options,
         ?Closure $debug,
-        bool $usePDOAdapter = false
+        bool $usePdoAdapter = false,
+        bool $lazy = false
     ): AdapterInterface {
-        $adapter = !$usePDOAdapter
-            ? match ($this) {
+        $adapter = !$usePdoAdapter ?
+            match ($this) {
                 static::MARIADB,
                 static::MYSQL => MySQLiAdapter::class,
-                static::PGSQL => PDOAdapter::class,
                 static::SQLITE => SQLite3Adapter::class,
                 default => PDOAdapter::class
             }
@@ -43,14 +41,12 @@ enum Driver: string
 
         return new $adapter(
             $this,
-            $host,
-            $port,
             $name,
-            $username,
-            $password,
+            $socket,
             $queries,
             $options,
-            $debug
+            $debug,
+            $lazy
         );
     }
 

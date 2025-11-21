@@ -17,31 +17,28 @@ use Sentience\Database\Queries\Query;
 use Sentience\Database\Queries\SelectQuery;
 use Sentience\Database\Queries\UpdateQuery;
 use Sentience\Database\Results\ResultInterface;
+use Sentience\Database\Sockets\SocketInterface;
 
 class Database
 {
     public static function connect(
         Driver $driver,
-        string $host,
-        int $port,
         string $name,
-        string $username,
-        string $password,
+        ?SocketInterface $socket,
         array $queries,
         array $options,
         ?Closure $debug,
-        bool $usePDOAdapter = false
+        bool $usePdoAdapter = false,
+        bool $lazy = false
     ): static {
         $adapter = $driver->getAdapter(
-            $host,
-            $port,
             $name,
-            $username,
-            $password,
+            $socket,
             $queries,
             $options,
             $debug,
-            $usePDOAdapter
+            $usePdoAdapter,
+            $lazy
         );
 
         $version = $adapter->version();

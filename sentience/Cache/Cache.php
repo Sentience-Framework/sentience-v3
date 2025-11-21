@@ -4,7 +4,7 @@ namespace Sentience\Cache;
 
 use DateTimeInterface;
 use Sentience\Abstracts\Singleton;
-use Sentience\Database\Adapters\AdapterAbstract;
+use Sentience\Database\Adapters\AdapterInterface;
 use Sentience\Database\Driver;
 use Sentience\DataLayer\Database\DB;
 use Sentience\Helpers\Filesystem;
@@ -16,22 +16,19 @@ class Cache extends Singleton
         return new static(
             DB::connect(
                 Driver::SQLITE,
-                '',
-                0,
                 Filesystem::path(
                     SENTIENCE_DIR,
                     'sqlite',
                     'cache.sqlite3'
                 ),
-                '',
-                '',
+                null,
                 [
                     'PRAGMA synchronous = OFF'
                 ],
                 [
-                    AdapterAbstract::OPTIONS_SQLITE_JOURNAL_MODE => 'WAL',
-                    AdapterAbstract::OPTIONS_SQLITE_OPTIMIZE => true,
-                    AdapterAbstract::OPTIONS_SQLITE_BUSY_TIMEOUT => 100
+                    AdapterInterface::OPTIONS_SQLITE_JOURNAL_MODE => 'WAL',
+                    AdapterInterface::OPTIONS_SQLITE_OPTIMIZE => true,
+                    AdapterInterface::OPTIONS_SQLITE_BUSY_TIMEOUT => 100
                 ],
                 null,
                 true

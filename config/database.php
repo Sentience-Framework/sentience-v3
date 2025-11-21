@@ -6,9 +6,10 @@ return [
     'driver' => env('DB_DRIVER', 'sqlite'),
     'settings' => [
         'mariadb' => [
+            'name' => env('DB_NAME', 'sentience'),
             'host' => env('DB_HOST', 'localhost'),
             'port' => env('DB_PORT', 3306),
-            'name' => env('DB_NAME', 'sentience'),
+            'unix_socket' => env('DB_UNIX_SOCKET', null),
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
 
@@ -26,9 +27,10 @@ return [
             'use_pdo' => env('DB_USE_PDO', false)
         ],
         'mysql' => [
+            'name' => env('DB_NAME', 'sentience'),
             'host' => env('DB_HOST', 'localhost'),
             'port' => env('DB_PORT', 3306),
-            'name' => env('DB_NAME', 'sentience'),
+            'unix_socket' => env('DB_UNIX_SOCKET', null),
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
 
@@ -46,9 +48,10 @@ return [
             'use_pdo' => env('DB_USE_PDO', false)
         ],
         'pgsql' => [
+            'name' => env('DB_NAME', 'sentience'),
             'host' => env('DB_HOST', 'localhost'),
             'port' => env('DB_PORT', 5432),
-            'name' => env('DB_NAME', 'sentience'),
+            'unix_socket' => env('DB_UNIX_SOCKET', null),
             'username' => env('DB_USERNAME', 'postgres'),
             'password' => env('DB_PASSWORD', ''),
 

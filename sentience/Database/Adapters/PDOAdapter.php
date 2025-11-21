@@ -8,8 +8,10 @@ use PDOStatement;
 use Throwable;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
+use Sentience\Database\Exceptions\AdapterException;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Results\PDOResult;
+use Sentience\Database\Sockets\SocketInterface;
 
 class PDOAdapter extends AdapterAbstract
 {
@@ -17,22 +19,16 @@ class PDOAdapter extends AdapterAbstract
 
     public function __construct(
         Driver $driver,
-        string $host,
-        int $port,
         string $name,
-        string $username,
-        string $password,
+        ?SocketInterface $socket,
         array $queries,
         array $options,
         ?Closure $debug
     ) {
         parent::__construct(
             $driver,
-            $host,
-            $port,
             $name,
-            $username,
-            $password,
+            $socket,
             $queries,
             $options,
             $debug
@@ -40,16 +36,15 @@ class PDOAdapter extends AdapterAbstract
 
         $dsn = $this->dsn(
             $driver,
-            $host,
-            $port,
             $name,
+            $socket,
             $options
         );
 
         $this->pdo = new PDO(
             $dsn,
-            $username,
-            $password,
+            $socket?->username(),
+            $socket?->password(),
             [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_PERSISTENT => $options[static::OPTIONS_PERSISTENT] ?? false,
@@ -77,9 +72,8 @@ class PDOAdapter extends AdapterAbstract
 
     protected function dsn(
         Driver $driver,
-        string $host,
-        int $port,
         string $name,
+        ?SocketInterface $socket,
         array $options
     ): string {
         if (array_key_exists(static::OPTIONS_PDO_DSN, $options)) {
@@ -94,13 +88,24 @@ class PDOAdapter extends AdapterAbstract
             );
         }
 
-        $dsn = sprintf(
-            '%s:host=%s;port=%s;dbname=%s',
-            $driver == Driver::MARIADB ? Driver::MYSQL->value : $driver->value,
-            $host,
-            $port,
-            $name
-        );
+        if (!$socket) {
+            throw new AdapterException('this driver requires a socket');
+        }
+
+        $dsn = $socket instanceof NetworkSocket
+            ? sprintf(
+                '%s:host=%s;port=%s;dbname=%s',
+                $driver == Driver::MARIADB ? Driver::MYSQL->value : $driver->value,
+                ...$socket->address(),
+                $name
+            )
+            : sprintf(
+                '%s:unix_socket=%s;dbname=%s',
+                $driver == Driver::MARIADB ? Driver::MYSQL->value : $driver->value,
+                $socket->address(),
+                $name
+            )
+        ;
 
         if ($driver == Driver::PGSQL) {
             if (array_key_exists(static::OPTIONS_PGSQL_CLIENT_ENCODING, $options)) {
