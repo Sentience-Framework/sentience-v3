@@ -121,26 +121,26 @@ class InsertQuery extends Query
 
     protected function update(array $conflict, bool $emulatePrepare): ResultInterface
     {
-        $updateQuery = $this->database->update($this->table);
+        if (!is_null($this->onConflict->updates)) {
+            $updateQuery = $this->database->update($this->table);
 
-        $updates = is_null($this->onConflict->updates)
-            ? !empty($onConflict->updates) ? $this->onConflict->updates : $this->values
-            : $conflict;
+            $updates = count($this->onConflict->updates) > 0 ? $this->onConflict->updates : $this->values;
 
-        $updateQuery->values($updates);
+            $updateQuery->values($updates);
 
-        foreach ($conflict as $column => $value) {
-            $updateQuery->whereEquals($column, $value);
-        }
+            foreach ($conflict as $column => $value) {
+                $updateQuery->whereEquals($column, $value);
+            }
 
-        if (!is_null($this->returning)) {
-            $updateQuery->returning($this->returning);
-        }
+            if (!is_null($this->returning)) {
+                $updateQuery->returning($this->returning);
+            }
 
-        $result = $updateQuery->execute($emulatePrepare);
+            $result = $updateQuery->execute($emulatePrepare);
 
-        if (is_null($this->returning) || $this->dialect->returning()) {
-            return $result;
+            if (is_null($this->returning) || $this->dialect->returning()) {
+                return $result;
+            }
         }
 
         return $this->select(
