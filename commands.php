@@ -103,6 +103,11 @@ return [
     ),
 
     Command::register(
+        'emulated-upsert',
+        [ExampleController::class, 'emulatedUpsert']
+    ),
+
+    Command::register(
         'test',
         function (DB $db): void {
             print_r(

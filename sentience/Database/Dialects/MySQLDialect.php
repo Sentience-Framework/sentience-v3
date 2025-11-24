@@ -82,7 +82,7 @@ class MySQLDialect extends SQLDialect
         }
 
         $updates = !$insertIgnore
-            ? !empty($onConflict->updates) ? $onConflict->updates : $values
+            ? count($onConflict->updates) > 0 ? $onConflict->updates : $values
             : [];
 
         if ($lastInsertId) {

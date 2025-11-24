@@ -370,4 +370,19 @@ class ExampleController extends Controller
             )
             ->execute();
     }
+
+    public function emulatedUpsert(DB $db): void
+    {
+        $db->insert('migrations')
+            ->values([
+                'batch' => 1,
+                'filename' => 'emulated_upsert',
+                'applied_at' => Query::now()
+            ])
+            ->onConflictUpdate(['filename'])
+            // ->onConflictIgnore(['filename'])
+            ->returning([])
+            ->lastInsertId('id')
+            ->execute();
+    }
 }
