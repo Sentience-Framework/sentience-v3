@@ -51,6 +51,10 @@ class SQLiteDialect extends SQLDialect
 
     protected function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
     {
+        if (!$this->onConflict()) {
+            return;
+        }
+
         if (is_null($onConflict)) {
             return;
         }
