@@ -373,7 +373,7 @@ class ExampleController extends Controller
 
     public function emulatedUpsert(DB $db): void
     {
-        $db->insert('migrations')
+        $result = $db->insert('migrations')
             ->values([
                 'batch' => 1,
                 'filename' => 'emulated_upsert',
@@ -381,8 +381,10 @@ class ExampleController extends Controller
             ])
             ->onConflictUpdate(['filename'])
             // ->onConflictIgnore(['filename'])
-            ->returning([])
+            ->returning(['applied_at'])
             ->lastInsertId('id')
             ->execute();
+
+        print_r($result->fetchAssocs());
     }
 }
