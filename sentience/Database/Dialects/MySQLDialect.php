@@ -168,7 +168,7 @@ class MySQLDialect extends SQLDialect
             return true;
         }
 
-        return $this->version >= 0401;
+        return $this->version >= 401;
     }
 
     public function returning(): bool
