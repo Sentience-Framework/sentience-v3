@@ -111,7 +111,7 @@ class InsertQuery extends Query
         }
 
         return $this->select(
-            fn(ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup->whereEquals(
+            fn (ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup->whereEquals(
                 $this->lastInsertId,
                 $lastInsertId
             ),
