@@ -12,8 +12,6 @@ use Sentience\Database\Queries\Objects\Raw;
 class PgSQLDialect extends SQLDialect
 {
     protected const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
-    protected const bool ON_CONFLICT = true;
-    protected const bool RETURNING = true;
 
     protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
     {
@@ -34,6 +32,10 @@ class PgSQLDialect extends SQLDialect
 
     protected function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
     {
+        if (!$this->onConflict()) {
+            return;
+        }
+
         if (is_null($onConflict)) {
             return;
         }
@@ -136,5 +138,15 @@ class PgSQLDialect extends SQLDialect
     public function generatedByDefaultAsIdentity(): bool
     {
         return $this->version >= 1700;
+    }
+
+    public function onConflict(): bool
+    {
+        return $this->version >= 905;
+    }
+
+    public function returning(): bool
+    {
+        return $this->version >= 802;
     }
 }
