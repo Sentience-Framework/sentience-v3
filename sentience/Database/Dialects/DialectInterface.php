@@ -64,6 +64,30 @@ interface DialectInterface
         string|array|Alias|Raw $table
     ): QueryWithParams;
 
+    public function beginTransaction(
+        ?string $name
+    ): QueryWithParams;
+
+    public function commitTransaction(
+        ?string $name
+    ): QueryWithParams;
+
+    public function rollbackTransaction(
+        ?string $name
+    ): QueryWithParams;
+
+    public function beginSavepoint(
+        string $name
+    ): QueryWithParams;
+
+    public function commitSavepoint(
+        string $name
+    ): QueryWithParams;
+
+    public function rollbackSavepoint(
+        string $name
+    ): QueryWithParams;
+
     public function escapeIdentifier(string|array|Raw $identifier): string;
     public function escapeString(string $string): string;
     public function castToDriver(mixed $value): mixed;
@@ -75,4 +99,5 @@ interface DialectInterface
     public function generatedByDefaultAsIdentity(): bool;
     public function onConflict(): bool;
     public function returning(): bool;
+    public function savepoints(): bool;
 }

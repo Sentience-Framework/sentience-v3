@@ -48,6 +48,8 @@ class Database
         return new static($adapter, $dialect);
     }
 
+    protected array $savepoints = [];
+
     public function __construct(
         protected AdapterInterface $adapter,
         protected DialectInterface $dialect
@@ -79,19 +81,66 @@ class Database
             : $this->adapter->query($queryWithParams->query);
     }
 
-    public function beginTransaction(): void
+    public function beginTransaction(?string $name = null): void
     {
-        $this->adapter->beginTransaction();
+        if (!$this->inTransaction()) {
+            $this->adapter->beginTransaction($this->dialect, $name);
+
+            return;
+        }
+
+        $name = !$name ?
+            sprintf(
+                'savepoint_%d',
+                count($this->savepoints) + 1
+            )
+            : $name;
+
+        $this->savepoints[] = $name;
+
+        $this->adapter->beginSavepoint($this->dialect, $name);
     }
 
-    public function commitTransaction(): void
+    public function commitTransaction(bool $releaseSavepoints = false): void
     {
-        $this->adapter->commitTransaction();
+        if (!$this->inTransaction()) {
+            return;
+        }
+
+        if ($releaseSavepoints || count($this->savepoints) == 0) {
+            $this->adapter->commitTransaction(
+                $this->dialect,
+                array_pop($this->savepoints)
+            );
+
+            return;
+        }
+
+        $this->adapter->commitSavepoint(
+            $this->dialect,
+            array_pop($this->savepoints)
+        );
     }
 
-    public function rollbackTransaction(): void
+    public function rollbackTransaction(bool $releaseSavepoints = false): void
     {
-        $this->adapter->rollbackTransaction();
+        if (!$this->inTransaction()) {
+            return;
+        }
+
+        if ($releaseSavepoints || count($this->savepoints) == 0) {
+            $this->adapter->rollbackTransaction(
+                $this->dialect,
+                array_pop($this->savepoints)
+            );
+
+            return;
+        }
+
+        $this->adapter->rollbackSavepoint(
+            $this->dialect,
+            array_pop($this->savepoints)
+        );
     }
 
     public function inTransaction(): bool

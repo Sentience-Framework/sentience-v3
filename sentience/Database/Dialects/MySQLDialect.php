@@ -68,10 +68,6 @@ class MySQLDialect extends SQLDialect
 
     protected function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
     {
-        if (!$this->onConflict()) {
-            return;
-        }
-
         if (is_null($onConflict)) {
             return;
         }
@@ -103,17 +99,11 @@ class MySQLDialect extends SQLDialect
                 ', ',
                 array_map(
                     function (mixed $value, string $key) use (&$params): string {
-                        if ($value instanceof Raw) {
-                            return sprintf(
-                                '%s = %s',
-                                $this->escapeIdentifier($key),
-                                (string) $value
-                            );
-                        }
-
-                        $params[] = $value;
-
-                        return sprintf('%s = ?', $this->escapeIdentifier($key));
+                        return sprintf(
+                            '%s = %s',
+                            $this->escapeIdentifier($key),
+                            $this->buildQuestionMark($params, $value)
+                        );
                     },
                     $updates,
                     array_keys($updates)

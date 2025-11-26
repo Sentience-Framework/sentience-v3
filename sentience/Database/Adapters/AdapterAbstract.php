@@ -4,6 +4,7 @@ namespace Sentience\Database\Adapters;
 
 use Closure;
 use Throwable;
+use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
 use Sentience\Database\Queries\Query;
 use Sentience\Database\Sockets\SocketInterface;
@@ -11,6 +12,8 @@ use Sentience\Database\Sockets\SocketInterface;
 abstract class AdapterAbstract implements AdapterInterface
 {
     public const string REGEXP_LIKE_FUNCTION = 'REGEXP_LIKE';
+
+    protected bool $inTransaction = false;
 
     public function __construct(
         protected Driver $driver,
@@ -36,8 +39,6 @@ abstract class AdapterAbstract implements AdapterInterface
             );
         }
 
-        $query .= ';';
-
         $this->exec($query);
     }
 
@@ -45,7 +46,7 @@ abstract class AdapterAbstract implements AdapterInterface
     {
         $this->exec(
             sprintf(
-                'SET SESSION default_storage_engine = %s;',
+                'SET SESSION default_storage_engine = %s',
                 $engine
             )
         );
@@ -55,7 +56,7 @@ abstract class AdapterAbstract implements AdapterInterface
     {
         $this->exec(
             sprintf(
-                "PRAGMA encoding = '%s';",
+                "PRAGMA encoding = '%s'",
                 $encoding
             )
         );
@@ -65,7 +66,7 @@ abstract class AdapterAbstract implements AdapterInterface
     {
         $this->exec(
             sprintf(
-                'PRAGMA journal_mode = %s;',
+                'PRAGMA journal_mode = %s',
                 $journalMode
             )
         );
@@ -77,7 +78,7 @@ abstract class AdapterAbstract implements AdapterInterface
             return;
         }
 
-        $this->exec('PRAGMA foreign_keys = ON;');
+        $this->exec('PRAGMA foreign_keys = ON');
     }
 
     protected function sqliteOptimize(bool $optimize): void
@@ -86,7 +87,7 @@ abstract class AdapterAbstract implements AdapterInterface
             return;
         }
 
-        $this->exec('PRAGMA optimize;');
+        $this->exec('PRAGMA optimize');
     }
 
     protected function regexpLikeFunction(string $value, string $pattern, string $flags): bool
@@ -99,6 +100,91 @@ abstract class AdapterAbstract implements AdapterInterface
             ),
             $value
         );
+    }
+
+    public function beginTransaction(DialectInterface $dialect, ?string $name = null): void
+    {
+        if ($this->inTransaction()) {
+            return;
+        }
+
+        $this->exec($dialect->beginTransaction($name)->toSql($dialect));
+
+        $this->inTransaction = true;
+    }
+
+    public function commitTransaction(DialectInterface $dialect, ?string $name = null): void
+    {
+        if (!$this->inTransaction()) {
+            return;
+        }
+
+        try {
+            $this->exec($dialect->commitTransaction($name)->toSql($dialect));
+        } catch (Throwable $exception) {
+            $this->inTransaction = false;
+
+            throw $exception;
+        }
+    }
+
+    public function rollbackTransaction(DialectInterface $dialect, ?string $name = null): void
+    {
+        if (!$this->inTransaction()) {
+            return;
+        }
+
+        try {
+            $this->exec($dialect->rollbackTransaction($name)->toSql($dialect));
+        } catch (Throwable $exception) {
+            $this->inTransaction = false;
+
+            throw $exception;
+        }
+    }
+
+    public function beginSavepoint(DialectInterface $dialect, string $name): void
+    {
+        if (!$this->inTransaction()) {
+            return;
+        }
+
+        if (!$dialect->savepoints()) {
+            return;
+        }
+
+        $this->exec($dialect->beginSavepoint($name)->toSql($dialect));
+    }
+
+    public function commitSavepoint(DialectInterface $dialect, string $name): void
+    {
+        if (!$this->inTransaction()) {
+            return;
+        }
+
+        if (!$dialect->savepoints()) {
+            return;
+        }
+
+        $this->exec($dialect->commitSavepoint($name)->toSql($dialect));
+    }
+
+    public function rollbackSavepoint(DialectInterface $dialect, string $name): void
+    {
+        if (!$this->inTransaction()) {
+            return;
+        }
+
+        if (!$dialect->savepoints()) {
+            return;
+        }
+
+        $this->exec($dialect->rollbackSavepoint($name)->toSql($dialect));
+    }
+
+    public function inTransaction(): bool
+    {
+        return $this->inTransaction;
     }
 
     protected function debug(string|callable $query, float $start, null|string|Throwable $error = null): void

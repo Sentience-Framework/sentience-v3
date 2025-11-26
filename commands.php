@@ -108,6 +108,11 @@ return [
     ),
 
     Command::register(
+        'transactions',
+        [ExampleController::class, 'transactions']
+    ),
+
+    Command::register(
         'test',
         function (DB $db): void {
             print_r(

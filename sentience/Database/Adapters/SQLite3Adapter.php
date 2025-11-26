@@ -15,7 +15,6 @@ use Sentience\Database\Sockets\SocketInterface;
 class SQLite3Adapter extends AdapterAbstract
 {
     protected SQLite3 $sqlite3;
-    protected bool $inTransaction = false;
 
     public function __construct(
         Driver $driver,
@@ -156,45 +155,19 @@ class SQLite3Adapter extends AdapterAbstract
         return new SQLite3Result($sqlite3Result);
     }
 
-    public function beginTransaction(): void
+    public function beginTransaction(DialectInterface $dialect, ?string $name = null): void
     {
-        if ($this->inTransaction()) {
-            return;
-        }
-
-        $this->exec('BEGIN;');
-
-        $this->inTransaction = true;
+        parent::beginTransaction($dialect, null);
     }
 
-    public function commitTransaction(): void
+    public function commitTransaction(DialectInterface $dialect, ?string $name = null): void
     {
-        if (!$this->inTransaction()) {
-            return;
-        }
-
-        try {
-            $this->exec('COMMIT;');
-        } catch (Throwable $exception) {
-            throw $exception;
-        } finally {
-            $this->inTransaction = false;
-        }
+        parent::commitTransaction($dialect, null);
     }
 
-    public function rollbackTransaction(): void
+    public function rollbackTransaction(DialectInterface $dialect, ?string $name = null): void
     {
-        if (!$this->inTransaction()) {
-            return;
-        }
-
-        try {
-            $this->exec('ROLLBACK;');
-        } catch (Throwable $exception) {
-            throw $exception;
-        } finally {
-            $this->inTransaction = false;
-        }
+        parent::rollbackTransaction($dialect, null);
     }
 
     public function inTransaction(): bool

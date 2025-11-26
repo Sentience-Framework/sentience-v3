@@ -21,7 +21,6 @@ class MySQLiAdapter extends AdapterAbstract
     public const string MYSQLI_STRING = 's';
 
     protected mysqli $mysqli;
-    protected bool $inTransaction = false;
 
     public function __construct(
         Driver $driver,
@@ -179,25 +178,25 @@ class MySQLiAdapter extends AdapterAbstract
         return new MySQLiResult($mysqliResult);
     }
 
-    public function beginTransaction(): void
+    public function beginTransaction(DialectInterface $dialect, ?string $name = null): void
     {
         if ($this->inTransaction()) {
             return;
         }
 
-        $this->mysqli->begin_transaction();
+        $this->mysqli->begin_transaction(0, $name);
 
         $this->inTransaction = true;
     }
 
-    public function commitTransaction(): void
+    public function commitTransaction(DialectInterface $dialect, ?string $name = null): void
     {
         if (!$this->inTransaction()) {
             return;
         }
 
         try {
-            $this->mysqli->commit();
+            $this->mysqli->commit(0, $name);
         } catch (Throwable $exception) {
             throw $exception;
         } finally {
@@ -205,24 +204,19 @@ class MySQLiAdapter extends AdapterAbstract
         }
     }
 
-    public function rollbackTransaction(): void
+    public function rollbackTransaction(DialectInterface $dialect, ?string $name = null): void
     {
         if (!$this->inTransaction()) {
             return;
         }
 
         try {
-            $this->mysqli->rollback();
+            $this->mysqli->rollback(0, $name);
         } catch (Throwable $exception) {
             throw $exception;
         } finally {
             $this->inTransaction = false;
         }
-    }
-
-    public function inTransaction(): bool
-    {
-        return $this->inTransaction;
     }
 
     public function lastInsertId(?string $name = null): int|string

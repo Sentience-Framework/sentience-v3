@@ -163,6 +163,15 @@ class ExampleController extends Controller
                 'column4' => Query::raw('column1 + 1')
             ])
             ->returning(['id'])
+            ->whereExists($db->select('table_2')
+                ->columns([
+                    'column_1',
+                    'column_2',
+                    'column_3',
+                    'column_4'
+                ])
+                ->whereNotRegex('column_5', '[a-z]', 'i'))
+            ->whereNotRegex('column5', '[A-Z]', 'i')
             ->toSql();
 
         $queries[] = $db->delete('table_1')
@@ -386,5 +395,20 @@ class ExampleController extends Controller
             ->execute();
 
         print_r($result->fetchAssocs());
+    }
+
+    public function transactions(DB $db): void
+    {
+        $db->transactionInCallback(function (DB $db): void {
+            $db->exec('SELECT 1 -- Transaction');
+
+            $db->transactionInCallback(function (DB $db): void {
+                $db->exec('SELECT 1 -- Savepoint 1');
+
+                $db->transactionInCallback(function (DB $db): void {
+                    $db->exec('SELECT 1 -- Savepoint 2');
+                });
+            });
+        });
     }
 }

@@ -87,17 +87,11 @@ class SQLiteDialect extends SQLDialect
                 ', ',
                 array_map(
                     function (mixed $value, string $key) use (&$params): string {
-                        if ($value instanceof Raw) {
-                            return sprintf(
-                                '%s = %s',
-                                $this->escapeIdentifier($key),
-                                (string) $value
-                            );
-                        }
-
-                        $params[] = $value;
-
-                        return sprintf('%s = ?', $this->escapeIdentifier($key));
+                        return sprintf(
+                            '%s = %s',
+                            $this->escapeIdentifier($key),
+                            $this->buildQuestionMark($params, $value)
+                        );
                     },
                     $updates,
                     array_keys($updates)
@@ -116,7 +110,6 @@ class SQLiteDialect extends SQLDialect
         }
 
         return parent::buildColumn($column);
-        ;
     }
 
     protected function buildAlterTableAlterColumn(AlterColumn $alterColumn): string

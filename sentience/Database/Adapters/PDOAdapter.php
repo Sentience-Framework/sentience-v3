@@ -168,7 +168,7 @@ class PDOAdapter extends AdapterAbstract
         }
 
         if ($options[static::OPTIONS_SQLITE_READ_ONLY] ?? false) {
-            $this->exec('PRAGMA query_only = ON;');
+            $this->exec('PRAGMA query_only = ON');
         }
 
         if (array_key_exists(static::OPTIONS_SQLITE_ENCRYPTION_KEY, $options)) {
@@ -293,7 +293,7 @@ class PDOAdapter extends AdapterAbstract
         return new PDOResult($pdoStatement);
     }
 
-    public function beginTransaction(): void
+    public function beginTransaction(DialectInterface $dialect, ?string $name = null): void
     {
         if ($this->inTransaction()) {
             return;
@@ -302,7 +302,7 @@ class PDOAdapter extends AdapterAbstract
         $this->pdo->beginTransaction();
     }
 
-    public function commitTransaction(): void
+    public function commitTransaction(DialectInterface $dialect, ?string $name = null): void
     {
         if (!$this->inTransaction()) {
             return;
@@ -311,7 +311,7 @@ class PDOAdapter extends AdapterAbstract
         $this->pdo->commit();
     }
 
-    public function rollbackTransaction(): void
+    public function rollbackTransaction(DialectInterface $dialect, ?string $name = null): void
     {
         if (!$this->inTransaction()) {
             return;
