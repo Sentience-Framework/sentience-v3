@@ -22,6 +22,7 @@ use Sentience\Database\Queries\Objects\DropColumn;
 use Sentience\Database\Queries\Objects\DropConstraint;
 use Sentience\Database\Queries\Objects\ForeignKeyConstraint;
 use Sentience\Database\Queries\Objects\Having;
+use Sentience\Database\Queries\Objects\Identifier;
 use Sentience\Database\Queries\Objects\OnConflict;
 use Sentience\Database\Queries\Objects\OrderBy;
 use Sentience\Database\Queries\Objects\QueryWithParams;
@@ -71,10 +72,6 @@ class SQLDialect extends DialectAbstract
                             return $this->escapeIdentifierWithAlias($column->identifier, $column->alias);
                         }
 
-                        if ($column instanceof Raw) {
-                            return (string) $column;
-                        }
-
                         return $this->escapeIdentifier($column);
                     },
                     $columns
@@ -85,7 +82,7 @@ class SQLDialect extends DialectAbstract
         $query .= ' FROM';
 
         $this->buildTable($query, $params, $table);
-        $this->buildJoins($query, $joins);
+        $this->buildJoins($query, $params, $joins);
         $this->buildWhere($query, $params, $where);
         $this->buildGroupBy($query, $groupBy);
         $this->buildHaving($query, $params, $having);
@@ -120,10 +117,6 @@ class SQLDialect extends DialectAbstract
                     function (string|array|Alias|Raw $column): string {
                         if ($column instanceof Alias) {
                             return $this->escapeIdentifier($column->identifier);
-                        }
-
-                        if ($column instanceof Raw) {
-                            return (string) $column;
                         }
 
                         return $this->escapeIdentifier($column);
@@ -252,7 +245,7 @@ class SQLDialect extends DialectAbstract
             $query .= match (true) {
                 $constraint instanceof UniqueConstraint => $this->buildUniqueConstraint($constraint),
                 $constraint instanceof ForeignKeyConstraint => $this->buildForeignKeyConstraint($constraint),
-                default => (string) $constraint
+                default => $constraint->sql
             };
         }
 
@@ -286,7 +279,7 @@ class SQLDialect extends DialectAbstract
                     $alter instanceof AddUniqueConstraint => $this->buildAlterTableAddUniqueConstraint($alter),
                     $alter instanceof AddForeignKeyConstraint => $this->buildAlterTableAddForeignKeyConstraint($alter),
                     $alter instanceof DropConstraint => $this->buildAlterTableDropConstraint($alter),
-                    default => (string) $alter
+                    default => $alter->sql
                 };
 
                 return new QueryWithParams($query, $params);
@@ -406,16 +399,10 @@ class SQLDialect extends DialectAbstract
             return;
         }
 
-        if ($table instanceof Raw) {
-            $query .= (string) $table;
-
-            return;
-        }
-
         $query .= $this->escapeIdentifier($table);
     }
 
-    protected function buildJoins(string &$query, array $joins): void
+    protected function buildJoins(string &$query, array &$params, array $joins): void
     {
         if (count($joins) == 0) {
             return;
@@ -429,27 +416,28 @@ class SQLDialect extends DialectAbstract
             }
 
             if ($join instanceof Raw) {
-                $query .= (string) $join;
+                $query .= $join->sql;
 
                 continue;
             }
 
-            $joinTableHasAlias = $join->joinTable instanceof Alias;
-            $joinTable = $joinTableHasAlias ? $join->joinTable->identifier : $join->joinTable;
-            $joinTableAlias = $joinTableHasAlias ? $join->joinTable->alias : null;
-            $joinTableColumn = $join->joinTableColumn;
-            $onTable = $join->onTable;
-            $onTableColumn = $join->onTableColumn;
+            $table = $join->table instanceof Alias
+                ? $this->escapeIdentifierWithAlias($join->table->identifier, $join->table->alias)
+                : $this->escapeIdentifier($join->table);
 
             $query .= sprintf(
-                '%s %s ON %s.%s = %s.%s',
+                '%s %s ON ',
                 $join->join->value,
-                $this->escapeIdentifierWithAlias($joinTable, $joinTableAlias),
-                $this->escapeIdentifier($joinTableAlias ?? $joinTable),
-                $this->escapeIdentifier($joinTableColumn),
-                $this->escapeIdentifier($onTable),
-                $this->escapeIdentifier($onTableColumn)
+                $table
             );
+
+            $conditions = $join->getConditions();
+
+            foreach ($conditions as $index => $condition) {
+                $condition instanceof Condition
+                    ? $this->buildCondition($query, $params, $index, $condition)
+                    : $this->buildConditionGroup($query, $params, $index, $condition);
+            }
         }
     }
 
@@ -733,8 +721,12 @@ class SQLDialect extends DialectAbstract
 
     protected function buildQuestionMark(array &$params, mixed $value): string
     {
+        if ($value instanceof Identifier) {
+            return $this->escapeIdentifier($value->identifier);
+        }
+
         if ($value instanceof Raw) {
-            return (string) $value;
+            return $value->sql;
         }
 
         if (is_array($value)) {
@@ -789,7 +781,7 @@ class SQLDialect extends DialectAbstract
         if (!is_null($column->default)) {
             $default = !($column->default instanceof Raw)
                 ? $this->castToQuery($column->default)
-                : (string) $column->default;
+                : $column->default->sql;
 
             $sql .= ' DEFAULT ' . $default;
         }
@@ -934,7 +926,7 @@ class SQLDialect extends DialectAbstract
     public function escapeIdentifier(string|array|Raw $identifier): string
     {
         if ($identifier instanceof Raw) {
-            return (string) $identifier;
+            return $identifier->sql;
         }
 
         return is_array($identifier)

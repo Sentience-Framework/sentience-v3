@@ -4,6 +4,7 @@ namespace Src\Controllers;
 
 use Sentience\Abstracts\Controller;
 use Sentience\Database\Queries\Enums\ReferentialActionEnum;
+use Sentience\Database\Queries\Objects\Join;
 use Sentience\Database\Queries\Query;
 use Sentience\DataLayer\Database\DB;
 use Sentience\Helpers\Json;
@@ -88,20 +89,19 @@ class ExampleController extends Controller
             ])
             ->leftJoin(
                 Query::alias('table2', 'jt'),
-                'joinColumn',
-                ['public', 't1'],
-                't1Column'
-            )->innerJoin(
-                ['public', 'table3'],
-                'joinColumn',
-                ['public', 'table1'],
-                't1Column'
+                fn (Join $join): Join => $join->on(['jt', 'joinColumn'], ['table_1', 'column1'])
             )
             ->innerJoin(
-                'table4',
-                'joinColumn',
-                'table1',
-                't1Column'
+                ['public', 'table3'],
+                fn (Join $join) => $join
+                    ->on(
+                        ['table3', 'joinColumn1'],
+                        ['table_1', 'column2']
+                    )
+                    ->orOn(
+                        ['table3', 'joinColumn2'],
+                        ['table_1', 'column2']
+                    )
             )
             ->join('RIGHT JOIN table2 jt ON jt.column1 = table1.column1 AND jt.column2 = table2.column2')
             ->whereEquals('column1', 10)
