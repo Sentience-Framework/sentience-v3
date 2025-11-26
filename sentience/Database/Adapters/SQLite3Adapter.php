@@ -170,11 +170,6 @@ class SQLite3Adapter extends AdapterAbstract
         parent::rollbackTransaction($dialect, null);
     }
 
-    public function inTransaction(): bool
-    {
-        return $this->inTransaction;
-    }
-
     public function lastInsertId(?string $name = null): int
     {
         return $this->sqlite3->lastInsertRowID();
