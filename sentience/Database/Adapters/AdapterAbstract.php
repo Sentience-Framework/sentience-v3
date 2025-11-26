@@ -145,11 +145,11 @@ abstract class AdapterAbstract implements AdapterInterface
 
     public function beginSavepoint(DialectInterface $dialect, string $name): void
     {
-        if (!$this->inTransaction()) {
+        if (!$dialect->savepoints()) {
             return;
         }
 
-        if (!$dialect->savepoints()) {
+        if (!$this->inTransaction()) {
             return;
         }
 
@@ -158,11 +158,11 @@ abstract class AdapterAbstract implements AdapterInterface
 
     public function commitSavepoint(DialectInterface $dialect, string $name): void
     {
-        if (!$this->inTransaction()) {
+        if (!$dialect->savepoints()) {
             return;
         }
 
-        if (!$dialect->savepoints()) {
+        if (!$this->inTransaction()) {
             return;
         }
 
@@ -171,11 +171,11 @@ abstract class AdapterAbstract implements AdapterInterface
 
     public function rollbackSavepoint(DialectInterface $dialect, string $name): void
     {
-        if (!$this->inTransaction()) {
+        if (!$dialect->savepoints()) {
             return;
         }
 
-        if (!$dialect->savepoints()) {
+        if (!$this->inTransaction()) {
             return;
         }
 
