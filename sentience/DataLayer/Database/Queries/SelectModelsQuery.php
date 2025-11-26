@@ -200,11 +200,11 @@ class SelectModelsQuery extends ModelsQueryAbstract
             );
         }
 
-        $selectQuery->leftJoin(
-            $relationReflectionModel->getTable(),
-            $relationReflectionProperty->getColumn(),
-            $reflectionModel->getTable(),
-            $modelReflectionProperty->getColumn()
-        );
+        // $selectQuery->leftJoin(
+        //     $relationReflectionModel->getTable(),
+        //     $relationReflectionProperty->getColumn(),
+        //     $reflectionModel->getTable(),
+        //     $modelReflectionProperty->getColumn()
+        // );
     }
 }
