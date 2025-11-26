@@ -5,7 +5,6 @@ namespace Sentience\Database\Dialects;
 use BackedEnum;
 use DateTime;
 use DateTimeInterface;
-use DateTimeZone;
 use Throwable;
 use Sentience\Database\Exceptions\QueryException;
 use Sentience\Database\Queries\Enums\ConditionEnum;
@@ -1018,44 +1017,8 @@ class SQLDialect extends DialectAbstract
         try {
             return new DateTime($string);
         } catch (Throwable $exception) {
-        }
-
-        $timestamp = strtotime($string);
-
-        if (!$timestamp) {
             return null;
         }
-
-        $hasMicroseconds = preg_match('/\.([0-9]{0,6})[\+\-]?/', $string, $microsecondsMatches);
-
-        $dateTime = DateTime::createFromFormat(
-            'U.u',
-            sprintf(
-                '%d.%d',
-                $timestamp,
-                $hasMicroseconds ? (int) $microsecondsMatches[1] : 0
-            )
-        );
-
-        if (!$dateTime) {
-            return null;
-        }
-
-        $hasTimezoneOffset = preg_match('/([\+\-])([0-9]{1,2}+)\:?([0-9]{0,2})$/', $string, $timezoneOffsetMatches);
-
-        if ($hasTimezoneOffset) {
-            [$modifier, $timezoneOffsetHours, $timezoneOffsetMinutes] = array_slice($timezoneOffsetMatches, 1);
-
-            $multiplier = ((int) $timezoneOffsetHours + (int) $timezoneOffsetMinutes / 60) * ($modifier == '+' ? 1 : -1);
-
-            $timezone = timezone_name_from_abbr('', (int) ($multiplier * 3600));
-
-            if ($timezone) {
-                $dateTime->setTimezone(new DateTimeZone($timezone));
-            }
-        }
-
-        return $dateTime;
     }
 
     public function generatedByDefaultAsIdentity(): bool
