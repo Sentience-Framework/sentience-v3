@@ -145,7 +145,7 @@ class PDOAdapter extends AdapterAbstract
         if (array_key_exists(static::OPTIONS_PGSQL_SEARCH_PATH, $options)) {
             $this->exec(
                 sprintf(
-                    "SET search_path TO %s;",
+                    "SET search_path TO %s",
                     (string) $options[static::OPTIONS_PGSQL_SEARCH_PATH]
                 )
             );
@@ -174,7 +174,7 @@ class PDOAdapter extends AdapterAbstract
         if (array_key_exists(static::OPTIONS_SQLITE_ENCRYPTION_KEY, $options)) {
             $this->exec(
                 sprintf(
-                    "PRAGMA key = '%s';",
+                    "PRAGMA key = '%s'",
                     (string) $options[static::OPTIONS_SQLITE_ENCRYPTION_KEY]
                 )
             );
@@ -183,7 +183,7 @@ class PDOAdapter extends AdapterAbstract
         if (array_key_exists(static::OPTIONS_SQLITE_BUSY_TIMEOUT, $options)) {
             $this->exec(
                 sprintf(
-                    "PRAGMA busy_timeout = %d;",
+                    "PRAGMA busy_timeout = %d",
                     (int) $options[static::OPTIONS_SQLITE_BUSY_TIMEOUT]
                 )
             );
