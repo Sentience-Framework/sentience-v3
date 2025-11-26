@@ -16,12 +16,12 @@ trait WhereTrait
 {
     protected array $where = [];
 
-    public function whereEquals(string|array $column, mixed $value): static
+    public function whereEquals(string|array $column, null|int|float|string|DateTimeInterface|Identifier|SelectQuery $value): static
     {
         return $this->equals($column, $value, ChainEnum::AND);
     }
 
-    public function whereNotEquals(string|array $column, mixed $value): static
+    public function whereNotEquals(string|array $column, null|int|float|string|DateTimeInterface|Identifier|SelectQuery $value): static
     {
         return $this->notEquals($column, $value, ChainEnum::AND);
     }
@@ -146,12 +146,12 @@ trait WhereTrait
         return $this->addRawCondition($sql, $values, ChainEnum::AND);
     }
 
-    public function orWhereEquals(string|array $column, mixed $value): static
+    public function orWhereEquals(string|array $column, null|int|float|string|DateTimeInterface|Identifier|SelectQuery $value): static
     {
         return $this->equals($column, $value, ChainEnum::OR);
     }
 
-    public function orWhereNotEquals(string|array $column, mixed $value): static
+    public function orWhereNotEquals(string|array $column, null|int|float|string|DateTimeInterface|Identifier|SelectQuery $value): static
     {
         return $this->notEquals($column, $value, ChainEnum::OR);
     }
@@ -276,12 +276,12 @@ trait WhereTrait
         return $this->addRawCondition($sql, $values, ChainEnum::OR);
     }
 
-    protected function equals(string|array $column, mixed $value, ChainEnum $chain): static
+    protected function equals(string|array $column, null|int|float|string|DateTimeInterface|Identifier|SelectQuery $value, ChainEnum $chain): static
     {
         return $this->addCondition(ConditionEnum::EQUALS, $column, $value, $chain);
     }
 
-    protected function notEquals(string|array $column, mixed $value, ChainEnum $chain): static
+    protected function notEquals(string|array $column, null|int|float|string|DateTimeInterface|Identifier|SelectQuery $value, ChainEnum $chain): static
     {
         return $this->addCondition(ConditionEnum::NOT_EQUALS, $column, $value, $chain);
     }
