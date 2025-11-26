@@ -101,17 +101,16 @@ class Database
         $this->adapter->beginSavepoint($this->dialect, $name);
     }
 
-    public function commitTransaction(bool $releaseSavepoints = false): void
+    public function commitTransaction(bool $releaseSavepoints = false, ?string $name = null): void
     {
         if (!$this->inTransaction()) {
             return;
         }
 
         if ($releaseSavepoints || count($this->savepoints) == 0) {
-            $this->adapter->commitTransaction(
-                $this->dialect,
-                array_pop($this->savepoints)
-            );
+            $this->savepoints = [];
+
+            $this->adapter->commitTransaction($this->dialect, $name);
 
             return;
         }
@@ -122,17 +121,16 @@ class Database
         );
     }
 
-    public function rollbackTransaction(bool $releaseSavepoints = false): void
+    public function rollbackTransaction(bool $releaseSavepoints = false, ?string $name = null): void
     {
         if (!$this->inTransaction()) {
             return;
         }
 
         if ($releaseSavepoints || count($this->savepoints) == 0) {
-            $this->adapter->rollbackTransaction(
-                $this->dialect,
-                array_pop($this->savepoints)
-            );
+            $this->savepoints = [];
+
+            $this->adapter->rollbackTransaction($this->dialect, $name);
 
             return;
         }
