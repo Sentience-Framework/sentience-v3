@@ -12,7 +12,7 @@ class CreateTableQuery extends \Sentience\Database\Queries\CreateTableQuery
 {
     public function bool(string $column, bool $notNull = false, mixed $default = null): static
     {
-        return $this->addColumn($column, __FUNCTION__, $notNull, $default);
+        return $this->addColumn($column, 'bool', $notNull, $default);
     }
 
     public function int(string $column, int $bits = 64, bool $notNull = false, mixed $default = null): static

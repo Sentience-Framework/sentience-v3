@@ -65,3 +65,22 @@ function inject(string $class, array $injectables = []): object
 
     return new $class(...$parameters);
 }
+
+function withDefer(callable $callback): mixed
+{
+    $defers = [];
+
+    try {
+        return $callback(
+            function (callable $callback) use (&$defers): void {
+                $defers[] = $callback;
+            }
+        );
+    } catch (Throwable $exception) {
+        throw $exception;
+    } finally {
+        foreach ($defers as $defer) {
+            $defer();
+        }
+    }
+}
