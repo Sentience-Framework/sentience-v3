@@ -831,9 +831,9 @@ class SQLDialect extends DialectAbstract
 
         foreach ($foreignKeyConstraint->referentialActions as $referentialAction) {
             $sql .= ' ';
-            $sql .= is_subclass_of($referentialAction, BackedEnum::class)
+            $sql .= (string) is_subclass_of($referentialAction, BackedEnum::class)
                 ? $referentialAction->value
-                : (string) $referentialAction;
+                : $referentialAction;
         }
 
         return $sql;

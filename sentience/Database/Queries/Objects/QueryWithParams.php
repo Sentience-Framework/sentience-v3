@@ -28,7 +28,7 @@ class QueryWithParams
 
         $query = $this->pregReplaceCallback(
             static::REGEX_PATTERN_NAMED_PARAMS,
-            function (array $match) use (&$params): mixed {
+            function (array $match) use (&$params): string {
                 if (!$this->isQuestionMarkOrNamedParamMatch($match)) {
                     return $match[0];
                 }
@@ -82,7 +82,7 @@ class QueryWithParams
 
         return $this->pregReplaceCallback(
             static::REGEX_PATTERN_QUESTION_MARKS,
-            function (array $match) use ($params, &$index): mixed {
+            function (array $match) use ($params, &$index): string {
                 if (!$this->isQuestionMarkOrNamedParamMatch($match)) {
                     return $match[0];
                 }
@@ -95,7 +95,7 @@ class QueryWithParams
 
                 $index++;
 
-                return $value;
+                return (string) $value;
             },
             $this->query
         );
@@ -105,7 +105,7 @@ class QueryWithParams
     {
         return $this->pregReplaceCallback(
             static::REGEX_PATTERN_NAMED_PARAMS,
-            function (array $match) use ($params): mixed {
+            function (array $match) use ($params): string {
                 if (!$this->isQuestionMarkOrNamedParamMatch($match)) {
                     return $match[0];
                 }
@@ -116,7 +116,7 @@ class QueryWithParams
                     $this->throwNamedParamDoesNotExistException($key);
                 }
 
-                return $params[$key];
+                return (string) $params[$key];
             },
             $this->query
         );
