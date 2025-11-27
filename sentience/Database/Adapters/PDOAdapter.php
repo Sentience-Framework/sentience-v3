@@ -101,7 +101,7 @@ class PDOAdapter extends AdapterAbstract
 
         $dsn .= $socket instanceof NetworkSocket
             ? sprintf(
-                ';host=%s;port=%s',
+                ';host=%s;port=%d',
                 ...$socket->address()
             )
             : sprintf(
