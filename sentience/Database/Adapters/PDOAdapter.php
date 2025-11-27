@@ -93,25 +93,20 @@ class PDOAdapter extends AdapterAbstract
             throw new AdapterException('this driver requires a socket');
         }
 
-        $isNetworkSocket = $socket instanceof NetworkSocket;
+        $dsn = sprintf(
+            '%s:dbname=%s',
+            $driver == Driver::MARIADB ? Driver::MYSQL->value : $driver->value,
+            $name
+        );
 
-        if ($isNetworkSocket) {
-            [$host, $port] = $socket->address();
-        }
-
-        $dsn = $isNetworkSocket
+        $dsn .= $socket instanceof NetworkSocket
             ? sprintf(
-                '%s:host=%s;port=%s;dbname=%s',
-                $driver == Driver::MARIADB ? Driver::MYSQL->value : $driver->value,
-                $host,
-                $port,
-                $name
+                ';host=%s;port=%s',
+                ...$socket->address()
             )
             : sprintf(
-                '%s:unix_socket=%s;dbname=%s',
-                $driver == Driver::MARIADB ? Driver::MYSQL->value : $driver->value,
-                $socket->address(),
-                $name
+                ';unix_socket=%s',
+                $socket->address()
             );
 
         if ($driver == Driver::PGSQL) {
