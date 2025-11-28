@@ -50,7 +50,7 @@ class InsertQuery extends Query
 
         foreach ($this->onConflict->conflict as $column) {
             if (!array_key_exists($column, $this->values)) {
-                throw new QueryException('insert values do not contain constraint columns');
+                throw new QueryException('insert values does not contain constraint columns');
             }
 
             $value = $this->values[$column];
