@@ -1,5 +1,6 @@
 <?php
 
+use Sentience\Database\Queries\Query;
 use Sentience\DataLayer\Database\DB;
 use Sentience\Routers\Command;
 use Src\Controllers\DevToolsController;
@@ -106,10 +107,17 @@ return [
         'test',
         function (DB $db): void {
             print_r(
-                $db->select('migrations')
-                    ->whereRegex('filename', '/dam/i')
+                $db->insert('migrations')
+                    ->values([
+                        'batch' => 1,
+                        'filename' => 'test_filename',
+                        'applied_at' => Query::now()
+                    ])
+                    ->onConflictUpdate(['filename'])
+                    // ->returning(['applied_at'])
+                    // ->returning()
                     ->execute()
-                    ->fetchObjects()
+                    ->columns()
             );
         }
     ),
