@@ -112,7 +112,7 @@ class InsertQuery extends Query
         }
 
         return $this->select(
-            fn (ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup->whereEquals(
+            fn(ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup->whereEquals(
                 $this->lastInsertId,
                 $lastInsertId
             ),
@@ -122,7 +122,7 @@ class InsertQuery extends Query
 
     protected function update(array $conflict, bool $emulatePrepare): ResultInterface
     {
-        if (!is_null($this->onConflict->conflict)) {
+        if (!is_null($this->onConflict->updates)) {
             $updateQuery = $this->database->update($this->table);
 
             $updates = count($this->onConflict->updates) > 0
