@@ -10,10 +10,12 @@ use Sentience\Database\Queries\Objects\Alias;
 use Sentience\Database\Queries\Objects\AlterColumn;
 use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\DropConstraint;
+use Sentience\Database\Queries\Objects\ForeignKeyConstraint;
 use Sentience\Database\Queries\Objects\OnConflict;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Database\Queries\Objects\RenameColumn;
+use Sentience\Database\Queries\Objects\UniqueConstraint;
 
 class SQLiteDialect extends SQLDialect
 {
@@ -110,6 +112,20 @@ class SQLiteDialect extends SQLDialect
         }
 
         return parent::buildColumn($column);
+    }
+
+    protected function buildUniqueConstraint(UniqueConstraint $uniqueConstraint): string
+    {
+        $uniqueConstraint->name = null;
+
+        return parent::buildUniqueConstraint($uniqueConstraint);
+    }
+
+    protected function buildForeignKeyConstraint(ForeignKeyConstraint $foreignKeyConstraint): string
+    {
+        $foreignKeyConstraint->name = null;
+
+        return parent::buildForeignKeyConstraint($foreignKeyConstraint);
     }
 
     protected function buildAlterTableAlterColumn(AlterColumn $alterColumn): string

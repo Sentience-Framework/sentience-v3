@@ -187,7 +187,7 @@ class ExampleController extends Controller
             ->column('column2', 'VARCHAR(255)')
             ->column('column2', 'DATETIME(6)')
             ->primaryKeys(['primary_key'])
-            ->uniqueConstraint(['column1', 'column2'])
+            ->uniqueConstraint(['column1', 'column2'], 'uq')
             ->foreignKeyConstraint('column1', 'table_2', 'reference_column', 'fk_table_1', [ReferentialActionEnum::ON_UPDATE_NO_ACTION])
             ->constraint('UNIQUE "test" COLUMNS ("column1", "column2")')
             ->toSql();
