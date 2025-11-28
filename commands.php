@@ -125,10 +125,22 @@ return [
     Command::register(
         'db:create',
         function (DB $db): void {
-            foreach (range(0, 10) as $sleep) {
-                echo $sleep . PHP_EOL;
-                sleep($sleep);
-            }
+            $db->createTable('migrations')
+                ->ifNotExists()
+                ->column('id', 'INTEGER', true, null, true)
+                ->column('batch', 'INTEGER')
+                ->column('filename', 'VARCHAR(255)')
+                ->column('applied_at', 'TIMESTAMP')
+                ->primaryKeys(['id'])
+                ->uniqueConstraint(['filename'])
+                ->execute();
+        }
+    ),
+
+    Command::register(
+        'drivers',
+        function (): void {
+            print_r(PDO::getAvailableDrivers());
         }
     )
 ];

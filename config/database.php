@@ -6,16 +6,10 @@ return [
     'driver' => env('DB_DRIVER', 'sqlite'),
     'settings' => [
         'firebird' => [
-            'dsn' => env(
-                'DB_DSN',
-                sprintf(
-                    'firebird:%s/%s:',
-                    env('DB_HOST', 'localhost'),
-                    env('DB_PORT', 3050),
-                    env('DB_NAME', 'sentience')
-                )
-            ),
-            'username' => env('DB_USERNAME', 'root'),
+            'file' => env('DB_FILE', 'sentience.fdb'),
+            'host' => env('DB_HOST', 'localhost'),
+            'port' => env('DB_PORT', 3050),
+            'username' => env('DB_USERNAME', 'SYSDBA'),
             'password' => env('DB_PASSWORD', ''),
             'queries' => env('DB_QUERIES', []),
             'use_pdo' => env('DB_USE_PDO', false)

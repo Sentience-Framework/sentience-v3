@@ -277,29 +277,29 @@ class ExampleController extends Controller
             $db->deleteModels($models)
                 ->execute($emulatePrepare);
 
-            $db->prepared(
-                'SELECT * FROM migrations -- test comment with a ? item
-                WHERE id > ? AND filename = ?
-                -- Hoi dit is een test
-                OR filename = \'\'\'\'\'""""\'\'#test /* test */ --hoi \'
-                AND filename = ?;',
-                [
-                    1,
-                    '\\\"\"\"\\\'\'',
-                    'test'
-                ],
-                $emulatePrepare
-            );
+            // $db->prepared(
+            //     'SELECT * FROM migrations -- test comment with a ? item
+            //     WHERE id > ? AND filename = ?
+            //     -- Hoi dit is een test
+            //     OR filename = \'\'\'\'\'""""\'\'#test /* test */ --hoi \'
+            //     AND filename = ?;',
+            //     [
+            //         1,
+            //         '\\\"\"\"\\\'\'',
+            //         'test'
+            //     ],
+            //     $emulatePrepare
+            // );
 
-            $db->prepared(
-                'SELECT * FROM migrations /* Random :comment comment */ WHERE id > :id AND filename = \'#hoi\'
-                OR filename = :filename',
-                [
-                    ':id' => 2,
-                    ':filename' => '\\\"\"\"\\\'\''
-                ],
-                $emulatePrepare
-            );
+            // $db->prepared(
+            //     'SELECT * FROM migrations /* Random :comment comment */ WHERE id > :id AND filename = \'#hoi\'
+            //     OR filename = :filename',
+            //     [
+            //         ':id' => 2,
+            //         ':filename' => '\\\"\"\"\\\'\''
+            //     ],
+            //     $emulatePrepare
+            // );
         }
 
         $end = microtime(true);
