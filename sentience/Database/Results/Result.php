@@ -21,14 +21,14 @@ class Result extends ResultAbstract
     ) {
         $this->columns = array_values(
             array_map(
-                fn(mixed $column): string => (string) $column,
+                fn (mixed $column): string => (string) $column,
                 $columns
             )
         );
 
         $this->rows = array_values(
             array_map(
-                fn(mixed $row): array => (array) $row,
+                fn (mixed $row): array => (array) $row,
                 $rows
             )
         );
