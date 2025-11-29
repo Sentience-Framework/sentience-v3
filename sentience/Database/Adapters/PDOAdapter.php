@@ -325,10 +325,10 @@ class PDOAdapter extends AdapterAbstract
         $lastInsertId = $this->pdo->lastInsertId($name);
 
         if (is_bool($lastInsertId)) {
-            return 0;
+            return null;
         }
 
-        if (preg_match('/[0-9]+/', $lastInsertId)) {
+        if (preg_match('/[0-9]+/', (string) $lastInsertId)) {
             return (int) $lastInsertId;
         }
 
