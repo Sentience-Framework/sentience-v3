@@ -193,6 +193,10 @@ abstract class AdapterAbstract implements AdapterInterface
             return;
         }
 
-        ($this->debug)(is_callable($query) ? $query() : $query, $start, $error instanceof Throwable ? $error->getMessage() : $error);
+        ($this->debug)(
+            is_callable($query) ? $query() : $query,
+            $start,
+            $error instanceof Throwable ? $error->getMessage() : $error
+        );
     }
 }
