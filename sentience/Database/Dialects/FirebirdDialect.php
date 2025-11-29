@@ -2,6 +2,7 @@
 
 namespace Sentience\Database\Dialects;
 
+use Sentience\Database\Driver;
 use Sentience\Database\Exceptions\QueryException;
 use Sentience\Database\Queries\Objects\Alias;
 use Sentience\Database\Queries\Objects\Column;
@@ -13,6 +14,19 @@ class FirebirdDialect extends SQLDialect
 {
     protected const string DATETIME_FORMAT = 'Y-m-d H:i:s.v';
     protected const bool RETURNING = true;
+
+    public function __construct(Driver $driver, int|string $version)
+    {
+        if (is_int($version)) {
+            parent::__construct($driver, $version);
+
+            return;
+        }
+
+        preg_match('/Firebird\s(\d+\.\d+)/', $version, $match);
+
+        parent::__construct($driver, $match[1] ?? $version);
+    }
 
     public function createTable(
         bool $ifNotExists,
