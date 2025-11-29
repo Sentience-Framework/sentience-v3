@@ -510,7 +510,11 @@ class PDOAdapter extends AdapterAbstract
             return null;
         }
 
-        $lastInsertId = $this->pdo->lastInsertId($name);
+        try {
+            $lastInsertId = $this->pdo->lastInsertId($name);
+        } catch (Throwable $exception) {
+            return null;
+        }
 
         $this->lastInsertId = $this->lazy ? $lastInsertId : null;
 
