@@ -83,6 +83,8 @@ class InsertModelsQuery extends ModelsQueryAbstract
 
             if ($insertedRow) {
                 $this->mapAssocToModel($model, $insertedRow);
+
+                continue;
             }
 
             $lastInsertId = $this->database->lastInsertId();

@@ -117,7 +117,7 @@ class FirebirdDialect extends SQLDialect
         $typeIsUppercase = (bool) preg_match('/[A-Z]/', $column->type);
 
         $column->type = match (strtoupper($column->type)) {
-            'TEXT' => $typeIsUppercase ? 'VARCHAR(255)' : 'timestamp',
+            'TEXT' => $typeIsUppercase ? 'VARCHAR(255)' : 'varchar(255)',
             'DATETIME' => $typeIsUppercase ? 'TIMESTAMP' : 'timestamp',
             default => $column->type
         };
