@@ -70,7 +70,7 @@ class SQLDialect extends DialectAbstract
                 array_map(
                     function (string|array|Alias|Raw $column): string {
                         if ($column instanceof Alias) {
-                            return $this->escapeIdentifierWithAlias($column->identifier, $column->alias);
+                            return $this->escapeIdentifier($column->identifier, $column->alias);
                         }
 
                         if ($column instanceof Raw) {
@@ -242,7 +242,7 @@ class SQLDialect extends DialectAbstract
                 implode(
                     ', ',
                     array_map(
-                        fn (string|Raw $column): string => $this->escapeIdentifier($column),
+                        fn(string|Raw $column): string => $this->escapeIdentifier($column),
                         $primaryKeys
                     )
                 )
@@ -403,7 +403,7 @@ class SQLDialect extends DialectAbstract
                 );
             }
 
-            $query .= $this->escapeIdentifierWithAlias($table->identifier, $table->alias);
+            $query .= $this->escapeIdentifier($table->identifier, $table->alias);
 
             return;
         }
@@ -440,7 +440,7 @@ class SQLDialect extends DialectAbstract
                 '%s %s ON ',
                 $join->join->value,
                 $join->table instanceof Alias
-                ? $this->escapeIdentifierWithAlias($join->table->identifier, $join->table->alias)
+                ? $this->escapeIdentifier($join->table->identifier, $join->table->alias)
                 : $this->escapeIdentifier($join->table)
             );
 
@@ -642,7 +642,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn (string|array|Raw $column): string => $this->escapeIdentifier($column),
+                    fn(string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $groupBy
                 )
             )
@@ -671,7 +671,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn (OrderBy $orderBy): string => sprintf(
+                    fn(OrderBy $orderBy): string => sprintf(
                         '%s %s',
                         $this->escapeIdentifier($orderBy->column),
                         $orderBy->direction->value
@@ -723,7 +723,7 @@ class SQLDialect extends DialectAbstract
             ? implode(
                 ', ',
                 array_map(
-                    fn (string $column): string => $this->escapeIdentifier($column),
+                    fn(string $column): string => $this->escapeIdentifier($column),
                     $returning
                 )
             )
@@ -809,7 +809,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn (string $column): string => $this->escapeIdentifier($column),
+                    fn(string $column): string => $this->escapeIdentifier($column),
                     $uniqueConstraint->columns
                 )
             )
@@ -894,7 +894,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn (string|array|Raw $column): string => $this->escapeIdentifier($column),
+                    fn(string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $addPrimaryKeys->columns
                 )
             )
@@ -925,19 +925,16 @@ class SQLDialect extends DialectAbstract
         );
     }
 
-    protected function escapeIdentifierWithAlias(string|array|Raw $identifier, ?string $alias): string
+    public function escapeIdentifier(string|array|Raw $identifier, ?string $alias = null): string
     {
-        $escapedIdentifier = $this->escapeIdentifier($identifier);
-
-        if (!$alias) {
-            return $escapedIdentifier;
+        if ($alias) {
+            return sprintf(
+                '%s AS %s',
+                $this->escapeIdentifier($identifier),
+                $alias
+            );
         }
 
-        return sprintf('%s AS %s', $escapedIdentifier, $this->escapeIdentifier($alias));
-    }
-
-    public function escapeIdentifier(string|array|Raw $identifier): string
-    {
         if ($identifier instanceof Raw) {
             return (string) $identifier;
         }
@@ -946,7 +943,7 @@ class SQLDialect extends DialectAbstract
             ? implode(
                 '.',
                 array_map(
-                    fn (string|array|Raw $identifier): string => $this->escapeIdentifier($identifier),
+                    fn(string|array|Raw $identifier): string => $this->escapeIdentifier($identifier),
                     $identifier
                 )
             )

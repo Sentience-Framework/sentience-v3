@@ -88,7 +88,7 @@ interface DialectInterface
         string $name
     ): QueryWithParams;
 
-    public function escapeIdentifier(string|array|Raw $identifier): string;
+    public function escapeIdentifier(string|array|Raw $identifier, ?string $alias = null): string;
     public function escapeString(string $string): string;
     public function castToDriver(mixed $value): mixed;
     public function castToQuery(mixed $value): mixed;
