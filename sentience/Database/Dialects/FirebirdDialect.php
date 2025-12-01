@@ -13,6 +13,7 @@ use Sentience\Database\Queries\Objects\Raw;
 class FirebirdDialect extends SQLDialect
 {
     protected const string DATETIME_FORMAT = 'Y-m-d H:i:s.v';
+    protected const bool BOOL = true;
     protected const bool RETURNING = true;
 
     public function __construct(Driver $driver, int|string $version)
@@ -137,24 +138,5 @@ class FirebirdDialect extends SQLDialect
         };
 
         return parent::buildColumn($column);
-    }
-
-    public function castToQuery(mixed $value): mixed
-    {
-        if (is_bool($value)) {
-            return $value ? 'TRUE' : 'FALSE';
-        }
-
-        return parent::castToQuery($value);
-    }
-
-    public function castBool(bool $bool): bool
-    {
-        return $bool;
-    }
-
-    public function parseBool(mixed $bool): bool
-    {
-        return $bool;
     }
 }
