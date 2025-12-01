@@ -69,7 +69,7 @@ class SQLDialect extends DialectAbstract
                 array_map(
                     function (string|array|Alias|Raw $column): string {
                         if ($column instanceof Alias) {
-                            return $this->escapeIdentifierWithAlias($column->identifier, $column->alias);
+                            return $this->escapeIdentifier($column->identifier, $column->alias);
                         }
 
                         return $this->escapeIdentifier($column);
@@ -394,7 +394,7 @@ class SQLDialect extends DialectAbstract
                 );
             }
 
-            $query .= $this->escapeIdentifierWithAlias($table->identifier, $table->alias);
+            $query .= $this->escapeIdentifier($table->identifier, $table->alias);
 
             return;
         }
@@ -422,7 +422,7 @@ class SQLDialect extends DialectAbstract
             }
 
             $table = $join->table instanceof Alias
-                ? $this->escapeIdentifierWithAlias($join->table->identifier, $join->table->alias)
+                ? $this->escapeIdentifier($join->table->identifier, $join->table->alias)
                 : $this->escapeIdentifier($join->table);
 
             $query .= sprintf(
@@ -912,19 +912,16 @@ class SQLDialect extends DialectAbstract
         );
     }
 
-    protected function escapeIdentifierWithAlias(string|array|Raw $identifier, ?string $alias): string
+    public function escapeIdentifier(string|array|Raw $identifier, ?string $alias = null): string
     {
-        $escapedIdentifier = $this->escapeIdentifier($identifier);
-
-        if (!$alias) {
-            return $escapedIdentifier;
+        if ($alias) {
+            return sprintf(
+                '%s AS %s',
+                $this->escapeIdentifier($identifier),
+                $this->escapeIdentifier($alias)
+            );
         }
 
-        return sprintf('%s AS %s', $escapedIdentifier, $this->escapeIdentifier($alias));
-    }
-
-    public function escapeIdentifier(string|array|Raw $identifier): string
-    {
         if ($identifier instanceof Raw) {
             return $identifier->sql;
         }
