@@ -506,7 +506,7 @@ class SQLDialect extends DialectAbstract
             ? $this->buildSelectQuery($params, $condition->value[0])
             : $this->buildQuestionMark($params, $condition->value[0]);
 
-        $max = $condition->value[0] instanceof SelectQuery
+        $max = $condition->value[1] instanceof SelectQuery
             ? $this->buildSelectQuery($params, $condition->value[1])
             : $this->buildQuestionMark($params, $condition->value[1]);
 
