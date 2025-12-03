@@ -6,6 +6,7 @@ use Sentience\Database\Exceptions\QueryException;
 use Sentience\Database\Queries\Objects\Alias;
 use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\Condition;
+use Sentience\Database\Queries\Objects\OnConflict;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Database\Queries\Query;
@@ -122,6 +123,15 @@ class SQLServerDialect extends SQLDialect
             $offset,
             $limit
         );
+    }
+
+    protected function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, string|null $lastInsertId): void
+    {
+        /**
+         * SQL Server relies on Sentience's on conflict fallback
+         */
+
+        return;
     }
 
     protected function buildReturning(string &$query, array|null $returning): void
