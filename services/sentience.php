@@ -53,7 +53,8 @@ return new class () {
                 Driver::MARIADB,
                 Driver::MYSQL,
                 Driver::PGSQL,
-                Driver::SQLITE
+                Driver::SQLITE,
+                Driver::SQLSRV
             ]
         );
 

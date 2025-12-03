@@ -2,12 +2,82 @@
 
 namespace Sentience\Database\Dialects;
 
+use Sentience\Database\Exceptions\QueryException;
+use Sentience\Database\Queries\Objects\Alias;
+use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\Condition;
+use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Database\Queries\Query;
 
 class SQLServerDialect extends SQLDialect
 {
-    protected const string ESCAPE_IDENTIFIER = '[]';
+    protected const string DATETIME_FORMAT = 'Y-m-d H:i:s.v';
+    protected const bool GENERATED_BY_DEFAULT_AS_IDENTITY = false;
+
+    public function createTable(
+        bool $ifNotExists,
+        string|array|Alias|Raw $table,
+        array $columns,
+        array $primaryKeys,
+        array $constraints
+    ): QueryWithParams {
+        foreach ($columns as $column) {
+            if ($column->generatedByDefaultAsIdentity && !in_array($column->name, $primaryKeys)) {
+                $primaryKeys[] = $column->name;
+            }
+        }
+
+        $createTableQuery = parent::createTable(
+            false,
+            $table,
+            $columns,
+            $primaryKeys,
+            $constraints
+        );
+
+        if (!$ifNotExists) {
+            return $createTableQuery;
+        }
+
+        if (!is_string($table)) {
+            throw new QueryException('SQL Server create table query requires table as string');
+        }
+
+        $query = sprintf(
+            "IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = %s AND schema_id = SCHEMA_ID('dbo')) BEGIN %s END",
+            $this->escapeString($table),
+            $createTableQuery->query
+        );
+
+        return new QueryWithParams($query, $createTableQuery->params);
+    }
+
+    public function dropTable(
+        bool $ifExists,
+        string|array|Alias|Raw $table
+    ): QueryWithParams {
+        $dropTableQuery = parent::dropTable(
+            false,
+            $table
+        );
+
+        if (!$ifExists) {
+            return $dropTableQuery;
+        }
+
+        if (!is_string($table)) {
+            throw new QueryException('SQL Server drop table query requires table as string');
+        }
+
+        $query = sprintf(
+            "IF EXISTS (SELECT 1 FROM sys.tables WHERE name = %s AND schema_id = SCHEMA_ID('dbo')) BEGIN %s END",
+            $this->escapeString($table),
+            $dropTableQuery->query
+        );
+
+        return new QueryWithParams($query, $dropTableQuery->params);
+    }
 
     protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
     {
@@ -61,6 +131,15 @@ class SQLServerDialect extends SQLDialect
          */
 
         return;
+    }
+
+    protected function buildColumn(Column $column): string
+    {
+        if ($column->generatedByDefaultAsIdentity) {
+            $column->type .= ' IDENTITY(1,1)';
+        }
+
+        return parent::buildColumn($column);
     }
 
     protected function escape(string $string, string $char): string

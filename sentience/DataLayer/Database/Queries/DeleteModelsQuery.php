@@ -27,7 +27,7 @@ class DeleteModelsQuery extends ModelsQueryAbstract
             $reflectionModelProperties = $reflectionModel->getProperties();
 
             $table = $reflectionModel->getTable();
-            $columns = $reflectionModel->getColumns();
+            // $columns = $reflectionModel->getColumns();
 
             $deleteQuery = $this->database->delete($table);
 
@@ -46,15 +46,15 @@ class DeleteModelsQuery extends ModelsQueryAbstract
             }
 
             $deleteQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(ChainEnum::AND, $this->where));
-            $deleteQuery->returning($columns);
+            // $deleteQuery->returning($columns);
 
             $result = $deleteQuery->execute($emulatePrepare);
 
-            $deletedRow = $result->fetchAssoc();
+            // $deletedRow = $result->fetchAssoc();
 
-            if ($deletedRow) {
-                $this->mapAssocToModel($model, $deletedRow);
-            }
+            // if ($deletedRow) {
+            //     $this->mapAssocToModel($model, $deletedRow);
+            // }
         }
 
         return $this->models;

@@ -110,6 +110,20 @@ return [
              */
             'use_pdo' => env('DB_USE_PDO', true),
             'version' => env('DB_VERSION')
+        ],
+        'sqlsrv' => [
+            'name' => env('DB_NAME', 'sentience'),
+            'host' => env('DB_HOST', 'localhost'),
+            'port' => env('DB_PORT', 5432),
+            'username' => env('DB_USERNAME', 'sa'),
+            'password' => env('DB_PASSWORD', ''),
+            'queries' => env('DB_QUERIES', []),
+
+            'encrypt' => env('DB_ENCRYPT', true),
+            'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', false),
+
+            'use_pdo' => env('DB_USE_PDO', false),
+            'version' => env('DB_VERSION')
         ]
     ],
 

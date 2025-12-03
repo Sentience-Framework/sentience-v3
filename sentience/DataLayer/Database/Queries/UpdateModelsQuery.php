@@ -45,11 +45,13 @@ class UpdateModelsQuery extends ModelsQueryAbstract
                 $column = $reflectionModelProperty->getColumn();
                 $value = $model->{$property};
 
-                $values[$column] = $this->getValueIfBackedEnum($value);
-
                 if ($reflectionModelProperty->isPrimaryKey()) {
                     $updateQuery->whereEquals($column, $value);
+
+                    continue;
                 }
+
+                $values[$column] = $this->getValueIfBackedEnum($value);
             }
 
             $updateQuery->values([...$values, ...$this->updates]);
@@ -58,13 +60,13 @@ class UpdateModelsQuery extends ModelsQueryAbstract
 
             $result = $updateQuery->execute($emulatePrepare);
 
-            $updatedRow = $result->fetchAssoc();
+            // $updatedRow = $result->fetchAssoc();
 
-            if ($updatedRow) {
-                $this->mapAssocToModel($model, $updatedRow);
+            // if ($updatedRow) {
+            //     $this->mapAssocToModel($model, $updatedRow);
 
-                continue;
-            }
+            //     continue;
+            // }
         }
 
         return $this->models;

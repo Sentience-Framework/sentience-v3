@@ -81,11 +81,11 @@ class ReflectionModelProperty
                 'bool' => 'INT',
                 'int' => 'INT',
                 'float' => 'FLOAT',
-                'string' => 'TEXT',
+                'string' => 'VARCHAR(255)',
                 Timestamp::class,
                 DateTime::class,
                 DateTimeInterface::class => 'DATETIME',
-                default => 'TEXT'
+                default => 'VARCHAR(255)'
             }
         };
     }
