@@ -2,6 +2,7 @@
 
 namespace Sentience\Mapper;
 
+use BackedEnum;
 use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionProperty;
@@ -62,9 +63,18 @@ class Mapper
                 $key = $attribute->key;
                 $value = $object->{$key};
 
-                if (property_exists($object, $key)) {
-                    $property->setValue($instance, $value);
+                if (!property_exists($object, $key)) {
+                    continue;
                 }
+
+                $backedEnumType = static::isBackedEnum($class, $property);
+
+                $property->setValue(
+                    $instance,
+                    $backedEnumType
+                    ? $backedEnumType::from($value)
+                    : $value
+                );
 
                 continue;
             }
@@ -195,5 +205,32 @@ class Mapper
         }
 
         return true;
+    }
+
+    protected static function isBackedEnum(string $class, string $property): string|false
+    {
+        if (!property_exists($class, $property)) {
+            return false;
+        }
+
+        $reflectionProperty = new ReflectionProperty($class, $property);
+
+        $type = $reflectionProperty->getType();
+
+        if (!($type instanceof ReflectionNamedType)) {
+            return false;
+        }
+
+        $name = $type->getName();
+
+        if (!$name || $name == 'mixed') {
+            return false;
+        }
+
+        if (!is_subclass_of($name, BackedEnum::class)) {
+            return false;
+        }
+
+        return $name;
     }
 }
