@@ -3,11 +3,12 @@
 namespace Sentience\Database\Dialects;
 
 use Sentience\Database\Queries\Objects\Condition;
-use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Database\Queries\Query;
 
 class SQLServerDialect extends SQLDialect
 {
+    protected const string ESCAPE_IDENTIFIER = '[]';
+
     protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
     {
         parent::buildConditionRegexOperator(
@@ -56,36 +57,18 @@ class SQLServerDialect extends SQLDialect
     protected function buildReturning(string &$query, array|null $returning): void
     {
         /**
-         * SQL Server supports INSERT INTO (columns) OUTPUT INSERTED.colum
-         *
-         * Until a nicer solution is found to implement this, SQL Server makes use of Sentience's built-in fallback
+         * SQL Server relies on Sentience's returning fallback
          */
 
         return;
     }
 
-    public function escapeIdentifier(string|array|Raw $identifier, string|null $alias = null): string
+    protected function escape(string $string, string $char): string
     {
-        if ($alias) {
-            return sprintf(
-                '%s AS %s',
-                $this->escapeIdentifier($identifier),
-                $alias
-            );
+        if ($char == static::ESCAPE_IDENTIFIER) {
+            return '[' . Query::escapeAnsi($string, ['[', ']']) . ']';
         }
 
-        if ($identifier instanceof Raw) {
-            return (string) $identifier;
-        }
-
-        return is_array($identifier)
-            ? implode(
-                '.',
-                array_map(
-                    fn (string|array|Raw $identifier): string => $this->escapeIdentifier($identifier),
-                    $identifier
-                )
-            )
-            : '[' . Query::escapeAnsi($identifier, ['[', ']']) . ']';
+        return parent::escape($string, $char);
     }
 }
