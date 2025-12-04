@@ -26,7 +26,7 @@ class Xml
             array_walk(
                 $value,
                 function ($value, $key) use ($simpleXmlElement, &$encode, $pluralToSingular): void {
-                    if (is_numeric($key) && $pluralToSingular) {
+                    if (ctype_digit((string) $key) && $pluralToSingular) {
                         $key = $pluralToSingular($simpleXmlElement->getName(), $key);
                     }
 

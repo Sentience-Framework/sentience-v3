@@ -411,7 +411,7 @@ class PDOAdapter extends AdapterAbstract
                 default => PDO::PARAM_STR
             };
 
-            is_numeric($key)
+            ctype_digit((string) $key)
                 ? $this->bindValue($pdoStatement, $key, $value, $type)
                 : $this->bindParam($pdoStatement, $key, $value, $type);
         }

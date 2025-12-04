@@ -199,7 +199,7 @@ class Mapper
         }
 
         foreach ($array as $key => $value) {
-            if (!is_numeric($key)) {
+            if (!ctype_digit((string) $key)) {
                 return false;
             }
         }
