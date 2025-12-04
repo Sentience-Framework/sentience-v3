@@ -537,7 +537,7 @@ class PDOAdapter extends AdapterAbstract
             return null;
         }
 
-        if (preg_match('/[0-9]+/', $lastInsertId)) {
+        if (ctype_digit($lastInsertId)) {
             return (int) $lastInsertId;
         }
 

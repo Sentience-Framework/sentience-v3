@@ -82,10 +82,7 @@ class ExampleController extends Controller
             ->columns([
                 'column1',
                 Query::raw('CONCAT(column1, column2)'),
-                Query::alias(
-                    Query::raw('column2'),
-                    'col2'
-                )
+                'col2' => Query::raw('column2HERE')
             ])
             ->leftJoin(
                 'leftjoin_table',

@@ -931,7 +931,7 @@ class SQLDialect extends DialectAbstract
             return sprintf(
                 '%s AS %s',
                 $this->escapeIdentifier($identifier),
-                $alias
+                $this->escapeIdentifier($alias)
             );
         }
 

@@ -125,7 +125,7 @@ class SQLServerDialect extends SQLDialect
         );
     }
 
-    protected function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, string|null $lastInsertId): void
+    protected function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
     {
         /**
          * SQL Server relies on Sentience's on conflict fallback
@@ -134,7 +134,7 @@ class SQLServerDialect extends SQLDialect
         return;
     }
 
-    protected function buildReturning(string &$query, array|null $returning): void
+    protected function buildReturning(string &$query, ?array $returning): void
     {
         /**
          * SQL Server relies on Sentience's returning fallback
