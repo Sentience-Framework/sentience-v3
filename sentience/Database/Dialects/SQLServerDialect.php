@@ -128,7 +128,7 @@ class SQLServerDialect extends SQLDialect
     protected function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
     {
         /**
-         * SQL Server relies on Sentience's on conflict fallback
+         * SQL Server relies on Sentience's returning fallback
          */
 
         return;

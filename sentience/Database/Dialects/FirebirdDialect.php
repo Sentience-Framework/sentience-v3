@@ -55,10 +55,10 @@ class FirebirdDialect extends SQLDialect
         $query = sprintf(
             'EXECUTE BLOCK AS BEGIN IF(NOT EXISTS(SELECT 1 FROM rdb$relations WHERE rdb$relation_name = %s)) THEN BEGIN EXECUTE STATEMENT %s; END END',
             $this->escapeString($table),
-            $this->escapeString($createTableQuery->query)
+            $this->escapeString($createTableQuery->toSql($this))
         );
 
-        return new QueryWithParams($query, $createTableQuery->params);
+        return new QueryWithParams($query);
     }
 
     public function dropTable(
@@ -81,10 +81,10 @@ class FirebirdDialect extends SQLDialect
         $query = sprintf(
             'EXECUTE BLOCK AS BEGIN IF(EXISTS(SELECT 1 FROM rdb$relations WHERE rdb$relation_name = %s)) THEN BEGIN EXECUTE STATEMENT %s; END END',
             $this->escapeString($table),
-            $this->escapeString($dropTableQuery->query)
+            $this->escapeString($dropTableQuery->toSql($this))
         );
 
-        return new QueryWithParams($query, $dropTableQuery->params);
+        return new QueryWithParams($query);
     }
 
     protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
