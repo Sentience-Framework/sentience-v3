@@ -58,12 +58,12 @@ return [
             'use_pdo' => env('DB_USE_PDO', false),
             'version' => env('DB_VERSION')
         ],
-        // 'odbc' => [
-        //     'dsn' => env('DB_DSN', ''),
-        //     'username' => env('DB_USERNAME', ''),
-        //     'password' => env('DB_PASSWORD', ''),
-        //     'queries' => env('DB_QUERIES', [])
-        // ],
+        'oci' => [
+            'dsn' => env('DB_DSN', ''),
+            'username' => env('DB_USERNAME', ''),
+            'password' => env('DB_PASSWORD', ''),
+            'queries' => env('DB_QUERIES', [])
+        ],
         'pgsql' => [
             'name' => env('DB_NAME', 'sentience'),
             'host' => env('DB_HOST', 'localhost'),

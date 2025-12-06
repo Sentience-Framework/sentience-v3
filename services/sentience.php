@@ -52,6 +52,7 @@ return new class () {
                 Driver::FIREBIRD,
                 Driver::MARIADB,
                 Driver::MYSQL,
+                Driver::OCI,
                 Driver::PGSQL,
                 Driver::SQLITE,
                 Driver::SQLSRV
