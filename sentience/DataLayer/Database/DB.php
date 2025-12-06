@@ -4,13 +4,10 @@ namespace Sentience\DataLayer\Database;
 
 use Closure;
 use Sentience\Database\Database;
-use Sentience\Database\Queries\Objects\Alias;
 use Sentience\Database\Queries\Objects\QueryWithParams;
-use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Database\Results\ResultInterface;
 use Sentience\DataLayer\Database\Queries\AlterModelQuery;
 use Sentience\DataLayer\Database\Queries\CreateModelQuery;
-use Sentience\DataLayer\Database\Queries\CreateTableQuery;
 use Sentience\DataLayer\Database\Queries\DeleteModelsQuery;
 use Sentience\DataLayer\Database\Queries\DropModelQuery;
 use Sentience\DataLayer\Database\Queries\InsertModelsQuery;
@@ -60,11 +57,6 @@ class DB extends Database
         }
 
         return $cache;
-    }
-
-    public function createTable(array|string|Alias|Raw $table): CreateTableQuery
-    {
-        return new CreateTableQuery($this, $this->dialect, $table);
     }
 
     public function selectModels(string $model): SelectModelsQuery

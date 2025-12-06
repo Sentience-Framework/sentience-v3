@@ -4,6 +4,7 @@ namespace Sentience\Database\Dialects;
 
 use Sentience\Database\Driver;
 use Sentience\Database\Exceptions\QueryException;
+use Sentience\Database\Queries\Enums\TypeEnum;
 use Sentience\Database\Queries\Objects\Alias;
 use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\Condition;
@@ -129,14 +130,15 @@ class FirebirdDialect extends SQLDialect
 
     protected function buildColumn(Column $column): string
     {
-        $typeIsUppercase = (bool) preg_match('/[A-Z]/', $column->type);
-
-        $column->type = match (strtoupper($column->type)) {
-            'TEXT' => $typeIsUppercase ? 'VARCHAR(255)' : 'varchar(255)',
-            'DATETIME' => $typeIsUppercase ? 'TIMESTAMP' : 'timestamp',
-            default => $column->type
-        };
-
         return parent::buildColumn($column);
+    }
+
+    public function type(TypeEnum $type, ?int $size = null): string
+    {
+        return match ($type) {
+            TypeEnum::BOOL => 'BOOLEAN',
+            TypeEnum::STRING => sprintf('VARCHAR(%d)', $size > 255 ? 255 : $size ?? 255),
+            default => parent::type($type, $size)
+        };
     }
 }

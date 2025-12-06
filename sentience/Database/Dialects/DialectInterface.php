@@ -4,6 +4,7 @@ namespace Sentience\Database\Dialects;
 
 use DateTime;
 use DateTimeInterface;
+use Sentience\Database\Queries\Enums\TypeEnum;
 use Sentience\Database\Queries\Objects\Alias;
 use Sentience\Database\Queries\Objects\Having;
 use Sentience\Database\Queries\Objects\OnConflict;
@@ -96,6 +97,7 @@ interface DialectInterface
     public function castDateTime(DateTimeInterface $dateTime): mixed;
     public function parseBool(mixed $bool): bool;
     public function parseDateTime(string $string): ?DateTime;
+    public function type(TypeEnum $type, ?int $size = null): string;
     public function bool(): bool;
     public function generatedByDefaultAsIdentity(): bool;
     public function onConflict(): bool;
