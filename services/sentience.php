@@ -4,9 +4,9 @@ use Sentience\Cache\Cache;
 use Sentience\Database\Driver;
 use Sentience\Database\Sockets\NetworkSocket;
 use Sentience\Database\Sockets\UnixSocket;
-use Sentience\DataLayer\Database\DB;
-use Sentience\DataLayer\Database\Results\CachedResult;
 use Sentience\Helpers\Log;
+use Sentience\ORM\Database\DB;
+use Sentience\ORM\Database\Results\CachedResult;
 use Sentience\Timestamp\Timestamp;
 
 return new class () {

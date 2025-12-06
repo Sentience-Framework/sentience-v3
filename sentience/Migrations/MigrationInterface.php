@@ -2,7 +2,7 @@
 
 namespace Sentience\Migrations;
 
-use Sentience\DataLayer\Database\DB;
+use Sentience\ORM\Database\DB;
 
 interface MigrationInterface
 {

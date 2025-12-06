@@ -1,7 +1,7 @@
 <?php
 
-use Sentience\DataLayer\Database\DB;
 use Sentience\Migrations\MigrationInterface;
+use Sentience\ORM\Database\DB;
 
 return new class () implements MigrationInterface {
     public function apply(DB $db): void

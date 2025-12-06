@@ -10,8 +10,8 @@ class MigrationFactory
 
         $lines[] = '<?php';
         $lines[] = '';
-        $lines[] = 'use Sentience\DataLayer\Database\DB;';
         $lines[] = 'use Sentience\Migrations\MigrationInterface;';
+        $lines[] = 'use Sentience\ORM\Database\DB;';
         $lines[] = '';
         $lines[] = 'return new class () implements MigrationInterface {';
         $lines[] = '    public function apply(DB $db): void';

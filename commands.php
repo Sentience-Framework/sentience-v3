@@ -1,7 +1,7 @@
 <?php
 
 use Sentience\Database\Queries\Query;
-use Sentience\DataLayer\Database\DB;
+use Sentience\ORM\Database\DB;
 use Sentience\Routers\Command;
 use Src\Controllers\DevToolsController;
 use Src\Controllers\ExampleController;
