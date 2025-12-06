@@ -241,7 +241,7 @@ class ExampleController extends Controller
                 ->whereGreaterThanOrEquals('id', 0)
                 ->execute();
 
-            array_push($models, ...$selectedModels);
+            // array_push($models, ...$selectedModels);
 
             $migration = new Migration();
             $migration->batch = 1;
@@ -271,8 +271,8 @@ class ExampleController extends Controller
                 ->updateColumn('applied_at', Query::now())
                 ->execute($emulatePrepare);
 
-            $db->deleteModels($models)
-                ->execute($emulatePrepare);
+            // $db->deleteModels($models)
+            //     ->execute($emulatePrepare);
 
             // $db->prepared(
             //     'SELECT * FROM migrations -- test comment with a ? item
