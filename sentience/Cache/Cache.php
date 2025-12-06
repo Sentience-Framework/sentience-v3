@@ -40,7 +40,7 @@ class Cache extends Singleton
     {
         $db->createTable('cache')
             ->ifNotExists()
-            ->autoIncrement('id')
+            ->identity('id')
             ->string('key')
             ->string('data', PHP_INT_MAX)
             ->dateTime('expires_at')

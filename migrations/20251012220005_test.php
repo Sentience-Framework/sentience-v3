@@ -7,7 +7,8 @@ return new class () implements MigrationInterface {
     public function apply(DB $db): void
     {
         $db->createTable('books')
-            ->autoIncrement('id')
+            ->ifNotExists()
+            ->identity('id')
             ->string('name')
             ->int('author_id')
             ->bool('is_read', true, true)

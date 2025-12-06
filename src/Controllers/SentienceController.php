@@ -182,7 +182,7 @@ class SentienceController extends Controller
 
             $alreadyApplied = $db->select(Migration::getTable())
                 ->whereEquals('filename', $filename)
-                ->exists();
+                ->count() > 0;
 
             if ($alreadyApplied) {
                 Stdio::printFLn('Migration %s already applied', $filename);

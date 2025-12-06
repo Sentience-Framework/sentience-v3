@@ -8,6 +8,7 @@ use DateTimeInterface;
 use Throwable;
 use Sentience\Database\Exceptions\QueryException;
 use Sentience\Database\Queries\Enums\ConditionEnum;
+use Sentience\Database\Queries\Enums\TypeEnum;
 use Sentience\Database\Queries\Objects\AddColumn;
 use Sentience\Database\Queries\Objects\AddForeignKeyConstraint;
 use Sentience\Database\Queries\Objects\AddPrimaryKeys;
@@ -1025,6 +1026,17 @@ class SQLDialect extends DialectAbstract
         } catch (Throwable $exception) {
             return null;
         }
+    }
+
+    public function type(TypeEnum $type, ?int $size = null): string
+    {
+        return match ($type) {
+            TypeEnum::BOOL => $this->bool() ? 'BOOLEAN' : 'INTEGER',
+            TypeEnum::INT => $size > 32 ? 'BIGINT' : 'INTEGER',
+            TypeEnum::FLOAT => $size > 32 ? 'DECIMAL(30, 15)' : 'DECIMAL(15, 7)',
+            TypeEnum::STRING => $size > 255 ? 'TEXT' : sprintf('VARCHAR(%d)', $size ?? 255),
+            TypeEnum::DATETIME => 'DATETIME'
+        };
     }
 
     public function bool(): bool
