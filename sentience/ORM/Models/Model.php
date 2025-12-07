@@ -49,9 +49,9 @@ class Model implements JsonSerializable
 
             $values[$column] = $value;
 
-            // $values[$column] = is_subclass_of($value, DateTimeInterface::class)
-            //     ? $value->format('Y-m-d\TH:i:s.v\Z')
-            //     : $value;
+            $values[$column] = is_subclass_of($value, DateTimeInterface::class)
+                ? $value->format('Y-m-d\TH:i:s.v\Z')
+                : $value;
         }
 
         return $values;
