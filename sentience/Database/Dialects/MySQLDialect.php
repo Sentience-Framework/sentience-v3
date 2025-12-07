@@ -16,11 +16,11 @@ use Sentience\Database\Queries\Query;
 
 class MySQLDialect extends SQLDialect
 {
-    protected const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
-    protected const bool ESCAPE_ANSI = false;
-    protected const string ESCAPE_IDENTIFIER = '`';
-    protected const string ESCAPE_STRING = '"';
-    protected const bool GENERATED_BY_DEFAULT_AS_IDENTITY = false;
+    public const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
+    public const bool ESCAPE_ANSI = false;
+    public const string ESCAPE_IDENTIFIER = '`';
+    public const string ESCAPE_STRING = '"';
+    public const bool GENERATED_BY_DEFAULT_AS_IDENTITY = false;
 
     public function createTable(
         bool $ifNotExists,
@@ -163,11 +163,11 @@ class MySQLDialect extends SQLDialect
             TypeEnum::BOOL => 'TINYINT',
             TypeEnum::FLOAT => $size > 32 ? 'DOUBLE' : 'FLOAT',
             TypeEnum::STRING => match (true) {
-                $size > 16777215 => 'LONGTEXT',
-                $size > 65535 => 'MEDIUMTEXT',
-                $size > 255 => 'TEXT',
-                default => sprintf('VARCHAR(%d)', $size ?? 255)
-            },
+                    $size > 16777215 => 'LONGTEXT',
+                    $size > 65535 => 'MEDIUMTEXT',
+                    $size > 255 => 'TEXT',
+                    default => sprintf('VARCHAR(%d)', $size ?? 255)
+                },
             TypeEnum::DATETIME => $size > 0 ? sprintf('DATETIME(%d)', $size) : 'DATETIME',
             default => parent::type($type, $size)
         };
