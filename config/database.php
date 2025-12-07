@@ -141,5 +141,5 @@ return [
     'emulate_prepares' => env('DB_EMULATE_PREPARES', false),
 
     'debug' => env('DB_DEBUG', false),
-    'lazy' => env('DB_LAZY') ?? is_cli()
+    'lazy' => env('DB_LAZY', false)
 ];
