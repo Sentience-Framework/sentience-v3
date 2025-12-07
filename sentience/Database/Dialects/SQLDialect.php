@@ -686,7 +686,53 @@ class SQLDialect extends DialectAbstract
 
     protected function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
     {
-        return;
+        if (!$this->onConflict()) {
+            return;
+        }
+
+        if (is_null($onConflict)) {
+            return;
+        }
+
+        $conflict = is_string($onConflict->conflict)
+            ? sprintf('ON CONSTRAINT %s', $this->escapeIdentifier($onConflict->conflict))
+            : sprintf(
+                '(%s)',
+                implode(
+                    ', ',
+                    array_map(
+                        fn (string|Raw $column): string => $this->escapeIdentifier($column),
+                        $onConflict->conflict
+                    )
+                )
+            );
+
+        if (is_null($onConflict->updates)) {
+            $query .= sprintf(' ON CONFLICT %s DO NOTHING', $conflict);
+
+            return;
+        }
+
+        $updates = count($onConflict->updates) > 0 ? $onConflict->updates : $values;
+
+        $query .= sprintf(
+            ' ON CONFLICT %s DO UPDATE SET %s',
+            $conflict,
+            implode(
+                ', ',
+                array_map(
+                    function (mixed $value, string $key) use (&$params): string {
+                        return sprintf(
+                            '%s = %s',
+                            $this->escapeIdentifier($key),
+                            $this->buildQuestionMark($params, $value)
+                        );
+                    },
+                    $updates,
+                    array_keys($updates)
+                )
+            )
+        );
     }
 
     protected function buildReturning(string &$query, ?array $returning): void
