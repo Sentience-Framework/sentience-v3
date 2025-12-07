@@ -35,15 +35,15 @@ use Sentience\Database\Queries\SelectQuery;
 
 class SQLDialect extends DialectAbstract
 {
-    protected const string DATETIME_FORMAT = 'Y-m-d H:i:s';
-    protected const bool ESCAPE_ANSI = true;
-    protected const string ESCAPE_IDENTIFIER = '"';
-    protected const string ESCAPE_STRING = "'";
-    protected const bool BOOL = false;
-    protected const bool GENERATED_BY_DEFAULT_AS_IDENTITY = true;
-    protected const bool ON_CONFLICT = false;
-    protected const bool RETURNING = false;
-    protected const bool SAVEPOINTS = true;
+    public const string DATETIME_FORMAT = 'Y-m-d H:i:s';
+    public const bool ESCAPE_ANSI = true;
+    public const string ESCAPE_IDENTIFIER = '"';
+    public const string ESCAPE_STRING = "'";
+    public const bool BOOL = false;
+    public const bool GENERATED_BY_DEFAULT_AS_IDENTITY = true;
+    public const bool ON_CONFLICT = false;
+    public const bool RETURNING = false;
+    public const bool SAVEPOINTS = true;
 
     public function select(
         bool $distinct,

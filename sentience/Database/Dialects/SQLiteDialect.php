@@ -18,8 +18,8 @@ use Sentience\Database\Queries\Objects\RenameColumn;
 
 class SQLiteDialect extends SQLDialect
 {
-    protected const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
-    protected const bool GENERATED_BY_DEFAULT_AS_IDENTITY = false;
+    public const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
+    public const bool GENERATED_BY_DEFAULT_AS_IDENTITY = false;
 
     public function createTable(
         bool $ifNotExists,

@@ -9,8 +9,8 @@ use Sentience\Database\Queries\Objects\Condition;
 
 class PgSQLDialect extends SQLDialect
 {
-    protected const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
-    protected const bool BOOL = true;
+    public const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
+    public const bool BOOL = true;
 
     protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
     {
