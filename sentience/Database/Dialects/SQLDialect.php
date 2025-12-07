@@ -69,10 +69,6 @@ class SQLDialect extends DialectAbstract
                 ', ',
                 array_map(
                     function (string|array|Alias|Raw $column): string {
-                        if ($column instanceof Alias) {
-                            return $this->escapeIdentifier($column->identifier, $column->alias);
-                        }
-
                         return $this->escapeIdentifier($column);
                     },
                     $columns
@@ -395,7 +391,7 @@ class SQLDialect extends DialectAbstract
                 );
             }
 
-            $query .= $this->escapeIdentifier($table->identifier, $table->alias);
+            $query .= $this->escapeIdentifier($table);
 
             return;
         }
@@ -422,14 +418,10 @@ class SQLDialect extends DialectAbstract
                 continue;
             }
 
-            $table = $join->table instanceof Alias
-                ? $this->escapeIdentifier($join->table->identifier, $join->table->alias)
-                : $this->escapeIdentifier($join->table);
-
             $query .= sprintf(
                 '%s %s ON ',
                 $join->join->value,
-                $table
+                $this->escapeIdentifier($join->table)
             );
 
             $conditions = $join->getConditions();
@@ -914,13 +906,13 @@ class SQLDialect extends DialectAbstract
         );
     }
 
-    public function escapeIdentifier(string|array|Raw $identifier, ?string $alias = null): string
+    public function escapeIdentifier(string|array|Alias|Raw $identifier): string
     {
-        if ($alias) {
+        if ($identifier instanceof Alias) {
             return sprintf(
                 '%s AS %s',
-                $this->escapeIdentifier($identifier),
-                $this->escapeIdentifier($alias)
+                $this->escapeIdentifier($identifier->identifier),
+                $this->escapeIdentifier($identifier->alias)
             );
         }
 
