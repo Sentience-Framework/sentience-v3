@@ -379,7 +379,7 @@ class SQLDialect extends DialectAbstract
         $query .= ' ';
 
         if ($table instanceof SelectQuery) {
-            throw new QueryException('table sub select requires an alias');
+            throw new QueryException('table select requires an alias');
         }
 
         if ($table instanceof Alias) {
