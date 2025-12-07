@@ -102,7 +102,7 @@ class MySQLDialect extends SQLDialect
                             return sprintf(
                                 '%s = %s',
                                 $this->escapeIdentifier($key),
-                                (string) $value
+                                $value->sql
                             );
                         }
 

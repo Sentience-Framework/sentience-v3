@@ -48,61 +48,11 @@ class SQLiteDialect extends SQLDialect
 
     protected function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
     {
-        if (!$this->onConflict()) {
-            return;
-        }
-
-        if (is_null($onConflict)) {
-            return;
-        }
-
         if (is_string($onConflict->conflict)) {
             throw new QueryException('SQLite does not support named constraints');
         }
 
-        $conflict = sprintf(
-            '(%s)',
-            implode(
-                ', ',
-                array_map(
-                    fn (string|Raw $column): string => $this->escapeIdentifier($column),
-                    $onConflict->conflict
-                )
-            )
-        );
-
-        if (is_null($onConflict->updates)) {
-            $query .= sprintf(' ON CONFLICT %s DO NOTHING', $conflict);
-
-            return;
-        }
-
-        $updates = count($onConflict->updates) > 0 ? $onConflict->updates : $values;
-
-        $query .= sprintf(
-            ' ON CONFLICT %s DO UPDATE SET %s',
-            $conflict,
-            implode(
-                ', ',
-                array_map(
-                    function (mixed $value, string $key) use (&$params): string {
-                        if ($value instanceof Raw) {
-                            return sprintf(
-                                '%s = %s',
-                                $this->escapeIdentifier($key),
-                                (string) $value
-                            );
-                        }
-
-                        $params[] = $value;
-
-                        return sprintf('%s = ?', $this->escapeIdentifier($key));
-                    },
-                    $updates,
-                    array_keys($updates)
-                )
-            )
-        );
+        parent::buildOnConflict($query, $params, $onConflict, $values, $lastInsertId);
     }
 
     protected function buildColumn(Column $column): string
