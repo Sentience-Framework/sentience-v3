@@ -6,9 +6,9 @@ use Sentience\Abstracts\Controller;
 use Sentience\Database\Queries\Enums\ReferentialActionEnum;
 use Sentience\Database\Queries\Objects\Join;
 use Sentience\Database\Queries\Query;
-use Sentience\DataLayer\Database\DB;
 use Sentience\Helpers\Json;
 use Sentience\Mapper\Mapper;
+use Sentience\ORM\Database\DB;
 use Sentience\Sentience\Request;
 use Sentience\Sentience\Response;
 use Sentience\Sentience\Stdio;
@@ -253,6 +253,7 @@ class ExampleController extends Controller
 
             $db->insertModels($insertedModels)
                 ->onDuplicateUpdate()
+                // ->emulateUpsert()
                 ->execute($emulatePrepare);
 
             array_push($models, ...$insertedModels);

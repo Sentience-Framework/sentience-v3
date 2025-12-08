@@ -6,8 +6,8 @@ use DateTimeInterface;
 use Sentience\Abstracts\Singleton;
 use Sentience\Database\Adapters\AdapterInterface;
 use Sentience\Database\Driver;
-use Sentience\DataLayer\Database\DB;
 use Sentience\Helpers\Filesystem;
+use Sentience\ORM\Database\DB;
 
 class Cache extends Singleton
 {
