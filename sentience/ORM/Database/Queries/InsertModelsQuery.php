@@ -10,6 +10,7 @@ class InsertModelsQuery extends ModelsQueryAbstract
 {
     protected ?bool $onDuplicateUpdate = null;
     protected array $onDuplicateUpdateExcludeColumns = [];
+    protected bool $emulateUpsert = false;
 
     public function __construct(Database $database, DialectInterface $dialect, array $models)
     {
@@ -35,7 +36,9 @@ class InsertModelsQuery extends ModelsQueryAbstract
                 $column = $reflectionModelProperty->getColumn();
 
                 if ($reflectionModelProperty->isPrimaryKey() && $reflectionModelProperty->isAutoIncrement()) {
-                    $insertQuery->lastInsertId($column);
+                    $this->emulateUpsert
+                        ? $insertQuery->emulateUpsert($column)
+                        : $insertQuery->lastInsertId($column);
                 }
 
                 if (!$reflectionModelProperty->isInitialized($model)) {
@@ -118,6 +121,13 @@ class InsertModelsQuery extends ModelsQueryAbstract
     {
         $this->onDuplicateUpdate = true;
         $this->onDuplicateUpdateExcludeColumns = $excludeColumns;
+
+        return $this;
+    }
+
+    public function emulateUpsert(): static
+    {
+        $this->emulateUpsert = true;
 
         return $this;
     }
