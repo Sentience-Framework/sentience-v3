@@ -37,7 +37,7 @@ class InsertModelsQuery extends ModelsQueryAbstract
 
                 if ($reflectionModelProperty->isPrimaryKey() && $reflectionModelProperty->isAutoIncrement()) {
                     $this->emulateUpsert
-                        ? $insertQuery->emulateUpsert($column)
+                        ? $insertQuery->emulateOnConflict($column)
                         : $insertQuery->lastInsertId($column);
                 }
 

@@ -20,14 +20,14 @@ class InsertQuery extends Query
     use ReturningTrait;
     use ValuesTrait;
 
-    protected bool $emulateUpsert = false;
+    protected bool $emulateOnConflict = false;
 
     public function toQueryWithParams(): QueryWithParams
     {
         return $this->dialect->insert(
             $this->table,
             $this->values,
-            !$this->emulateUpsert ? $this->onConflict : null,
+            !$this->emulateOnConflict ? $this->onConflict : null,
             $this->returning,
             $this->lastInsertId
         );
@@ -40,7 +40,7 @@ class InsertQuery extends Query
 
     public function execute(bool $emulatePrepare = false): ResultInterface
     {
-        if (!$this->onConflict || !$this->emulateUpsert && $this->dialect->onConflict()) {
+        if (!$this->onConflict || !$this->emulateOnConflict && $this->dialect->onConflict()) {
             return $this->insert($emulatePrepare);
         }
 
@@ -184,9 +184,9 @@ class InsertQuery extends Query
         );
     }
 
-    public function emulateUpsert(string $lastInsertId): static
+    public function emulateOnConflict(string $lastInsertId): static
     {
-        $this->emulateUpsert = true;
+        $this->emulateOnConflict = true;
         $this->lastInsertId = $lastInsertId;
 
         return $this;
