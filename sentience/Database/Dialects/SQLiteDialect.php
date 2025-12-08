@@ -37,7 +37,7 @@ class SQLiteDialect extends SQLDialect
 
             $primaryKeys = array_filter(
                 $primaryKeys,
-                fn(string $primaryKey): bool => $primaryKey != $column->name
+                fn (string $primaryKey): bool => $primaryKey != $column->name
             );
         }
 

@@ -163,11 +163,11 @@ class MySQLDialect extends SQLDialect
             TypeEnum::BOOL => 'TINYINT',
             TypeEnum::FLOAT => $size > 32 ? 'DOUBLE' : 'FLOAT',
             TypeEnum::STRING => match (true) {
-                    $size > 16777215 => 'LONGTEXT',
-                    $size > 65535 => 'MEDIUMTEXT',
-                    $size > 255 => 'TEXT',
-                    default => sprintf('VARCHAR(%d)', $size ?? 255)
-                },
+                $size > 16777215 => 'LONGTEXT',
+                $size > 65535 => 'MEDIUMTEXT',
+                $size > 255 => 'TEXT',
+                default => sprintf('VARCHAR(%d)', $size ?? 255)
+            },
             TypeEnum::DATETIME => $size > 0 ? sprintf('DATETIME(%d)', $size) : 'DATETIME',
             default => parent::type($type, $size)
         };
