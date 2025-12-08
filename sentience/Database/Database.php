@@ -28,8 +28,7 @@ class Database
         array $queries,
         array $options,
         ?Closure $debug,
-        bool $usePdoAdapter = false,
-        bool $lazy = false
+        bool $usePdoAdapter = false
     ): static {
         $adapter = $driver->getAdapter(
             $name,
@@ -37,8 +36,7 @@ class Database
             $queries,
             $options,
             $debug,
-            $usePdoAdapter,
-            $lazy
+            $usePdoAdapter
         );
 
         $version = $adapter->version();

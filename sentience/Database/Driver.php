@@ -27,8 +27,7 @@ enum Driver: string
         array $queries,
         array $options,
         ?Closure $debug,
-        bool $usePdoAdapter = false,
-        bool $lazy = false
+        bool $usePdoAdapter = false
     ): AdapterInterface {
         $adapter = !$usePdoAdapter ?
             match ($this) {
@@ -45,8 +44,7 @@ enum Driver: string
             $socket,
             $queries,
             $options,
-            $debug,
-            $lazy
+            $debug
         );
     }
 
