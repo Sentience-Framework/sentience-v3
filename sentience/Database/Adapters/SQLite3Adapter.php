@@ -228,8 +228,6 @@ class SQLite3Adapter extends AdapterAbstract
             throw $exception;
         }
 
-        $questionMarks = array_is_list($queryWithParams->params);
-
         foreach ($queryWithParams->params as $key => $param) {
             $value = $dialect->castToDriver($param);
 
@@ -241,7 +239,7 @@ class SQLite3Adapter extends AdapterAbstract
                 default => SQLITE3_TEXT
             };
 
-            $questionMarks
+            ctype_digit((string) $key)
                 ? $this->bindValue($sqlite3Stmt, $key, $value, $type)
                 : $this->bindParam($sqlite3Stmt, $key, $value, $type);
         }

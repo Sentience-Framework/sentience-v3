@@ -399,8 +399,6 @@ class PDOAdapter extends AdapterAbstract
             throw $exception;
         }
 
-        $questionMarks = array_is_list($queryWithParams->params);
-
         foreach ($queryWithParams->params as $key => $param) {
             $value = $dialect->castToDriver($param);
 
@@ -413,7 +411,7 @@ class PDOAdapter extends AdapterAbstract
                 default => PDO::PARAM_STR
             };
 
-            $questionMarks
+            ctype_digit((string) $key)
                 ? $this->bindValue($pdoStatement, $key, $value, $type)
                 : $this->bindParam($pdoStatement, $key, $value, $type);
         }
