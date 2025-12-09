@@ -87,8 +87,8 @@ class Database
             return;
         }
 
-        $name = !$name ?
-            sprintf(
+        $name = !$name
+            ? sprintf(
                 'savepoint_%d',
                 count($this->savepoints) + 1
             )
