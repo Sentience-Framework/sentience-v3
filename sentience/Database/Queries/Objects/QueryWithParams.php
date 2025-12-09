@@ -67,13 +67,9 @@ class QueryWithParams
             $this->params
         );
 
-        foreach ($params as $key => $value) {
-            if (!ctype_digit((string) $key)) {
-                return $this->toSqlNamedParams($params);
-            }
-        }
-
-        return $this->toSqlQuestionMarks($params);
+        return array_is_list($params)
+            ? $this->toSqlQuestionMarks($params)
+            : $this->toSqlNamedParams($params);
     }
 
     protected function toSqlQuestionMarks(array $params): string
