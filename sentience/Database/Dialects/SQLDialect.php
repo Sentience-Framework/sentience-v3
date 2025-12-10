@@ -128,7 +128,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    function (mixed $value) use (&$params): string {
+                    function (null|bool|int|float|string|DateTimeInterface|Identifier|SelectQuery|Raw $value) use (&$params): string {
                         return $this->buildQuestionMarks($params, $value);
                     },
                     $values
@@ -161,7 +161,7 @@ class SQLDialect extends DialectAbstract
         $query .= implode(
             ', ',
             array_map(
-                function (mixed $value, string $key) use (&$params): string {
+                function (null|bool|int|float|string|DateTimeInterface|Identifier|SelectQuery|Raw $value, string $key) use (&$params): string {
                     return sprintf(
                         '%s = %s',
                         $this->escapeIdentifier($key),
@@ -705,7 +705,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    function (mixed $value, string $key) use (&$params): string {
+                    function (null|bool|int|float|string|DateTimeInterface|Identifier|SelectQuery|Raw $value, string $key) use (&$params): string {
                         return sprintf(
                             '%s = %s',
                             $this->escapeIdentifier($key),
@@ -742,7 +742,7 @@ class SQLDialect extends DialectAbstract
         $query .= ' RETURNING ' . $columns;
     }
 
-    protected function buildQuestionMarks(array &$params, mixed $value, bool $parentheses = true, string $separator = ', '): string
+    protected function buildQuestionMarks(array &$params, null|bool|int|float|string|array|DateTimeInterface|Identifier|SelectQuery|Raw $value, bool $parentheses = true, string $separator = ', '): string
     {
         if ($value instanceof Identifier) {
             return $this->escapeIdentifier($value->identifier);
@@ -758,7 +758,7 @@ class SQLDialect extends DialectAbstract
                 implode(
                     $separator,
                     array_map(
-                        function (mixed $value) use (&$params): mixed {
+                        function (null|bool|int|float|string|DateTimeInterface|Identifier|SelectQuery|Raw $value) use (&$params): string {
                             return $this->buildQuestionMarks($params, $value);
                         },
                         $value
@@ -973,7 +973,7 @@ class SQLDialect extends DialectAbstract
         return $char . $escapedString . $char;
     }
 
-    public function castToDriver(mixed $value): mixed
+    public function castToDriver(null|bool|int|float|string|DateTimeInterface|Identifier|SelectQuery|Raw $value): null|bool|int|float|string
     {
         if (is_bool($value)) {
             return $this->castBool($value);
@@ -986,14 +986,10 @@ class SQLDialect extends DialectAbstract
         return $value;
     }
 
-    public function castToQuery(mixed $value): mixed
+    public function castToQuery(null|bool|int|float|string|DateTimeInterface $value): null|bool|int|float|string
     {
         if (is_null($value)) {
             return 'NULL';
-        }
-
-        if (is_string($value)) {
-            return $this->escapeString($value);
         }
 
         if (is_bool($value)) {
@@ -1008,6 +1004,10 @@ class SQLDialect extends DialectAbstract
                 : $bool;
         }
 
+        if (is_string($value)) {
+            return $this->escapeString($value);
+        }
+
         if ($value instanceof DateTimeInterface) {
             return $this->escapeString($this->castDateTime($value));
         }
@@ -1015,23 +1015,25 @@ class SQLDialect extends DialectAbstract
         return $value;
     }
 
-    public function castBool(bool $bool): mixed
+    public function castBool(bool $bool): null|bool|int|float|string
     {
         return !$this->bool()
             ? $bool ? 1 : 0
             : $bool;
     }
 
-    public function castDateTime(DateTimeInterface $dateTimeInterface): mixed
+    public function castDateTime(DateTimeInterface $dateTimeInterface): null|bool|int|float|string
     {
         return $dateTimeInterface->format($this::DATETIME_FORMAT);
     }
 
-    public function parseBool(mixed $value): bool
+    public function parseBool(null|bool|int|float|string $bool): bool
     {
-        return !$this->bool()
-            ? $value == 1 ? true : false
-            : $value;
+        if (is_bool($bool)) {
+            return $bool;
+        }
+
+        return (int) $bool > 0;
     }
 
     public function parseDateTime(string $string): ?DateTime

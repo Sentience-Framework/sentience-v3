@@ -16,7 +16,12 @@ class PDOResult extends ResultAbstract
         $columns = [];
 
         for ($i = 0; $i < $this->pdoStatement->columnCount(); $i++) {
-            $columns[] = $this->pdoStatement->getColumnMeta($i)['name'];
+            $meta = $this->pdoStatement->getColumnMeta($i);
+
+            $name = $meta['name'];
+            $nativeType = strtoupper($meta['native_type']);
+
+            $columns[$name] = $nativeType;
         }
 
         return $columns;
