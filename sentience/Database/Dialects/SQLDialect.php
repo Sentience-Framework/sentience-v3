@@ -231,7 +231,7 @@ class SQLDialect extends DialectAbstract
                 implode(
                     ', ',
                     array_map(
-                        fn (string|Raw $column): string => $this->escapeIdentifier($column),
+                        fn(string|Raw $column): string => $this->escapeIdentifier($column),
                         $primaryKeys
                     )
                 )
@@ -612,7 +612,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn (string|array|Raw $column): string => $this->escapeIdentifier($column),
+                    fn(string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $groupBy
                 )
             )
@@ -641,7 +641,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn (OrderBy $orderBy): string => sprintf(
+                    fn(OrderBy $orderBy): string => sprintf(
                         '%s %s',
                         $this->escapeIdentifier($orderBy->column),
                         $orderBy->direction->value
@@ -691,7 +691,7 @@ class SQLDialect extends DialectAbstract
                 implode(
                     ', ',
                     array_map(
-                        fn (string|Raw $column): string => $this->escapeIdentifier($column),
+                        fn(string|Raw $column): string => $this->escapeIdentifier($column),
                         $onConflict->conflict
                     )
                 )
@@ -713,17 +713,11 @@ class SQLDialect extends DialectAbstract
                 ', ',
                 array_map(
                     function (mixed $value, string $key) use (&$params): string {
-                        if ($value instanceof Raw) {
-                            return sprintf(
-                                '%s = %s',
-                                $this->escapeIdentifier($key),
-                                $value->sql
-                            );
-                        }
-
-                        $params[] = $value;
-
-                        return sprintf('%s = ?', $this->escapeIdentifier($key));
+                        return sprintf(
+                            '%s = %s',
+                            $this->escapeIdentifier($key),
+                            $this->buildQuestionMarks($params, $value)
+                        );
                     },
                     $updates,
                     array_keys($updates)
@@ -746,7 +740,7 @@ class SQLDialect extends DialectAbstract
             ? implode(
                 ', ',
                 array_map(
-                    fn (string $column): string => $this->escapeIdentifier($column),
+                    fn(string $column): string => $this->escapeIdentifier($column),
                     $returning
                 )
             )
@@ -831,7 +825,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn (string $column): string => $this->escapeIdentifier($column),
+                    fn(string $column): string => $this->escapeIdentifier($column),
                     $uniqueConstraint->columns
                 )
             )
@@ -916,7 +910,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn (string|array|Raw $column): string => $this->escapeIdentifier($column),
+                    fn(string|array|Raw $column): string => $this->escapeIdentifier($column),
                     $addPrimaryKeys->columns
                 )
             )
@@ -965,7 +959,7 @@ class SQLDialect extends DialectAbstract
             ? implode(
                 '.',
                 array_map(
-                    fn (string|array|Raw $identifier): string => $this->escapeIdentifier($identifier),
+                    fn(string|array|Raw $identifier): string => $this->escapeIdentifier($identifier),
                     $identifier
                 )
             )
@@ -1001,8 +995,8 @@ class SQLDialect extends DialectAbstract
 
     public function castToQuery(mixed $value): mixed
     {
-        if (is_string($value)) {
-            return $this->escapeString($value);
+        if (is_null($value)) {
+            return 'NULL';
         }
 
         if (is_bool($value)) {
@@ -1017,8 +1011,8 @@ class SQLDialect extends DialectAbstract
                 : $bool;
         }
 
-        if (is_null($value)) {
-            return 'NULL';
+        if (is_string($value)) {
+            return $this->escapeString($value);
         }
 
         if ($value instanceof DateTimeInterface) {
@@ -1042,9 +1036,11 @@ class SQLDialect extends DialectAbstract
 
     public function parseBool(mixed $value): bool
     {
-        return !$this->bool()
-            ? $value == 1 ? true : false
-            : $value;
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        return (int) $value > 0;
     }
 
     public function parseDateTime(string $string): ?DateTime
