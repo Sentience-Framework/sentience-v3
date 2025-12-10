@@ -107,7 +107,7 @@ class MySQLDialect extends SQLDialect
                         return sprintf(
                             '%s = %s',
                             $this->escapeIdentifier($key),
-                            $this->buildQuestionMark($params, $value)
+                            $this->buildQuestionMarks($params, $value)
                         );
                     },
                     $updates,
