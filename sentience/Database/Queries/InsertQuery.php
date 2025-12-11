@@ -179,10 +179,10 @@ class InsertQuery extends Query
 
     public function emulateOnConflict(string $lastInsertId, bool $inTransaction = false): static
     {
-        $this->lastInsertId = $lastInsertId;
-
         $this->emulateOnConflict = true;
         $this->emulateOnConflictInTransaction = $inTransaction;
+
+        $this->lastInsertId = $lastInsertId;
 
         return $this;
     }
