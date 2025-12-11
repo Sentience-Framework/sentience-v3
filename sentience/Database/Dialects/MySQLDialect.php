@@ -106,11 +106,13 @@ class MySQLDialect extends SQLDialect
             implode(
                 ', ',
                 array_map(
-                    function (null|bool|int|float|string|DateTimeInterface|Identifier|SelectQuery|Raw $value, string $key) use (&$params): string {
+                    function (null|bool|int|float|string|DateTimeInterface|Identifier|Raw|SelectQuery $value, string $key) use (&$params): string {
                         return sprintf(
                             '%s = %s',
                             $this->escapeIdentifier($key),
-                            $this->buildQuestionMarks($params, $value)
+                            $value instanceof SelectQuery
+                            ? $this->buildSelectQuery($params, $value)
+                            : $this->buildQuestionMarks($params, $value)
                         );
                     },
                     $updates,

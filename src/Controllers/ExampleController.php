@@ -253,7 +253,7 @@ class ExampleController extends Controller
 
             $db->insertModels($insertedModels)
                 ->onDuplicateUpdate()
-                // ->emulateUpsert()
+                // ->emulateUpsert(false)
                 ->execute($emulatePrepare);
 
             array_push($models, ...$insertedModels);

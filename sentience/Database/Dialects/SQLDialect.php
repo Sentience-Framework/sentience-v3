@@ -128,8 +128,10 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    function (null|bool|int|float|string|DateTimeInterface|Identifier|SelectQuery|Raw $value) use (&$params): string {
-                        return $this->buildQuestionMarks($params, $value);
+                    function (null|bool|int|float|string|DateTimeInterface|Identifier|Raw|SelectQuery $value) use (&$params): string {
+                        return $value instanceof SelectQuery
+                            ? $this->buildSelectQuery($params, $value)
+                            : $this->buildQuestionMarks($params, $value);
                     },
                     $values
                 )
@@ -161,11 +163,13 @@ class SQLDialect extends DialectAbstract
         $query .= implode(
             ', ',
             array_map(
-                function (null|bool|int|float|string|DateTimeInterface|Identifier|SelectQuery|Raw $value, string $key) use (&$params): string {
+                function (null|bool|int|float|string|DateTimeInterface|Identifier|Raw|SelectQuery $value, string $key) use (&$params): string {
                     return sprintf(
                         '%s = %s',
                         $this->escapeIdentifier($key),
-                        $this->buildQuestionMarks($params, $value)
+                        $value instanceof SelectQuery
+                        ? $this->buildSelectQuery($params, $value)
+                        : $this->buildQuestionMarks($params, $value)
                     );
                 },
                 $values,
@@ -373,13 +377,9 @@ class SQLDialect extends DialectAbstract
         );
     }
 
-    protected function buildTable(string &$query, &$params, string|array|Alias|Raw|SelectQuery $table): void
+    protected function buildTable(string &$query, &$params, string|array|Alias|Raw $table): void
     {
         $query .= ' ';
-
-        if ($table instanceof SelectQuery) {
-            throw new QueryException('table select query requires an alias');
-        }
 
         if ($table instanceof Alias) {
             if ($table->identifier instanceof SelectQuery) {
@@ -705,11 +705,13 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    function (null|bool|int|float|string|DateTimeInterface|Identifier|SelectQuery|Raw $value, string $key) use (&$params): string {
+                    function (null|bool|int|float|string|DateTimeInterface|Identifier|Raw|SelectQuery $value, string $key) use (&$params): string {
                         return sprintf(
                             '%s = %s',
                             $this->escapeIdentifier($key),
-                            $this->buildQuestionMarks($params, $value)
+                            $value instanceof SelectQuery
+                            ? $this->buildSelectQuery($params, $value)
+                            : $this->buildQuestionMarks($params, $value)
                         );
                     },
                     $updates,
@@ -742,7 +744,7 @@ class SQLDialect extends DialectAbstract
         $query .= ' RETURNING ' . $columns;
     }
 
-    protected function buildQuestionMarks(array &$params, null|bool|int|float|string|array|DateTimeInterface|Identifier|SelectQuery|Raw $value, bool $parentheses = true, string $separator = ', '): string
+    protected function buildQuestionMarks(array &$params, null|bool|int|float|string|array|DateTimeInterface|Identifier|Raw $value, bool $parentheses = true, string $separator = ', '): string
     {
         if ($value instanceof Identifier) {
             return $this->escapeIdentifier($value->identifier);
@@ -758,8 +760,10 @@ class SQLDialect extends DialectAbstract
                 implode(
                     $separator,
                     array_map(
-                        function (null|bool|int|float|string|DateTimeInterface|Identifier|SelectQuery|Raw $value) use (&$params): string {
-                            return $this->buildQuestionMarks($params, $value);
+                        function (null|bool|int|float|string|DateTimeInterface|Identifier|Raw|SelectQuery $value) use (&$params): string {
+                            return $value instanceof SelectQuery
+                                ? $this->buildSelectQuery($params, $value)
+                                : $this->buildQuestionMarks($params, $value);
                         },
                         $value
                     )
@@ -973,7 +977,7 @@ class SQLDialect extends DialectAbstract
         return $char . $escapedString . $char;
     }
 
-    public function castToDriver(null|bool|int|float|string|DateTimeInterface|Identifier|SelectQuery|Raw $value): null|bool|int|float|string
+    public function castToDriver(null|bool|int|float|string|DateTimeInterface $value): null|bool|int|float|string
     {
         if (is_bool($value)) {
             return $this->castBool($value);

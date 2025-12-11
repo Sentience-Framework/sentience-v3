@@ -21,6 +21,7 @@ class InsertQuery extends Query
     use ValuesTrait;
 
     protected bool $emulateOnConflict = false;
+    protected bool $emulateOnConflictInTransaction = false;
 
     public function toQueryWithParams(): QueryWithParams
     {
@@ -44,6 +45,13 @@ class InsertQuery extends Query
             return $this->insert($emulatePrepare);
         }
 
+        return $this->emulateOnConflictInTransaction
+            ? $this->database->transactionInCallback(fn (): ResultInterface => $this->upsert($emulatePrepare))
+            : $this->upsert($emulatePrepare);
+    }
+
+    protected function upsert(bool $emulatePrepare): ResultInterface
+    {
         if (is_string($this->onConflict->conflict)) {
             throw new QueryException('database does not support named constraints');
         }
@@ -124,16 +132,6 @@ class InsertQuery extends Query
         );
     }
 
-    protected function ignore(ResultInterface $result, array $rows): ResultInterface
-    {
-        $returning = !is_null($this->returning);
-
-        return new Result(
-            $returning ? $result->columns() : [],
-            $returning ? $rows : []
-        );
-    }
-
     protected function update(array $conflict, bool $emulatePrepare): ResultInterface
     {
         $updateQuery = $this->database->update($this->table);
@@ -169,10 +167,22 @@ class InsertQuery extends Query
         );
     }
 
-    public function emulateOnConflict(string $lastInsertId): static
+    protected function ignore(ResultInterface $result, array $rows): ResultInterface
     {
-        $this->emulateOnConflict = true;
+        $returning = !is_null($this->returning);
+
+        return new Result(
+            $returning ? $result->columns() : [],
+            $returning ? $rows : []
+        );
+    }
+
+    public function emulateOnConflict(string $lastInsertId, bool $inTransaction = false): static
+    {
         $this->lastInsertId = $lastInsertId;
+
+        $this->emulateOnConflict = true;
+        $this->emulateOnConflictInTransaction = $inTransaction;
 
         return $this;
     }
