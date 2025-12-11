@@ -12,7 +12,7 @@ use Sentience\Database\Exceptions\AdapterException;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Results\PDOResult;
 use Sentience\Database\Sockets\NetworkSocket;
-use Sentience\Database\Sockets\SocketInterface;
+use Sentience\Database\Sockets\SocketAbstract;
 
 class PDOAdapter extends AdapterAbstract
 {
@@ -21,7 +21,7 @@ class PDOAdapter extends AdapterAbstract
     public function __construct(
         Driver $driver,
         string $name,
-        ?SocketInterface $socket,
+        ?SocketAbstract $socket,
         array $queries,
         array $options,
         ?Closure $debug
@@ -44,8 +44,8 @@ class PDOAdapter extends AdapterAbstract
 
         $this->pdo = new PDO(
             $dsn,
-            $socket?->username(),
-            $socket?->password(),
+            $socket?->username,
+            $socket?->password,
             [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_PERSISTENT => $options[static::OPTIONS_PERSISTENT] ?? false,
@@ -74,7 +74,7 @@ class PDOAdapter extends AdapterAbstract
     protected function dsn(
         Driver $driver,
         string $name,
-        ?SocketInterface $socket,
+        ?SocketAbstract $socket,
         array $options
     ): string {
         if (array_key_exists(static::OPTIONS_PDO_DSN, $options)) {
@@ -99,23 +99,67 @@ class PDOAdapter extends AdapterAbstract
             $name
         );
 
-        $dsn .= $socket instanceof NetworkSocket
-            ? sprintf(
-                ';host=%s;port=%d',
-                ...$socket->address()
-            )
-            : sprintf(
-                ';unix_socket=%s',
-                $socket->address()
-            );
-
-        if ($driver == Driver::PGSQL) {
-            if (array_key_exists(static::OPTIONS_PGSQL_CLIENT_ENCODING, $options)) {
-                $dsn .= sprintf(
-                    ";options='--client_encoding=%s'",
-                    (string) $options[static::OPTIONS_PGSQL_CLIENT_ENCODING]
+        if (in_array($driver, [Driver::MARIADB, Driver::MYSQL])) {
+            $dsn .= $socket instanceof NetworkSocket
+                ? sprintf(
+                    ';host=%s;port=%d',
+                    $socket->host,
+                    $socket->port
+                )
+                : sprintf(
+                    ';unix_socket=%s',
+                    $socket->host
                 );
-            }
+
+            return $dsn;
+        }
+
+        $dsn .= sprintf(
+            ';host=%s;port=%d',
+            $socket->host,
+            (int) $socket->port
+        );
+
+        if (array_key_exists(static::OPTIONS_PGSQL_SSL_MODE, $options)) {
+            $dsn .= sprintf(
+                ";sslmode=%s'",
+                (string) $options[static::OPTIONS_PGSQL_SSL_MODE]
+            );
+        }
+
+        if (array_key_exists(static::OPTIONS_PGSQL_SSL_CERT, $options)) {
+            $dsn .= sprintf(
+                ";sslcert=%s'",
+                (string) $options[static::OPTIONS_PGSQL_SSL_CERT]
+            );
+        }
+
+        if (array_key_exists(static::OPTIONS_PGSQL_SSL_KEY, $options)) {
+            $dsn .= sprintf(
+                ";sslkey=%s'",
+                (string) $options[static::OPTIONS_PGSQL_SSL_KEY]
+            );
+        }
+
+        if (array_key_exists(static::OPTIONS_PGSQL_SSL_ROOT_CERT, $options)) {
+            $dsn .= sprintf(
+                ";sslrootcert=%s'",
+                (string) $options[static::OPTIONS_PGSQL_SSL_ROOT_CERT]
+            );
+        }
+
+        if (array_key_exists(static::OPTIONS_PGSQL_SSL_CRL, $options)) {
+            $dsn .= sprintf(
+                ";sslcrl=%s'",
+                (string) $options[static::OPTIONS_PGSQL_SSL_CRL]
+            );
+        }
+
+        if (array_key_exists(static::OPTIONS_PGSQL_CLIENT_ENCODING, $options)) {
+            $dsn .= sprintf(
+                ";options='--client_encoding=%s'",
+                (string) $options[static::OPTIONS_PGSQL_CLIENT_ENCODING]
+            );
         }
 
         return $dsn;

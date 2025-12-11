@@ -7,7 +7,7 @@ use Throwable;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
 use Sentience\Database\Queries\Query;
-use Sentience\Database\Sockets\SocketInterface;
+use Sentience\Database\Sockets\SocketAbstract;
 
 abstract class AdapterAbstract implements AdapterInterface
 {
@@ -18,7 +18,7 @@ abstract class AdapterAbstract implements AdapterInterface
     public function __construct(
         protected Driver $driver,
         protected string $name,
-        protected ?SocketInterface $socket,
+        protected ?SocketAbstract $socket,
         protected array $queries,
         protected array $options,
         protected ?Closure $debug

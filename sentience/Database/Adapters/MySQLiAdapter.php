@@ -11,7 +11,7 @@ use Sentience\Database\Exceptions\AdapterException;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Results\MySQLiResult;
 use Sentience\Database\Sockets\NetworkSocket;
-use Sentience\Database\Sockets\SocketInterface;
+use Sentience\Database\Sockets\SocketAbstract;
 
 class MySQLiAdapter extends AdapterAbstract
 {
@@ -25,7 +25,7 @@ class MySQLiAdapter extends AdapterAbstract
     public function __construct(
         Driver $driver,
         string $name,
-        ?SocketInterface $socket,
+        ?SocketAbstract $socket,
         array $queries,
         array $options,
         ?Closure $debug
@@ -45,23 +45,19 @@ class MySQLiAdapter extends AdapterAbstract
 
         $isNetworkSocket = $socket instanceof NetworkSocket;
 
-        if ($isNetworkSocket) {
-            [$host, $port] = $socket->address();
-        }
-
         $hostname = $isNetworkSocket
-            ? ($options[static::OPTIONS_PERSISTENT] ?? false) ? sprintf('p:%s', $host) : $host
+            ? ($options[static::OPTIONS_PERSISTENT] ?? false) ? sprintf('p:%s', $socket->host) : $socket->host
             : null;
 
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
         $this->mysqli = new mysqli(
             $hostname,
-            $socket->username(),
-            $socket->password(),
+            $socket->username,
+            $socket->password,
             $name,
-            $isNetworkSocket ? $port : null,
-            !$isNetworkSocket ? $socket->address() : null
+            $isNetworkSocket ? $socket->port : null,
+            !$isNetworkSocket ? $socket->host : null
         );
 
         if (array_key_exists(static::OPTIONS_MYSQL_CHARSET, $options)) {
