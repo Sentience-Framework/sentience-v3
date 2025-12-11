@@ -62,7 +62,7 @@ class InsertModelsQuery extends ModelsQueryAbstract
 
                 $updateValues = array_filter(
                     $values,
-                    fn(string $column): bool => !in_array(
+                    fn (string $column): bool => !in_array(
                         $column,
                         $this->onDuplicateUpdateExcludeColumns
                     ),
