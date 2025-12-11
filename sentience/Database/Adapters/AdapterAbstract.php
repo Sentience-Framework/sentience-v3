@@ -122,9 +122,9 @@ abstract class AdapterAbstract implements AdapterInterface
         try {
             $this->exec($dialect->commitTransaction($name)->toSql($dialect));
         } catch (Throwable $exception) {
-            $this->inTransaction = false;
-
             throw $exception;
+        } finally {
+            $this->inTransaction = false;
         }
     }
 
@@ -137,9 +137,9 @@ abstract class AdapterAbstract implements AdapterInterface
         try {
             $this->exec($dialect->rollbackTransaction($name)->toSql($dialect));
         } catch (Throwable $exception) {
-            $this->inTransaction = false;
-
             throw $exception;
+        } finally {
+            $this->inTransaction = false;
         }
     }
 
