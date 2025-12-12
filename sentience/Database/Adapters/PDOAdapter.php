@@ -93,76 +93,67 @@ class PDOAdapter extends AdapterAbstract
             throw new AdapterException('this driver requires a socket');
         }
 
-        $dsn = sprintf(
-            '%s:dbname=%s',
+        $build = fn (array $dsn): string => sprintf(
+            '%s:%s',
             $driver == Driver::MARIADB ? Driver::MYSQL->value : $driver->value,
-            $name
+            implode(
+                ';',
+                array_map(
+                    fn (null|int|float|string $value, string $key): string => sprintf(
+                        '%s=%s',
+                        $key,
+                        (string) $value
+                    ),
+                    $dsn,
+                    array_keys($dsn)
+                )
+            )
         );
+
+        $dsn = ['dbname' => $name];
 
         if (in_array($driver, [Driver::MARIADB, Driver::MYSQL])) {
-            $dsn .= $socket instanceof NetworkSocket
-                ? sprintf(
-                    ';host=%s;port=%d',
-                    $socket->host,
-                    $socket->port
-                )
-                : sprintf(
-                    ';unix_socket=%s',
-                    $socket->host
-                );
+            array_push(
+                $dsn,
+                ...$socket instanceof NetworkSocket
+                ? ['host' => $socket->host, 'port' => $socket->port]
+                : ['unix_socket' => $socket->host]
+            );
 
-            return $dsn;
+            return $build($dsn);
         }
 
-        $dsn .= sprintf(
-            ';host=%s;port=%d',
-            $socket->host,
-            (int) $socket->port
-        );
+        $dsn['host'] = $socket->host;
+        $dsn['port'] = (int) $socket->port;
 
         if (array_key_exists(static::OPTIONS_PGSQL_SSL_MODE, $options)) {
-            $dsn .= sprintf(
-                ";sslmode=%s'",
-                (string) $options[static::OPTIONS_PGSQL_SSL_MODE]
-            );
+            $dsn['sslmode'] = (string) $options[static::OPTIONS_PGSQL_SSL_MODE];
         }
 
         if (array_key_exists(static::OPTIONS_PGSQL_SSL_CERT, $options)) {
-            $dsn .= sprintf(
-                ";sslcert=%s'",
-                (string) $options[static::OPTIONS_PGSQL_SSL_CERT]
-            );
+            $dsn['sslcert'] = (string) $options[static::OPTIONS_PGSQL_SSL_CERT];
         }
 
         if (array_key_exists(static::OPTIONS_PGSQL_SSL_KEY, $options)) {
-            $dsn .= sprintf(
-                ";sslkey=%s'",
-                (string) $options[static::OPTIONS_PGSQL_SSL_KEY]
-            );
+            $dsn['sslkey'] = (string) $options[static::OPTIONS_PGSQL_SSL_KEY];
         }
 
         if (array_key_exists(static::OPTIONS_PGSQL_SSL_ROOT_CERT, $options)) {
-            $dsn .= sprintf(
-                ";sslrootcert=%s'",
-                (string) $options[static::OPTIONS_PGSQL_SSL_ROOT_CERT]
-            );
+            $dsn['sslrootcert'] = (string) $options[static::OPTIONS_PGSQL_SSL_ROOT_CERT];
         }
 
         if (array_key_exists(static::OPTIONS_PGSQL_SSL_CRL, $options)) {
-            $dsn .= sprintf(
-                ";sslcrl=%s'",
-                (string) $options[static::OPTIONS_PGSQL_SSL_CRL]
-            );
+            $dsn['sslcrl'] = (string) $options[static::OPTIONS_PGSQL_SSL_CRL];
         }
 
         if (array_key_exists(static::OPTIONS_PGSQL_CLIENT_ENCODING, $options)) {
-            $dsn .= sprintf(
-                ";options='--client_encoding=%s'",
+            $dsn['options'] = sprintf(
+                "'--client_encoding=%s'",
                 (string) $options[static::OPTIONS_PGSQL_CLIENT_ENCODING]
             );
         }
 
-        return $dsn;
+        return $build($dsn);
     }
 
     protected function configurePDOForMySQL(array $options): void
