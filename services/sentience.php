@@ -26,7 +26,7 @@ return new class () {
 
         $socket = !$unixSocket
             ? new NetworkSocket($host, $port, $username, $password)
-            : new UnixSocket($unixSocket, $username, $password);
+            : new UnixSocket($unixSocket, $port, $username, $password);
 
         $db = DB::connect(
             Driver::from($driver),
