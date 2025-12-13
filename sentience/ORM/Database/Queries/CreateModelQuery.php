@@ -52,7 +52,7 @@ class CreateModelQuery extends ModelsQueryAbstract
             $defaultValue = $this->getValueIfBackedEnum($propertyDefaultValue);
 
             if ($reflectionModelProperty->isAutoIncrement()) {
-                $query->identity($column, 32);
+                $query->identity($column, 64);
 
                 continue;
             }
