@@ -196,12 +196,12 @@ trait WhereTrait
         return $this->notContains($column, $value, $escapeBackslash, ChainEnum::OR);
     }
 
-    public function orWhereIn(string|array $column, array|Identifier|SelectQuery $values): static
+    public function orWhereIn(string|array $column, array|SelectQuery $values): static
     {
         return $this->in($column, $values, ChainEnum::OR);
     }
 
-    public function orWhereNotIn(string|array $column, array|Identifier|SelectQuery $values): static
+    public function orWhereNotIn(string|array $column, array|SelectQuery $values): static
     {
         return $this->notIn($column, $values, ChainEnum::OR);
     }
