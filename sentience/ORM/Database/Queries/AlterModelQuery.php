@@ -81,7 +81,7 @@ class AlterModelQuery extends ModelsQueryAbstract
             $defaultValue = $this->getValueIfBackedEnum($propertyDefaultValue);
 
             if ($reflectionModelProperty->isAutoIncrement()) {
-                $query->addIdentity($column, 32);
+                $query->addIdentity($column);
 
                 continue;
             }

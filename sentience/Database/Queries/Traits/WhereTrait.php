@@ -16,12 +16,12 @@ trait WhereTrait
 {
     protected array $where = [];
 
-    public function whereEquals(string|array $column, null|int|float|string|DateTimeInterface|Identifier|SelectQuery $value): static
+    public function whereEquals(string|array $column, null|bool|int|float|string|DateTimeInterface|Identifier|SelectQuery $value): static
     {
         return $this->equals($column, $value, ChainEnum::AND);
     }
 
-    public function whereNotEquals(string|array $column, null|int|float|string|DateTimeInterface|Identifier|SelectQuery $value): static
+    public function whereNotEquals(string|array $column, null|bool|int|float|string|DateTimeInterface|Identifier|SelectQuery $value): static
     {
         return $this->notEquals($column, $value, ChainEnum::AND);
     }
@@ -36,12 +36,12 @@ trait WhereTrait
         return $this->isNotNull($column, ChainEnum::AND);
     }
 
-    public function whereLike(string|array $column, string|Identifier|SelectQuery $value): static
+    public function whereLike(string|array $column, string $value): static
     {
         return $this->like($column, $value, ChainEnum::AND);
     }
 
-    public function whereNotLike(string|array $column, string|Identifier|SelectQuery $value): static
+    public function whereNotLike(string|array $column, string $value): static
     {
         return $this->notLike($column, $value, ChainEnum::AND);
     }
@@ -146,12 +146,12 @@ trait WhereTrait
         return $this->addRawCondition($sql, $values, ChainEnum::AND);
     }
 
-    public function orWhereEquals(string|array $column, null|int|float|string|DateTimeInterface|Identifier|SelectQuery $value): static
+    public function orWhereEquals(string|array $column, null|bool|int|float|string|DateTimeInterface|Identifier|SelectQuery $value): static
     {
         return $this->equals($column, $value, ChainEnum::OR);
     }
 
-    public function orWhereNotEquals(string|array $column, null|int|float|string|DateTimeInterface|Identifier|SelectQuery $value): static
+    public function orWhereNotEquals(string|array $column, null|bool|int|float|string|DateTimeInterface|Identifier|SelectQuery $value): static
     {
         return $this->notEquals($column, $value, ChainEnum::OR);
     }
@@ -166,12 +166,12 @@ trait WhereTrait
         return $this->isNotNull($column, ChainEnum::OR);
     }
 
-    public function orWhereLike(string|array $column, string|Identifier|SelectQuery $value): static
+    public function orWhereLike(string|array $column, string $value): static
     {
         return $this->like($column, $value, ChainEnum::OR);
     }
 
-    public function orWhereNotLike(string|array $column, string|Identifier|SelectQuery $value): static
+    public function orWhereNotLike(string|array $column, string $value): static
     {
         return $this->notLike($column, $value, ChainEnum::OR);
     }
@@ -276,12 +276,12 @@ trait WhereTrait
         return $this->addRawCondition($sql, $values, ChainEnum::OR);
     }
 
-    protected function equals(string|array $column, null|int|float|string|DateTimeInterface|Identifier|SelectQuery $value, ChainEnum $chain): static
+    protected function equals(string|array $column, null|bool|int|float|string|DateTimeInterface|Identifier|SelectQuery $value, ChainEnum $chain): static
     {
         return $this->addCondition(ConditionEnum::EQUALS, $column, $value, $chain);
     }
 
-    protected function notEquals(string|array $column, null|int|float|string|DateTimeInterface|Identifier|SelectQuery $value, ChainEnum $chain): static
+    protected function notEquals(string|array $column, null|bool|int|float|string|DateTimeInterface|Identifier|SelectQuery $value, ChainEnum $chain): static
     {
         return $this->addCondition(ConditionEnum::NOT_EQUALS, $column, $value, $chain);
     }
@@ -296,12 +296,12 @@ trait WhereTrait
         return $this->addCondition(ConditionEnum::NOT_EQUALS, $column, null, $chain);
     }
 
-    protected function like(string|array $column, string|Identifier|SelectQuery $value, ChainEnum $chain): static
+    protected function like(string|array $column, string $value, ChainEnum $chain): static
     {
         return $this->addCondition(ConditionEnum::LIKE, $column, $value, $chain);
     }
 
-    protected function notLike(string|array $column, string|Identifier|SelectQuery $value, ChainEnum $chain): static
+    protected function notLike(string|array $column, string $value, ChainEnum $chain): static
     {
         return $this->addCondition(ConditionEnum::NOT_LIKE, $column, $value, $chain);
     }

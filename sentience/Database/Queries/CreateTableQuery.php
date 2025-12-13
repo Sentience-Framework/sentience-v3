@@ -48,7 +48,7 @@ class CreateTableQuery extends Query
         return $this;
     }
 
-    public function identity(string $name, int $bits = 32): static
+    public function identity(string $name, int $bits = 64): static
     {
         return $this->int($name, $bits, true, null, true);
     }
