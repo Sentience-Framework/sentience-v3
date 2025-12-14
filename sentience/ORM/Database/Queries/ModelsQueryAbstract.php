@@ -8,8 +8,10 @@ use DateTimeImmutable;
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Exceptions\QueryException;
+use Sentience\ORM\Models\Attributes\Table\UniqueConstraint;
 use Sentience\ORM\Models\Model;
 use Sentience\ORM\Models\Reflection\ReflectionModel;
+use Sentience\ORM\Models\Reflection\ReflectionModelProperty;
 use Sentience\Timestamp\Timestamp;
 
 abstract class ModelsQueryAbstract implements ModelsQueryInterface
@@ -81,5 +83,14 @@ abstract class ModelsQueryAbstract implements ModelsQueryInterface
         }
 
         return $value;
+    }
+
+    protected function getTextSizeForColumn(ReflectionModelProperty $reflectionModelProperty): int
+    {
+        if ($reflectionModelProperty->isUnique() || $reflectionModelProperty->isPrimaryKey()) {
+            return 255;
+        }
+
+        return PHP_INT_MAX;
     }
 }

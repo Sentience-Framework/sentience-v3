@@ -61,7 +61,12 @@ class CreateModelQuery extends ModelsQueryAbstract
                 'bool' => $query->bool($column, !$propertyAllowsNull, $defaultValue),
                 'int' => $query->int($column, 64, !$propertyAllowsNull, $defaultValue),
                 'float' => $query->float($column, 64, !$propertyAllowsNull, $defaultValue),
-                'string' => $query->string($column, 255, !$propertyAllowsNull, $defaultValue),
+                'string' => $query->string(
+                    $column,
+                    $this->getTextSizeForColumn($reflectionModelProperty),
+                    !$propertyAllowsNull,
+                    $defaultValue
+                ),
                 DateTime::class,
                 DateTimeImmutable::class,
                 Timestamp::class => $query->dateTime($column, 6, !$propertyAllowsNull, $defaultValue)

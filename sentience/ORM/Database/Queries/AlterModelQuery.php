@@ -90,7 +90,12 @@ class AlterModelQuery extends ModelsQueryAbstract
                 'bool' => $query->addBool($column, !$propertyAllowsNull, $defaultValue),
                 'int' => $query->addInt($column, 64, !$propertyAllowsNull, $defaultValue),
                 'float' => $query->addFloat($column, 64, !$propertyAllowsNull, $defaultValue),
-                'string' => $query->addString($column, 255, !$propertyAllowsNull, $defaultValue),
+                'string' => $query->addString(
+                    $column,
+                    $this->getTextSizeForColumn($reflectionModelProperty),
+                    !$propertyAllowsNull,
+                    $defaultValue
+                ),
                 DateTime::class,
                 DateTimeImmutable::class,
                 Timestamp::class => $query->addDateTime($column, 6, !$propertyAllowsNull, $defaultValue)
