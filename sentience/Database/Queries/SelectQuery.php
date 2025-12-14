@@ -2,10 +2,6 @@
 
 namespace Sentience\Database\Queries;
 
-use Sentience\Database\Database;
-use Sentience\Database\Dialects\DialectInterface;
-use Sentience\Database\Exceptions\QueryException;
-use Sentience\Database\Queries\Objects\Alias;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Database\Queries\Traits\ColumnsTrait;
@@ -30,15 +26,6 @@ class SelectQuery extends Query
     use OffsetTrait;
     use OrderByTrait;
     use WhereTrait;
-
-    public function __construct(Database $database, DialectInterface $dialect, string|array|Alias|Raw|SelectQuery $table)
-    {
-        if ($table instanceof SelectQuery) {
-            throw new QueryException('table select query requires an alias');
-        }
-
-        parent::__construct($database, $dialect, $table);
-    }
 
     public function toQueryWithParams(): QueryWithParams
     {
