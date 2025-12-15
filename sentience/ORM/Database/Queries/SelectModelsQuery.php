@@ -13,7 +13,7 @@ use Sentience\Database\Queries\Traits\LimitTrait;
 use Sentience\Database\Queries\Traits\OffsetTrait;
 use Sentience\Database\Queries\Traits\OrderByTrait;
 use Sentience\Database\Queries\Traits\WhereTrait;
-use Sentience\ORM\Database\Objects\ConditionGroup;
+use Sentience\ORM\Database\Queries\Objects\ConditionGroup;
 use Sentience\ORM\Database\Queries\Traits\RelationsTrait;
 use Sentience\ORM\Models\Attributes\Relations\HasMany;
 use Sentience\ORM\Models\Reflection\ReflectionModel;
@@ -62,8 +62,8 @@ class SelectModelsQuery extends ModelsQueryAbstract
         }
 
         $selectQuery->whereGroup(
-            fn (): ConditionGroup => new ConditionGroup(
-                ChainEnum::AND,
+            fn(): ConditionGroup => new ConditionGroup(
+                ChainEnum::AND ,
                 $this->where
             )
         );
@@ -85,7 +85,7 @@ class SelectModelsQuery extends ModelsQueryAbstract
         $result = $selectQuery->execute($emulatePrepare);
 
         return array_map(
-            fn (array $row): object => $this->mapAssocToModel($model, $row),
+            fn(array $row): object => $this->mapAssocToModel($model, $row),
             $result->fetchAssocs()
         );
     }
@@ -126,7 +126,7 @@ class SelectModelsQuery extends ModelsQueryAbstract
             $selectQuery->distinct();
         }
 
-        $selectQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(ChainEnum::AND, $this->where));
+        $selectQuery->whereGroup(fn(): ConditionGroup => new ConditionGroup(ChainEnum::AND , $this->where));
 
         foreach ($this->orderBy as $orderBy) {
             $orderBy->direction == OrderByDirectionEnum::ASC
@@ -149,7 +149,7 @@ class SelectModelsQuery extends ModelsQueryAbstract
         $result = $selectQuery->execute($emulatePrepare);
 
         return array_map(
-            fn (array $row): object => $this->mapAssocToModel($model, $row),
+            fn(array $row): object => $this->mapAssocToModel($model, $row),
             $result->fetchAssocs()
         );
     }

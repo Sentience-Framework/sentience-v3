@@ -12,6 +12,7 @@ class InsertModelsQuery extends ModelsQueryAbstract
     protected array $onDuplicateUpdateExcludeColumns = [];
     protected bool $emulateUpsert = false;
     protected bool $emulateUpsertInTransaction = false;
+    protected bool $emulateReturning = false;
 
     public function __construct(Database $database, DialectInterface $dialect, array $models)
     {
@@ -62,7 +63,7 @@ class InsertModelsQuery extends ModelsQueryAbstract
 
                 $updateValues = array_filter(
                     $values,
-                    fn (string $column): bool => !in_array(
+                    fn(string $column): bool => !in_array(
                         $column,
                         $this->onDuplicateUpdateExcludeColumns
                     ),
@@ -126,10 +127,11 @@ class InsertModelsQuery extends ModelsQueryAbstract
         return $this;
     }
 
-    public function emulateUpsert(bool $inTransaction): static
+    public function emulateUpsert(bool $inTransaction, bool $emulateReturning = true): static
     {
         $this->emulateUpsert = true;
         $this->emulateUpsertInTransaction = $inTransaction;
+        $this->emulateReturning = $emulateReturning;
 
         return $this;
     }

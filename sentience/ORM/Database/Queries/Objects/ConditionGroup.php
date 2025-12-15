@@ -1,6 +1,6 @@
 <?php
 
-namespace Sentience\ORM\Database\Objects;
+namespace Sentience\ORM\Database\Queries\Objects;
 
 use Sentience\Database\Queries\Enums\ChainEnum;
 
