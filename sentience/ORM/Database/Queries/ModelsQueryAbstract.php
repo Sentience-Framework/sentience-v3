@@ -8,7 +8,6 @@ use DateTimeImmutable;
 use Sentience\Database\Database;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Exceptions\QueryException;
-use Sentience\ORM\Models\Attributes\Table\UniqueConstraint;
 use Sentience\ORM\Models\Model;
 use Sentience\ORM\Models\Reflection\ReflectionModel;
 use Sentience\ORM\Models\Reflection\ReflectionModelProperty;

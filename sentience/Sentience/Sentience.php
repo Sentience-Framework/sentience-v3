@@ -355,7 +355,9 @@ class Sentience
 
         Log::stderrBetweenEqualSigns('Exception', $lines);
 
-        exit;
+        $exitCode = (int) $exception->getCode();
+
+        exit($exitCode > 0 ? $exitCode : 1);
     }
 
     protected function handleExceptionHttp(Throwable $exception): void
