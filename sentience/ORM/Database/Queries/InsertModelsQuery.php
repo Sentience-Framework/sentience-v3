@@ -41,6 +41,10 @@ class InsertModelsQuery extends ModelsQueryAbstract
                     $this->emulateUpsert
                         ? $insertQuery->emulateOnConflict($column, $this->emulateUpsertInTransaction)
                         : $insertQuery->lastInsertId($column);
+
+                    if ($this->emulateReturning) {
+                        $insertQuery->emulateReturning($column);
+                    }
                 }
 
                 if (!$reflectionModelProperty->isInitialized($model)) {
@@ -63,7 +67,7 @@ class InsertModelsQuery extends ModelsQueryAbstract
 
                 $updateValues = array_filter(
                     $values,
-                    fn(string $column): bool => !in_array(
+                    fn (string $column): bool => !in_array(
                         $column,
                         $this->onDuplicateUpdateExcludeColumns
                     ),

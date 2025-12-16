@@ -83,6 +83,16 @@ class Database
     ) {
     }
 
+    public function adapter(): AdapterInterface
+    {
+        return $this->adapter;
+    }
+
+    public function dialect(): DialectInterface
+    {
+        return $this->dialect;
+    }
+
     public function exec(string $query): void
     {
         $this->adapter->exec($query);
