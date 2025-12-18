@@ -128,6 +128,7 @@ class ExampleController extends Controller
             ->whereRegex('column6', 'file|read|write|open')
             ->whereNotRegex('column6', 'error')
             ->whereContains('column7', 'draft')
+            ->whereOperator('columnOperator', '@>', ['1', '2'])
             ->groupBy([
                 ['table', 'column'],
                 'column2',

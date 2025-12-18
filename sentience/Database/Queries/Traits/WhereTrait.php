@@ -2,12 +2,14 @@
 
 namespace Sentience\Database\Queries\Traits;
 
+use BackedEnum;
 use DateTimeInterface;
 use Sentience\Database\Queries\Enums\ChainEnum;
 use Sentience\Database\Queries\Enums\ConditionEnum;
 use Sentience\Database\Queries\Objects\Condition;
 use Sentience\Database\Queries\Objects\ConditionGroup;
 use Sentience\Database\Queries\Objects\Identifier;
+use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Database\Queries\Objects\RawCondition;
 use Sentience\Database\Queries\Query;
 use Sentience\Database\Queries\SelectQuery;
@@ -141,6 +143,11 @@ trait WhereTrait
         return $this->group($callback, ChainEnum::AND);
     }
 
+    public function whereOperator(string|array $column, string|BackedEnum $operator, null|bool|int|float|string|array|DateTimeInterface|Identifier|Raw|SelectQuery $value): static
+    {
+        return $this->operator($column, $operator, $value, ChainEnum::AND);
+    }
+
     public function where(string $sql, array $values = []): static
     {
         return $this->addRawCondition($sql, $values, ChainEnum::AND);
@@ -269,6 +276,11 @@ trait WhereTrait
     public function orWhereGroup(callable $callback): static
     {
         return $this->group($callback, ChainEnum::OR);
+    }
+
+    public function orWhereOperator(string|array $column, string|BackedEnum $operator, null|bool|int|float|string|array|DateTimeInterface|Identifier|Raw|SelectQuery $value): static
+    {
+        return $this->operator($column, $operator, $value, ChainEnum::OR);
     }
 
     public function orWhere(string $sql, array $values = []): static
@@ -425,7 +437,12 @@ trait WhereTrait
         return $this->addConditionGroup($conditionGroup);
     }
 
-    protected function addCondition(ConditionEnum $condition, null|string|array $identifier, mixed $value, ChainEnum $chain): static
+    public function operator(string|array $column, string|BackedEnum $operator, null|bool|int|float|string|array|DateTimeInterface|Identifier|Raw|SelectQuery $value, ChainEnum $chain): static
+    {
+        return $this->addCondition($operator, $column, $value, $chain);
+    }
+
+    protected function addCondition(string|BackedEnum $condition, null|string|array $identifier, mixed $value, ChainEnum $chain): static
     {
         $this->where[] = new Condition($condition, $identifier, $value, $chain);
 

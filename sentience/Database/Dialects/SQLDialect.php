@@ -477,7 +477,7 @@ class SQLDialect extends DialectAbstract
 
     protected function buildConditionOperator(string &$query, array &$params, Condition $condition): void
     {
-        if (is_null($condition->value)) {
+        if (is_null($condition->value) && in_array($condition->condition, [ConditionEnum::EQUALS, ConditionEnum::NOT_EQUALS])) {
             $query .= sprintf(
                 '%s %s',
                 $this->escapeIdentifier($condition->identifier),
@@ -487,13 +487,19 @@ class SQLDialect extends DialectAbstract
             return;
         }
 
+        $operator = is_subclass_of($condition->condition, BackedEnum::class)
+            ? $condition->condition->value
+            : $condition->condition;
+
+        $value = $condition->value instanceof SelectQuery
+            ? $this->buildSelectQuery($params, $condition->value)
+            : $this->buildQuestionMarks($params, $condition->value);
+
         $query .= sprintf(
             '%s %s %s',
             $this->escapeIdentifier($condition->identifier),
-            $condition->condition->value,
-            $condition->value instanceof SelectQuery
-            ? $this->buildSelectQuery($params, $condition->value)
-            : $this->buildQuestionMarks($params, $condition->value)
+            $operator,
+            $value
         );
     }
 

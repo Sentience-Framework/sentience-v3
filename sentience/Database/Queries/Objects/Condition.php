@@ -2,15 +2,17 @@
 
 namespace Sentience\Database\Queries\Objects;
 
+use BackedEnum;
+use DateTimeInterface;
 use Sentience\Database\Queries\Enums\ChainEnum;
-use Sentience\Database\Queries\Enums\ConditionEnum;
+use Sentience\Database\Queries\SelectQuery;
 
 class Condition
 {
     public function __construct(
-        public ConditionEnum $condition,
+        public string|BackedEnum $condition,
         public null|string|array $identifier,
-        public mixed $value,
+        public null|bool|int|float|string|array|DateTimeInterface|Identifier|Raw|SelectQuery $value,
         public ChainEnum $chain
     ) {
     }
