@@ -4,7 +4,7 @@ namespace Sentience\Database\Results;
 
 class SQLite3Result extends ResultAbstract
 {
-    public const COLUMN_TYPES = [
+    public const array COLUMN_TYPES = [
         SQLITE3_NULL => 'NULL',
         SQLITE3_INTEGER => 'INTEGER',
         SQLITE3_FLOAT => 'FLOAT',

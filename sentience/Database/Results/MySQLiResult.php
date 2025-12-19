@@ -6,7 +6,7 @@ use mysqli_result;
 
 class MySQLiResult extends ResultAbstract
 {
-    public const COLUMN_TYPES = [
+    public const array COLUMN_TYPES = [
         MYSQLI_TYPE_BIT => 'BIT',
         MYSQLI_TYPE_BLOB => 'BLOB',
         MYSQLI_TYPE_CHAR => 'CHAR',
