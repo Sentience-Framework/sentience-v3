@@ -38,6 +38,7 @@ class SQLDialect extends DialectAbstract
     public const bool ESCAPE_ANSI = true;
     public const string ESCAPE_IDENTIFIER = '"';
     public const string ESCAPE_STRING = "'";
+    public const array ESCAPE_CHARS = [];
     public const bool BOOL = false;
     public const bool GENERATED_BY_DEFAULT_AS_IDENTITY = true;
     public const bool ON_CONFLICT = false;
@@ -980,9 +981,15 @@ class SQLDialect extends DialectAbstract
 
     protected function escape(string $string, string $char): string
     {
-        $escapedString = $this::ESCAPE_ANSI
-            ? Query::escapeAnsi($string, [$char])
-            : Query::escapeBackslash($string, [$char]);
+        $escapedString = strtr(
+            $string,
+            [
+                ...static::ESCAPE_CHARS,
+                $char => static::ESCAPE_ANSI
+                    ? sprintf('%s%s', $char, $char)
+                    : sprintf('\\%s', $char, $char)
+            ]
+        );
 
         return $char . $escapedString . $char;
     }

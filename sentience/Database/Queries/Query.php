@@ -52,7 +52,7 @@ abstract class Query implements QueryInterface
 
     public static function escapeAnsi(string $string, array $chars): string
     {
-        return static::escape($string, $chars, '$0$0', '/%s/');
+        return static::escape($string, $chars, '$0$0');
     }
 
     public static function escapeBackslash(string $string, array $chars): string
@@ -71,7 +71,7 @@ abstract class Query implements QueryInterface
         return static::escape($string, $chars);
     }
 
-    protected static function escape(string $string, array $chars, string $replacement = '\\\\$0', string $pattern = '/(?<!\\\\)(?:\\\\\\\\)*%s/'): string
+    protected static function escape(string $string, array $chars, string $replacement = '\\\\$0', string $pattern = '/%s/'): string
     {
         $escaped = $string;
 
