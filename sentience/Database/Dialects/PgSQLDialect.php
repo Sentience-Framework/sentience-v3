@@ -11,15 +11,15 @@ class PgSQLDialect extends SQLDialect
 {
     public const string DATETIME_FORMAT = 'Y-m-d H:i:s.u';
     public const array ESCAPE_CHARS = [
-        "\\" => "\\\\",
-        "\n" => "\\n",
-        "\r" => "\\r",
-        "\t" => "\\t",
+        '\\' => '\\\\',
+        "\n" => '\\n',
+        "\r" => '\\r',
+        "\t" => '\\t',
         "\0" => '',
-        "\b" => "\\b",
-        "\x1A" => "\\x1A",
-        "\f" => "\\f",
-        "\v" => "\\v"
+        "\b" => '\\b',
+        "\x1A" => '\\x1A',
+        "\f" => '\\f',
+        "\v" => '\\v'
     ];
     public const bool BOOL = true;
 

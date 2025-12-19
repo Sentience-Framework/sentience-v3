@@ -85,6 +85,12 @@ class ExampleController extends Controller
                 Query::alias(
                     Query::raw('column2'),
                     'col2'
+                ),
+                Query::alias(
+                    $db->select('column_select')
+                        ->columns(['id'])
+                        ->whereOperator('id', '>=', 0),
+                    'column_select'
                 )
             ])
             ->leftJoin(
@@ -129,6 +135,7 @@ class ExampleController extends Controller
             ->whereNotRegex('column6', 'error')
             ->whereContains('column7', 'draft')
             ->whereOperator('columnOperator', '@>', ['1', '2'])
+            ->whereOperator('columnOperator', '=', "'\"\r\n\0")
             ->groupBy([
                 ['table', 'column'],
                 'column2',

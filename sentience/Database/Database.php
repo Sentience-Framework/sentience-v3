@@ -24,11 +24,11 @@ class Database
     public static function connect(
         Driver $driver,
         string $name,
-        ?SocketAbstract $socket,
-        array $queries,
-        array $options,
-        ?Closure $debug,
-        bool $usePdoAdapter = false
+        ?SocketAbstract $socket = null,
+        array $queries = [],
+        array $options = [],
+        ?Closure $debug = null,
+        bool $usePDOAdapter = false
     ): static {
         $adapter = $driver->getAdapter(
             $name,
@@ -36,7 +36,7 @@ class Database
             $queries,
             $options,
             $debug,
-            $usePdoAdapter
+            $usePDOAdapter
         );
 
         $version = $adapter->version();

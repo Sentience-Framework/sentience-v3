@@ -73,7 +73,16 @@ class SQLDialect extends DialectAbstract
             ? implode(
                 ', ',
                 array_map(
-                    function (string|array|Alias|Raw $column): string {
+                    function (string|array|Alias|Raw $column) use (&$params): string {
+                        if ($column instanceof Alias && $column->identifier instanceof SelectQuery) {
+                            $column->identifier = Query::raw(
+                                $this->buildSelectQuery(
+                                    $params,
+                                    $column->identifier
+                                )
+                            );
+                        }
+
                         return $this->escapeIdentifier($column);
                     },
                     $columns
@@ -116,13 +125,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    function (string|array|Alias|Raw $column): string {
-                        if ($column instanceof Alias) {
-                            return $this->escapeIdentifier($column->identifier);
-                        }
-
-                        return $this->escapeIdentifier($column);
-                    },
+                    fn (string $column): string => $this->escapeIdentifier($column),
                     array_keys($values)
                 )
             )
@@ -386,19 +389,13 @@ class SQLDialect extends DialectAbstract
     {
         $query .= ' ';
 
-        if ($table instanceof Alias) {
-            if ($table->identifier instanceof SelectQuery) {
-                $table->identifier = Query::raw(
-                    $this->buildSelectQuery(
-                        $params,
-                        $table->identifier
-                    )
-                );
-            }
-
-            $query .= $this->escapeIdentifier($table);
-
-            return;
+        if ($table instanceof Alias && $table->identifier instanceof SelectQuery) {
+            $table->identifier = Query::raw(
+                $this->buildSelectQuery(
+                    $params,
+                    $table->identifier
+                )
+            );
         }
 
         $query .= $this->escapeIdentifier($table);

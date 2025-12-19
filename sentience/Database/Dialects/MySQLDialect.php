@@ -25,13 +25,13 @@ class MySQLDialect extends SQLDialect
     public const string ESCAPE_IDENTIFIER = '`';
     public const string ESCAPE_STRING = '"';
     public const array ESCAPE_CHARS = [
-        "\\" => "\\\\",
-        "\n" => "\\n",
-        "\r" => "\\r",
-        "\t" => "\\t",
-        "\0" => "\\0",
-        "\b" => "\\b",
-        "\x1A" => "\\Z",
+        '\\' => '\\\\',
+        "\n" => '\\n',
+        "\r" => '\\r',
+        "\t" => '\\t',
+        "\0" => '\\0',
+        "\b" => '\\b',
+        "\x1A" => '\\Z',
         "'" => "\\'"
     ];
     public const bool GENERATED_BY_DEFAULT_AS_IDENTITY = false;

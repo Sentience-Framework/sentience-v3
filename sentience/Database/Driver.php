@@ -27,9 +27,9 @@ enum Driver: string
         array $queries,
         array $options,
         ?Closure $debug,
-        bool $usePdoAdapter = false
+        bool $usePDOAdapter = false
     ): AdapterInterface {
-        $adapter = !$usePdoAdapter
+        $adapter = !$usePDOAdapter
             ? match ($this) {
                 static::MARIADB,
                 static::MYSQL => MySQLiAdapter::class,
