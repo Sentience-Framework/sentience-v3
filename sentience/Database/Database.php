@@ -87,12 +87,10 @@ class Database
             return;
         }
 
-        $name = !$name
-            ? sprintf(
-                'savepoint_%d',
-                count($this->savepoints) + 1
-            )
-            : $name;
+        $name ??= sprintf(
+            'savepoint_%d',
+            count($this->savepoints) + 1
+        );
 
         $this->savepoints[] = $name;
 
@@ -144,18 +142,18 @@ class Database
         return $this->adapter->inTransaction();
     }
 
-    public function transactionInCallback(callable $callback): mixed
+    public function transactionInCallback(callable $callback, ?string $name = null): mixed
     {
-        $this->beginTransaction();
+        $this->beginTransaction($name);
 
         try {
             $return = $callback($this);
 
-            $this->commitTransaction();
+            $this->commitTransaction(false, $name);
 
             return $return;
         } catch (Throwable $exception) {
-            $this->rollbackTransaction();
+            $this->rollbackTransaction(false, $name);
 
             throw $exception;
         }
