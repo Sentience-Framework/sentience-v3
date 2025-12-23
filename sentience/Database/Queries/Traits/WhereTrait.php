@@ -38,34 +38,34 @@ trait WhereTrait
         return $this->isNotNull($column, ChainEnum::AND);
     }
 
-    public function whereLike(string|array $column, string $value): static
+    public function whereLike(string|array $column, string $value, bool $caseInsensitive = false): static
     {
-        return $this->like($column, $value, ChainEnum::AND);
+        return $this->like($column, $value, $caseInsensitive, ChainEnum::AND);
     }
 
-    public function whereNotLike(string|array $column, string $value): static
+    public function whereNotLike(string|array $column, string $value, bool $caseInsensitive = false): static
     {
-        return $this->notLike($column, $value, ChainEnum::AND);
+        return $this->notLike($column, $value, $caseInsensitive, ChainEnum::AND);
     }
 
-    public function whereStartsWith(string|array $column, string $value, bool $escapeBackslash = false): static
+    public function whereStartsWith(string|array $column, string $value, bool $caseInsensitive = false, bool $escapeBackslash = false): static
     {
-        return $this->startsWith($column, $value, $escapeBackslash, ChainEnum::AND);
+        return $this->startsWith($column, $value, $escapeBackslash, $caseInsensitive, ChainEnum::AND);
     }
 
-    public function whereEndsWith(string|array $column, string $value, bool $escapeBackslash = false): static
+    public function whereEndsWith(string|array $column, string $value, bool $caseInsensitive = false, bool $escapeBackslash = false): static
     {
-        return $this->endsWith($column, $value, $escapeBackslash, ChainEnum::AND);
+        return $this->endsWith($column, $value, $escapeBackslash, $caseInsensitive, ChainEnum::AND);
     }
 
-    public function whereContains(string|array $column, string $value, bool $escapeBackslash = false): static
+    public function whereContains(string|array $column, string $value, bool $caseInsensitive = false, bool $escapeBackslash = false): static
     {
-        return $this->contains($column, $value, $escapeBackslash, ChainEnum::AND);
+        return $this->contains($column, $value, $escapeBackslash, $caseInsensitive, ChainEnum::AND);
     }
 
-    public function whereNotContains(string|array $column, string $value, bool $escapeBackslash = false): static
+    public function whereNotContains(string|array $column, string $value, bool $caseInsensitive = false, bool $escapeBackslash = false): static
     {
-        return $this->notContains($column, $value, $escapeBackslash, ChainEnum::AND);
+        return $this->notContains($column, $value, $escapeBackslash, $caseInsensitive, ChainEnum::AND);
     }
 
     public function whereIn(string|array $column, array|SelectQuery $values): static
@@ -173,34 +173,34 @@ trait WhereTrait
         return $this->isNotNull($column, ChainEnum::OR);
     }
 
-    public function orWhereLike(string|array $column, string $value): static
+    public function orWhereLike(string|array $column, string $value, bool $caseInsensitive = false): static
     {
-        return $this->like($column, $value, ChainEnum::OR);
+        return $this->like($column, $value, $caseInsensitive, ChainEnum::OR);
     }
 
-    public function orWhereNotLike(string|array $column, string $value): static
+    public function orWhereNotLike(string|array $column, string $value, bool $caseInsensitive = false): static
     {
-        return $this->notLike($column, $value, ChainEnum::OR);
+        return $this->notLike($column, $value, $caseInsensitive, ChainEnum::OR);
     }
 
-    public function orWhereStartsWith(string|array $column, string $value, bool $escapeBackslash = false): static
+    public function orWhereStartsWith(string|array $column, string $value, bool $caseInsensitive = false, bool $escapeBackslash = false): static
     {
-        return $this->startsWith($column, $value, $escapeBackslash, ChainEnum::OR);
+        return $this->startsWith($column, $value, $caseInsensitive, $escapeBackslash, ChainEnum::OR);
     }
 
-    public function orWhereEndsWith(string|array $column, string $value, bool $escapeBackslash = false): static
+    public function orWhereEndsWith(string|array $column, string $value, bool $caseInsensitive = false, bool $escapeBackslash = false): static
     {
-        return $this->endsWith($column, $value, $escapeBackslash, ChainEnum::OR);
+        return $this->endsWith($column, $value, $caseInsensitive, $escapeBackslash, ChainEnum::OR);
     }
 
-    public function orWhereContains(string|array $column, string $value, bool $escapeBackslash = false): static
+    public function orWhereContains(string|array $column, string $value, bool $caseInsensitive = false, bool $escapeBackslash = false): static
     {
-        return $this->contains($column, $value, $escapeBackslash, ChainEnum::OR);
+        return $this->contains($column, $value, $caseInsensitive, $escapeBackslash, ChainEnum::OR);
     }
 
-    public function orWhereNotContains(string|array $column, string $value, bool $escapeBackslash = false): static
+    public function orWhereNotContains(string|array $column, string $value, bool $caseInsensitive = false, bool $escapeBackslash = false): static
     {
-        return $this->notContains($column, $value, $escapeBackslash, ChainEnum::OR);
+        return $this->notContains($column, $value, $caseInsensitive, $escapeBackslash, ChainEnum::OR);
     }
 
     public function orWhereIn(string|array $column, array|SelectQuery $values): static
@@ -308,34 +308,34 @@ trait WhereTrait
         return $this->addCondition(ConditionEnum::NOT_EQUALS, $column, null, $chain);
     }
 
-    protected function like(string|array $column, string $value, ChainEnum $chain): static
+    protected function like(string|array $column, string $value, bool $caseInsensitive, ChainEnum $chain): static
     {
-        return $this->addCondition(ConditionEnum::LIKE, $column, $value, $chain);
+        return $this->addCondition(ConditionEnum::LIKE, $column, [$value, $caseInsensitive], $chain);
     }
 
-    protected function notLike(string|array $column, string $value, ChainEnum $chain): static
+    protected function notLike(string|array $column, string $value, bool $caseInsensitive, ChainEnum $chain): static
     {
-        return $this->addCondition(ConditionEnum::NOT_LIKE, $column, $value, $chain);
+        return $this->addCondition(ConditionEnum::NOT_LIKE, $column, [$value, $caseInsensitive], $chain);
     }
 
-    protected function startsWith(string|array $column, string $value, bool $escapeBackslash, ChainEnum $chain): static
+    protected function startsWith(string|array $column, string $value, bool $caseInsensitive, bool $escapeBackslash, ChainEnum $chain): static
     {
-        return $this->like($column, Query::escapeLikeChars($value, $escapeBackslash) . '%', $chain);
+        return $this->like($column, Query::escapeLikeChars($value, $escapeBackslash) . '%', $caseInsensitive, $chain);
     }
 
-    protected function endsWith(string|array $column, string $value, bool $escapeBackslash, ChainEnum $chain): static
+    protected function endsWith(string|array $column, string $value, bool $caseInsensitive, bool $escapeBackslash, ChainEnum $chain): static
     {
-        return $this->like($column, '%' . Query::escapeLikeChars($value, $escapeBackslash), $chain);
+        return $this->like($column, '%' . Query::escapeLikeChars($value, $escapeBackslash), $caseInsensitive, $chain);
     }
 
-    protected function contains(string|array $column, string $value, bool $escapeBackslash, ChainEnum $chain): static
+    protected function contains(string|array $column, string $value, bool $caseInsensitive, bool $escapeBackslash, ChainEnum $chain): static
     {
-        return $this->like($column, '%' . Query::escapeLikeChars($value, $escapeBackslash) . '%', $chain);
+        return $this->like($column, '%' . Query::escapeLikeChars($value, $escapeBackslash) . '%', $caseInsensitive, $chain);
     }
 
-    protected function notContains(string|array $column, string $value, bool $escapeBackslash, ChainEnum $chain): static
+    protected function notContains(string|array $column, string $value, bool $caseInsensitive, bool $escapeBackslash, ChainEnum $chain): static
     {
-        return $this->notLike($column, '%' . Query::escapeLikeChars($value, $escapeBackslash) . '%', $chain);
+        return $this->notLike($column, '%' . Query::escapeLikeChars($value, $escapeBackslash) . '%', $caseInsensitive, $chain);
     }
 
     protected function in(string|array $column, array|SelectQuery $values, ChainEnum $chain): static

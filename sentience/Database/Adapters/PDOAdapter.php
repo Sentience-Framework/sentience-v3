@@ -230,6 +230,8 @@ class PDOAdapter extends AdapterAbstract
         if (array_key_exists(static::OPTIONS_SQLITE_FOREIGN_KEYS, $options)) {
             $this->sqliteForeignKeys((bool) $options[static::OPTIONS_SQLITE_FOREIGN_KEYS]);
         }
+
+        $this->sqliteCaseSensitiveLike();
     }
 
     public function version(): string

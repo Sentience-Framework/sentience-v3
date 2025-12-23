@@ -522,7 +522,17 @@ class SQLDialect extends DialectAbstract
 
     protected function buildConditionLike(string &$query, array &$params, Condition $condition): void
     {
-        $this->buildConditionOperator($query, $params, $condition);
+        [$value, $caseInsensitive] = $condition->value;
+
+        $identifier = $condition->identifier;
+        $questionMark = $this->buildQuestionMarks($params, $value);
+
+        $query .= sprintf(
+            '%s %s %s',
+            $caseInsensitive ? sprintf('LOWER(%s)', $identifier) : $identifier,
+            $condition->condition->value,
+            $caseInsensitive ? sprintf('LOWER(%s)', $questionMark) : $questionMark
+        );
     }
 
     protected function buildConditionIn(string &$query, array &$params, Condition $condition): void

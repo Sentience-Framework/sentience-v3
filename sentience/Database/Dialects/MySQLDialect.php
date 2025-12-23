@@ -72,11 +72,15 @@ class MySQLDialect extends SQLDialect
             return;
         }
 
+        [$value, $caseInsensitive] = $condition->value;
+
         $query .= sprintf(
             '%s %s %s',
             $this->escapeIdentifier($condition->identifier),
-            $condition->condition == ConditionEnum::LIKE ? 'LIKE BINARY' : 'NOT LIKE BINARY',
-            $this->buildQuestionMarks($params, $condition->value)
+            $condition->condition == ConditionEnum::LIKE
+            ? $caseInsensitive ? 'LIKE' : 'LIKE BINARY'
+            : $caseInsensitive ? 'NOT LIKE' : 'NOT LIKE BINARY',
+            $this->buildQuestionMarks($params, $value)
         );
     }
 

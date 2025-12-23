@@ -3,6 +3,7 @@
 namespace Sentience\Database\Dialects;
 
 use DateTime;
+use Sentience\Database\Queries\Enums\ConditionEnum;
 use Sentience\Database\Queries\Enums\TypeEnum;
 use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\Condition;
@@ -22,6 +23,20 @@ class PgSQLDialect extends SQLDialect
         "\v" => '\\v'
     ];
     public const bool BOOL = true;
+
+    protected function buildConditionLike(string &$query, array &$params, Condition $condition): void
+    {
+        [$value, $caseInsensitive] = $condition->value;
+
+        $query .= sprintf(
+            '%s %s %s',
+            $this->escapeIdentifier($condition->identifier),
+            $condition->condition == ConditionEnum::LIKE
+            ? $caseInsensitive ? 'ILIKE' : ConditionEnum::LIKE->value
+            : $caseInsensitive ? 'NOT ILIKE' : ConditionEnum::NOT_LIKE->value,
+            $this->buildQuestionMarks($params, $value)
+        );
+    }
 
     protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
     {

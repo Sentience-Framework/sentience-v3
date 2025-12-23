@@ -68,6 +68,8 @@ class SQLite3Adapter extends AdapterAbstract
             $this->sqliteForeignKeys((bool) $options[static::OPTIONS_SQLITE_FOREIGN_KEYS]);
         }
 
+        $this->sqliteCaseSensitiveLike();
+
         foreach ($queries as $query) {
             $this->exec($query);
         }
