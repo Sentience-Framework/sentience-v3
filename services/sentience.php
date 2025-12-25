@@ -16,7 +16,7 @@ return new class () {
         $name = config(["database->settings->{$driver}->name", "database->settings->{$driver}->file"], '');
         $host = config("database->settings->{$driver}->host", '');
         $port = (int) config("database->settings->{$driver}->port", '');
-        $unixSocket = (int) config("database->settings->{$driver}->unix_socket", null);
+        $unixSocket = config("database->settings->{$driver}->unix_socket", null);
         $username = config("database->settings->{$driver}->username", '');
         $password = config("database->settings->{$driver}->password", '');
         $queries = config("database->settings->{$driver}->queries", []);
