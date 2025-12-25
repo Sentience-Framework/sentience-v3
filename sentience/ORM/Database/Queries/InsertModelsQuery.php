@@ -96,21 +96,21 @@ class InsertModelsQuery extends ModelsQueryAbstract
                 continue;
             }
 
-            $lastInsertId = $this->database->lastInsertId();
+            // $lastInsertId = $this->database->lastInsertId();
 
-            if ($lastInsertId) {
-                foreach ($reflectionModelProperties as $reflectionModelProperty) {
-                    if (!$reflectionModelProperty->isAutoIncrement()) {
-                        continue;
-                    }
+            // if ($lastInsertId) {
+            //     foreach ($reflectionModelProperties as $reflectionModelProperty) {
+            //         if (!$reflectionModelProperty->isAutoIncrement()) {
+            //             continue;
+            //         }
 
-                    $property = $reflectionModelProperty->getProperty();
+            //         $property = $reflectionModelProperty->getProperty();
 
-                    $model->{$property} = $lastInsertId;
+            //         $model->{$property} = $lastInsertId;
 
-                    break;
-                }
-            }
+            //         break;
+            //     }
+            // }
         }
 
         return $this->models;
