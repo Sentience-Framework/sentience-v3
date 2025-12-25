@@ -46,7 +46,7 @@ class MySQLiAdapter extends AdapterAbstract
         $isNetworkSocket = $socket instanceof NetworkSocket;
 
         $hostname = $isNetworkSocket
-            ? ($options[static::OPTIONS_PERSISTENT] ?? false) ? sprintf('p:%s', $socket->host) : $socket->host
+            ? (($options[static::OPTIONS_PERSISTENT] ?? false) ? sprintf('p:%s', $socket->host) : $socket->host)
             : null;
 
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
