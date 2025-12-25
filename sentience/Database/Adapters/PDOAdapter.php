@@ -450,7 +450,7 @@ class PDOAdapter extends AdapterAbstract
             }
 
             $this->debug(
-                $queryWithParams->toSql($dialect),
+                fn (): string => $queryWithParams->toSql($dialect),
                 $start,
                 $exception
             );
@@ -483,7 +483,7 @@ class PDOAdapter extends AdapterAbstract
             }
 
             $this->debug(
-                $queryWithParams->toSql($dialect),
+                fn (): string => $queryWithParams->toSql($dialect),
                 $start,
                 $exception
             );
@@ -495,7 +495,10 @@ class PDOAdapter extends AdapterAbstract
             }
         }
 
-        $this->debug($queryWithParams->toSql($dialect), $start);
+        $this->debug(
+            fn (): string => $queryWithParams->toSql($dialect),
+            $start
+        );
 
         if ($this->lazy && $this->isInsertQuery($queryWithParams)) {
             $this->cacheLastInsertId();

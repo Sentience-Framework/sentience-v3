@@ -39,7 +39,7 @@ class MySQLiAdapter extends AdapterAbstract
         $isNetworkSocket = $socket instanceof NetworkSocket;
 
         $hostname = $isNetworkSocket
-            ? ($options[static::OPTIONS_PERSISTENT] ?? false) ? sprintf('p:%s', $socket->host) : $socket->host
+            ? (($options[static::OPTIONS_PERSISTENT] ?? false) ? sprintf('p:%s', $socket->host) : $socket->host)
             : null;
 
         return new static(
@@ -219,7 +219,7 @@ class MySQLiAdapter extends AdapterAbstract
             }
 
             $this->debug(
-                $queryWithParams->toSql($dialect),
+                fn (): string => $queryWithParams->toSql($dialect),
                 $start,
                 $exception
             );
@@ -263,7 +263,7 @@ class MySQLiAdapter extends AdapterAbstract
             }
 
             $this->debug(
-                $queryWithParams->toSql($dialect),
+                fn (): string => $queryWithParams->toSql($dialect),
                 $start,
                 $exception
             );
@@ -277,7 +277,10 @@ class MySQLiAdapter extends AdapterAbstract
 
         $mysqliResult = $mysqliStmt->get_result();
 
-        $this->debug($queryWithParams->toSql($dialect), $start);
+        $this->debug(
+            fn (): string => $queryWithParams->toSql($dialect),
+            $start
+        );
 
         $result = new MySQLiResult($mysqliResult);
 

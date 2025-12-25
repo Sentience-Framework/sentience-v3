@@ -988,7 +988,7 @@ class SQLDialect extends DialectAbstract
 
     protected function escape(string $string, string $char): string
     {
-        $escapedString = strtr(
+        $escaped = strtr(
             $string,
             [
                 ...static::ESCAPE_CHARS,
@@ -998,7 +998,7 @@ class SQLDialect extends DialectAbstract
             ]
         );
 
-        return $char . $escapedString . $char;
+        return $char . $escaped . $char;
     }
 
     public function castToDriver(null|bool|int|float|string|DateTimeInterface $value): null|bool|int|float|string
@@ -1046,7 +1046,7 @@ class SQLDialect extends DialectAbstract
     public function castBool(bool $bool): null|bool|int|float|string
     {
         return !$this->bool()
-            ? $bool ? 1 : 0
+            ? ($bool ? 1 : 0)
             : $bool;
     }
 
