@@ -1,6 +1,7 @@
 <?php
 
 use Sentience\Cache\Cache;
+use Sentience\Database\Adapters\PDOAdapter;
 use Sentience\Database\Driver;
 use Sentience\Database\Sockets\NetworkSocket;
 use Sentience\Database\Sockets\UnixSocket;
@@ -46,18 +47,7 @@ return new class () {
             ? new NetworkSocket($host, $port, $username, $password)
             : new UnixSocket($unixSocket, $port, $username, $password);
 
-        $supportedBySentience = in_array(
-            $driver,
-            [
-                Driver::FIREBIRD,
-                Driver::MARIADB,
-                Driver::MYSQL,
-                Driver::OCI,
-                Driver::PGSQL,
-                Driver::SQLITE,
-                Driver::SQLSRV
-            ]
-        );
+        $supportedBySentience = in_array($driver, PDOAdapter::SUPPORTED_DRIVERS);
 
         $db = $supportedBySentience
             ? DB::connect(

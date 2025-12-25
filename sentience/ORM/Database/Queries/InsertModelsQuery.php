@@ -42,7 +42,7 @@ class InsertModelsQuery extends ModelsQueryAbstract
                         ? $insertQuery->emulateOnConflict($column, $this->emulateUpsertInTransaction)
                         : $insertQuery->lastInsertId($column);
 
-                    if ($this->emulateReturning) {
+                    if ($this->emulateReturning || $this->emulateUpsertInTransaction) {
                         $insertQuery->emulateReturning($column);
                     }
                 }
