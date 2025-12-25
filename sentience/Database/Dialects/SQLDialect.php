@@ -38,7 +38,7 @@ class SQLDialect extends DialectAbstract
     public const bool ESCAPE_ANSI = true;
     public const string ESCAPE_IDENTIFIER = '"';
     public const string ESCAPE_STRING = "'";
-    public const array ESCAPE_CHARS = [];
+    public const array ESCAPE_CHARS = ["\0" => ''];
     public const bool BOOL = false;
     public const bool GENERATED_BY_DEFAULT_AS_IDENTITY = true;
     public const bool ON_CONFLICT = false;
