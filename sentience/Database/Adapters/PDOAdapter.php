@@ -113,9 +113,9 @@ class PDOAdapter extends AdapterAbstract
         $dsn = ['dbname' => $name];
 
         if (in_array($driver, [Driver::MARIADB, Driver::MYSQL])) {
-            array_push(
+            $dsn = array_merge(
                 $dsn,
-                ...$socket instanceof NetworkSocket
+                $socket instanceof NetworkSocket
                 ? ['host' => $socket->host, 'port' => $socket->port]
                 : ['unix_socket' => $socket->host]
             );

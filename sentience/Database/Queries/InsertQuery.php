@@ -138,7 +138,7 @@ class InsertQuery extends Query
         $updateQuery = $this->database->update($this->table);
 
         $updates = !is_null($this->onConflict->updates)
-            ? count($this->onConflict->updates) > 0 ? $this->onConflict->updates : $this->values
+            ? (count($this->onConflict->updates) > 0 ? $this->onConflict->updates : $this->values)
             : $conflict;
 
         $updateQuery->values($updates);

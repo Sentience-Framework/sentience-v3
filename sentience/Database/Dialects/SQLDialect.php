@@ -1046,7 +1046,7 @@ class SQLDialect extends DialectAbstract
     public function castBool(bool $bool): null|bool|int|float|string
     {
         return !$this->bool()
-            ? $bool ? 1 : 0
+            ? ($bool ? 1 : 0)
             : $bool;
     }
 
