@@ -47,7 +47,7 @@ class InsertQuery extends Query
         }
 
         return $this->emulateOnConflictInTransaction
-            ? $this->database->transactionInCallback(fn (): ResultInterface => $this->upsert($emulatePrepare))
+            ? $this->database->transaction(fn (): ResultInterface => $this->upsert($emulatePrepare))
             : $this->upsert($emulatePrepare);
     }
 

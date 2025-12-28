@@ -408,13 +408,13 @@ class ExampleController extends Controller
 
     public function transactions(DB $db): void
     {
-        $db->transactionInCallback(function (DB $db): void {
+        $db->transaction(function (DB $db): void {
             $db->exec('SELECT 1 -- Transaction');
 
-            $db->transactionInCallback(function (DB $db): void {
+            $db->transaction(function (DB $db): void {
                 $db->exec('SELECT 1 -- Savepoint 1');
 
-                $db->transactionInCallback(function (DB $db): void {
+                $db->transaction(function (DB $db): void {
                     $db->exec('SELECT 1 -- Savepoint 2');
                 });
             });

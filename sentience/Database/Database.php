@@ -142,18 +142,18 @@ class Database
         return $this->adapter->inTransaction();
     }
 
-    public function transactionInCallback(callable $callback, ?string $name = null): mixed
+    public function transaction(callable $callback, bool $releaseSavepoints = false, ?string $name = null): mixed
     {
         $this->beginTransaction($name);
 
         try {
-            $return = $callback($this);
+            $result = $callback($this);
 
-            $this->commitTransaction(false, $name);
+            $this->commitTransaction($releaseSavepoints, $name);
 
-            return $return;
+            return $result;
         } catch (Throwable $exception) {
-            $this->rollbackTransaction(false, $name);
+            $this->rollbackTransaction($releaseSavepoints, $name);
 
             throw $exception;
         }
