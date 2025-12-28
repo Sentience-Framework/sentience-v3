@@ -192,7 +192,7 @@ class SentienceController extends Controller
 
             $migration = include $filepath;
 
-            $db->transactionInCallback(function (DB $db) use ($migration): void {
+            $db->transaction(function (DB $db) use ($migration): void {
                 $migration->apply($db);
             });
 
@@ -266,7 +266,7 @@ class SentienceController extends Controller
 
             $migration = include $filepath;
 
-            $db->transactionInCallback(function (DB $db) use ($migration): void {
+            $db->transaction(function (DB $db) use ($migration): void {
                 $migration->rollback($db);
             });
 
@@ -351,7 +351,7 @@ class SentienceController extends Controller
         $migration = include $migrationFilepath;
 
         try {
-            $db->transactionInCallback(function (DB $db) use ($migration): void {
+            $db->transaction(function (DB $db) use ($migration): void {
                 $migration->apply($db);
             });
         } catch (Throwable $exception) {
@@ -430,7 +430,7 @@ class SentienceController extends Controller
         $migration = include $migrationFilepath;
 
         try {
-            $db->transactionInCallback(function (DB $db) use ($migration): void {
+            $db->transaction(function (DB $db) use ($migration): void {
                 $migration->apply($db);
             });
         } catch (Throwable $exception) {
@@ -510,7 +510,7 @@ class SentienceController extends Controller
         $migration = include $migrationFilepath;
 
         try {
-            $db->transactionInCallback(function (DB $db) use ($migration): void {
+            $db->transaction(function (DB $db) use ($migration): void {
                 $migration->apply($db);
             });
         } catch (Throwable $exception) {

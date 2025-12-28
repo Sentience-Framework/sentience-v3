@@ -120,7 +120,7 @@ class SelectModelsQuery extends ModelsQueryAbstract
             );
         }
 
-        $selectQuery = $this->database->select($table, $alias);
+        $selectQuery = $this->database->select(Query::alias($table, $alias));
 
         if ($this->distinct) {
             $selectQuery->distinct();

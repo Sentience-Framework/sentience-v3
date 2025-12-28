@@ -77,7 +77,10 @@ class ExampleController extends Controller
 
         $queries = [];
 
-        $queries[] = $db->select(['public', 'table_1'], 'table1')
+        $queries[] = $db->select(Query::subQuery(
+            $db->select('sub_table_1'),
+            'table1'
+        ))
             ->distinct()
             ->columns([
                 'column1',
@@ -323,19 +326,19 @@ class ExampleController extends Controller
 
     public function transactions(DB $db): void
     {
-        $db->transactionInCallback(
+        $db->transaction(
             function (DB $db): void {
                 $db->exec('SELECT 1 -- First transaction');
 
-                $db->transactionInCallback(
+                $db->transaction(
                     function (DB $db): void {
                         $db->exec('SELECT 1 -- Second transaction');
 
-                        $db->transactionInCallback(
+                        $db->transaction(
                             function (DB $db): void {
                                 $db->exec('SELECT 1 -- Third transaction');
 
-                                $db->transactionInCallback(
+                                $db->transaction(
                                     function (DB $db): void {
                                         $db->exec('SELECT 1 -- Fourth transaction');
                                     }
