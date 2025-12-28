@@ -77,7 +77,12 @@ class ExampleController extends Controller
 
         $queries = [];
 
-        $queries[] = $db->select(['public', 'table_1'], 'table1')
+        $queries[] = $db->select(
+            Query::subQuery(
+                $db->select('sub_table_1'),
+                'sub_table_alias'
+            )
+        )
             ->distinct()
             ->columns([
                 'column1',
@@ -86,7 +91,7 @@ class ExampleController extends Controller
                     Query::raw('column2'),
                     'col2'
                 ),
-                Query::alias(
+                Query::subQuery(
                     $db->select('column_select')
                         ->columns(['id'])
                         ->whereOperator('id', '>=', 0),

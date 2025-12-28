@@ -3,9 +3,12 @@
 namespace Sentience\Database\Queries;
 
 use Closure;
+use Sentience\Database\Database;
+use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Exceptions\QueryException;
 use Sentience\Database\Queries\Objects\ConditionGroup;
 use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Database\Queries\Traits\LastInsertIdTrait;
 use Sentience\Database\Queries\Traits\OnConflictTrait;
 use Sentience\Database\Queries\Traits\ReturningTrait;
@@ -23,6 +26,11 @@ class InsertQuery extends Query
     protected bool $emulateOnConflict = false;
     protected bool $emulateOnConflictInTransaction = false;
     protected bool $emulateReturning = false;
+
+    public function __construct(Database $database, DialectInterface $dialect, string|array|Raw $table)
+    {
+        parent::__construct($database, $dialect, $table);
+    }
 
     public function toQueryWithParams(): QueryWithParams
     {

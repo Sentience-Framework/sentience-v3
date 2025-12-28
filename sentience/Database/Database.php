@@ -11,9 +11,10 @@ use Sentience\Database\Queries\CreateTableQuery;
 use Sentience\Database\Queries\DeleteQuery;
 use Sentience\Database\Queries\DropTableQuery;
 use Sentience\Database\Queries\InsertQuery;
+use Sentience\Database\Queries\Objects\Alias;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Objects\Raw;
-use Sentience\Database\Queries\Query;
+use Sentience\Database\Queries\Objects\SubQuery;
 use Sentience\Database\Queries\SelectQuery;
 use Sentience\Database\Queries\UpdateQuery;
 use Sentience\Database\Results\ResultInterface;
@@ -164,9 +165,9 @@ class Database
         return $this->adapter->lastInsertId($name);
     }
 
-    public function select(string|array|Raw|SelectQuery $table, ?string $alias = null): SelectQuery
+    public function select(string|array|Alias|Raw|SubQuery $table): SelectQuery
     {
-        return new SelectQuery($this, $this->dialect, $alias ? Query::alias($table, $alias) : $table);
+        return new SelectQuery($this, $this->dialect, $table);
     }
 
     public function insert(string|array|Raw $table): InsertQuery
