@@ -84,8 +84,8 @@ return [
     ),
 
     Command::register(
-        'select',
-        [ExampleController::class, 'select']
+        'cte',
+        [ExampleController::class, 'cte']
     ),
 
     Command::register(

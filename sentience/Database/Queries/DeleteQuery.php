@@ -8,12 +8,14 @@ use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Database\Queries\Traits\ReturningTrait;
 use Sentience\Database\Queries\Traits\WhereTrait;
+use Sentience\Database\Queries\Traits\WithTrait;
 use Sentience\Database\Results\ResultInterface;
 
 class DeleteQuery extends Query
 {
     use ReturningTrait;
     use WhereTrait;
+    use WithTrait;
 
     public function __construct(Database $database, DialectInterface $dialect, string|array|Raw $table)
     {
@@ -23,6 +25,7 @@ class DeleteQuery extends Query
     public function toQueryWithParams(): QueryWithParams
     {
         return $this->dialect->delete(
+            $this->with,
             $this->table,
             $this->where,
             $this->returning

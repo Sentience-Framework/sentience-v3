@@ -36,7 +36,7 @@ class SQLiteDialect extends SQLDialect
 
             $primaryKeys = array_filter(
                 $primaryKeys,
-                fn (string $primaryKey): bool => $primaryKey != $column->name
+                fn(string $primaryKey): bool => $primaryKey != $column->name
             );
         }
 
@@ -124,6 +124,11 @@ class SQLiteDialect extends SQLDialect
             TypeEnum::FLOAT => 'REAL',
             default => parent::type($type, $size)
         };
+    }
+
+    public function commonTableExpressions(): bool
+    {
+        return $this->version > 30803;
     }
 
     public function onConflict(): bool

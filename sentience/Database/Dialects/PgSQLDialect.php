@@ -97,6 +97,11 @@ class PgSQLDialect extends SQLDialect
         };
     }
 
+    public function commonTableExpressions(): bool
+    {
+        return $this->version > 804;
+    }
+
     public function generatedByDefaultAsIdentity(): bool
     {
         return $this->version >= 1700;

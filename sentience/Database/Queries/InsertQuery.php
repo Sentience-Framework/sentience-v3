@@ -13,6 +13,7 @@ use Sentience\Database\Queries\Traits\LastInsertIdTrait;
 use Sentience\Database\Queries\Traits\OnConflictTrait;
 use Sentience\Database\Queries\Traits\ReturningTrait;
 use Sentience\Database\Queries\Traits\ValuesTrait;
+use Sentience\Database\Queries\Traits\WithTrait;
 use Sentience\Database\Results\Result;
 use Sentience\Database\Results\ResultInterface;
 
@@ -22,6 +23,7 @@ class InsertQuery extends Query
     use OnConflictTrait;
     use ReturningTrait;
     use ValuesTrait;
+    use WithTrait;
 
     protected bool $emulateOnConflict = false;
     protected bool $emulateOnConflictInTransaction = false;
@@ -35,6 +37,7 @@ class InsertQuery extends Query
     public function toQueryWithParams(): QueryWithParams
     {
         return $this->dialect->insert(
+            $this->with,
             $this->table,
             $this->values,
             !$this->emulateOnConflict ? $this->onConflict : null,
@@ -55,7 +58,7 @@ class InsertQuery extends Query
         }
 
         return $this->emulateOnConflictInTransaction
-            ? $this->database->transaction(fn (): ResultInterface => $this->upsert($emulatePrepare))
+            ? $this->database->transaction(fn(): ResultInterface => $this->upsert($emulatePrepare))
             : $this->upsert($emulatePrepare);
     }
 
@@ -132,7 +135,7 @@ class InsertQuery extends Query
         }
 
         return $this->select(
-            fn (ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup->whereEquals(
+            fn(ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup->whereEquals(
                 $this->lastInsertId,
                 $lastInsertId
             ),
