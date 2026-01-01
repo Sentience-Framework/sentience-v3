@@ -282,13 +282,13 @@ class PDOAdapter extends AdapterAbstract
 
             $pdoStatement = $this->pdo->prepare($queryWithParams->query);
         } catch (Throwable $exception) {
-            if ($emulatePrepare) {
-                $this->disableEmulatePrepares();
-            }
-
             $this->debug(fn (): string => $queryWithParams->toSql($dialect), $start, $exception);
 
             throw $exception;
+        } finally {
+            if ($emulatePrepare) {
+                $this->disableEmulatePrepares();
+            }
         }
 
         foreach ($queryWithParams->params as $key => $param) {
