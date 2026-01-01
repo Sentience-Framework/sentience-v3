@@ -17,7 +17,6 @@ class UpdateQuery extends Query
     use ReturningTrait;
     use ValuesTrait;
     use WhereTrait;
-    use WithTrait;
 
     public function __construct(Database $database, DialectInterface $dialect, string|array|Raw $table)
     {
@@ -27,7 +26,6 @@ class UpdateQuery extends Query
     public function toQueryWithParams(): QueryWithParams
     {
         return $this->dialect->update(
-            $this->with,
             $this->table,
             $this->values,
             $this->where,

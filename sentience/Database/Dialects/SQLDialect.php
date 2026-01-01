@@ -40,14 +40,12 @@ class SQLDialect extends DialectAbstract
     public const string ESCAPE_STRING = "'";
     public const array ESCAPE_CHARS = ["\0" => ''];
     public const bool BOOL = false;
-    public const bool COMMON_TABLE_EXPRESSIONS = true;
     public const bool GENERATED_BY_DEFAULT_AS_IDENTITY = true;
     public const bool ON_CONFLICT = false;
     public const bool RETURNING = false;
     public const bool SAVEPOINTS = true;
 
     public function select(
-        array $with,
         bool $distinct,
         array $columns,
         string|array|Alias|Raw|SubQuery $table,
@@ -59,14 +57,8 @@ class SQLDialect extends DialectAbstract
         ?int $limit,
         ?int $offset
     ): QueryWithParams {
-        $query = '';
+        $query = 'SELECT';
         $params = [];
-
-        if (count($with) > 0 && $this->commonTableExpressions()) {
-            $this->buildWith($query, $params, $with);
-        }
-
-        $query .= 'SELECT';
 
         if ($distinct) {
             $query .= ' DISTINCT';
@@ -79,8 +71,8 @@ class SQLDialect extends DialectAbstract
                 array_map(
                     function (string|array|Alias|Raw|SubQuery $column) use (&$params): string {
                         if ($column instanceof SubQuery) {
-                            $column = $column->toAlias(function (SelectQuery $selectQuery) use (&$params, &$with): string {
-                                return $this->buildSelectQuery($params, $with, $selectQuery);
+                            $column = $column->toAlias(function (SelectQuery $selectQuery) use (&$params): string {
+                                return $this->buildSelectQuery($params, $selectQuery);
                             });
                         }
 
@@ -94,8 +86,8 @@ class SQLDialect extends DialectAbstract
         $query .= ' FROM';
 
         $this->buildTable($query, $params, $table);
-        $this->buildJoins($query, $params, $with, $joins);
-        $this->buildWhere($query, $params, $with, $where);
+        $this->buildJoins($query, $params, $joins);
+        $this->buildWhere($query, $params, $where);
         $this->buildGroupBy($query, $groupBy);
         $this->buildHaving($query, $params, $having);
         $this->buildOrderBy($query, $orderBy);
@@ -106,7 +98,6 @@ class SQLDialect extends DialectAbstract
     }
 
     public function insert(
-        array $with,
         string|array|Raw $table,
         array $values,
         ?OnConflict $onConflict,
@@ -140,22 +131,21 @@ class SQLDialect extends DialectAbstract
                 array_map(
                     function (null|bool|int|float|string|DateTimeInterface|Identifier|Raw|SelectQuery $value) use (&$params): string {
                         return $value instanceof SelectQuery
-                            ? $this->buildSelectQuery($params, $with, $value)
-                            : $this->buildQuestionMarks($params, $with, $value);
+                            ? $this->buildSelectQuery($params, $value)
+                            : $this->buildQuestionMarks($params, $value);
                     },
                     $values
                 )
             )
         );
 
-        $this->buildOnConflict($query, $params, $with, $onConflict, $values, $lastInsertId);
+        $this->buildOnConflict($query, $params, $onConflict, $values, $lastInsertId);
         $this->buildReturning($query, $returning);
 
         return new QueryWithParams($query, $params);
     }
 
     public function update(
-        array $with,
         string|array|Raw $table,
         array $values,
         array $where,
@@ -179,8 +169,8 @@ class SQLDialect extends DialectAbstract
                         '%s = %s',
                         $this->escapeIdentifier($key),
                         $value instanceof SelectQuery
-                        ? $this->buildSelectQuery($params, $with, $value)
-                        : $this->buildQuestionMarks($params, $with, $value)
+                        ? $this->buildSelectQuery($params, $value)
+                        : $this->buildQuestionMarks($params, $value)
                     );
                 },
                 $values,
@@ -195,7 +185,6 @@ class SQLDialect extends DialectAbstract
     }
 
     public function delete(
-        array $with,
         string|array|Raw $table,
         array $where,
         ?array $returning
@@ -389,41 +378,20 @@ class SQLDialect extends DialectAbstract
         );
     }
 
-    protected function buildWith(string &$query, &$params, array $with): void
-    {
-        $query .= sprintf(
-            'WITH %s ',
-            implode(
-                ', ',
-                array_map(
-                    function (QueryWithParams|SelectQuery $selectQuery, string $alias) use (&$params): string {
-                        return sprintf(
-                            '%s %s',
-                            $this->escapeIdentifier($alias),
-                            $this->buildSelectQuery($params, $with, $selectQuery)
-                        );
-                    },
-                    $with,
-                    array_keys($with)
-                )
-            )
-        );
-    }
-
     protected function buildTable(string &$query, &$params, string|array|Alias|Raw|SubQuery $table): void
     {
         $query .= ' ';
 
         if ($table instanceof SubQuery) {
             $table = $table->toAlias(function (SelectQuery $selectQuery) use (&$params): string {
-                return $this->buildSelectQuery($params, $with, $selectQuery);
+                return $this->buildSelectQuery($params, $selectQuery);
             });
         }
 
         $query .= $this->escapeIdentifier($table);
     }
 
-    protected function buildJoins(string &$query, array &$params, array &$with, array $joins): void
+    protected function buildJoins(string &$query, array &$params, array $joins): void
     {
         if (count($joins) == 0) {
             return;
@@ -452,13 +420,13 @@ class SQLDialect extends DialectAbstract
 
             foreach ($conditions as $index => $condition) {
                 $condition instanceof Condition
-                    ? $this->buildCondition($query, $params, $with, $index, $condition)
-                    : $this->buildConditionGroup($query, $params, $with, $index, $condition);
+                    ? $this->buildCondition($query, $params, $index, $condition)
+                    : $this->buildConditionGroup($query, $params, $index, $condition);
             }
         }
     }
 
-    protected function buildWhere(string &$query, array &$params, array &$with, array $where): void
+    protected function buildWhere(string &$query, array &$params, array $where): void
     {
         if (count($where) == 0) {
             return;
@@ -468,12 +436,12 @@ class SQLDialect extends DialectAbstract
 
         foreach ($where as $index => $condition) {
             $condition instanceof Condition
-                ? $this->buildCondition($query, $params, $with, $index, $condition)
-                : $this->buildConditionGroup($query, $params, $with, $index, $condition);
+                ? $this->buildCondition($query, $params, $index, $condition)
+                : $this->buildConditionGroup($query, $params, $index, $condition);
         }
     }
 
-    protected function buildCondition(string &$query, array &$params, array &$with, int $index, Condition $condition): void
+    protected function buildCondition(string &$query, array &$params, int $index, Condition $condition): void
     {
         if ($index > 0) {
             $query .= sprintf(' %s ', $condition->chain->value);
@@ -481,21 +449,21 @@ class SQLDialect extends DialectAbstract
 
         match ($condition->condition) {
             ConditionEnum::BETWEEN,
-            ConditionEnum::NOT_BETWEEN => $this->buildConditionBetween($query, $params, $with, $condition),
+            ConditionEnum::NOT_BETWEEN => $this->buildConditionBetween($query, $params, $condition),
             ConditionEnum::LIKE,
-            ConditionEnum::NOT_LIKE => $this->buildConditionLike($query, $params, $with, $condition),
+            ConditionEnum::NOT_LIKE => $this->buildConditionLike($query, $params, $condition),
             ConditionEnum::IN,
-            ConditionEnum::NOT_IN => $this->buildConditionIn($query, $params, $with, $condition),
+            ConditionEnum::NOT_IN => $this->buildConditionIn($query, $params, $condition),
             ConditionEnum::REGEX,
-            ConditionEnum::NOT_REGEX => $this->buildConditionRegex($query, $params, $with, $condition),
+            ConditionEnum::NOT_REGEX => $this->buildConditionRegex($query, $params, $condition),
             ConditionEnum::EXISTS,
-            ConditionEnum::NOT_EXISTS => $this->buildConditionExists($query, $params, $with, $condition),
-            ConditionEnum::RAW => $this->buildConditionRaw($query, $params, $with, $condition),
-            default => $this->buildConditionOperator($query, $params, $with, $condition)
+            ConditionEnum::NOT_EXISTS => $this->buildConditionExists($query, $params, $condition),
+            ConditionEnum::RAW => $this->buildConditionRaw($query, $params, $condition),
+            default => $this->buildConditionOperator($query, $params, $condition)
         };
     }
 
-    protected function buildConditionOperator(string &$query, array &$params, array &$with, Condition $condition): void
+    protected function buildConditionOperator(string &$query, array &$params, Condition $condition): void
     {
         if (is_null($condition->value) && in_array($condition->condition, [ConditionEnum::EQUALS, ConditionEnum::NOT_EQUALS])) {
             $query .= sprintf(
@@ -512,8 +480,8 @@ class SQLDialect extends DialectAbstract
             : $condition->condition;
 
         $value = $condition->value instanceof SelectQuery
-            ? $this->buildSelectQuery($params, $with, $condition->value)
-            : $this->buildQuestionMarks($params, $with, $condition->value);
+            ? $this->buildSelectQuery($params, $condition->value)
+            : $this->buildQuestionMarks($params, $condition->value);
 
         $query .= sprintf(
             '%s %s %s',
@@ -523,15 +491,15 @@ class SQLDialect extends DialectAbstract
         );
     }
 
-    protected function buildConditionBetween(string &$query, array &$params, array &$with, Condition $condition): void
+    protected function buildConditionBetween(string &$query, array &$params, Condition $condition): void
     {
         $min = $condition->value[0] instanceof SelectQuery
-            ? $this->buildSelectQuery($params, $with, $condition->value[0])
-            : $this->buildQuestionMarks($params, $with, $condition->value[0]);
+            ? $this->buildSelectQuery($params, $condition->value[0])
+            : $this->buildQuestionMarks($params, $condition->value[0]);
 
         $max = $condition->value[1] instanceof SelectQuery
-            ? $this->buildSelectQuery($params, $with, $condition->value[1])
-            : $this->buildQuestionMarks($params, $with, $condition->value[1]);
+            ? $this->buildSelectQuery($params, $condition->value[1])
+            : $this->buildQuestionMarks($params, $condition->value[1]);
 
         $query .= sprintf(
             '%s %s %s AND %s',
@@ -582,7 +550,7 @@ class SQLDialect extends DialectAbstract
         );
     }
 
-    protected function buildConditionRegexOperator(string &$query, array &$params, array &$with, Condition $condition, string $equals, string $notEquals): void
+    protected function buildConditionRegexOperator(string &$query, array &$params, Condition $condition, string $equals, string $notEquals): void
     {
         [$pattern, $flags] = $condition->value;
 
@@ -592,7 +560,6 @@ class SQLDialect extends DialectAbstract
             $condition->condition == ConditionEnum::REGEX ? $equals : $notEquals,
             $this->buildQuestionMarks(
                 $params,
-                $with,
                 !empty($flags)
                 ? sprintf('(?%s)%s', $flags, $pattern)
                 : $pattern
@@ -616,7 +583,7 @@ class SQLDialect extends DialectAbstract
         array_push($params, ...$condition->value);
     }
 
-    protected function buildConditionGroup(string &$query, array &$params, array &$with, int $index, ConditionGroup $group): void
+    protected function buildConditionGroup(string &$query, array &$params, int $index, ConditionGroup $group): void
     {
         if ($index > 0) {
             $query .= sprintf(' %s ', $group->chain->value);
@@ -628,8 +595,8 @@ class SQLDialect extends DialectAbstract
 
         foreach ($conditions as $index => $condition) {
             $condition instanceof Condition
-                ? $this->buildCondition($query, $params, $with, $index, $condition)
-                : $this->buildConditionGroup($query, $params, $with, $index, $condition);
+                ? $this->buildCondition($query, $params, $index, $condition)
+                : $this->buildConditionGroup($query, $params, $index, $condition);
         }
 
         $query .= ')';
@@ -708,7 +675,7 @@ class SQLDialect extends DialectAbstract
         $query .= ' OFFSET ' . $offset;
     }
 
-    protected function buildOnConflict(string &$query, array &$params, array &$with, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
+    protected function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
     {
         if (!$this->onConflict()) {
             return;
@@ -751,7 +718,7 @@ class SQLDialect extends DialectAbstract
                             '%s = %s',
                             $this->escapeIdentifier($key),
                             $value instanceof SelectQuery
-                            ? $this->buildSelectQuery($params, $with, $value)
+                            ? $this->buildSelectQuery($params, $value)
                             : $this->buildQuestionMarks($params, $value)
                         );
                     },
@@ -785,7 +752,7 @@ class SQLDialect extends DialectAbstract
         $query .= ' RETURNING ' . $columns;
     }
 
-    protected function buildQuestionMarks(array &$params, array &$with, null|bool|int|float|string|array|DateTimeInterface|Identifier|Raw $value, bool $parentheses = true, string $separator = ', '): string
+    protected function buildQuestionMarks(array &$params, null|bool|int|float|string|array|DateTimeInterface|Identifier|Raw $value, bool $parentheses = true, string $separator = ', '): string
     {
         if ($value instanceof Identifier) {
             return $this->escapeIdentifier($value->identifier);
@@ -817,11 +784,9 @@ class SQLDialect extends DialectAbstract
         return '?';
     }
 
-    protected function buildSelectQuery(array &$params, array &$with, QueryWithParams|SelectQuery $selectQuery): string
+    protected function buildSelectQuery(array &$params, SelectQuery $selectQuery): string
     {
-        $queryWithParams = $selectQuery instanceof SelectQuery
-            ? $selectQuery->toQueryWithParams()
-            : $selectQuery;
+        $queryWithParams = $selectQuery->toQueryWithParams();
 
         array_push($params, ...$queryWithParams->params);
 
@@ -1118,11 +1083,6 @@ class SQLDialect extends DialectAbstract
     public function bool(): bool
     {
         return static::BOOL;
-    }
-
-    public function commonTableExpressions(): bool
-    {
-        return static::COMMON_TABLE_EXPRESSIONS;
     }
 
     public function generatedByDefaultAsIdentity(): bool

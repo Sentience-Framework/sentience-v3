@@ -7,7 +7,7 @@ use mysqli;
 use Throwable;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
-use Sentience\Database\Exceptions\DriverException;
+use Sentience\Database\Exceptions\AdapterException;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Results\MySQLiResult;
 use Sentience\Database\Results\Result;
@@ -33,7 +33,7 @@ class MySQLiAdapter extends AdapterAbstract
         bool $lazy = false
     ): static {
         if (!$socket) {
-            throw new DriverException('this driver requires a socket');
+            throw new AdapterException('this driver requires a socket');
         }
 
         $isNetworkSocket = $socket instanceof NetworkSocket;
@@ -43,7 +43,7 @@ class MySQLiAdapter extends AdapterAbstract
             : null;
 
         return new static(
-            fn (): mysqli => new mysqli(
+            fn(): mysqli => new mysqli(
                 $hostname,
                 $socket->username,
                 $socket->password,
@@ -219,7 +219,7 @@ class MySQLiAdapter extends AdapterAbstract
             }
 
             $this->debug(
-                fn (): string => $queryWithParams->toSql($dialect),
+                fn(): string => $queryWithParams->toSql($dialect),
                 $start,
                 $exception
             );
@@ -263,7 +263,7 @@ class MySQLiAdapter extends AdapterAbstract
             }
 
             $this->debug(
-                fn (): string => $queryWithParams->toSql($dialect),
+                fn(): string => $queryWithParams->toSql($dialect),
                 $start,
                 $exception
             );
@@ -278,7 +278,7 @@ class MySQLiAdapter extends AdapterAbstract
         $mysqliResult = $mysqliStmt->get_result();
 
         $this->debug(
-            fn (): string => $queryWithParams->toSql($dialect),
+            fn(): string => $queryWithParams->toSql($dialect),
             $start
         );
 

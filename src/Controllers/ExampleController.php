@@ -315,8 +315,6 @@ class ExampleController extends Controller
     public function cte(DB $db): void
     {
         $query = $db->select('table')
-            ->with('cte1', $db->select('cte_table_1'))
-            ->with('cte2', $db->select('cte_table_2'))
             ->whereOperator('id', '>', 0)
             ->toSql();
 

@@ -15,7 +15,6 @@ use Sentience\Database\Queries\Objects\SubQuery;
 interface DialectInterface
 {
     public function select(
-        array $with,
         bool $distinct,
         array $columns,
         string|array|Alias|Raw|SubQuery $table,
@@ -29,7 +28,6 @@ interface DialectInterface
     ): QueryWithParams;
 
     public function insert(
-        array $with,
         string|array|Raw $table,
         array $values,
         ?OnConflict $onConflict,
@@ -38,7 +36,6 @@ interface DialectInterface
     ): QueryWithParams;
 
     public function update(
-        array $with,
         string|array|Raw $table,
         array $values,
         array $where,
@@ -46,7 +43,6 @@ interface DialectInterface
     ): QueryWithParams;
 
     public function delete(
-        array $with,
         string|array|Raw $table,
         array $where,
         ?array $returning

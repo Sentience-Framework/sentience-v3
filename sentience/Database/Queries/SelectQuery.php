@@ -27,12 +27,10 @@ class SelectQuery extends Query
     use OffsetTrait;
     use OrderByTrait;
     use WhereTrait;
-    use WithTrait;
 
     public function toQueryWithParams(): QueryWithParams
     {
         return $this->dialect->select(
-            $this->with,
             $this->distinct,
             $this->columns,
             $this->table,
@@ -59,7 +57,6 @@ class SelectQuery extends Query
     public function count(null|string|array|Raw $column = null, bool $emulatePrepare = false): int
     {
         $queryWithParams = $this->dialect->select(
-            $this->with,
             false,
             [
                 Query::alias(

@@ -126,11 +126,6 @@ class SQLiteDialect extends SQLDialect
         };
     }
 
-    public function commonTableExpressions(): bool
-    {
-        return $this->version > 30803;
-    }
-
     public function onConflict(): bool
     {
         return $this->version >= 32400;

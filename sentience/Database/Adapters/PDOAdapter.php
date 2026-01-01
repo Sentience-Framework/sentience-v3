@@ -8,7 +8,7 @@ use PDOStatement;
 use Throwable;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
-use Sentience\Database\Exceptions\DriverException;
+use Sentience\Database\Exceptions\AdapterException;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Results\PDOResult;
 use Sentience\Database\Results\Result;
@@ -40,13 +40,13 @@ class PDOAdapter extends AdapterAbstract
     ): static {
         return new static(
             function () use ($driver, $name, $socket, $options): PDO {
-                $dsn = (function (Driver $driver, string $name, ?SocketAbstract $socket, array $options): string {
+                $dsn = (function (Driver $driver, string $name, ?SocketAbstract $socket, array $options): string{
                     if (array_key_exists(static::OPTIONS_PDO_DSN, $options)) {
                         return (string) $options[static::OPTIONS_PDO_DSN];
                     }
 
                     if (!in_array($driver, static::SUPPORTED_DRIVERS)) {
-                        throw new DriverException('this driver requires a DSN');
+                        throw new AdapterException('this driver requires a DSN');
                     }
 
                     if ($driver == Driver::SQLITE) {
@@ -58,7 +58,7 @@ class PDOAdapter extends AdapterAbstract
                     }
 
                     if (!$socket) {
-                        throw new DriverException('this driver requires a socket');
+                        throw new AdapterException('this driver requires a socket');
                     }
 
                     if ($driver == Driver::FIREBIRD) {
@@ -296,7 +296,7 @@ class PDOAdapter extends AdapterAbstract
             if (method_exists($this->pdo, $method)) {
                 [$this->pdo, $method](
                     static::REGEXP_LIKE_FUNCTION,
-                    fn (string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction(
+                    fn(string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction(
                         $value,
                         $pattern,
                         $flags
@@ -450,7 +450,7 @@ class PDOAdapter extends AdapterAbstract
             }
 
             $this->debug(
-                fn (): string => $queryWithParams->toSql($dialect),
+                fn(): string => $queryWithParams->toSql($dialect),
                 $start,
                 $exception
             );
@@ -483,7 +483,7 @@ class PDOAdapter extends AdapterAbstract
             }
 
             $this->debug(
-                fn (): string => $queryWithParams->toSql($dialect),
+                fn(): string => $queryWithParams->toSql($dialect),
                 $start,
                 $exception
             );
@@ -496,7 +496,7 @@ class PDOAdapter extends AdapterAbstract
         }
 
         $this->debug(
-            fn (): string => $queryWithParams->toSql($dialect),
+            fn(): string => $queryWithParams->toSql($dialect),
             $start
         );
 

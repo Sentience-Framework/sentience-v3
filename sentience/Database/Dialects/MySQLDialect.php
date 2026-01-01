@@ -33,7 +33,6 @@ class MySQLDialect extends SQLDialect
         "\x1A" => '\\Z',
         "'" => "\\'"
     ];
-    public const bool COMMON_TABLE_EXPRESSIONS = false;
     public const bool GENERATED_BY_DEFAULT_AS_IDENTITY = false;
 
     public function createTable(
@@ -64,7 +63,7 @@ class MySQLDialect extends SQLDialect
         );
     }
 
-    protected function buildConditionLike(string &$query, array &$params, array &$with, Condition $condition): void
+    protected function buildConditionLike(string &$query, array &$params, Condition $condition): void
     {
         if ($this->version < 40000) {
             parent::buildConditionLike($query, $params, $condition);
@@ -80,14 +79,14 @@ class MySQLDialect extends SQLDialect
             $condition->condition == ConditionEnum::LIKE
             ? ($caseInsensitive ? ConditionEnum::LIKE->value : 'LIKE BINARY')
             : ($caseInsensitive ? ConditionEnum::NOT_LIKE->value : 'NOT LIKE BINARY'),
-            $this->buildQuestionMarks($params, $with, $value)
+            $this->buildQuestionMarks($params, $value)
         );
     }
 
-    protected function buildConditionRegex(string &$query, array &$params, array &$with, Condition $condition): void
+    protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
     {
         if ($this->driver == Driver::MYSQL && $this->version >= 80000) {
-            parent::buildConditionRegex($query, $params, $with, $condition);
+            parent::buildConditionRegex($query, $params, $condition);
 
             return;
         }
@@ -95,14 +94,13 @@ class MySQLDialect extends SQLDialect
         parent::buildConditionRegexOperator(
             $query,
             $params,
-            $with,
             $condition,
             'REGEXP',
             'NOT REGEXP'
         );
     }
 
-    protected function buildOnConflict(string &$query, array &$params, array &$with, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
+    protected function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
     {
         if (!$this->onConflict()) {
             return;
@@ -143,8 +141,8 @@ class MySQLDialect extends SQLDialect
                             '%s = %s',
                             $this->escapeIdentifier($key),
                             $value instanceof SelectQuery
-                            ? $this->buildSelectQuery($params, $with, $value)
-                            : $this->buildQuestionMarks($params, $with, $value)
+                            ? $this->buildSelectQuery($params, $value)
+                            : $this->buildQuestionMarks($params, $value)
                         );
                     },
                     $updates,
@@ -207,15 +205,6 @@ class MySQLDialect extends SQLDialect
                 },
             TypeEnum::DATETIME => $size > 0 ? sprintf('DATETIME(%d)', $size) : 'DATETIME',
             default => parent::type($type, $size)
-        };
-    }
-
-    public function commonTableExpressions(): bool
-    {
-        return match ($this->driver) {
-            Driver::MARIADB => $this->version > 100201,
-            Driver::MYSQL => $this->version > 80001,
-            default => static::COMMON_TABLE_EXPRESSIONS
         };
     }
 

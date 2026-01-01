@@ -3,6 +3,7 @@
 namespace Sentience\Database;
 
 use Closure;
+use Sentience\Database\Databases\DatabaseInterface;
 use Throwable;
 use Sentience\Database\Adapters\AdapterInterface;
 use Sentience\Database\Adapters\PDOAdapter;
@@ -21,7 +22,7 @@ use Sentience\Database\Queries\UpdateQuery;
 use Sentience\Database\Results\ResultInterface;
 use Sentience\Database\Sockets\SocketAbstract;
 
-class Database
+class Database implements DatabaseInterface
 {
     public static function connect(
         Driver $driver,
@@ -184,18 +185,18 @@ class Database
         return $this->adapter->inTransaction();
     }
 
-    public function transaction(callable $callback, ?string $name = null): mixed
+    public function transaction(callable $callback, bool $releaseSavepoints = false, ?string $name = null): mixed
     {
         $this->beginTransaction($name);
 
         try {
-            $return = $callback($this);
+            $result = $callback($this);
 
-            $this->commitTransaction(false, $name);
+            $this->commitTransaction($releaseSavepoints, $name);
 
-            return $return;
+            return $result;
         } catch (Throwable $exception) {
-            $this->rollbackTransaction(false, $name);
+            $this->rollbackTransaction($releaseSavepoints, $name);
 
             throw $exception;
         }

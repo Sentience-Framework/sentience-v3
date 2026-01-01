@@ -23,7 +23,6 @@ class InsertQuery extends Query
     use OnConflictTrait;
     use ReturningTrait;
     use ValuesTrait;
-    use WithTrait;
 
     protected bool $emulateOnConflict = false;
     protected bool $emulateOnConflictInTransaction = false;
@@ -37,7 +36,6 @@ class InsertQuery extends Query
     public function toQueryWithParams(): QueryWithParams
     {
         return $this->dialect->insert(
-            $this->with,
             $this->table,
             $this->values,
             !$this->emulateOnConflict ? $this->onConflict : null,
