@@ -20,7 +20,7 @@ use Sentience\Database\Queries\UpdateQuery;
 use Sentience\Database\Results\ResultInterface;
 use Sentience\Database\Sockets\SocketAbstract;
 
-class Database
+class Database implements DatabaseInterface
 {
     public static function connect(
         Driver $driver,
