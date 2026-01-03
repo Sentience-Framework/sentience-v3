@@ -2,7 +2,7 @@
 
 namespace Sentience\ORM\Database\Queries;
 
-use Sentience\Database\Database;
+use Sentience\Database\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\ORM\Models\Reflection\ReflectionModel;
 
@@ -13,7 +13,7 @@ class InsertModelsQuery extends ModelsQueryAbstract
     protected bool $emulateUpsert = false;
     protected bool $emulateUpsertInTransaction = false;
 
-    public function __construct(Database $database, DialectInterface $dialect, array $models)
+    public function __construct(DatabaseInterface $database, DialectInterface $dialect, array $models)
     {
         parent::__construct($database, $dialect, $models);
     }

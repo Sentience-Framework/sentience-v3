@@ -2,7 +2,7 @@
 
 namespace Sentience\Database\Queries;
 
-use Sentience\Database\Database;
+use Sentience\Database\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Objects\Raw;
@@ -13,7 +13,7 @@ class DropTableQuery extends Query
 {
     use IfExistsTrait;
 
-    public function __construct(Database $database, DialectInterface $dialect, string|array|Raw $table)
+    public function __construct(DatabaseInterface $database, DialectInterface $dialect, string|array|Raw $table)
     {
         parent::__construct($database, $dialect, $table);
     }

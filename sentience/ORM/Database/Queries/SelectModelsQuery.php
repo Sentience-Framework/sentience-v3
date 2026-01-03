@@ -2,7 +2,7 @@
 
 namespace Sentience\ORM\Database\Queries;
 
-use Sentience\Database\Database;
+use Sentience\Database\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Enums\ChainEnum;
 use Sentience\Database\Queries\Enums\OrderByDirectionEnum;
@@ -27,7 +27,7 @@ class SelectModelsQuery extends ModelsQueryAbstract
     use RelationsTrait;
     use WhereTrait;
 
-    public function __construct(Database $database, DialectInterface $dialect, string $model)
+    public function __construct(DatabaseInterface $database, DialectInterface $dialect, string $model)
     {
         parent::__construct($database, $dialect, [$model]);
     }

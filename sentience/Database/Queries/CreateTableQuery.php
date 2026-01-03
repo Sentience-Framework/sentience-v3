@@ -3,7 +3,7 @@
 namespace Sentience\Database\Queries;
 
 use DateTimeInterface;
-use Sentience\Database\Database;
+use Sentience\Database\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Enums\TypeEnum;
 use Sentience\Database\Queries\Objects\Column;
@@ -22,7 +22,7 @@ class CreateTableQuery extends Query
 
     protected array $columns = [];
 
-    public function __construct(Database $database, DialectInterface $dialect, string|array|Raw $table)
+    public function __construct(DatabaseInterface $database, DialectInterface $dialect, string|array|Raw $table)
     {
         parent::__construct($database, $dialect, $table);
     }
