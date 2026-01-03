@@ -55,7 +55,7 @@ class InsertQuery extends Query
         }
 
         return $this->emulateOnConflictInTransaction
-            ? $this->database->transaction(fn(): ResultInterface => $this->upsert($emulatePrepare))
+            ? $this->database->transaction(fn (): ResultInterface => $this->upsert($emulatePrepare))
             : $this->upsert($emulatePrepare);
     }
 
@@ -132,7 +132,7 @@ class InsertQuery extends Query
         }
 
         return $this->select(
-            fn(ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup->whereEquals(
+            fn (ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup->whereEquals(
                 $this->lastInsertId,
                 $lastInsertId
             ),

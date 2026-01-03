@@ -2,10 +2,9 @@
 
 namespace Sentience\Database\Databases;
 
-use Closure;
-use Sentience\Database\DatabaseInterface;
 use Throwable;
 use Sentience\Database\Adapters\AdapterInterface;
+use Sentience\Database\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\AlterTableQuery;
 use Sentience\Database\Queries\CreateTableQuery;
@@ -19,7 +18,6 @@ use Sentience\Database\Queries\Objects\SubQuery;
 use Sentience\Database\Queries\SelectQuery;
 use Sentience\Database\Queries\UpdateQuery;
 use Sentience\Database\Results\ResultInterface;
-use Sentience\Database\Sockets\SocketAbstract;
 
 abstract class DatabaseAbstract implements DatabaseInterface
 {
@@ -121,18 +119,18 @@ abstract class DatabaseAbstract implements DatabaseInterface
         return $this->adapter->inTransaction();
     }
 
-    public function transaction(callable $callback, ?string $name = null): mixed
+    public function transaction(callable $callback, bool $releaseSavepoints = false, ?string $name = null): mixed
     {
         $this->beginTransaction($name);
 
         try {
-            $return = $callback($this);
+            $result = $callback($this);
 
-            $this->commitTransaction(false, $name);
+            $this->commitTransaction($releaseSavepoints, $name);
 
-            return $return;
+            return $result;
         } catch (Throwable $exception) {
-            $this->rollbackTransaction(false, $name);
+            $this->rollbackTransaction($releaseSavepoints, $name);
 
             throw $exception;
         }

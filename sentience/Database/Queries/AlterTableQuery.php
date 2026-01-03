@@ -31,7 +31,7 @@ class AlterTableQuery extends Query
         $queriesWithParams = $this->toQueryWithParams();
 
         return array_map(
-            fn(QueryWithParams $queryWithParams): string => $queryWithParams->toSql($this->dialect),
+            fn (QueryWithParams $queryWithParams): string => $queryWithParams->toSql($this->dialect),
             $queriesWithParams
         );
     }
@@ -41,7 +41,7 @@ class AlterTableQuery extends Query
         $queriesWithParams = $this->toQueryWithParams();
 
         return array_map(
-            fn(QueryWithParams $queryWithParams): ResultInterface => $this->database->queryWithParams(
+            fn (QueryWithParams $queryWithParams): ResultInterface => $this->database->queryWithParams(
                 $queryWithParams,
                 $emulatePrepares
             ),

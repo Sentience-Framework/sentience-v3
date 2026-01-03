@@ -27,12 +27,6 @@ enum Driver: string
     case SQLITE = 'sqlite';
     case SQLSRV = 'sqlsrv';
 
-    case CUBRID = 'cubrid';
-    case DB2 = 'ibm';
-    case DBLIB = 'dblib';
-    case INFORMIX = 'informix';
-    case ODBC = 'odbc';
-
     public function getAdapter(
         string $name,
         ?SocketAbstract $socket,
@@ -49,9 +43,9 @@ enum Driver: string
                 static::SQLITE => SQLite3Adapter::class,
                 default => PDOAdapter::class
             }
-            : PDOAdapter::class;
+        : PDOAdapter::class;
 
-        return $adapter::fromSocket(
+        return new $adapter(
             $this,
             $name,
             $socket,

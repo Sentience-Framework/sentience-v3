@@ -1,7 +1,6 @@
 <?php
 
 use Sentience\Cache\Cache;
-use Sentience\Database\Adapters\PDOAdapter;
 use Sentience\Database\Driver;
 use Sentience\Database\Sockets\NetworkSocket;
 use Sentience\Database\Sockets\UnixSocket;
@@ -41,36 +40,20 @@ return new class () {
                 Log::stderrBetweenEqualSigns('Query', $lines);
             }
         : null;
-        $lazy = config('database->lazy', false);
 
         $socket = !$unixSocket
             ? new NetworkSocket($host, $port, $username, $password)
             : new UnixSocket($unixSocket, $port, $username, $password);
 
-        $supportedBySentience = in_array($driver, PDOAdapter::SUPPORTED_DRIVERS);
-
-        $db = $supportedBySentience
-            ? DB::connect(
-                $driver,
-                $name,
-                $socket,
-                $queries,
-                $options,
-                $debug,
-                $usePdo,
-                $lazy
-            ) : DB::pdo(
-                fn (): PDO => new PDO(
-                    $dsn,
-                    $username,
-                    $password
-                ),
-                $driver,
-                $queries,
-                $options,
-                $debug,
-                $lazy
-            );
+        $db = DB::connect(
+            $driver,
+            $name,
+            $socket,
+            $queries,
+            $options,
+            $debug,
+            $usePdo
+        );
 
         return $db;
 

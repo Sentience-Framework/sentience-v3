@@ -25,7 +25,7 @@ interface DatabaseInterface
     public function commitTransaction(bool $releaseSavepoints = false, ?string $name = null): void;
     public function rollbackTransaction(bool $releaseSavepoints = false, ?string $name = null): void;
     public function inTransaction(): bool;
-    public function transaction(callable $callback, ?string $name = null): mixed;
+    public function transaction(callable $callback, bool $releaseSavepoints = false, ?string $name = null): mixed;
     public function lastInsertId(?string $name = null): null|int|string;
     public function select(string|array|Alias|Raw|SubQuery $table): SelectQuery;
     public function insert(string|array|Raw $table): InsertQuery;
