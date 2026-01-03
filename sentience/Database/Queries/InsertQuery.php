@@ -55,7 +55,7 @@ class InsertQuery extends Query
         }
 
         return $this->emulateOnConflictInTransaction
-            ? $this->database->transaction(fn (): ResultInterface => $this->upsert($emulatePrepare))
+            ? $this->database->transaction(fn(): ResultInterface => $this->upsert($emulatePrepare))
             : $this->upsert($emulatePrepare);
     }
 
@@ -106,15 +106,20 @@ class InsertQuery extends Query
 
     protected function select(Closure $whereGroup, int $limit, bool $emulatePrepare): ResultInterface
     {
-        return $this->database->select($this->table)
+        $selectQuery = $this->database->select($this->table)
             ->columns(
                 !empty($this->returning)
                 ? array_unique(array_filter([$this->lastInsertId, ...$this->returning]))
                 : []
             )
             ->whereGroup($whereGroup)
-            ->limit($limit)
-            ->execute($emulatePrepare);
+            ->limit($limit);
+
+        if ($this->lastInsertId) {
+            $selectQuery->orderByDesc($this->lastInsertId);
+        }
+
+        return $selectQuery->execute($emulatePrepare);
     }
 
     protected function insert(bool $emulatePrepare): ResultInterface
@@ -127,15 +132,17 @@ class InsertQuery extends Query
 
         $lastInsertId = $this->database->lastInsertId();
 
-        if (empty($lastInsertId)) {
-            return $result;
-        }
-
         return $this->select(
-            fn (ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup->whereEquals(
-                $this->lastInsertId,
-                $lastInsertId
-            ),
+            function (ConditionGroup $conditionGroup) use ($lastInsertId): ConditionGroup {
+                if (empty($lastInsertId)) {
+                    return $conditionGroup;
+                }
+
+                return $conditionGroup->whereEquals(
+                    $this->lastInsertId,
+                    $lastInsertId
+                );
+            },
             1,
             $emulatePrepare
         );
