@@ -2,7 +2,7 @@
 
 namespace Sentience\Database\Queries;
 
-use Sentience\Database\Database;
+use Sentience\Database\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Objects\Raw;
@@ -13,7 +13,7 @@ class AlterTableQuery extends Query
 {
     use AltersTrait;
 
-    public function __construct(Database $database, DialectInterface $dialect, string|array|Raw $table)
+    public function __construct(DatabaseInterface $database, DialectInterface $dialect, string|array|Raw $table)
     {
         parent::__construct($database, $dialect, $table);
     }
@@ -31,7 +31,7 @@ class AlterTableQuery extends Query
         $queriesWithParams = $this->toQueryWithParams();
 
         return array_map(
-            fn (QueryWithParams $queryWithParams): string => $queryWithParams->toSql($this->dialect),
+            fn(QueryWithParams $queryWithParams): string => $queryWithParams->toSql($this->dialect),
             $queriesWithParams
         );
     }
@@ -41,7 +41,7 @@ class AlterTableQuery extends Query
         $queriesWithParams = $this->toQueryWithParams();
 
         return array_map(
-            fn (QueryWithParams $queryWithParams): ResultInterface => $this->database->queryWithParams(
+            fn(QueryWithParams $queryWithParams): ResultInterface => $this->database->queryWithParams(
                 $queryWithParams,
                 $emulatePrepares
             ),

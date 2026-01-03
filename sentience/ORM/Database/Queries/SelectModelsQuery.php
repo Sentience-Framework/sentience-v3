@@ -2,7 +2,7 @@
 
 namespace Sentience\ORM\Database\Queries;
 
-use Sentience\Database\Database;
+use Sentience\Database\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Enums\ChainEnum;
 use Sentience\Database\Queries\Enums\OrderByDirectionEnum;
@@ -27,7 +27,7 @@ class SelectModelsQuery extends ModelsQueryAbstract
     use RelationsTrait;
     use WhereTrait;
 
-    public function __construct(Database $database, DialectInterface $dialect, string $model)
+    public function __construct(DatabaseInterface $database, DialectInterface $dialect, string $model)
     {
         parent::__construct($database, $dialect, [$model]);
     }
@@ -62,8 +62,8 @@ class SelectModelsQuery extends ModelsQueryAbstract
         }
 
         $selectQuery->whereGroup(
-            fn (): ConditionGroup => new ConditionGroup(
-                ChainEnum::AND,
+            fn(): ConditionGroup => new ConditionGroup(
+                ChainEnum::AND ,
                 $this->where
             )
         );
@@ -85,7 +85,7 @@ class SelectModelsQuery extends ModelsQueryAbstract
         $result = $selectQuery->execute($emulatePrepare);
 
         return array_map(
-            fn (array $row): object => $this->mapAssocToModel($model, $row),
+            fn(array $row): object => $this->mapAssocToModel($model, $row),
             $result->fetchAssocs()
         );
     }
@@ -126,7 +126,7 @@ class SelectModelsQuery extends ModelsQueryAbstract
             $selectQuery->distinct();
         }
 
-        $selectQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(ChainEnum::AND, $this->where));
+        $selectQuery->whereGroup(fn(): ConditionGroup => new ConditionGroup(ChainEnum::AND , $this->where));
 
         foreach ($this->orderBy as $orderBy) {
             $orderBy->direction == OrderByDirectionEnum::ASC
@@ -149,7 +149,7 @@ class SelectModelsQuery extends ModelsQueryAbstract
         $result = $selectQuery->execute($emulatePrepare);
 
         return array_map(
-            fn (array $row): object => $this->mapAssocToModel($model, $row),
+            fn(array $row): object => $this->mapAssocToModel($model, $row),
             $result->fetchAssocs()
         );
     }

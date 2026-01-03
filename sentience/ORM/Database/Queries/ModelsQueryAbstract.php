@@ -5,7 +5,7 @@ namespace Sentience\ORM\Database\Queries;
 use BackedEnum;
 use DateTime;
 use DateTimeImmutable;
-use Sentience\Database\Database;
+use Sentience\Database\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Exceptions\QueryException;
 use Sentience\ORM\Models\Model;
@@ -15,7 +15,7 @@ use Sentience\Timestamp\Timestamp;
 
 abstract class ModelsQueryAbstract implements ModelsQueryInterface
 {
-    public function __construct(protected Database $database, protected DialectInterface $dialect, protected array $models)
+    public function __construct(protected DatabaseInterface $database, protected DialectInterface $dialect, protected array $models)
     {
         if (count($models) == 0) {
             throw new QueryException('array of models is empty');

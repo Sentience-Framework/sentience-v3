@@ -2,7 +2,7 @@
 
 namespace Sentience\ORM\Database\Queries;
 
-use Sentience\Database\Database;
+use Sentience\Database\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Traits\IfExistsTrait;
 use Sentience\ORM\Models\Reflection\ReflectionModel;
@@ -11,7 +11,7 @@ class DropModelQuery extends ModelsQueryAbstract
 {
     use IfExistsTrait;
 
-    public function __construct(Database $database, DialectInterface $dialect, string $model)
+    public function __construct(DatabaseInterface $database, DialectInterface $dialect, string $model)
     {
         parent::__construct($database, $dialect, [$model]);
     }

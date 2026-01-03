@@ -1,12 +1,11 @@
 <?php
 
-namespace Sentience\Database;
+namespace Sentience\Database\Databases;
 
 use Closure;
-use Sentience\Database\Databases\DatabaseAbstract;
+use Sentience\Database\DatabaseInterface;
 use Throwable;
 use Sentience\Database\Adapters\AdapterInterface;
-use Sentience\Database\Adapters\PDOAdapter;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\AlterTableQuery;
 use Sentience\Database\Queries\CreateTableQuery;
@@ -22,61 +21,8 @@ use Sentience\Database\Queries\UpdateQuery;
 use Sentience\Database\Results\ResultInterface;
 use Sentience\Database\Sockets\SocketAbstract;
 
-class Database extends DatabaseAbstract
+abstract class DatabaseAbstract implements DatabaseInterface
 {
-    public static function connect(
-        Driver $driver,
-        string $name,
-        ?SocketAbstract $socket = null,
-        array $queries = [],
-        array $options = [],
-        ?Closure $debug = null,
-        bool $usePDOAdapter = false,
-        bool $lazy = false,
-        null|int|string $version = null
-    ): static {
-        $adapter = $driver->getAdapter(
-            $name,
-            $socket,
-            $queries,
-            $options,
-            $debug,
-            $usePDOAdapter,
-            $lazy
-        );
-
-        $version ??= $adapter->version();
-
-        $dialect = $driver->getDialect($version);
-
-        return new static($adapter, $dialect);
-    }
-
-    public static function pdo(
-        Closure $connect,
-        Driver $driver,
-        array $queries,
-        array $options,
-        ?Closure $debug,
-        bool $lazy = false,
-        null|int|string $version = null
-    ): static {
-        $adapter = new PDOAdapter(
-            $connect,
-            $driver,
-            $queries,
-            $options,
-            $debug,
-            $lazy
-        );
-
-        $version ??= $adapter->version();
-
-        $dialect = $driver->getDialect($version);
-
-        return new static($adapter, $dialect);
-    }
-
     protected array $savepoints = [];
 
     public function __construct(
@@ -230,25 +176,5 @@ class Database extends DatabaseAbstract
     public function dropTable(string|array|Raw $table): DropTableQuery
     {
         return new DropTableQuery($this, $this->dialect, $table);
-    }
-
-    public function ping(bool $reconnect = false): bool
-    {
-        return $this->adapter->ping($reconnect);
-    }
-
-    public function enableLazy(bool $disconnect = true): void
-    {
-        $this->adapter->enableLazy($disconnect);
-    }
-
-    public function disableLazy(bool $connect = true): void
-    {
-        $this->adapter->disableLazy($connect);
-    }
-
-    public function isLazy(): bool
-    {
-        return $this->adapter->isLazy();
     }
 }

@@ -39,17 +39,17 @@ enum Driver: string
         array $queries,
         array $options,
         ?Closure $debug,
-        bool $usePdoAdapter = false,
+        bool $usePDOAdapter = false,
         bool $lazy = false
     ): AdapterInterface {
-        $adapter = !$usePdoAdapter
+        $adapter = !$usePDOAdapter
             ? match ($this) {
                 static::MARIADB,
                 static::MYSQL => MySQLiAdapter::class,
                 static::SQLITE => SQLite3Adapter::class,
                 default => PDOAdapter::class
             }
-        : PDOAdapter::class;
+            : PDOAdapter::class;
 
         return $adapter::fromSocket(
             $this,

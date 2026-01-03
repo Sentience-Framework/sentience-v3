@@ -3,7 +3,7 @@
 namespace Sentience\ORM\Database\Queries;
 
 use DateTimeInterface;
-use Sentience\Database\Database;
+use Sentience\Database\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Enums\ChainEnum;
 use Sentience\Database\Queries\Traits\WhereTrait;
@@ -16,7 +16,7 @@ class UpdateModelsQuery extends ModelsQueryAbstract
 
     protected array $updates = [];
 
-    public function __construct(Database $database, DialectInterface $dialect, array $models)
+    public function __construct(DatabaseInterface $database, DialectInterface $dialect, array $models)
     {
         parent::__construct($database, $dialect, $models);
     }
@@ -55,7 +55,7 @@ class UpdateModelsQuery extends ModelsQueryAbstract
             }
 
             $updateQuery->values([...$values, ...$this->updates]);
-            $updateQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(ChainEnum::AND, $this->where));
+            $updateQuery->whereGroup(fn(): ConditionGroup => new ConditionGroup(ChainEnum::AND , $this->where));
             // $updateQuery->returning($columns);
 
             $result = $updateQuery->execute($emulatePrepare);

@@ -4,14 +4,14 @@ namespace Sentience\ORM\Database\Queries;
 
 use DateTime;
 use DateTimeImmutable;
-use Sentience\Database\Database;
+use Sentience\Database\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\ORM\Models\Reflection\ReflectionModel;
 use Sentience\Timestamp\Timestamp;
 
 class AlterModelQuery extends ModelsQueryAbstract
 {
-    public function __construct(Database $database, DialectInterface $dialect, string $model)
+    public function __construct(DatabaseInterface $database, DialectInterface $dialect, string $model)
     {
         parent::__construct($database, $dialect, [$model]);
     }

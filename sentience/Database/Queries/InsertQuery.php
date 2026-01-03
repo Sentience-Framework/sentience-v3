@@ -3,7 +3,7 @@
 namespace Sentience\Database\Queries;
 
 use Closure;
-use Sentience\Database\Database;
+use Sentience\Database\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Exceptions\QueryException;
 use Sentience\Database\Queries\Objects\ConditionGroup;
@@ -27,7 +27,7 @@ class InsertQuery extends Query
     protected bool $emulateOnConflictInTransaction = false;
     protected bool $emulateReturning = false;
 
-    public function __construct(Database $database, DialectInterface $dialect, string|array|Raw $table)
+    public function __construct(DatabaseInterface $database, DialectInterface $dialect, string|array|Raw $table)
     {
         parent::__construct($database, $dialect, $table);
     }
@@ -55,7 +55,7 @@ class InsertQuery extends Query
         }
 
         return $this->emulateOnConflictInTransaction
-            ? $this->database->transaction(fn (): ResultInterface => $this->upsert($emulatePrepare))
+            ? $this->database->transaction(fn(): ResultInterface => $this->upsert($emulatePrepare))
             : $this->upsert($emulatePrepare);
     }
 
@@ -132,7 +132,7 @@ class InsertQuery extends Query
         }
 
         return $this->select(
-            fn (ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup->whereEquals(
+            fn(ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup->whereEquals(
                 $this->lastInsertId,
                 $lastInsertId
             ),

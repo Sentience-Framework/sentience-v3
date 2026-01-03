@@ -3,7 +3,7 @@
 namespace Sentience\Database\Queries;
 
 use DateTime;
-use Sentience\Database\Database;
+use Sentience\Database\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Objects\Alias;
 use Sentience\Database\Queries\Objects\Identifier;
@@ -13,7 +13,7 @@ use Sentience\Database\Queries\Objects\SubQuery;
 abstract class Query implements QueryInterface
 {
     public function __construct(
-        protected Database $database,
+        protected DatabaseInterface $database,
         protected DialectInterface $dialect,
         protected string|array|Alias|Raw|SubQuery $table
     ) {
