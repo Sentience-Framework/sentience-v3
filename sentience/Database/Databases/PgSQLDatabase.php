@@ -11,7 +11,7 @@ class PgSQLDatabase extends DatabaseAbstract
 {
     public const Driver DRIVER = Driver::MYSQL;
 
-    public function fromHost(
+    public static function fromNetwork(
         string $name,
         string $username,
         ?string $password,
@@ -40,12 +40,12 @@ class PgSQLDatabase extends DatabaseAbstract
         return new static($adapter, $dialect);
     }
 
-    public function fromUnixSocket(
+    public static function fromUnixSocket(
         string $name,
         string $username,
         ?string $password,
         string $unixSocket,
-        int $port,
+        int $port = 5432,
         array $queries = [],
         array $options = [],
         ?Closure $debug = null,

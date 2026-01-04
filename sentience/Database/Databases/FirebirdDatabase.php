@@ -8,7 +8,7 @@ use Sentience\Database\Sockets\NetworkSocket;
 
 class FirebirdDatabase extends DatabaseAbstract
 {
-    public function fromHost(
+    public static function fromNetwork(
         string $name,
         string $username,
         ?string $password,

@@ -11,7 +11,7 @@ class MySQLDatabase extends DatabaseAbstract
 {
     public const Driver DRIVER = Driver::MYSQL;
 
-    public function fromHost(
+    public static function fromNetwork(
         string $name,
         string $username,
         ?string $password,
@@ -40,7 +40,7 @@ class MySQLDatabase extends DatabaseAbstract
         return new static($adapter, $dialect);
     }
 
-    public function fromUnixSocket(
+    public static function fromUnixSocket(
         string $name,
         string $username,
         ?string $password,

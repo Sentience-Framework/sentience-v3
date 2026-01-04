@@ -7,7 +7,7 @@ use Sentience\Database\Driver;
 
 class SQLiteDatabase extends DatabaseAbstract
 {
-    public function fromFile(
+    public static function fromFile(
         string $name,
         array $queries = [],
         array $options = [],
