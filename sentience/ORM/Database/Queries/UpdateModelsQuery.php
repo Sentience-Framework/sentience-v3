@@ -3,7 +3,7 @@
 namespace Sentience\ORM\Database\Queries;
 
 use DateTimeInterface;
-use Sentience\Database\DatabaseInterface;
+use Sentience\Database\Databases\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Enums\ChainEnum;
 use Sentience\Database\Queries\Traits\WhereTrait;

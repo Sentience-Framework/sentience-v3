@@ -3,7 +3,7 @@
 namespace Sentience\Database\Queries;
 
 use DateTimeInterface;
-use Sentience\Database\DatabaseInterface;
+use Sentience\Database\Databases\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Enums\TypeEnum;
 use Sentience\Database\Queries\Objects\Column;

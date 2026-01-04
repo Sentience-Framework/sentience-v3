@@ -5,7 +5,7 @@ namespace Sentience\ORM\Database\Queries;
 use BackedEnum;
 use DateTime;
 use DateTimeImmutable;
-use Sentience\Database\DatabaseInterface;
+use Sentience\Database\Databases\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Exceptions\QueryException;
 use Sentience\ORM\Models\Model;

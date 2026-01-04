@@ -3,7 +3,7 @@
 namespace Sentience\Database\Queries;
 
 use Closure;
-use Sentience\Database\DatabaseInterface;
+use Sentience\Database\Databases\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Exceptions\QueryException;
 use Sentience\Database\Queries\Objects\ConditionGroup;

@@ -2,7 +2,7 @@
 
 namespace Sentience\ORM\Database\Queries;
 
-use Sentience\Database\DatabaseInterface;
+use Sentience\Database\Databases\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Traits\IfExistsTrait;
 use Sentience\ORM\Models\Reflection\ReflectionModel;

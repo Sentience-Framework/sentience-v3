@@ -4,7 +4,6 @@ namespace Sentience\Database\Databases;
 
 use Throwable;
 use Sentience\Database\Adapters\AdapterInterface;
-use Sentience\Database\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\AlterTableQuery;
 use Sentience\Database\Queries\CreateTableQuery;

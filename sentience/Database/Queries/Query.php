@@ -3,7 +3,7 @@
 namespace Sentience\Database\Queries;
 
 use DateTime;
-use Sentience\Database\DatabaseInterface;
+use Sentience\Database\Databases\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Objects\Alias;
 use Sentience\Database\Queries\Objects\Identifier;

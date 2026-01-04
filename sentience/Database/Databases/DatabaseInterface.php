@@ -1,6 +1,6 @@
 <?php
 
-namespace Sentience\Database;
+namespace Sentience\Database\Databases;
 
 use Sentience\Database\Queries\AlterTableQuery;
 use Sentience\Database\Queries\CreateTableQuery;
