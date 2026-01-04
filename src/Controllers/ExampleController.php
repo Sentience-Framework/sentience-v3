@@ -89,13 +89,13 @@ class ExampleController extends Controller
             ])
             ->leftJoin(
                 'leftjoin_table',
-                fn(Join $join): Join => $join->on(
+                fn (Join $join): Join => $join->on(
                     ['leftjoin_table', 'join_column'],
                     ['on_table', 'on_column']
                 )
             )->innerJoin(
                 'innerjoin_table',
-                fn(Join $join): Join => $join->on(
+                fn (Join $join): Join => $join->on(
                     ['innerjoin_table', 'join_column'],
                     ['on_table', 'on_column']
                 )->whereBetween(['innerjoin_table', 'join_column'], 0, 9999)
@@ -103,17 +103,17 @@ class ExampleController extends Controller
             ->join('RIGHT JOIN table2 jt ON jt.column1 = table1.column1 AND jt.column2 = table2.column2')
             ->whereEquals('column1', 10)
             ->whereGroup(
-                fn($group) => $group
+                fn ($group) => $group
                     ->whereGreaterThanOrEquals('column2', 20)
                     ->orwhereIsNull('column3')
             )
             ->where('DATE(`created_at`) > :date OR DATE(`created_at`) < :date', [':date' => Query::now()])
             ->whereGroup(
-                fn($group) => $group
+                fn ($group) => $group
                     ->whereIn('column4', [1, 2, 3, 4])
                     ->whereNotEquals('column5', 'test string')
             )
-            ->whereGroup(fn($group) => $group)
+            ->whereGroup(fn ($group) => $group)
             ->whereIn('column2', [])
             ->whereNotIn('column2', [])
             ->whereStartsWith('column2', 'a')

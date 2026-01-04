@@ -1,0 +1,39 @@
+<?php
+
+namespace Sentience\Database\Databases;
+
+use Closure;
+use Sentience\Database\Driver;
+use Sentience\Database\Sockets\NetworkSocket;
+
+class SQLServerDatabase extends DatabaseAbstract
+{
+    public function fromHost(
+        string $name,
+        string $username,
+        ?string $password,
+        string $host = 'localhost',
+        int $port = 1433,
+        array $queries = [],
+        array $options = [],
+        ?Closure $debug = null,
+        bool $usePDOAdapter = false
+    ): static {
+        $driver = Driver::SQLSRV;
+
+        $adapter = $driver->getAdapter(
+            $name,
+            new NetworkSocket($host, $port, $username, $password),
+            $queries,
+            $options,
+            $debug,
+            $usePDOAdapter
+        );
+
+        $version = $adapter->version();
+
+        $dialect = $driver->getDialect($version);
+
+        return new static($adapter, $dialect);
+    }
+}

@@ -7,7 +7,7 @@ use Sentience\Database\Driver;
 use Sentience\Database\Sockets\NetworkSocket;
 use Sentience\Database\Sockets\UnixSocket;
 
-class MySQLDatabase extends DatabaseAbstract
+class PgSQLDatabase extends DatabaseAbstract
 {
     public const Driver DRIVER = Driver::MYSQL;
 
@@ -16,7 +16,7 @@ class MySQLDatabase extends DatabaseAbstract
         string $username,
         ?string $password,
         string $host = 'localhost',
-        int $port = 3306,
+        int $port = 5432,
         array $queries = [],
         array $options = [],
         ?Closure $debug = null,
@@ -45,6 +45,7 @@ class MySQLDatabase extends DatabaseAbstract
         string $username,
         ?string $password,
         string $unixSocket,
+        int $port,
         array $queries = [],
         array $options = [],
         ?Closure $debug = null,
@@ -54,7 +55,7 @@ class MySQLDatabase extends DatabaseAbstract
 
         $adapter = $driver->getAdapter(
             $name,
-            new UnixSocket($unixSocket, null, $username, $password),
+            new UnixSocket($unixSocket, $port, $username, $password),
             $queries,
             $options,
             $debug,

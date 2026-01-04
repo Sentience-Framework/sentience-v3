@@ -46,13 +46,10 @@ class PDOAdapter extends AdapterAbstract
             $dsn,
             $socket?->username,
             $socket?->password,
-            [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_PERSISTENT => $options[static::OPTIONS_PERSISTENT] ?? false,
-                PDO::ATTR_EMULATE_PREPARES => false,
-                PDO::ATTR_STRINGIFY_FETCHES => false
-            ]
+            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
         );
+
+        $this->configurePDO($driver, $options);
 
         if (in_array($driver, [Driver::MARIADB, Driver::MYSQL])) {
             $this->configurePDOForMySQL($options);
@@ -115,7 +112,7 @@ class PDOAdapter extends AdapterAbstract
 
         if ($driver == Driver::SQLSRV) {
             return sprintf(
-                '%s:Server=%s,%d;Database=%s;Encrypt=%s;TrustServerCertificate=yes',
+                '%s:Server=%s,%d;Database=%s;Encrypt=%s;TrustServerCertificate=%s',
                 $driver->value,
                 $socket->host,
                 $socket->port,
@@ -125,13 +122,13 @@ class PDOAdapter extends AdapterAbstract
             );
         }
 
-        $build = fn(array $dsn): string => sprintf(
+        $build = fn (array $dsn): string => sprintf(
             '%s:%s',
             $driver == Driver::MARIADB ? Driver::MYSQL->value : $driver->value,
             implode(
                 ';',
                 array_map(
-                    fn(null|int|float|string $value, string $key): string => sprintf(
+                    fn (null|int|float|string $value, string $key): string => sprintf(
                         '%s=%s',
                         $key,
                         (string) $value
@@ -188,6 +185,16 @@ class PDOAdapter extends AdapterAbstract
         return $build($dsn);
     }
 
+    protected function configurePDO(Driver $driver, array $options): void
+    {
+        $this->pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+        $this->pdo->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
+
+        if (!in_array($driver, [Driver::SQLSRV])) {
+            $this->pdo->setAttribute(PDO::ATTR_PERSISTENT, $options[static::OPTIONS_PERSISTENT] ?? false);
+        }
+    }
+
     protected function configurePDOForMySQL(array $options): void
     {
         if (array_key_exists(static::OPTIONS_MYSQL_CHARSET, $options)) {
@@ -220,7 +227,7 @@ class PDOAdapter extends AdapterAbstract
             if (method_exists($this->pdo, $method)) {
                 [$this->pdo, $method](
                     static::REGEXP_LIKE_FUNCTION,
-                    fn(string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction(
+                    fn (string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction(
                         $value,
                         $pattern,
                         $flags
@@ -314,7 +321,7 @@ class PDOAdapter extends AdapterAbstract
 
             $pdoStatement = $this->pdo->prepare($queryWithParams->query);
         } catch (Throwable $exception) {
-            $this->debug(fn(): string => $queryWithParams->toSql($dialect), $start, $exception);
+            $this->debug(fn (): string => $queryWithParams->toSql($dialect), $start, $exception);
 
             throw $exception;
         } finally {
@@ -343,7 +350,7 @@ class PDOAdapter extends AdapterAbstract
         try {
             $pdoStatement->execute();
         } catch (Throwable $exception) {
-            $this->debug(fn(): string => $queryWithParams->toSql($dialect), $start, $exception);
+            $this->debug(fn (): string => $queryWithParams->toSql($dialect), $start, $exception);
 
             throw $exception;
         } finally {
@@ -352,7 +359,7 @@ class PDOAdapter extends AdapterAbstract
             }
         }
 
-        $this->debug(fn(): string => $queryWithParams->toSql($dialect), $start);
+        $this->debug(fn (): string => $queryWithParams->toSql($dialect), $start);
 
         return new PDOResult($pdoStatement);
     }
