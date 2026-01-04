@@ -36,4 +36,12 @@ class FirebirdDatabase extends DatabaseAbstract
 
         return new static($adapter, $dialect);
     }
+
+    /**
+     * Firebird doesn't support lastInsertId(). Please use the RETURNING clause
+     */
+    public function lastInsertId(?string $name = null): null|int|string
+    {
+        return null;
+    }
 }
