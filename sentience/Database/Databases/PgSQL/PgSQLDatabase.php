@@ -66,7 +66,7 @@ class PgSQLDatabase extends DatabaseAbstract
         return new static($adapter, $dialect);
     }
 
-    public function backslashDT(): array
+    public function informationSchemaTables(): array
     {
         return $this->select(['information_schema', 'tables'])
             ->whereNotIn('table_schema', ['pg_catalog', 'information_schema'])
@@ -74,7 +74,7 @@ class PgSQLDatabase extends DatabaseAbstract
             ->fetchAssocs();
     }
 
-    public function bashslashD(string $table): array
+    public function informationSchemaColumns(string $table): array
     {
         return $this->select(['information_schema', 'columns'])
             ->whereEquals('table_name', $table)
