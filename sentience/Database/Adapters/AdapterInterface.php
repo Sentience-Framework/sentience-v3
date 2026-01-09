@@ -26,6 +26,7 @@ interface AdapterInterface
     public const string OPTIONS_SQLITE_ENCODING = 'encoding';
     public const string OPTIONS_SQLITE_JOURNAL_MODE = 'journal_mode';
     public const string OPTIONS_SQLITE_FOREIGN_KEYS = 'foreign_keys';
+    public const string OPTIONS_SQLITE_DEPRECATED_CASE_SENSITIVE_LIKE = 'deprecated_case_sensitive_like';
     public const string OPTIONS_SQLITE_OPTIMIZE = 'optimize';
 
     public function version(): int|string;

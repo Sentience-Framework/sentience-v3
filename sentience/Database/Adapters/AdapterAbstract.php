@@ -81,8 +81,12 @@ abstract class AdapterAbstract implements AdapterInterface
         $this->exec('PRAGMA foreign_keys = ON');
     }
 
-    protected function sqliteCaseSensitiveLike(): void
+    protected function sqliteCaseSensitiveLike(bool $caseSensitiveLike): void
     {
+        if (!$caseSensitiveLike) {
+            return;
+        }
+
         $this->exec('PRAGMA case_sensitive_like = ON');
     }
 
