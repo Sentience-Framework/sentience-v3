@@ -115,6 +115,17 @@ class ExampleController extends Controller
                     )
             )
             ->join('RIGHT JOIN table2 jt ON jt.column1 = table1.column1 AND jt.column2 = table2.column2')
+            ->innerJoin(
+                Query::subQuery(
+                    $db->select('sub_join')
+                        ->columns(['id', 'username']),
+                    'sub_table_alias'
+                ),
+                fn (Join $join): Join => $join->on(
+                    ['sub_table_alias', 'joinColumn1'],
+                    ['table_1', 'column2']
+                )
+            )
             ->whereEquals('column1', 10)
             ->whereGroup(
                 fn ($group) => $group

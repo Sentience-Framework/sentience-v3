@@ -413,7 +413,13 @@ class SQLDialect extends DialectAbstract
             $query .= sprintf(
                 '%s %s ON ',
                 $join->join->value,
-                $this->escapeIdentifier($join->table)
+                $this->escapeIdentifier(
+                    $join->table instanceof SubQuery
+                    ? $join->table->toAlias(function (SelectQuery $selectQuery) use (&$params): string {
+                        return $this->buildSelectQuery($params, $selectQuery);
+                    })
+                    : $join->table
+                )
             );
 
             $conditions = $join->getConditions();
