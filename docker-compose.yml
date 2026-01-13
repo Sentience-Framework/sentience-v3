@@ -1,6 +1,21 @@
 version: '3.8'
 
 services:
+  firebird:
+    image: firebirdsql/firebird
+    environment:
+      - FIREBIRD_ROOT_PASSWORD=firebase
+      - FIREBIRD_USER=SYSDBA
+      - FIREBIRD_PASSWORD=firebase
+      - FIREBIRD_DATABASE=sentience.fdb
+      - FIREBIRD_DATABASE_DEFAULT_CHARSET=UTF8
+    ports:
+      - 3050:3050
+    volumes:
+      - firebase-data:/var/lib/firebird/data
+    networks:
+      - public
+
   mariadb:
     image: mariadb:latest
     volumes:
@@ -27,6 +42,20 @@ services:
       timeout: 2s
       retries: 5
 
+  oci:
+    image: container-registry.oracle.com/database/express:21.3.0-xe
+    ports:
+      - 1521:1521
+      - 5500:5500
+    environment:
+      ORACLE_SID: ORCLCDB
+      ORACLE_PDB: ORCLPDB1
+      ORACLE_PWD: StrongPassword123$
+      ORACLE_CHARACTERSET: AL32UTF8
+    volumes:
+      - oci-data:/opt/oracle/oradata
+    shm_size: "1gb"
+
   postgres:
     image: postgres:18-alpine
     environment:
@@ -43,21 +72,6 @@ services:
       timeout: 2s
       retries: 5
       start_period: 30s
-
-  firebird:
-    image: firebirdsql/firebird
-    environment:
-      - FIREBIRD_ROOT_PASSWORD=firebase
-      - FIREBIRD_USER=SYSDBA
-      - FIREBIRD_PASSWORD=firebase
-      - FIREBIRD_DATABASE=sentience.fdb
-      - FIREBIRD_DATABASE_DEFAULT_CHARSET=UTF8
-    ports:
-      - 3050:3050
-    volumes:
-      - firebase-data:/var/lib/firebird/data
-    networks:
-      - public
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -89,6 +103,7 @@ volumes:
   firebase-data:
   mariadb-data:
   mysql-data:
+  oci-data:
   postgres-data:
   sqlserver-data:
 
