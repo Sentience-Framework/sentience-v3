@@ -287,8 +287,8 @@ class ExampleController extends Controller
                 ->updateColumn('applied_at', Query::now())
                 ->execute($emulatePrepare);
 
-            // $db->deleteModels($models)
-            //     ->execute($emulatePrepare);
+            $db->deleteModels($models)
+                ->execute($emulatePrepare);
 
             // $db->prepared(
             //     'SELECT * FROM migrations -- test comment with a ? item
@@ -427,5 +427,21 @@ class ExampleController extends Controller
                 [ReferentialActionEnum::ON_DELETE_SET_NULL]
             )
             ->execute();
+    }
+
+    public function storedProcedures(DB $db): void
+    {
+        $db->createImmutableStoredProcedure('immutable', 'SELECT * FROM migrations WHERE id = ?');
+        $result = $db->executeImmutableStoredProcedure('immutable', [1]);
+        print_r($result->fetchAssocs());
+
+        $db->createMutableStoredProcedure(
+            'mutable',
+            fn ($id): Query => $db->select('migrations')
+                ->whereEquals('id', $id)
+        );
+
+        $result = $db->executeMutableStoredProcedure('mutable', [1]);
+        print_r($result->fetchAssocs());
     }
 }

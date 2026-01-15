@@ -142,5 +142,10 @@ return [
         function (): void {
             print_r(PDO::getAvailableDrivers());
         }
+    ),
+
+    Command::register(
+        'stored-procedures',
+        [ExampleController::class, 'storedProcedures']
     )
 ];
