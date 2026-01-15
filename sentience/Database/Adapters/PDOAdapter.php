@@ -191,7 +191,7 @@ class PDOAdapter extends AdapterAbstract
         $this->pdo->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
 
         if (!in_array($driver, [Driver::SQLSRV])) {
-            $this->pdo->setAttribute(PDO::ATTR_PERSISTENT, $options[static::OPTIONS_PERSISTENT] ?? false);
+            $this->pdo->setAttribute(PDO::ATTR_PERSISTENT, (bool) ($options[static::OPTIONS_PERSISTENT] ?? false));
         }
     }
 
