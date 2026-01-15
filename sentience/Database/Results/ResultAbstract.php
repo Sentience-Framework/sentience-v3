@@ -34,7 +34,7 @@ abstract class ResultAbstract implements ResultInterface
         $assocs = $this->fetchAssocs();
 
         return array_map(
-            fn(array $assoc): object => $this->assocToObject(
+            fn (array $assoc): object => $this->assocToObject(
                 new $class(...$constructorArgs),
                 $assoc
             ),
