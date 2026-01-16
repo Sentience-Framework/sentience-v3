@@ -48,10 +48,8 @@ services:
       - 1521:1521
       - 5500:5500
     environment:
-      ORACLE_SID: ORCLCDB
-      ORACLE_PDB: ORCLPDB1
-      ORACLE_PWD: StrongPassword123$
-      ORACLE_CHARACTERSET: AL32UTF8
+      ORACLE_SID: XE
+      ORACLE_PWD: Password123$
     volumes:
       - oci-data:/opt/oracle/oradata
     shm_size: "1gb"
