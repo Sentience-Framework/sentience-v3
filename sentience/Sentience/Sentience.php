@@ -174,7 +174,7 @@ class Sentience
             }
         }
 
-        $this->executeCallback(callback: $route->callback, middleware: $route->middleware, request: $request, pathVars: $pathVars);
+        $this->executeCallback(callback: $route->callback, middleware: $route->middleware, request: $request, pathVars: $pathVars ?? []);
     }
 
     protected function executeCallback(string|array|callable $callback, array $middleware, array $words = [], array $flags = [], ?Request $request = null, array $pathVars = []): void
