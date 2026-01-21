@@ -1016,7 +1016,7 @@ class SQLDialect extends DialectAbstract
         return $value;
     }
 
-    public function castToQuery(null|bool|int|float|string|DateTimeInterface $value): null|bool|int|float|string
+    public function castToQuery(null|bool|int|float|string|DateTimeInterface $value): string
     {
         if (is_null($value)) {
             return 'NULL';
@@ -1031,7 +1031,7 @@ class SQLDialect extends DialectAbstract
 
             return is_string($bool)
                 ? $this->escapeString($bool)
-                : $bool;
+                : (string) $bool;
         }
 
         if (is_string($value)) {
@@ -1042,7 +1042,7 @@ class SQLDialect extends DialectAbstract
             return $this->escapeString($this->castDateTime($value));
         }
 
-        return $value;
+        return (string) $value;
     }
 
     public function castBool(bool $bool): null|bool|int|float|string
