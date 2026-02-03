@@ -425,7 +425,7 @@ class SQLDialect extends DialectAbstract
             $conditions = $join->getConditions();
 
             if (count($conditions) == 0) {
-                $query .= (string) $this->castToQuery(true);
+                $query .= $this->castToQuery(true);
 
                 continue;
             }
