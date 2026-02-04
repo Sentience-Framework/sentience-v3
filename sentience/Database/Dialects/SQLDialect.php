@@ -531,9 +531,9 @@ class SQLDialect extends DialectAbstract
 
         $query .= sprintf(
             '%s %s %s',
-            $caseInsensitive ? sprintf('LOWER(%s)', $identifier) : $identifier,
+            $caseInsensitive ? sprintf('lower(%s)', $identifier) : $identifier,
             $condition->condition->value,
-            $caseInsensitive ? sprintf('LOWER(%s)', $questionMark) : $questionMark
+            $caseInsensitive ? sprintf('lower(%s)', $questionMark) : $questionMark
         );
     }
 
@@ -555,7 +555,7 @@ class SQLDialect extends DialectAbstract
         }
 
         $query .= sprintf(
-            'REGEXP_LIKE(%s, %s, %s)',
+            'regexp_like(%s, %s, %s)',
             $this->escapeIdentifier($condition->identifier),
             $this->buildQuestionMarks($params, $condition->value[0]),
             $this->buildQuestionMarks($params, $condition->value[1])
