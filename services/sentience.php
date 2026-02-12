@@ -13,37 +13,37 @@ return new class () {
     public function db(): DB
     {
         $driver = Driver::from(config('database->driver', ''));
-        $dsn = config("database->settings->{$driver->value}->dsn", '');
-        $name = config(["database->settings->{$driver->value}->name", "database->settings->{$driver->value}->file"], '');
-        $host = config("database->settings->{$driver->value}->host", '');
-        $port = (int) config("database->settings->{$driver->value}->port", '');
-        $unixSocket = config("database->settings->{$driver->value}->unix_socket", null);
-        $username = config("database->settings->{$driver->value}->username", '');
-        $password = config("database->settings->{$driver->value}->password", '');
-        $queries = config("database->settings->{$driver->value}->queries", []);
-        $usePdo = config("database->settings->{$driver->value}->use_pdo", false);
-        $options = config("database->settings->{$driver->value}", []);
+        $dsn = config("database->settings->{$driver->name()}->dsn", '');
+        $name = config(["database->settings->{$driver->name()}->name", "database->settings->{$driver->name()}->file"], '');
+        $host = config("database->settings->{$driver->name()}->host", '');
+        $port = (int) config("database->settings->{$driver->name()}->port", '');
+        $unixSocket = config("database->settings->{$driver->name()}->unix_socket", null);
+        $username = config("database->settings->{$driver->name()}->username", '');
+        $password = config("database->settings->{$driver->name()}->password", '');
+        $queries = config("database->settings->{$driver->name()}->queries", []);
+        $usePdo = config("database->settings->{$driver->name()}->use_pdo", false);
+        $options = config("database->settings->{$driver->name()}", []);
         $debug = config('database->debug', false)
-            ? function (string $query, float $start, ?string $error = null): void {
-                $end = microtime(true);
+        ? function (string $query, float $start, ?string $error = null): void {
+            $end = microtime(true);
 
-                $lines = [
-                    sprintf('Timestamp : %s', Timestamp::now()->format('Y-m-d H:i:s.u')),
-                    sprintf('Query     : %s', $query),
-                    sprintf('Time      : %.2f ms', ($end - $start) * 1000)
-                ];
+            $lines = [
+                sprintf('Timestamp : %s', Timestamp::now()->format('Y-m-d H:i:s.u')),
+                sprintf('Query     : %s', $query),
+                sprintf('Time      : %.2f ms', ($end - $start) * 1000)
+            ];
 
-                if ($error) {
-                    $lines[] = sprintf('Error     : %s', $error);
-                }
-
-                Log::stderrBetweenEqualSigns('Query', $lines);
+            if ($error) {
+                $lines[] = sprintf('Error     : %s', $error);
             }
+
+            Log::stderrBetweenEqualSigns('Query', $lines);
+        }
         : null;
 
         $socket = !$unixSocket
-            ? new NetworkSocket($host, $port, $username, $password)
-            : new UnixSocket($unixSocket, $port, $username, $password);
+        ? new NetworkSocket($host, $port, $username, $password)
+        : new UnixSocket($unixSocket, $port, $username, $password);
 
         $db = DB::connect(
             $driver,
