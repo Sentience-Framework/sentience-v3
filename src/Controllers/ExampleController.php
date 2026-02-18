@@ -218,7 +218,7 @@ class ExampleController extends Controller
 
         $queries[] = implode(
             PHP_EOL,
-            $db->alterTable('table_1')
+            $db->table('table_1')->alter()
                 ->addColumn('column3', 'INT')
                 ->addColumn('columnDateTimeFunc', 'DATETIME', true, Query::raw('now()'))
                 // ->alterColumn('column3', 'TEXT AUTO_INCREMENT')
