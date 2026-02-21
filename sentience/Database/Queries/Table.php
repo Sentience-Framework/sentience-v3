@@ -162,46 +162,66 @@ class Table
         return $this->select()->limit(1)->count() > 0;
     }
 
-    public function copyFrom(string|array|Raw $from, ?callable $map = null, bool $ignoreExceptions = false, bool $emulatePrepare = false): int
+    public function copyFrom(string|array|Raw|self $from, ?callable $map = null, bool $ignoreExceptions = false, bool $emulatePrepare = false): int
     {
-        $result = $this->database->table($from)
-            ->select()
-            ->execute($emulatePrepare);
+        $table = $from instanceof self ? $from : $this->database->table($from);
+
+        $columns = $table->columns();
+
+        $result = $table->select()->execute($emulatePrepare);
 
         $count = 0;
 
         while ($assoc = $result->fetchAssoc()) {
             try {
-                $this->insert($map ? $map($assoc) : $assoc)->execute($emulatePrepare);
+                $this->insert(
+                    array_filter(
+                        $map ? $map($assoc) : $assoc,
+                        fn (string $column) => in_array($column, $columns),
+                        ARRAY_FILTER_USE_KEY
+                    )
+                )->execute($emulatePrepare);
 
                 $count++;
             } catch (Throwable $exception) {
-                if (!$ignoreExceptions) {
-                    throw $exception;
+                if ($ignoreExceptions) {
+                    continue;
                 }
+
+                throw $exception;
             }
         }
 
         return $count;
     }
 
-    public function copyTo(string|array|Raw $to, ?callable $map = null, bool $ignoreExceptions = false, bool $emulatePrepare = false): int
+    public function copyTo(string|array|Raw|self $to, ?callable $map = null, bool $ignoreExceptions = false, bool $emulatePrepare = false): int
     {
+        $table = $to instanceof self ? $to : $this->database->table($to);
+
+        $columns = $table->columns();
+
         $result = $this->select()->execute();
 
         $count = 0;
 
         while ($assoc = $result->fetchAssoc()) {
             try {
-                $this->database->table($to)
-                    ->insert($map ? $map($assoc) : $assoc)
-                    ->execute($emulatePrepare);
+                $table->insert(
+                    array_filter(
+                        $map ? $map($assoc) : $assoc,
+                        fn (string $column) => in_array($column, $columns),
+                        ARRAY_FILTER_USE_KEY
+                    )
+                )->execute($emulatePrepare);
 
                 $count++;
             } catch (Throwable $exception) {
-                if (!$ignoreExceptions) {
-                    throw $exception;
+                if ($ignoreExceptions) {
+                    continue;
                 }
+
+                throw $exception;
             }
         }
 

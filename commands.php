@@ -147,5 +147,10 @@ return [
     Command::register(
         'stored-procedures',
         [ExampleController::class, 'storedProcedures']
+    ),
+
+    Command::register(
+        'table',
+        [ExampleController::class, 'table']
     )
 ];

@@ -3,6 +3,7 @@
 namespace Src\Controllers;
 
 use Sentience\Abstracts\Controller;
+use Sentience\Database\Databases\SQLite\SQLiteDatabase;
 use Sentience\Database\Queries\Enums\ReferentialActionEnum;
 use Sentience\Database\Queries\Objects\Join;
 use Sentience\Database\Queries\Query;
@@ -443,5 +444,38 @@ class ExampleController extends Controller
 
         $result = $db->executeMutableStoredProcedure('mutable', [1]);
         print_r($result->fetchAssocs());
+    }
+
+    public function table(DB $db): void
+    {
+        $inMemoryDatabase = SQLiteDatabase::memory();
+
+        $inMemoryDatabase->table('migrations_foreign')
+            ->create()
+            ->identity('id')
+            ->int('batch')
+            ->string('name')
+            ->dateTime('applied_datetime')
+            ->execute();
+
+        $inMemoryDatabase->table('migrations_foreign')
+            ->insert([
+                'batch' => 10,
+                'name' => '<foreign database table record>',
+                'applied_datetime' => Query::now()
+            ])
+            ->execute();
+
+        $foreignTable = $inMemoryDatabase->table('migrations_foreign');
+
+        $columns = $db->table('migrations')->copyFrom($foreignTable);
+
+        // fn(array $values): array => [
+        //     'batch' => $values['batch'],
+        //     'filename' => $values['name'],
+        //     'applied_at' => $values['applied_datetime']
+        // ]
+
+        print_r($columns);
     }
 }
