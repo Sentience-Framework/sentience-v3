@@ -147,9 +147,24 @@ class Table
         return $this->drop()->ifExists();
     }
 
-    public function copyFrom(string|array|Raw $to, ?callable $map = null, bool $ignoreExceptions = false, bool $emulatePrepare = false): int
+    public function columns(): array
     {
-        $result = $this->database->table($to)
+        return array_keys(
+            $this->select()
+                ->limit(0)
+                ->execute()
+                ->columns()
+        );
+    }
+
+    public function isEmpty(): bool
+    {
+        return $this->select()->limit(1)->count() > 0;
+    }
+
+    public function copyFrom(string|array|Raw $from, ?callable $map = null, bool $ignoreExceptions = false, bool $emulatePrepare = false): int
+    {
+        $result = $this->database->table($from)
             ->select()
             ->execute($emulatePrepare);
 
