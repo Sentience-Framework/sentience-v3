@@ -8,6 +8,7 @@ use PDOStatement;
 use Throwable;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
+use Sentience\Database\DriverInterface;
 use Sentience\Database\Exceptions\AdapterException;
 use Sentience\Database\Exceptions\DriverException;
 use Sentience\Database\Queries\Objects\QueryWithParams;
@@ -22,7 +23,7 @@ class PDOAdapter extends AdapterAbstract
     protected PDO $pdo;
 
     public function __construct(
-        Driver $driver,
+        DriverInterface $driver,
         string $name,
         ?SocketAbstract $socket,
         array $queries,
@@ -79,7 +80,7 @@ class PDOAdapter extends AdapterAbstract
     }
 
     protected function dsn(
-        Driver $driver,
+        DriverInterface $driver,
         string $name,
         ?SocketAbstract $socket,
         array $options

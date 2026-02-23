@@ -25,8 +25,8 @@ return new class () {
         $debug = config('database->debug', false);
 
         $socket = !$unixSocket
-            ? new NetworkSocket($host, $port, $username, $password)
-            : new UnixSocket($unixSocket, $port, $username, $password);
+        ? new NetworkSocket($host, $port, $username, $password)
+        : new UnixSocket($unixSocket, $port, $username, $password);
 
         $db = DB::connect(
             Driver::from($driver),

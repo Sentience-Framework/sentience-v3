@@ -13,12 +13,12 @@ trait JoinsTrait
 {
     protected array $joins = [];
 
-    public function leftJoin(string|array|Alias|Raw|SubQuery $table, callable $on = null): static
+    public function leftJoin(string|array|Alias|Raw|SubQuery $table, ?callable $on = null): static
     {
         return $this->addJoin(JoinEnum::LEFT_JOIN, $table, $on);
     }
 
-    public function innerJoin(string|array|Alias|Raw|SubQuery $table, callable $on = null): static
+    public function innerJoin(string|array|Alias|Raw|SubQuery $table, ?callable $on = null): static
     {
         return $this->addJoin(JoinEnum::INNER_JOIN, $table, $on);
     }

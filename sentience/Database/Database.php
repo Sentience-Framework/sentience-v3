@@ -24,7 +24,7 @@ use Sentience\Database\Sockets\SocketAbstract;
 class Database implements DatabaseInterface
 {
     public static function connect(
-        Driver $driver,
+        DriverInterface $driver,
         string $name,
         ?SocketAbstract $socket = null,
         array $queries = [],
