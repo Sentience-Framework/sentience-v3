@@ -2,6 +2,7 @@
 
 use Sentience\Cache\Cache;
 use Sentience\Database\Driver;
+use Sentience\Database\Queries\Objects\ConditionGroup;
 use Sentience\Database\Sockets\NetworkSocket;
 use Sentience\Database\Sockets\UnixSocket;
 use Sentience\Helpers\Log;
@@ -54,6 +55,10 @@ return new class () {
             $debug,
             $usePdo
         );
+
+        $db->addWhereMacro('test', function (ConditionGroup $conditionGroup): ConditionGroup {
+            return $conditionGroup->whereGreaterThanOrEquals('id', 0);
+        });
 
         return $db;
 

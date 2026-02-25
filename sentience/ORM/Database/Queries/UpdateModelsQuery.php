@@ -16,9 +16,11 @@ class UpdateModelsQuery extends ModelsQueryAbstract
 
     protected array $updates = [];
 
-    public function __construct(DatabaseInterface $database, DialectInterface $dialect, array $models)
+    public function __construct(DatabaseInterface $database, DialectInterface $dialect, array $models, array $whereMacros)
     {
         parent::__construct($database, $dialect, $models);
+
+        $this->whereMacros = $whereMacros;
     }
 
     public function execute(bool $emulatePrepare = false): array
@@ -55,7 +57,11 @@ class UpdateModelsQuery extends ModelsQueryAbstract
             }
 
             $updateQuery->values([...$values, ...$this->updates]);
-            $updateQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(ChainEnum::AND, $this->where));
+            $updateQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(
+                ChainEnum::AND,
+                $this->whereMacros,
+                $this->where
+            ));
             // $updateQuery->returning($columns);
 
             $result = $updateQuery->execute($emulatePrepare);

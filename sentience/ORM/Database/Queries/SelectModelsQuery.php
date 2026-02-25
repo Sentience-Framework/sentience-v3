@@ -27,9 +27,11 @@ class SelectModelsQuery extends ModelsQueryAbstract
     use RelationsTrait;
     use WhereTrait;
 
-    public function __construct(DatabaseInterface $database, DialectInterface $dialect, string $model)
+    public function __construct(DatabaseInterface $database, DialectInterface $dialect, string $model, array $whereMacros)
     {
         parent::__construct($database, $dialect, [$model]);
+
+        $this->whereMacros = $whereMacros;
     }
 
     public function execute(bool $emulatePrepare = false): array
@@ -64,6 +66,7 @@ class SelectModelsQuery extends ModelsQueryAbstract
         $selectQuery->whereGroup(
             fn (): ConditionGroup => new ConditionGroup(
                 ChainEnum::AND,
+                $this->whereMacros,
                 $this->where
             )
         );
@@ -126,7 +129,11 @@ class SelectModelsQuery extends ModelsQueryAbstract
             $selectQuery->distinct();
         }
 
-        $selectQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(ChainEnum::AND, $this->where));
+        $selectQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(
+            ChainEnum::AND,
+            $this->whereMacros,
+            $this->where
+        ));
 
         foreach ($this->orderBy as $orderBy) {
             $orderBy->direction == OrderByDirectionEnum::ASC

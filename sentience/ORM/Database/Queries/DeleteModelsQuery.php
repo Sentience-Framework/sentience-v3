@@ -13,9 +13,11 @@ class DeleteModelsQuery extends ModelsQueryAbstract
 {
     use WhereTrait;
 
-    public function __construct(DatabaseInterface $database, DialectInterface $dialect, array $models)
+    public function __construct(DatabaseInterface $database, DialectInterface $dialect, array $models, array $whereMacros)
     {
         parent::__construct($database, $dialect, $models);
+
+        $this->whereMacros = $whereMacros;
     }
 
     public function execute(bool $emulatePrepare = false): array
@@ -45,7 +47,11 @@ class DeleteModelsQuery extends ModelsQueryAbstract
                 }
             }
 
-            $deleteQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(ChainEnum::AND, $this->where));
+            $deleteQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(
+                ChainEnum::AND,
+                $this->whereMacros,
+                $this->where
+            ));
             // $deleteQuery->returning($columns);
 
             $result = $deleteQuery->execute($emulatePrepare);
