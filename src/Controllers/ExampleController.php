@@ -254,7 +254,7 @@ class ExampleController extends Controller
 
             $selectedModels = $db->selectModels(Migration::class)
                 ->whereGreaterThanOrEquals('id', 0)
-                ->whereMacro('test')
+                ->whereMacro('test', ['minimumId' => 1])
                 ->whereLike('filename', '%a%')
                 ->execute();
 

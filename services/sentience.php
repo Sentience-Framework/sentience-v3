@@ -56,8 +56,8 @@ return new class () {
             $usePdo
         );
 
-        $db->addWhereMacro('test', function (ConditionGroup $conditionGroup): ConditionGroup {
-            return $conditionGroup->whereGreaterThanOrEquals('id', 0);
+        $db->addWhereMacro('test', function (ConditionGroup $conditionGroup, int $minimumId): ConditionGroup {
+            return $conditionGroup->whereGreaterThanOrEquals('id', $minimumId);
         });
 
         return $db;
