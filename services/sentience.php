@@ -57,7 +57,9 @@ return new class () {
         );
 
         $db->addWhereMacro('test', function (ConditionGroup $conditionGroup, int $minimumId): ConditionGroup {
-            return $conditionGroup->whereGreaterThanOrEquals('id', $minimumId);
+            return $conditionGroup
+                ->whereGreaterThanOrEquals('id', $minimumId)
+                ->whereBetween('id', $minimumId - 1, PHP_INT_MAX);
         });
 
         return $db;
