@@ -256,6 +256,12 @@ class ExampleController extends Controller
                 ->whereGreaterThanOrEquals('id', 0)
                 ->whereMacro('test', ['minimumId' => 1])
                 ->whereLike('filename', '%a%')
+                ->orderByAsc(
+                    Query::caseExpression('test')
+                        ->when('value1', 0)
+                        ->when('value1', 1)
+                        ->else(2)
+                )
                 ->execute();
 
             array_push($models, ...$selectedModels);
