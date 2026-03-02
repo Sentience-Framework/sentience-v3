@@ -4,14 +4,14 @@ namespace Sentience\Database\Queries;
 
 use Sentience\Database\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
-use Sentience\Database\Queries\Objects\Raw;
+use Sentience\Database\Queries\Interfaces\Sql;
 
 class QueryFactory
 {
     public function __construct(
         protected DatabaseInterface $database,
         protected DialectInterface $dialect,
-        protected string|array|Raw $table
+        protected string|array|Sql $table
     ) {
     }
 

@@ -2,8 +2,8 @@
 
 namespace Sentience\Database\Queries;
 
+use Sentience\Database\Queries\Interfaces\Sql;
 use Sentience\Database\Queries\Objects\QueryWithParams;
-use Sentience\Database\Queries\Objects\Raw;
 use Sentience\Database\Queries\Traits\ColumnsTrait;
 use Sentience\Database\Queries\Traits\DistinctTrait;
 use Sentience\Database\Queries\Traits\GroupByTrait;
@@ -53,7 +53,7 @@ class SelectQuery extends Query
         return parent::execute($emulatePrepare);
     }
 
-    public function count(null|string|array|Raw $column = null, bool $emulatePrepare = false): int
+    public function count(null|string|array|Sql $column = null, bool $emulatePrepare = false): int
     {
         $queryWithParams = $this->dialect->select(
             false,
