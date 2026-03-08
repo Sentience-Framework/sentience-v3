@@ -125,7 +125,7 @@ return [
     Command::register(
         'db:create',
         function (DB $db): void {
-            $db->createTable('migrations')
+            $sql = $db->createTable('migrations')
                 ->ifNotExists()
                 ->column('id', 'INTEGER', true, null, true)
                 ->column('batch', 'INTEGER')
@@ -133,7 +133,11 @@ return [
                 ->column('applied_at', 'TIMESTAMP')
                 ->primaryKeys(['id'])
                 ->uniqueConstraint(['filename'])
-                ->execute();
+                ->toSql();
+
+            print_r(
+                $db->query('EXPLAIN ' . $sql)->fetchAssocs()
+            );
         }
     ),
 
