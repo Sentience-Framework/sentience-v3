@@ -132,7 +132,7 @@ class ExampleController extends Controller
             ->whereNotLike('column2', '%z%')
             ->whereEmpty('empty_column')
             ->whereNotEmpty('not_empty_column')
-            ->whereRegex('column6', '/file|read|write|open/i')
+            ->whereRegex('column6', 'file|read|write|open', 'i')
             ->whereNotRegex('column6', 'error')
             ->whereContains('column7', 'draft')
             ->whereOperator('columnOperator', '@>', 2)
