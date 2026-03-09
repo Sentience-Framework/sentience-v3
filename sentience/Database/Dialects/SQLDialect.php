@@ -54,7 +54,8 @@ class SQLDialect extends DialectAbstract
         ?Having $having,
         array $orderBy,
         ?int $limit,
-        ?int $offset
+        ?int $offset,
+        array $unions
     ): QueryWithParams {
         $query = 'SELECT';
         $params = [];
@@ -92,6 +93,7 @@ class SQLDialect extends DialectAbstract
         $this->buildOrderBy($query, $orderBy);
         $this->buildLimit($query, $limit, $offset);
         $this->buildOffset($query, $limit, $offset);
+        $this->buildUnions($query, $params, $unions);
 
         return new QueryWithParams($query, $params);
     }
@@ -684,6 +686,21 @@ class SQLDialect extends DialectAbstract
         }
 
         $query .= " OFFSET {$offset}";
+    }
+
+    protected function buildUnions(string &$query, array &$params, array $unions): void
+    {
+        if (count($unions) > 0) {
+            $query = sprintf('(%s)', $query);
+        }
+
+        foreach ($unions as $union) {
+            $query .= sprintf(
+                ' %s %s',
+                $union->union->value,
+                $this->buildSelectQuery($params, $union->selectQuery)
+            );
+        }
     }
 
     protected function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void

@@ -164,6 +164,8 @@ class ExampleController extends Controller
             ->orderByDesc(Query::raw('column7'))
             ->limit(1)
             ->offset(10)
+            ->union($db->select('union'))
+            ->unionAll($db->select('union_all'))
             ->toSql();
 
         $queries[] = $db->insert('table_1')
