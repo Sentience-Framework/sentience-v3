@@ -20,14 +20,23 @@ class QueryFactory
         return $this->database->select($this->table)->columns($columns);
     }
 
-    public function insert(array $values): InsertQuery
+    public function insert(array ...$values): InsertQuery
     {
-        return $this->database->insert($this->table)->values($values);
+        $query = $this->database->insert($this->table);
+
+        array_walk(
+            $values,
+            function (array $values) use ($query): void {
+                $query->values($values);
+            }
+        );
+
+        return $query;
     }
 
-    public function update(array $values): UpdateQuery
+    public function update(array $updates): UpdateQuery
     {
-        return $this->database->update($this->table)->values($values);
+        return $this->database->update($this->table)->updates($updates);
     }
 
     public function delete(): DeleteQuery

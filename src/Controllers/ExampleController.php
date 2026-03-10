@@ -175,6 +175,12 @@ class ExampleController extends Controller
                 'column3' => false,
                 'column4' => Query::raw('column1 + 1')
             ])
+            ->values([
+                'column4' => Query::raw('column1 + 1'),
+                'column1' => Query::now(),
+                'column3' => false
+
+            ])
             ->onConflictUpdate(['id'], [])
             // ->onConflictIgnore(['id'])
             ->returning(['id'])
@@ -182,7 +188,7 @@ class ExampleController extends Controller
             ->toSql();
 
         $queries[] = $db->update('table_1')
-            ->values([
+            ->updates([
                 'column1' => Query::now(),
                 'column2' => true,
                 'column3' => false,
