@@ -22,16 +22,7 @@ class QueryFactory
 
     public function insert(array ...$values): InsertQuery
     {
-        $query = $this->database->insert($this->table);
-
-        array_walk(
-            $values,
-            function (array $values) use ($query): void {
-                $query->values($values);
-            }
-        );
-
-        return $query;
+        return $this->database->insert($this->table)->values(...$values);
     }
 
     public function update(array $updates): UpdateQuery
