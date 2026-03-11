@@ -2,7 +2,6 @@
 
 namespace Sentience\Database\Queries;
 
-use Sentience\Database\Queries\Interfaces\Sql;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Traits\ColumnsTrait;
 use Sentience\Database\Queries\Traits\DistinctTrait;
@@ -56,32 +55,13 @@ class SelectQuery extends Query
         return parent::execute($emulatePrepare);
     }
 
-    public function count(null|string|array|Sql $column = null, bool $emulatePrepare = false): int
+    public function count(bool $emulatePrepare = false): int
     {
-        $queryWithParams = $this->dialect->select(
-            false,
-            [
-                Query::alias(
-                    Query::raw(
-                        sprintf(
-                            'COUNT(%s)',
-                            !is_null($column)
-                            ? ($this->distinct ? 'DISTINCT ' : '') . $this->dialect->escapeIdentifier($column)
-                            : '*'
-                        )
-                    ),
-                    'count'
-                )
-            ],
-            $this->table,
-            $this->joins,
-            $this->where,
-            $this->groupBy,
-            $this->having,
-            [],
-            $this->limit,
-            $this->offset,
-            $this->unions
+        $queryWithParams = $this->toQueryWithParams();
+
+        $queryWithParams->query = sprintf(
+            'SELECT count(*) FROM (%s)',
+            $queryWithParams->query
         );
 
         return (int) $this->database
