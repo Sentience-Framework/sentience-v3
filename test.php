@@ -1,7 +1,5 @@
 <?php
 
-use Sentience\Database\Database;
+$class = ['hoitestclass', 'method'];
 
-include 'vendor/autoload.php';
-
-print_r(Database::getAvailableDrivers());
+$hoi = $class();

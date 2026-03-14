@@ -261,7 +261,6 @@ class ExampleController extends Controller
 
             $selectedModels = $db->selectModels(Migration::class)
                 ->whereGreaterThanOrEquals('id', 0)
-                ->whereMacro('test', ['minimumId' => 1])
                 ->whereLike('filename', '%a%')
                 ->execute();
 
@@ -436,22 +435,6 @@ class ExampleController extends Controller
                 [ReferentialActionEnum::ON_DELETE_SET_NULL]
             )
             ->execute();
-    }
-
-    public function storedProcedures(DB $db): void
-    {
-        $db->createImmutableStoredProcedure('immutable', 'SELECT * FROM migrations WHERE id = ?');
-        $result = $db->executeImmutableStoredProcedure('immutable', [1]);
-        print_r($result->fetchAssocs());
-
-        $db->createMutableStoredProcedure(
-            'mutable',
-            fn ($id): Query => $db->select('migrations')
-                ->whereEquals('id', $id)
-        );
-
-        $result = $db->executeMutableStoredProcedure('mutable', [1]);
-        print_r($result->fetchAssocs());
     }
 
     public function table(DB $db): void

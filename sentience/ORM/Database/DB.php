@@ -61,7 +61,7 @@ class DB extends Database
 
     public function selectModels(string $model): SelectModelsQuery
     {
-        return new SelectModelsQuery($this, $this->dialect, $model, $this->whereMacros);
+        return new SelectModelsQuery($this, $this->dialect, $model);
     }
 
     public function insertModels(array|Model $models): InsertModelsQuery
@@ -71,12 +71,12 @@ class DB extends Database
 
     public function updateModels(array|Model $models): UpdateModelsQuery
     {
-        return new UpdateModelsQuery($this, $this->dialect, Arrays::wrap($models), $this->whereMacros);
+        return new UpdateModelsQuery($this, $this->dialect, Arrays::wrap($models));
     }
 
     public function deleteModels(array|Model $models): DeleteModelsQuery
     {
-        return new DeleteModelsQuery($this, $this->dialect, Arrays::wrap($models), $this->whereMacros);
+        return new DeleteModelsQuery($this, $this->dialect, Arrays::wrap($models));
     }
 
     public function createModel(string $model): CreateModelQuery
