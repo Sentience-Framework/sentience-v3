@@ -17,14 +17,14 @@ trait WhereTrait
 {
     protected array $where = [];
 
-    public function whereEquals(string|array $column, null|bool|int|float|string|DateTimeInterface|SelectQuery|Sql $value): static
+    public function whereEquals(string|array $column, null|bool|int|float|string|DateTimeInterface|SelectQuery|Sql $value, bool $cast = false): static
     {
-        return $this->equals($column, $value, ChainEnum::AND);
+        return $this->equals($column, $value, $cast, ChainEnum::AND);
     }
 
-    public function whereNotEquals(string|array $column, null|bool|int|float|string|DateTimeInterface|SelectQuery|Sql $value): static
+    public function whereNotEquals(string|array $column, null|bool|int|float|string|DateTimeInterface|SelectQuery|Sql $value, bool $cast = false): static
     {
-        return $this->notEquals($column, $value, ChainEnum::AND);
+        return $this->notEquals($column, $value, $cast, ChainEnum::AND);
     }
 
     public function whereIsNull(string|array $column): static
@@ -152,14 +152,14 @@ trait WhereTrait
         return $this->addRawCondition($sql, $values, ChainEnum::AND);
     }
 
-    public function orWhereEquals(string|array $column, null|bool|int|float|string|DateTimeInterface|SelectQuery|Sql $value): static
+    public function orWhereEquals(string|array $column, null|bool|int|float|string|DateTimeInterface|SelectQuery|Sql $value, bool $cast = false): static
     {
-        return $this->equals($column, $value, ChainEnum::OR);
+        return $this->equals($column, $value, $cast, ChainEnum::OR);
     }
 
-    public function orWhereNotEquals(string|array $column, null|bool|int|float|string|DateTimeInterface|SelectQuery|Sql $value): static
+    public function orWhereNotEquals(string|array $column, null|bool|int|float|string|DateTimeInterface|SelectQuery|Sql $value, bool $cast = false): static
     {
-        return $this->notEquals($column, $value, ChainEnum::OR);
+        return $this->notEquals($column, $value, $cast, ChainEnum::OR);
     }
 
     public function orWhereIsNull(string|array $column): static
@@ -287,14 +287,14 @@ trait WhereTrait
         return $this->addRawCondition($sql, $values, ChainEnum::OR);
     }
 
-    protected function equals(string|array $column, null|bool|int|float|string|DateTimeInterface|SelectQuery|Sql $value, ChainEnum $chain): static
+    protected function equals(string|array $column, null|bool|int|float|string|DateTimeInterface|SelectQuery|Sql $value, bool $cast, ChainEnum $chain): static
     {
-        return $this->addCondition(ConditionEnum::EQUALS, $column, $value, $chain);
+        return $this->addCondition(ConditionEnum::EQUALS, $column, [$value, $cast], $chain);
     }
 
-    protected function notEquals(string|array $column, null|bool|int|float|string|DateTimeInterface|SelectQuery|Sql $value, ChainEnum $chain): static
+    protected function notEquals(string|array $column, null|bool|int|float|string|DateTimeInterface|SelectQuery|Sql $value, bool $cast, ChainEnum $chain): static
     {
-        return $this->addCondition(ConditionEnum::NOT_EQUALS, $column, $value, $chain);
+        return $this->addCondition(ConditionEnum::NOT_EQUALS, $column, [$value, $cast], $chain);
     }
 
     protected function isNull(string|array $column, ChainEnum $chain): static
@@ -383,7 +383,7 @@ trait WhereTrait
             fn (ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup
                 ->orWhereIsNull($column)
                 ->orWhereEquals($column, 0)
-                ->orWhereEquals($column, ''),
+                ->orWhereEquals($column, '', true),
             $chain
         );
     }
@@ -394,7 +394,7 @@ trait WhereTrait
             fn (ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup
                 ->whereIsNotNull($column)
                 ->whereNotEquals($column, 0)
-                ->whereNotEquals($column, ''),
+                ->whereNotEquals($column, '', true),
             $chain
         );
     }
