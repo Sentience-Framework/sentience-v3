@@ -4,6 +4,9 @@ namespace Sentience\Database\Queries\Traits;
 
 use BackedEnum;
 use DateTimeInterface;
+use ReflectionFunction;
+use ReflectionNamedType;
+use ReflectionUnionType;
 use Sentience\Database\Queries\Enums\ChainEnum;
 use Sentience\Database\Queries\Enums\ConditionEnum;
 use Sentience\Database\Queries\Interfaces\Sql;
@@ -151,7 +154,47 @@ trait ConditionsTrait
 
     protected function group(array &$conditions, callable $callback, ChainEnum $chain): static
     {
-        $conditionGroup = new ConditionGroup($chain);
+        $conditionGroup = (function () use ($callback, $chain) {
+            $reflectionFunction = new ReflectionFunction($callback);
+
+            $reflectionParameters = $reflectionFunction->getParameters();
+
+            foreach ($reflectionParameters as $reflectionParameter) {
+                $reflectionType = $reflectionParameter->getType();
+
+                if (!$reflectionType) {
+                    continue;
+                }
+
+                if ($reflectionType instanceof ReflectionNamedType) {
+                    $class = $reflectionType->getName();
+
+                    if (!($class instanceof ConditionGroup)) {
+                        continue;
+                    }
+
+                    return new $class($chain);
+                }
+
+                if ($reflectionType instanceof ReflectionUnionType) {
+                    foreach ($reflectionType->getTypes() as $reflectionType) {
+                        if (!($reflectionType instanceof ReflectionNamedType)) {
+                            continue;
+                        }
+
+                        $class = $reflectionType->getName();
+
+                        if (!($class instanceof ConditionGroup)) {
+                            continue;
+                        }
+
+                        return new $class($chain);
+                    }
+                }
+            }
+
+            return new ConditionGroup($chain);
+        })();
 
         $conditionGroup = $callback($conditionGroup) ?? $conditionGroup;
 
