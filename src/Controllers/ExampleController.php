@@ -5,6 +5,7 @@ namespace Src\Controllers;
 use Sentience\Abstracts\Controller;
 use Sentience\Database\Databases\SQLite\SQLiteDatabase;
 use Sentience\Database\Queries\Enums\ReferentialActionEnum;
+use Sentience\Database\Queries\Objects\HavingConditionGroup;
 use Sentience\Database\Queries\Objects\Join;
 use Sentience\Database\Queries\Query;
 use Sentience\Helpers\Json;
@@ -143,6 +144,7 @@ class ExampleController extends Controller
             ])
             ->having('COUNT(*) > :count', [':count' => 10])
             ->havingIn('id', [1, 2, 3, 4])
+            ->orHavingGroup(fn (HavingConditionGroup $conditionGroup): HavingConditionGroup => $conditionGroup->having('column1 = 1'))
             ->orderByAsc('column4')
             ->orderByDesc('column5')
             ->orderByAsc(Query::raw('column6'))

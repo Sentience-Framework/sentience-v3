@@ -6,6 +6,7 @@ use BackedEnum;
 use DateTimeInterface;
 use ReflectionFunction;
 use ReflectionNamedType;
+use ReflectionType;
 use ReflectionUnionType;
 use Sentience\Database\Queries\Enums\ChainEnum;
 use Sentience\Database\Queries\Enums\ConditionEnum;
@@ -154,46 +155,48 @@ trait ConditionsTrait
 
     protected function group(array &$conditions, callable $callback, ChainEnum $chain): static
     {
-        $conditionGroup = (function () use ($callback, $chain) {
-            $reflectionFunction = new ReflectionFunction($callback);
+        $conditionGroupType = function (ReflectionType $reflectionType) use (&$conditionGroupType): ?string {
+            if ($reflectionType instanceof ReflectionNamedType) {
+                $class = $reflectionType->getName();
 
-            $reflectionParameters = $reflectionFunction->getParameters();
-
-            foreach ($reflectionParameters as $reflectionParameter) {
-                $reflectionType = $reflectionParameter->getType();
-
-                if (!$reflectionType) {
-                    continue;
+                if (!is_subclass_of($class, ConditionGroup::class)) {
+                    return null;
                 }
 
-                if ($reflectionType instanceof ReflectionNamedType) {
-                    $class = $reflectionType->getName();
+                return $class;
+            }
 
-                    if (!($class instanceof ConditionGroup)) {
+            if ($reflectionType instanceof ReflectionUnionType) {
+                foreach ($reflectionType->getTypes() as $reflectionType) {
+                    $class = $conditionGroupType($reflectionType);
+
+                    if (!$class) {
                         continue;
                     }
 
-                    return new $class($chain);
-                }
-
-                if ($reflectionType instanceof ReflectionUnionType) {
-                    foreach ($reflectionType->getTypes() as $reflectionType) {
-                        if (!($reflectionType instanceof ReflectionNamedType)) {
-                            continue;
-                        }
-
-                        $class = $reflectionType->getName();
-
-                        if (!($class instanceof ConditionGroup)) {
-                            continue;
-                        }
-
-                        return new $class($chain);
-                    }
+                    return $class;
                 }
             }
 
-            return new ConditionGroup($chain);
+            return null;
+        };
+
+        $conditionGroup = (function () use ($callback, $chain, $conditionGroupType): ConditionGroup {
+            $reflectionFunction = new ReflectionFunction($callback);
+
+            $reflectionType = ($reflectionFunction->getParameters()[0] ?? null)?->getType();
+
+            if (!$reflectionType) {
+                return new ConditionGroup($chain);
+            }
+
+            $class = $conditionGroupType($reflectionType);
+
+            if (!$class) {
+                return new ConditionGroup($chain);
+            }
+
+            return new $class($chain);
         })();
 
         $conditionGroup = $callback($conditionGroup) ?? $conditionGroup;
