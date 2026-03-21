@@ -9,6 +9,7 @@ use Throwable;
 use Sentience\Database\Exceptions\QueryException;
 use Sentience\Database\Queries\Enums\ConditionEnum;
 use Sentience\Database\Queries\Enums\TypeEnum;
+use Sentience\Database\Queries\Interfaces\ConditionGroup;
 use Sentience\Database\Queries\Interfaces\Sql;
 use Sentience\Database\Queries\Objects\AddColumn;
 use Sentience\Database\Queries\Objects\AddForeignKeyConstraint;
@@ -18,7 +19,6 @@ use Sentience\Database\Queries\Objects\Alias;
 use Sentience\Database\Queries\Objects\AlterColumn;
 use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\Condition;
-use Sentience\Database\Queries\Objects\ConditionGroup;
 use Sentience\Database\Queries\Objects\DropColumn;
 use Sentience\Database\Queries\Objects\DropConstraint;
 use Sentience\Database\Queries\Objects\ForeignKeyConstraint;
@@ -687,7 +687,7 @@ class SQLDialect extends DialectAbstract
     protected function buildConditionGroup(string &$query, array &$params, int $index, ConditionGroup $group): void
     {
         if ($index > 0) {
-            $query .= sprintf(' %s ', $group->chain->value);
+            $query .= sprintf(' %s ', $group->getChain()->value);
         }
 
         $conditions = $group->getConditions();

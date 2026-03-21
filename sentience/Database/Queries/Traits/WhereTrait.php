@@ -6,6 +6,7 @@ use BackedEnum;
 use DateTimeInterface;
 use Sentience\Database\Queries\Enums\ChainEnum;
 use Sentience\Database\Queries\Interfaces\Sql;
+use Sentience\Database\Queries\Objects\WhereGroup;
 use Sentience\Database\Queries\SelectQuery;
 
 trait WhereTrait
@@ -136,7 +137,7 @@ trait WhereTrait
 
     public function whereGroup(callable $callback): static
     {
-        return $this->group($this->where, $callback, ChainEnum::AND);
+        return $this->group($this->where, $callback, WhereGroup::class, ChainEnum::AND);
     }
 
     public function whereOperator(string|array $column, string|BackedEnum $operator, null|bool|int|float|string|array|DateTimeInterface|SelectQuery|Sql $value): static
@@ -271,7 +272,7 @@ trait WhereTrait
 
     public function orWhereGroup(callable $callback): static
     {
-        return $this->group($this->where, $callback, ChainEnum::OR);
+        return $this->group($this->where, $callback, WhereGroup::class, ChainEnum::OR);
     }
 
     public function orWhereOperator(string|array $column, string|BackedEnum $operator, null|bool|int|float|string|array|DateTimeInterface|SelectQuery|Sql $value): static

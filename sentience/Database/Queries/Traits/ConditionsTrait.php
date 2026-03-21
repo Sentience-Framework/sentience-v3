@@ -10,10 +10,11 @@ use ReflectionType;
 use ReflectionUnionType;
 use Sentience\Database\Queries\Enums\ChainEnum;
 use Sentience\Database\Queries\Enums\ConditionEnum;
+use Sentience\Database\Queries\Interfaces\ConditionGroup;
 use Sentience\Database\Queries\Interfaces\Sql;
 use Sentience\Database\Queries\Objects\Condition;
-use Sentience\Database\Queries\Objects\ConditionGroup;
 use Sentience\Database\Queries\Objects\RawCondition;
+use Sentience\Database\Queries\Objects\WhereGroup;
 use Sentience\Database\Queries\Query;
 use Sentience\Database\Queries\SelectQuery;
 
@@ -113,10 +114,11 @@ trait ConditionsTrait
     {
         return $this->group(
             $conditions,
-            fn (ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup
+            fn (WhereGroup $conditionGroup): WhereGroup => $conditionGroup
                 ->whereIsNull($column)
                 ->orWhereEquals($column, 0)
                 ->orWhereEquals($column, '', true),
+            WhereGroup::class,
             $chain
         );
     }
@@ -125,10 +127,11 @@ trait ConditionsTrait
     {
         return $this->group(
             $conditions,
-            fn (ConditionGroup $conditionGroup): ConditionGroup => $conditionGroup
+            fn (WhereGroup $conditionGroup): WhereGroup => $conditionGroup
                 ->whereIsNotNull($column)
                 ->whereNotEquals($column, 0)
                 ->whereNotEquals($column, '', true),
+            WhereGroup::class,
             $chain
         );
     }
@@ -153,63 +156,63 @@ trait ConditionsTrait
         return $this->addCondition($conditions, ConditionEnum::NOT_EXISTS, null, $selectQuery, $chain);
     }
 
-    protected function group(array &$conditions, callable $callback, ChainEnum $chain): static
+    protected function group(array &$conditions, callable $callback, string $conditionGroup, ChainEnum $chain): static
     {
-        $conditionGroupType = function (ReflectionType $reflectionType) use (&$conditionGroupType): ?string {
-            if ($reflectionType instanceof ReflectionNamedType) {
-                $class = $reflectionType->getName();
-
-                if (!is_subclass_of($class, ConditionGroup::class)) {
-                    return null;
-                }
-
-                return $class;
-            }
-
-            if ($reflectionType instanceof ReflectionUnionType) {
-                foreach ($reflectionType->getTypes() as $reflectionType) {
-                    $class = $conditionGroupType($reflectionType);
-
-                    if (!$class) {
-                        continue;
-                    }
-
-                    return $class;
-                }
-            }
-
-            return null;
-        };
-
-        $conditionGroup = (function () use ($callback, $chain, $conditionGroupType): ConditionGroup {
+        $group = (function () use ($callback, $conditionGroup, $chain): ConditionGroup {
             $reflectionFunction = new ReflectionFunction($callback);
 
             $reflectionType = ($reflectionFunction->getParameters()[0] ?? null)?->getType();
 
             if (!$reflectionType) {
-                return new ConditionGroup($chain);
+                return new $conditionGroup($chain);
             }
 
-            $class = $conditionGroupType($reflectionType);
+            $type = function (ReflectionType $reflectionType) use (&$type): ?string {
+                if ($reflectionType instanceof ReflectionNamedType) {
+                    $class = $reflectionType->getName();
+
+                    if (!is_subclass_of($class, ConditionGroup::class)) {
+                        return null;
+                    }
+
+                    return $class;
+                }
+
+                if ($reflectionType instanceof ReflectionUnionType) {
+                    foreach ($reflectionType->getTypes() as $reflectionType) {
+                        $class = $type($reflectionType);
+
+                        if (!$class) {
+                            continue;
+                        }
+
+                        return $class;
+                    }
+                }
+
+                return null;
+            };
+
+            $class = $type($reflectionType);
 
             if (!$class) {
-                return new ConditionGroup($chain);
+                return new $conditionGroup($chain);
             }
 
             return new $class($chain);
         })();
 
-        $conditionGroup = $callback($conditionGroup) ?? $conditionGroup;
+        $group = $callback($group) ?? $group;
 
-        if (!($conditionGroup instanceof ConditionGroup)) {
+        if (!($group instanceof ConditionGroup)) {
             return $this;
         }
 
-        if (count($conditionGroup->getConditions()) == 0) {
+        if (count($group->getConditions()) == 0) {
             return $this;
         }
 
-        return $this->addConditionGroup($conditions, $conditionGroup);
+        return $this->addConditionGroup($conditions, $group);
     }
 
     protected function operator(array &$conditions, string|array $column, string|BackedEnum $operator, null|bool|int|float|string|array|DateTimeInterface|SelectQuery|Sql $value, ChainEnum $chain): static

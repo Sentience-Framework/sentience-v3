@@ -45,10 +45,7 @@ class DeleteModelsQuery extends ModelsQueryAbstract
                 }
             }
 
-            $deleteQuery->whereGroup(fn (): ConditionGroup => new ConditionGroup(
-                ChainEnum::AND,
-                $this->where
-            ));
+            $deleteQuery->whereGroup(fn (): ConditionGroup => (new ConditionGroup(ChainEnum::AND))->addConditions($this->where));
             // $deleteQuery->returning($columns);
 
             $result = $deleteQuery->execute($emulatePrepare);

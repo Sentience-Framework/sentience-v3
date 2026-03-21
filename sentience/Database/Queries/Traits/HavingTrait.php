@@ -6,6 +6,7 @@ use BackedEnum;
 use DateTimeInterface;
 use Sentience\Database\Queries\Enums\ChainEnum;
 use Sentience\Database\Queries\Interfaces\Sql;
+use Sentience\Database\Queries\Objects\HavingGroup;
 use Sentience\Database\Queries\SelectQuery;
 
 trait HavingTrait
@@ -136,7 +137,7 @@ trait HavingTrait
 
     public function havingGroup(callable $callback): static
     {
-        return $this->group($this->having, $callback, ChainEnum::AND);
+        return $this->group($this->having, $callback, HavingGroup::class, ChainEnum::AND);
     }
 
     public function havingOperator(string|array $column, string|BackedEnum $operator, null|bool|int|float|string|array|DateTimeInterface|SelectQuery|Sql $value): static
@@ -271,7 +272,7 @@ trait HavingTrait
 
     public function orHavingGroup(callable $callback): static
     {
-        return $this->group($this->having, $callback, ChainEnum::OR);
+        return $this->group($this->having, $callback, HavingGroup::class, ChainEnum::OR);
     }
 
     public function orHavingOperator(string|array $column, string|BackedEnum $operator, null|bool|int|float|string|array|DateTimeInterface|SelectQuery|Sql $value): static
