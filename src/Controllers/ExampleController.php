@@ -4,7 +4,9 @@ namespace Src\Controllers;
 
 use Sentience\Abstracts\Controller;
 use Sentience\Database\Queries\Enums\ReferentialActionEnum;
+use Sentience\Database\Queries\Objects\HavingGroup;
 use Sentience\Database\Queries\Objects\Join;
+use Sentience\Database\Queries\Objects\WhereGroup;
 use Sentience\Database\Queries\Query;
 use Sentience\Helpers\Json;
 use Sentience\Mapper\Mapper;
@@ -128,13 +130,13 @@ class ExampleController extends Controller
             )
             ->whereEquals('column1', 10)
             ->whereGroup(
-                fn ($group) => $group
+                fn (WhereGroup $group) => $group
                     ->whereGreaterThanOrEquals('column2', 20)
                     ->orwhereIsNull('column3')
             )
             ->where('DATE(`created_at`) > :date OR DATE(`created_at`) < :date', [':date' => Query::now()])
             ->whereGroup(
-                fn ($group) => $group
+                fn (WhereGroup $group) => $group
                     ->whereIn('column4', [1, 2, 3, 4])
                     ->whereNotEquals('column5', 'test string')
             )
@@ -158,6 +160,10 @@ class ExampleController extends Controller
                 Query::raw('rawColumn')
             ])
             ->having('COUNT(*) > :count', [':count' => 10])
+            ->havingEquals('column1', true)
+            ->havingGroup(function (HavingGroup $havingGroup): void {
+                $havingGroup->havingEndsWith('column2', 'interface');
+            })
             ->orderByAsc('column4')
             ->orderByDesc('column5')
             ->orderByAsc(Query::raw('column6'))
