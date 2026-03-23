@@ -27,7 +27,7 @@ class Expression implements Sql
     {
         $queryWithParams = new QueryWithParams(
             $this->sql($dialect),
-            $this->params($dialect)
+            $this->params
         );
 
         return $queryWithParams->toSql($dialect);
