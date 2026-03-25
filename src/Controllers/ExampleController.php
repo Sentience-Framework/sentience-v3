@@ -79,10 +79,10 @@ class ExampleController extends Controller
 
         $queries = [];
 
-        $queries[] = $db->select(Query::subQuery(
+        $queries[] = $db->selectSubQuery(
             $db->select('sub_table_1'),
             'table1'
-        ))
+        )
             ->distinct()
             ->columns([
                 'column1',
@@ -101,11 +101,9 @@ class ExampleController extends Controller
                     ['innerjoin_table', 'join_column'],
                     ['on_table', 'on_column']
                 )->whereBetween(['innerjoin_table', 'join_column'], 0, 9999)
-            )->leftJoin(
-                Query::subQuery(
-                    $db->select('sub_join_table'),
-                    'sjt'
-                ),
+            )->leftJoinSubQuery(
+                $db->select('sub_join_table'),
+                'sjt',
                 fn (Join $join): Join => $join->on(
                     ['innerjoin_table', 'join_column'],
                     ['on_table', 'on_column']
