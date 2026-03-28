@@ -198,7 +198,7 @@ class ExampleController extends Controller
                         Query::raw('MAX(id)')
                     ])
                     ->whereBetween('column_5', 1, 2)
-                    ->whereRegex('regexable_column', '/[0-9]/im')
+                    ->whereRegex('regexable_column', '[0-9]', 'im')
             )
             ->returning(['id'])
             ->toSql();
