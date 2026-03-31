@@ -15,6 +15,7 @@ use Sentience\Database\Queries\Interfaces\Sql;
 use Sentience\Database\Queries\Objects\Alias;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Objects\SubQuery;
+use Sentience\Database\Queries\Query;
 use Sentience\Database\Queries\QueryFactory;
 use Sentience\Database\Queries\SelectQuery;
 use Sentience\Database\Queries\UpdateQuery;
@@ -169,6 +170,16 @@ class Database implements DatabaseInterface
     public function select(string|array|Alias|Sql|SubQuery $table): SelectQuery
     {
         return new SelectQuery($this, $this->dialect, $table);
+    }
+
+    public function selectTable(string|array|Sql $table, ?string $alias = null): SelectQuery
+    {
+        return $this->select($alias ? Query::alias($table, $alias) : $table);
+    }
+
+    public function selectSubQuery(SelectQuery $selectQuery, string $alias): SelectQuery
+    {
+        return $this->select(Query::subQuery($selectQuery, $alias));
     }
 
     public function insert(string|array|Sql $table): InsertQuery
