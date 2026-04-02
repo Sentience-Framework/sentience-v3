@@ -50,6 +50,7 @@ class ExpressionF extends Expression
                 $type = $match[2];
 
                 $params[] = match (true) {
+                    is_null($value) => null,
                     in_array($type, static::INT_MODIFIERS) => (int) $value,
                     in_array($type, static::FLOAT_MODIFIERS) => !empty($precision)
                     ? round($value, (int) substr($precision, 1))
