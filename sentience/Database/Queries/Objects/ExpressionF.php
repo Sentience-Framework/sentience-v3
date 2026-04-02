@@ -52,7 +52,7 @@ class ExpressionF extends Expression
                 $params[] = match (true) {
                     is_null($value) => null,
                     in_array($type, static::INT_MODIFIERS) => (int) $value,
-                    in_array($type, static::FLOAT_MODIFIERS) => !empty($precision)
+                    in_array($type, static::FLOAT_MODIFIERS) => !empty($precision) && $precision != '.'
                     ? round($value, (int) substr($precision, 1))
                     : (float) $value,
                     default => (string) $value
