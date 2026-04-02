@@ -9,8 +9,8 @@ use Sentience\Database\Queries\SelectQuery;
 
 class ExpressionF implements Sql
 {
-    public const array BOOL_MODIFIERS = ['b', 'B'];
-    public const array INT_MODIFIERS = ['d', 'u', 'c', 'o', 'x', 'X'];
+    public const array BOOL_MODIFIERS = ['b'];
+    public const array INT_MODIFIERS = ['c', 'd', 'o', 'u', 'x', 'X'];
     public const array FLOAT_MODIFIERS = ['e', 'E', 'f', 'F', 'g', 'G', 'h', 'H'];
     public const array STRING_MODIFIERS = ['s'];
 
