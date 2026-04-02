@@ -63,7 +63,7 @@ abstract class Query implements QueryInterface
         return new Expression($sql, $params);
     }
 
-    public static function expressionf(string $format, mixed ...$values): ExpressionF
+    public static function expressionf(string $format, null|bool|int|float|string|DateTimeInterface|SelectQuery|Sql ...$values): ExpressionF
     {
         return new ExpressionF($format, $values);
     }
