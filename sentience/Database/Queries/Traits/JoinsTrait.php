@@ -2,6 +2,7 @@
 
 namespace Sentience\Database\Queries\Traits;
 
+use DateTimeInterface;
 use Sentience\Database\Queries\Enums\JoinEnum;
 use Sentience\Database\Queries\Interfaces\Sql;
 use Sentience\Database\Queries\Objects\Alias;
@@ -42,6 +43,13 @@ trait JoinsTrait
     public function innerJoinSubQuery(SelectQuery $selectQuery, string $alias, ?callable $on = null): static
     {
         return $this->innerJoin(Query::subQuery($selectQuery, $alias), $on);
+    }
+
+    public function joinf(string $format, null|bool|int|float|string|DateTimeInterface|SelectQuery|Sql ...$values): static
+    {
+        $this->joins[] = Query::expressionf($format, ...$values);
+
+        return $this;
     }
 
     public function join(string $join): static
