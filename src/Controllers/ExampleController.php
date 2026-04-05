@@ -110,6 +110,7 @@ class ExampleController extends Controller
                 )->whereBetween(['innerjoin_table', 'join_column'], 0, 9999)
             )
             ->join('RIGHT JOIN table2 jt ON jt.column1 = table1.column1 AND jt.column2 = table2.column2')
+            ->joinf('LATERAL LEFT JOIN lateral_table ON %.1f', 12.45)
             ->whereEquals('column1', 10)
             ->whereGroup(
                 fn ($group) => $group
@@ -117,6 +118,7 @@ class ExampleController extends Controller
                     ->orwhereIsNull('column3')
             )
             ->where('DATE(`created_at`) > :date OR DATE(`created_at`) < :date', [':date' => Query::now()])
+            ->wheref('DATE(`updated_at`) > %s OR DATE(`updated_at`) < %s', Query::now(), Query::now())
             ->whereGroup(
                 fn ($group) => $group
                     ->whereIn('column4', [1, 2, 3, 4])
