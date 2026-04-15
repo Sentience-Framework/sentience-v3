@@ -7,6 +7,7 @@ use Sentience\Database\Databases\SQLite\SQLiteDatabase;
 use Sentience\Database\Queries\Enums\ReferentialActionEnum;
 use Sentience\Database\Queries\Objects\HavingGroup;
 use Sentience\Database\Queries\Objects\Join;
+use Sentience\Database\Queries\Objects\WhereGroup;
 use Sentience\Database\Queries\Query;
 use Sentience\Helpers\Json;
 use Sentience\Mapper\Mapper;
@@ -111,20 +112,21 @@ class ExampleController extends Controller
             )
             ->join('RIGHT JOIN table2 jt ON jt.column1 = table1.column1 AND jt.column2 = table2.column2')
             ->joinf('LATERAL LEFT JOIN lateral_table ON %.1f', 12.45)
+            ->leftJoin('joinable_by_string', 'joinable_by_string.id = main_table.joinable_id')
             ->whereEquals('column1', 10)
             ->whereGroup(
-                fn ($group) => $group
+                fn (WhereGroup $group) => $group
                     ->whereGreaterThanOrEquals('column2', 20)
                     ->orwhereIsNull('column3')
             )
             ->where('DATE(`created_at`) > :date OR DATE(`created_at`) < :date', [':date' => Query::now()])
             ->wheref('DATE(`updated_at`) > %s OR DATE(`updated_at`) < %s', Query::now(), Query::now())
             ->whereGroup(
-                fn ($group) => $group
+                fn (WhereGroup $group) => $group
                     ->whereIn('column4', [1, 2, 3, 4])
                     ->whereNotEquals('column5', 'test string')
             )
-            ->whereGroup(fn ($group) => $group)
+            ->whereGroup(fn (WhereGroup $group) => $group)
             ->whereIn('column2', [])
             ->whereNotIn('column2', [])
             ->whereStartsWith('column2', 'a')
