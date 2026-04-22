@@ -106,7 +106,7 @@ abstract class AdapterAbstract implements AdapterInterface
 
     protected function regexpFunction(string $value, string $pattern): bool
     {
-        return preg_match(
+        return (bool) preg_match(
             sprintf(
                 '/%s/u',
                 Query::escapeBackslash($pattern, ['/'])
@@ -117,7 +117,7 @@ abstract class AdapterAbstract implements AdapterInterface
 
     protected function regexpLikeFunction(string $value, string $pattern, string $flags): bool
     {
-        return preg_match(
+        return (bool) preg_match(
             sprintf(
                 '/%s/u%s',
                 Query::escapeBackslash($pattern, ['/']),
