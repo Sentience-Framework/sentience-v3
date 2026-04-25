@@ -53,14 +53,14 @@ enum Driver: string implements DriverInterface
         );
     }
 
-    public function getDialect(int|string $version): DialectInterface
+    public function getDialect(int|string $version, array $options = []): DialectInterface
     {
         return match ($this) {
             static::MARIADB,
-            static::MYSQL => new MySQLDialect($this, $version),
-            static::PGSQL => new PgSQLDialect($this, $version),
-            static::SQLITE => new SQLiteDialect($this, $version),
-            default => new SQLDialect($this, $version)
+            static::MYSQL => new MySQLDialect($this, $version, $options),
+            static::PGSQL => new PgSQLDialect($this, $version, $options),
+            static::SQLITE => new SQLiteDialect($this, $version, $options),
+            default => new SQLDialect($this, $version, $options)
         };
     }
 }

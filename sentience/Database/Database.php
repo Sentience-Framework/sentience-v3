@@ -44,7 +44,7 @@ class Database implements DatabaseInterface
 
         $version = $adapter->version();
 
-        $dialect = $driver->getDialect($version);
+        $dialect = $driver->getDialect($version, $options);
 
         return new static($adapter, $dialect);
     }
