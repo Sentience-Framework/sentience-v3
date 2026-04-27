@@ -200,6 +200,11 @@ class SQLiteDialect extends SQLDialect
         };
     }
 
+    public function lateral(): bool
+    {
+        return $this->version >= 33000;
+    }
+
     public function onConflict(): bool
     {
         return $this->version >= 32400;
