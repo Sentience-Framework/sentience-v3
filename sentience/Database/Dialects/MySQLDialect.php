@@ -241,7 +241,7 @@ class MySQLDialect extends SQLDialect
 
     public function lateral(): bool
     {
-        return ($this->driver == Driver::MYSQL && $this->version >= 80000) || ($this->driver == Driver::MARIADB && $this->version >= 100200);
+        return $this->driver == Driver::MYSQL && $this->version >= 80014;
     }
 
     public function onConflict(): bool

@@ -30,19 +30,19 @@ trait JoinsTrait
         return $this->leftJoin(Query::subQuery($selectQuery, $alias), $on);
     }
 
-    public function leftLateralJoin(string|array|Alias|Sql|SubQuery $table, null|string|callable $on = null): static
+    public function leftJoinLateral(string|array|Alias|Sql|SubQuery $table, null|string|callable $on = null): static
     {
         return $this->addJoin(JoinEnum::LEFT_JOIN, true, $table, $on);
     }
 
-    public function leftLateralJoinTable(string|array|Sql $table, null|string|callable $on = null, ?string $alias = null): static
+    public function leftJoinLateralTable(string|array|Sql $table, null|string|callable $on = null, ?string $alias = null): static
     {
-        return $this->leftLateralJoin($alias ? Query::alias($table, $alias) : $table, $on);
+        return $this->leftJoinLateral($alias ? Query::alias($table, $alias) : $table, $on);
     }
 
-    public function leftLateralJoinSubQuery(SelectQuery $selectQuery, string $alias, null|string|callable $on = null): static
+    public function leftJoinLateralSubQuery(SelectQuery $selectQuery, string $alias, null|string|callable $on = null): static
     {
-        return $this->leftLateralJoin(Query::subQuery($selectQuery, $alias), $on);
+        return $this->leftJoinLateral(Query::subQuery($selectQuery, $alias), $on);
     }
 
     public function innerJoin(string|array|Alias|Sql|SubQuery $table, null|string|callable $on = null): static
@@ -60,19 +60,19 @@ trait JoinsTrait
         return $this->innerJoin(Query::subQuery($selectQuery, $alias), $on);
     }
 
-    public function innerLateralJoin(string|array|Alias|Sql|SubQuery $table, null|string|callable $on = null): static
+    public function innerJoinLateral(string|array|Alias|Sql|SubQuery $table, null|string|callable $on = null): static
     {
         return $this->addJoin(JoinEnum::INNER_JOIN, true, $table, $on);
     }
 
-    public function innerLateralJoinTable(string|array|Sql $table, null|string|callable $on = null, ?string $alias = null): static
+    public function innerJoinLateralTable(string|array|Sql $table, null|string|callable $on = null, ?string $alias = null): static
     {
-        return $this->innerLateralJoin($alias ? Query::alias($table, $alias) : $table, $on);
+        return $this->innerJoinLateral($alias ? Query::alias($table, $alias) : $table, $on);
     }
 
-    public function innerLateralJoinSubQuery(SelectQuery $selectQuery, string $alias, null|string|callable $on = null): static
+    public function innerJoinLateralSubQuery(SelectQuery $selectQuery, string $alias, null|string|callable $on = null): static
     {
-        return $this->innerLateralJoin(Query::subQuery($selectQuery, $alias), $on);
+        return $this->innerJoinLateral(Query::subQuery($selectQuery, $alias), $on);
     }
 
     public function joinf(string $format, null|bool|int|float|string|DateTimeInterface|SelectQuery|Sql ...$values): static
