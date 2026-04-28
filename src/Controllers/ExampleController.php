@@ -112,7 +112,6 @@ class ExampleController extends Controller
             )
             ->join('RIGHT JOIN table2 jt ON jt.column1 = table1.column1 AND jt.column2 = table2.column2')
             ->joinf('LATERAL LEFT JOIN lateral_table ON %.1f', 12.45)
-            ->leftJoin('joinable_by_string', 'joinable_by_string.id = main_table.joinable_id')
             ->whereEquals('column1', 10)
             ->whereGroup(
                 fn (WhereGroup $group) => $group
