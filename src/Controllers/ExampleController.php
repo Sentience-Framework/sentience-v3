@@ -104,6 +104,11 @@ class ExampleController extends Controller
                 Query::alias('table2', 'jt'),
                 fn (Join $join): Join => $join->on(['jt', 'joinColumn'], ['table_1', 'column1'])
             )
+            // ->leftJoinLateralTable(
+            //     'table_lateral',
+            //     fn(Join $join): Join => $join->on(['tl', 'joinColumn'], ['table_1', 'column1']),
+            //     'lt'
+            // )
             ->innerJoin(
                 ['public', 'table3'],
                 fn (Join $join) => $join

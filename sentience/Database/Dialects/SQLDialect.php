@@ -464,7 +464,7 @@ class SQLDialect extends DialectAbstract
                 continue;
             }
 
-            if ($join->join->lateral() && !$this->lateral()) {
+            if ($join->lateral && !$this->lateral()) {
                 throw new QueryException('LATERAL is not supported');
             }
 
@@ -476,7 +476,7 @@ class SQLDialect extends DialectAbstract
 
             $query .= sprintf(
                 '%s %s ON ',
-                $join->join->value,
+                $join->join->value . ($join->lateral ? ' LATERAL' : ''),
                 $this->escapeIdentifier($table)
             );
 

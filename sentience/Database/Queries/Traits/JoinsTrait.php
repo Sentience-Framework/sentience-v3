@@ -17,7 +17,7 @@ trait JoinsTrait
 
     public function leftJoin(string|array|Alias|Sql|SubQuery $table, ?callable $on = null): static
     {
-        return $this->addJoin(JoinEnum::LEFT_JOIN, $table, $on);
+        return $this->addJoin(JoinEnum::LEFT_JOIN, false, $table, $on);
     }
 
     public function leftJoinTable(string|array|Sql $table, ?callable $on = null, ?string $alias = null): static
@@ -32,7 +32,7 @@ trait JoinsTrait
 
     public function leftJoinLateral(string|array|Alias|Sql|SubQuery $table, ?callable $on = null): static
     {
-        return $this->addJoin(JoinEnum::LEFT_JOIN_LATERAL, $table, $on);
+        return $this->addJoin(JoinEnum::LEFT_JOIN, true, $table, $on);
     }
 
     public function leftJoinLateralTable(string|array|Sql $table, ?callable $on = null, ?string $alias = null): static
@@ -47,7 +47,7 @@ trait JoinsTrait
 
     public function innerJoin(string|array|Alias|Sql|SubQuery $table, ?callable $on = null): static
     {
-        return $this->addJoin(JoinEnum::INNER_JOIN, $table, $on);
+        return $this->addJoin(JoinEnum::INNER_JOIN, false, $table, $on);
     }
 
     public function innerJoinTable(string|array|Sql $table, ?callable $on = null, ?string $alias = null): static
@@ -62,7 +62,7 @@ trait JoinsTrait
 
     public function innerJoinLateral(string|array|Alias|Sql|SubQuery $table, ?callable $on = null): static
     {
-        return $this->addJoin(JoinEnum::INNER_JOIN_LATERAL, $table, $on);
+        return $this->addJoin(JoinEnum::INNER_JOIN, true, $table, $on);
     }
 
     public function innerJoinLateralTable(string|array|Sql $table, ?callable $on = null, ?string $alias = null): static
@@ -89,9 +89,9 @@ trait JoinsTrait
         return $this;
     }
 
-    protected function addJoin(JoinEnum $join, string|array|Alias|Sql|SubQuery $table, ?callable $on): static
+    protected function addJoin(JoinEnum $join, bool $lateral, string|array|Alias|Sql|SubQuery $table, ?callable $on): static
     {
-        $join = new Join($join, $table);
+        $join = new Join($join, $lateral, $table);
 
         if ($on) {
             $join = $on($join) ?? $join;
