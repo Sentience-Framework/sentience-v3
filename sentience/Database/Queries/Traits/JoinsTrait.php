@@ -17,7 +17,7 @@ trait JoinsTrait
 
     public function leftJoin(string|array|Alias|Sql|SubQuery $table, ?callable $on = null): static
     {
-        return $this->addJoin(JoinEnum::LEFT_JOIN, false, $table, $on);
+        return $this->addJoin(JoinEnum::LEFT_JOIN, $table, $on);
     }
 
     public function leftJoinTable(string|array|Sql $table, ?callable $on = null, ?string $alias = null): static
@@ -32,7 +32,7 @@ trait JoinsTrait
 
     public function leftJoinLateral(string|array|Alias|Sql|SubQuery $table, ?callable $on = null): static
     {
-        return $this->addJoin(JoinEnum::LEFT_JOIN, true, $table, $on);
+        return $this->addJoin(JoinEnum::LEFT_JOIN_LATERAL, $table, $on);
     }
 
     public function leftJoinLateralTable(string|array|Sql $table, ?callable $on = null, ?string $alias = null): static
@@ -47,7 +47,7 @@ trait JoinsTrait
 
     public function innerJoin(string|array|Alias|Sql|SubQuery $table, ?callable $on = null): static
     {
-        return $this->addJoin(JoinEnum::INNER_JOIN, false, $table, $on);
+        return $this->addJoin(JoinEnum::INNER_JOIN, $table, $on);
     }
 
     public function innerJoinTable(string|array|Sql $table, ?callable $on = null, ?string $alias = null): static
@@ -62,7 +62,7 @@ trait JoinsTrait
 
     public function innerJoinLateral(string|array|Alias|Sql|SubQuery $table, ?callable $on = null): static
     {
-        return $this->addJoin(JoinEnum::INNER_JOIN, true, $table, $on);
+        return $this->addJoin(JoinEnum::INNER_JOIN_LATERAL, $table, $on);
     }
 
     public function innerJoinLateralTable(string|array|Sql $table, ?callable $on = null, ?string $alias = null): static
@@ -73,6 +73,36 @@ trait JoinsTrait
     public function innerJoinLateralSubQuery(SelectQuery $selectQuery, string $alias, ?callable $on = null): static
     {
         return $this->innerJoinLateral(Query::subQuery($selectQuery, $alias), $on);
+    }
+
+    public function outerApply(string|array|Alias|Sql|SubQuery $table, ?callable $on = null): static
+    {
+        return $this->addJoin(JoinEnum::LEFT_JOIN_LATERAL, $table, $on);
+    }
+
+    public function outerApplyTable(string|array|Sql $table, ?callable $on = null, ?string $alias = null): static
+    {
+        return $this->outerApply($alias ? Query::alias($table, $alias) : $table, $on);
+    }
+
+    public function outerApplySubQuery(SelectQuery $selectQuery, string $alias, ?callable $on = null): static
+    {
+        return $this->outerApply(Query::subQuery($selectQuery, $alias), $on);
+    }
+
+    public function crossApply(string|array|Alias|Sql|SubQuery $table, ?callable $on = null): static
+    {
+        return $this->addJoin(JoinEnum::INNER_JOIN_LATERAL, $table, $on);
+    }
+
+    public function crossApplyTable(string|array|Sql $table, ?callable $on = null, ?string $alias = null): static
+    {
+        return $this->crossApply($alias ? Query::alias($table, $alias) : $table, $on);
+    }
+
+    public function crossApplySubQuery(SelectQuery $selectQuery, string $alias, ?callable $on = null): static
+    {
+        return $this->crossApply(Query::subQuery($selectQuery, $alias), $on);
     }
 
     public function joinf(string $format, null|bool|int|float|string|DateTimeInterface|SelectQuery|Sql ...$values): static
@@ -89,9 +119,9 @@ trait JoinsTrait
         return $this;
     }
 
-    protected function addJoin(JoinEnum $join, bool $lateral, string|array|Alias|Sql|SubQuery $table, ?callable $on): static
+    protected function addJoin(JoinEnum $join, string|array|Alias|Sql|SubQuery $table, ?callable $on): static
     {
-        $join = new Join($join, $lateral, $table);
+        $join = new Join($join, $table);
 
         if ($on) {
             $join = $on($join) ?? $join;
