@@ -110,6 +110,14 @@ class ExampleController extends Controller
                     ['on_table', 'on_column']
                 )->whereBetween(['innerjoin_table', 'join_column'], 0, 9999)
             )
+            // ->crossApplySubQuery(
+            //     $db->select('sub_join_table'),
+            //     'sjt',
+            //     fn(Join $join): Join => $join->on(
+            //         ['innerjoin_table', 'join_column'],
+            //         ['on_table', 'on_column']
+            //     )->whereBetween(['innerjoin_table', 'join_column'], 0, 9999)
+            // )
             ->join('RIGHT JOIN table2 jt ON jt.column1 = table1.column1 AND jt.column2 = table2.column2')
             ->joinf('LATERAL LEFT JOIN lateral_table ON %.1f', 12.45)
             ->whereEquals('column1', 10)
