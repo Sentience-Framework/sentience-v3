@@ -13,16 +13,16 @@ return new class () {
     public function db(): DB
     {
         $driver = Driver::from(config('database->driver', ''));
-        $dsn = config("database->settings->{$driver->name()}->dsn", '');
-        $name = config(["database->settings->{$driver->name()}->name", "database->settings->{$driver->name()}->file"], '');
-        $host = config("database->settings->{$driver->name()}->host", '');
-        $port = (int) config("database->settings->{$driver->name()}->port", '');
-        $unixSocket = config("database->settings->{$driver->name()}->unix_socket", null);
-        $username = config("database->settings->{$driver->name()}->username", '');
-        $password = config("database->settings->{$driver->name()}->password", '');
-        $queries = config("database->settings->{$driver->name()}->queries", []);
-        $usePdo = config("database->settings->{$driver->name()}->use_pdo", false);
-        $options = config("database->settings->{$driver->name()}", []);
+        $dsn = config("database->settings->{$driver->driver()}->dsn", '');
+        $name = config(["database->settings->{$driver->driver()}->name", "database->settings->{$driver->driver()}->file"], '');
+        $host = config("database->settings->{$driver->driver()}->host", '');
+        $port = (int) config("database->settings->{$driver->driver()}->port", '');
+        $unixSocket = config("database->settings->{$driver->driver()}->unix_socket", null);
+        $username = config("database->settings->{$driver->driver()}->username", '');
+        $password = config("database->settings->{$driver->driver()}->password", '');
+        $queries = config("database->settings->{$driver->driver()}->queries", []);
+        $usePdo = config("database->settings->{$driver->driver()}->use_pdo", false);
+        $options = config("database->settings->{$driver->driver()}", []);
         $debug = config('database->debug', false)
         ? function (string $query, float $start, ?string $error = null): void {
             $end = microtime(true);
