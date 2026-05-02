@@ -85,7 +85,7 @@ class PDOAdapter extends AdapterAbstract
         if ($driver == Driver::SQLITE) {
             return sprintf(
                 '%s:%s',
-                $driver->value,
+                $driver->driver(),
                 $name
             );
         }
@@ -96,7 +96,7 @@ class PDOAdapter extends AdapterAbstract
 
         $build = fn (array $dsn): string => sprintf(
             '%s:%s',
-            $driver == Driver::MARIADB ? Driver::MYSQL->value : $driver->value,
+            $driver == Driver::MARIADB ? Driver::MYSQL->driver() : $driver->driver(),
             implode(
                 ';',
                 array_map(

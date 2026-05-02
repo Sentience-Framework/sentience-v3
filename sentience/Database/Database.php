@@ -33,7 +33,7 @@ class Database implements DatabaseInterface
         ?Closure $debug = null,
         bool $usePDOAdapter = false
     ): static {
-        $adapter = $driver->getAdapter(
+        $adapter = $driver->adapter(
             $name,
             $socket,
             $queries,
@@ -44,7 +44,7 @@ class Database implements DatabaseInterface
 
         $version = $adapter->version();
 
-        $dialect = $driver->getDialect($version, $options);
+        $dialect = $driver->dialect($version, $options);
 
         return new static($adapter, $dialect);
     }
