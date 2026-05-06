@@ -192,8 +192,8 @@ class ExampleController extends Controller
                 'column3' => false
 
             ])
-            ->onConflictUpdate(['id'], [])
-            // ->onConflictIgnore(['id'])
+            ->onConflictDoUpdate(['id'], [])
+            // ->onConflictDoNothing(['id'])
             ->returning(['id'])
             ->lastInsertId('id')
             ->toSql();
@@ -433,8 +433,8 @@ class ExampleController extends Controller
                 'filename' => 'emulated_upsert',
                 'applied_at' => Query::now()
             ])
-            ->onConflictUpdate(['filename'])
-            // ->onConflictIgnore(['filename'])
+            ->onConflictDoUpdate(['filename'])
+            // ->onConflictDoNothing(['filename'])
             ->returning(['applied_at'])
             ->lastInsertId('id')
             ->execute();
