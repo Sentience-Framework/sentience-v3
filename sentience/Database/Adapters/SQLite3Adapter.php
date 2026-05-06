@@ -206,9 +206,4 @@ class SQLite3Adapter extends AdapterAbstract
             $this->sqlite3->close();
         }
     }
-
-    public static function extensionsInstalled(): bool
-    {
-        return class_exists('SQLite3');
-    }
 }

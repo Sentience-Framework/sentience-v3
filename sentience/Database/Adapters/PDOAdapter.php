@@ -410,9 +410,4 @@ class PDOAdapter extends AdapterAbstract
             $this->sqliteOptimize($this->options[static::OPTIONS_SQLITE_OPTIMIZE] ?? false);
         }
     }
-
-    public static function extensionsInstalled(): bool
-    {
-        return class_exists('PDO');
-    }
 }
