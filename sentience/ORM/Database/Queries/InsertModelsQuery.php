@@ -75,11 +75,11 @@ class InsertModelsQuery extends ModelsQueryAbstract
                 );
 
                 $this->onDuplicateUpdate
-                    ? $insertQuery->onConflictUpdate(
+                    ? $insertQuery->onConflictDoUpdate(
                         $uniqueColumns,
                         $updateValues
                     )
-                    : $insertQuery->onConflictIgnore(
+                    : $insertQuery->onConflictDoNothing(
                         $uniqueColumns
                     );
             }

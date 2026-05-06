@@ -151,8 +151,8 @@ InsertQuery->emulateOnConflict(string $lastInsertId, bool $inTransaction): stati
 InsertQuery->emulateReturning(string $lastInsertId): static
 InsertQuery->explain(bool $emulatePrepare): array
 InsertQuery->lastInsertId(string $column): static
-InsertQuery->onConflictIgnore(array|string $conflict): static
-InsertQuery->onConflictUpdate(array|string $conflict, array $updates): static
+InsertQuery->onConflictDoNothing(array|string $conflict): static
+InsertQuery->onConflictDoUpdate(array|string $conflict, array $updates): static
 InsertQuery->returning(array $columns): static
 InsertQuery->values(array $values): static
 ```

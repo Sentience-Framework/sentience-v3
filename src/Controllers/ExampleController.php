@@ -176,8 +176,8 @@ class ExampleController extends Controller
                 'column4' => Query::raw('column1 + 1'),
                 'column1' => Query::now()
             ])
-            ->onConflictUpdate(['id'], [])
-            // ->onConflictIgnore(['id'])
+            ->onConflictDoUpdate(['id'], [])
+            // ->onConflictDoNothing(['id'])
             ->returning(['id'])
             ->lastInsertId('id')
             ->toSql();
