@@ -7,9 +7,9 @@ use Sentience\Database\Queries\Objects\WhereGroup;
 
 class ConditionGroup extends WhereGroup
 {
-    public function __construct(ChainEnum $chain)
+    public function __construct(ChainEnum $chain, bool $not)
     {
-        parent::__construct($chain);
+        parent::__construct($chain, $not);
     }
 
     public function addConditions(array $conditions): static
