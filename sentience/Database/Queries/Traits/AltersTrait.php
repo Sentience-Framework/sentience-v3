@@ -82,9 +82,18 @@ trait AltersTrait
         return $this;
     }
 
-    public function addIdentity(string $name, int $bits = 64): static
+    public function addIdentity(string $name, int $bits = 64, bool $addPrimaryKey = true): static
     {
+        if ($addPrimaryKey) {
+            $this->addPrimaryKeys($name);
+        }
+
         return $this->addInt($name, $bits, true, null, true);
+    }
+
+    public function addAutoIncrement(string $name, int $bits = 64, bool $addPrimaryKey = true): static
+    {
+        return $this->addIdentity($name, $bits, $addPrimaryKey);
     }
 
     public function addBool(string $name, bool $notNull = false, null|bool|Sql $default = null): static

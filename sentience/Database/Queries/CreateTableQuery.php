@@ -55,9 +55,18 @@ class CreateTableQuery extends Query
         return $this;
     }
 
-    public function identity(string $name, int $bits = 64): static
+    public function identity(string $name, int $bits = 64, bool $primaryKey = true): static
     {
+        if ($primaryKey && !in_array($name, $this->primaryKeys)) {
+            $this->primaryKeys[] = $name;
+        }
+
         return $this->int($name, $bits, true, null, true);
+    }
+
+    public function autoIncrement(string $name, int $bits = 64, bool $primaryKey = true): static
+    {
+        return $this->identity($name, $bits, $primaryKey);
     }
 
     public function bool(string $name, bool $notNull = false, null|bool|Sql $default = null): static
