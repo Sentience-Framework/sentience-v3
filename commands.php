@@ -129,7 +129,7 @@ return [
                         'applied_at' => Query::now()
                     ]
                 )
-                ->onConflictDoNothing(['filename'])
+                ->onConflictDoUpdate(['filename'])
                 ->emulateOnConflict('id')
                 ->execute();
         }

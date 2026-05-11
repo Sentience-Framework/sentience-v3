@@ -132,9 +132,17 @@ class InsertQuery extends Query
         return $selectQuery->execute($emulatePrepare);
     }
 
-    protected function insert(?array $values, bool $emulatePrepare): ResultInterface
+    protected function insert(array $values, bool $emulatePrepare): ResultInterface
     {
-        $result = parent::execute($emulatePrepare);
+        $result = $this->database->queryWithParams(
+            $this->dialect->insert(
+                $this->table,
+                $values,
+                !$this->emulateOnConflict ? $this->onConflict : null,
+                !$this->emulateReturning ? $this->returning : null,
+                $this->lastInsertId
+            )
+        );
 
         if (!$this->lastInsertId || is_null($this->returning) || !$this->emulateReturning && $this->dialect->returning()) {
             return $result;
