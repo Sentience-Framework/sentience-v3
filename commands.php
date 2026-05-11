@@ -106,10 +106,32 @@ return [
     Command::register(
         'test',
         function (DB $db): void {
-            echo $db->select('migrations')
-                ->columns([
-                    Query::expressionf('filename || batch || %d AND %f AS column1', 4, 5.2452)
-                ])->toSql();
+            $db->insert('migrations')
+                ->values(
+                    [
+                        'filename' => 'test1',
+                        'batch' => 1,
+                        'applied_at' => Query::now()
+                    ],
+                    [
+                        'filename' => 'test2',
+                        'batch' => 1,
+                        'applied_at' => Query::now()
+                    ],
+                    [
+                        'filename' => 'test3',
+                        'batch' => 1,
+                        'applied_at' => Query::now()
+                    ],
+                    [
+                        'filename' => 'test4',
+                        'batch' => 1,
+                        'applied_at' => Query::now()
+                    ]
+                )
+                ->onConflictDoNothing(['filename'])
+                ->emulateOnConflict('id')
+                ->execute();
         }
     ),
 
