@@ -274,6 +274,7 @@ class ExampleController extends Controller
             $selectedModels = $db->selectModels(Migration::class)
                 ->whereGreaterThanOrEquals('id', 0)
                 ->whereLike('filename', '%a%')
+                ->whereGlob('filename', '*a*')
                 ->execute();
 
             array_push($models, ...$selectedModels);
