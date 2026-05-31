@@ -124,6 +124,41 @@ return [
 
             'use_pdo' => env('DB_USE_PDO', false),
             'version' => env('DB_VERSION')
+        ],
+        'db2' => [
+            'name' => env('DB_NAME', 'sentience'),
+            'host' => env('DB_HOST', 'localhost'),
+            'port' => env('DB_PORT', 50000),
+            'username' => env('DB_USERNAME', 'db2inst1'),
+            'password' => env('DB_PASSWORD', ''),
+            'queries' => env('DB_QUERIES', []),
+
+            'use_pdo' => env('DB_USE_PDO', false),
+            'version' => env('DB_VERSION')
+        ],
+        'informix' => [
+            'name' => env('DB_NAME', 'sentience'),
+            'host' => env('DB_HOST', 'localhost'),
+            'port' => env('DB_PORT', 1526),
+            'username' => env('DB_USERNAME', 'informix'),
+            'password' => env('DB_PASSWORD', ''),
+            'server' => env('DB_SERVER', 'olainformix'),
+            'service' => env('DB_SERVICE', '9088'),
+            'queries' => env('DB_QUERIES', []),
+
+            'use_pdo' => env('DB_USE_PDO', false),
+            'version' => env('DB_VERSION')
+        ],
+        'cubrid' => [
+            'name' => env('DB_NAME', 'sentience'),
+            'host' => env('DB_HOST', 'localhost'),
+            'port' => env('DB_PORT', 33000),
+            'username' => env('DB_USERNAME', 'admin'),
+            'password' => env('DB_PASSWORD', ''),
+            'queries' => env('DB_QUERIES', []),
+
+            'use_pdo' => env('DB_USE_PDO', false),
+            'version' => env('DB_VERSION')
         ]
     ],
 
