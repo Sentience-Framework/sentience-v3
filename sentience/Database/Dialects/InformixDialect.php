@@ -7,8 +7,6 @@ use Sentience\Database\Queries\Enums\TypeEnum;
 
 class InformixDialect extends SQLDialect
 {
-    public const string DATETIME_FORMAT = 'Y-m-d H:i:s';
-
     public function __construct(DriverInterface $driver, int|string $version, array $options)
     {
         if (is_int($version)) {
