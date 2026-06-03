@@ -5,14 +5,43 @@ use Sentience\Helpers\Filesystem;
 return [
     'driver' => env('DB_DRIVER', 'sqlite'),
     'settings' => [
+        'cubrid' => [
+            'name' => env('DB_NAME', 'sentience'),
+            'host' => env('DB_HOST', 'localhost'),
+            'port' => env('DB_PORT', 33000),
+            'username' => env('DB_USERNAME', 'admin'),
+            'password' => env('DB_PASSWORD', ''),
+            'queries' => env('DB_QUERIES', []),
+            'version' => env('DB_VERSION')
+        ],
+        'db2' => [
+            'name' => env('DB_NAME', 'sentience'),
+            'host' => env('DB_HOST', 'localhost'),
+            'port' => env('DB_PORT', 50000),
+            'username' => env('DB_USERNAME', 'db2inst1'),
+            'password' => env('DB_PASSWORD', ''),
+            'queries' => env('DB_QUERIES', []),
+
+            'version' => env('DB_VERSION')
+        ],
         'firebird' => [
             'file' => env('DB_FILE', 'sentience.fdb'),
             'host' => env('DB_HOST', 'localhost'),
             'port' => env('DB_PORT', 3050),
             'username' => env('DB_USERNAME', 'SYSDBA'),
             'password' => env('DB_PASSWORD', ''),
+            'queries' => env('DB_QUERIES', [])
+        ],
+        'informix' => [
+            'name' => env('DB_NAME', 'sentience'),
+            'host' => env('DB_HOST', 'localhost'),
+            'port' => env('DB_PORT', 1526),
+            'username' => env('DB_USERNAME', 'informix'),
+            'password' => env('DB_PASSWORD', ''),
+            'server' => env('DB_SERVER', 'olainformix'),
+            'service' => env('DB_SERVICE', '9088'),
             'queries' => env('DB_QUERIES', []),
-            'use_pdo' => env('DB_USE_PDO', false)
+            'version' => env('DB_VERSION')
         ],
         'mariadb' => [
             'name' => env('DB_NAME', 'sentience'),
@@ -82,7 +111,6 @@ return [
 
             'client_encoding' => env('DB_CLIENT_ENCODING', 'UTF8'),
             'search_path' => env('DB_SEARCH_PATH', 'public'),
-            'use_pdo' => env('DB_USE_PDO', false),
             'version' => env('DB_VERSION')
         ],
         'sqlite' => [
@@ -118,46 +146,8 @@ return [
             'username' => env('DB_USERNAME', 'sa'),
             'password' => env('DB_PASSWORD', ''),
             'queries' => env('DB_QUERIES', []),
-
             'encrypt' => env('DB_ENCRYPT', true),
             'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', false),
-
-            'use_pdo' => env('DB_USE_PDO', false),
-            'version' => env('DB_VERSION')
-        ],
-        'db2' => [
-            'name' => env('DB_NAME', 'sentience'),
-            'host' => env('DB_HOST', 'localhost'),
-            'port' => env('DB_PORT', 50000),
-            'username' => env('DB_USERNAME', 'db2inst1'),
-            'password' => env('DB_PASSWORD', ''),
-            'queries' => env('DB_QUERIES', []),
-
-            'use_pdo' => env('DB_USE_PDO', false),
-            'version' => env('DB_VERSION')
-        ],
-        'informix' => [
-            'name' => env('DB_NAME', 'sentience'),
-            'host' => env('DB_HOST', 'localhost'),
-            'port' => env('DB_PORT', 1526),
-            'username' => env('DB_USERNAME', 'informix'),
-            'password' => env('DB_PASSWORD', ''),
-            'server' => env('DB_SERVER', 'olainformix'),
-            'service' => env('DB_SERVICE', '9088'),
-            'queries' => env('DB_QUERIES', []),
-
-            'use_pdo' => env('DB_USE_PDO', false),
-            'version' => env('DB_VERSION')
-        ],
-        'cubrid' => [
-            'name' => env('DB_NAME', 'sentience'),
-            'host' => env('DB_HOST', 'localhost'),
-            'port' => env('DB_PORT', 33000),
-            'username' => env('DB_USERNAME', 'admin'),
-            'password' => env('DB_PASSWORD', ''),
-            'queries' => env('DB_QUERIES', []),
-
-            'use_pdo' => env('DB_USE_PDO', false),
             'version' => env('DB_VERSION')
         ]
     ],
