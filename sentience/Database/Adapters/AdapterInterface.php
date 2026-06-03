@@ -10,6 +10,7 @@ interface AdapterInterface
 {
     public const string OPTIONS_PERSISTENT = 'persistent';
     public const string OPTIONS_PDO_DSN = 'dsn';
+    public const string OPTIONS_INFORMIX_SERVER = 'server';
     public const string OPTIONS_MYSQL_CHARSET = 'charset';
     public const string OPTIONS_MYSQL_COLLATION = 'collation';
     public const string OPTIONS_MYSQL_ENGINE = 'engine';

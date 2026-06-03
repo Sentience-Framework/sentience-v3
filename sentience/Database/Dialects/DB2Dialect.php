@@ -7,6 +7,16 @@ use Sentience\Database\Queries\Enums\TypeEnum;
 
 class DB2Dialect extends SQLDialect
 {
+    public const array ESCAPE_CHARS = [
+        '\\' => '\\\\',
+        "\n" => '\\n',
+        "\r" => '\\r',
+        "\t" => '\\t',
+        "\0" => '',
+        "\b" => '\\b'
+    ];
+    public const bool RETURNING = true;
+
     public function __construct(DriverInterface $driver, int|string $version, array $options)
     {
         if (is_int($version)) {
@@ -45,8 +55,11 @@ class DB2Dialect extends SQLDialect
     public function type(TypeEnum $type, ?int $size = null): string
     {
         return match ($type) {
-            TypeEnum::FLOAT => 'DOUBLE',
+            TypeEnum::BOOL => 'SMALLINT',
+            TypeEnum::INT => $size > 32 ? 'BIGINT' : 'INTEGER',
+            TypeEnum::FLOAT => $size > 32 ? 'DOUBLE' : 'DECIMAL(15, 7)',
             TypeEnum::STRING => $size > 255 ? 'CLOB(1M)' : sprintf('VARCHAR(%d)', $size ?? 255),
+            TypeEnum::DATETIME => 'TIMESTAMP',
             default => parent::type($type, $size)
         };
     }
@@ -54,5 +67,15 @@ class DB2Dialect extends SQLDialect
     public function lateral(): bool
     {
         return $this->version >= 970;
+    }
+
+    public function onConflict(): bool
+    {
+        return $this->version >= 970;
+    }
+
+    public function returning(): bool
+    {
+        return true;
     }
 }

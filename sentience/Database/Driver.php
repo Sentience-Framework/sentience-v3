@@ -4,11 +4,9 @@ namespace Sentience\Database;
 
 use Closure;
 use Sentience\Database\Adapters\AdapterInterface;
-use Sentience\Database\Adapters\ClickHouseAdapter;
 use Sentience\Database\Adapters\MySQLiAdapter;
 use Sentience\Database\Adapters\PDOAdapter;
 use Sentience\Database\Adapters\SQLite3Adapter;
-use Sentience\Database\Dialects\ClickHouseDialect;
 use Sentience\Database\Dialects\CUBRIDDialect;
 use Sentience\Database\Dialects\DB2Dialect;
 use Sentience\Database\Dialects\DialectInterface;
@@ -56,7 +54,7 @@ enum Driver: string implements DriverInterface
                 static::SQLITE => SQLite3Adapter::class,
                 default => PDOAdapter::class
             }
-            : PDOAdapter::class;
+        : PDOAdapter::class;
 
         return new $adapter(
             $this,

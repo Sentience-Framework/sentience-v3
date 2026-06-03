@@ -14,6 +14,7 @@ use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Results\PDOResult;
 use Sentience\Database\Sockets\NetworkSocket;
 use Sentience\Database\Sockets\SocketAbstract;
+use Sentience\Database\Sockets\UnixSocket;
 
 class PDOAdapter extends AdapterAbstract
 {
@@ -91,6 +92,41 @@ class PDOAdapter extends AdapterAbstract
             throw new DriverException('this driver requires a socket');
         }
 
+        if ($socket instanceof UnixSocket && !in_array($driver, [Driver::MARIADB, Driver::MYSQL, Driver::PGSQL])) {
+            throw new DriverException('this driver requires a network socket');
+        }
+
+        if ($driver == Driver::CUBRID) {
+            return sprintf(
+                '%s:dbname=%s;host=%s;port=%d',
+                $driver->driver(),
+                $name,
+                $socket->host,
+                $socket->port
+            );
+        }
+
+        if ($driver == Driver::DB2) {
+            return sprintf(
+                '%2$s:DATABASE=%3$s;HOSTNAME=%1$s;PORT=%4$d;PROTOCOL=TCPIP;',
+                $socket->host,
+                $driver->driver(),
+                $name,
+                $socket->port
+            );
+        }
+
+        if ($driver == Driver::INFORMIX) {
+            return sprintf(
+                '%s:DATABASE=%s;HOST=%s;SERVER=%s;SERVICE=%d;',
+                $driver->driver(),
+                $name,
+                $socket->host,
+                $options[static::OPTIONS_INFORMIX_SERVER] ?? 'olainformix',
+                $socket->port
+            );
+        }
+
         if ($driver == Driver::FIREBIRD) {
             return sprintf(
                 '%s:dbname=%s/%d:%s',
@@ -123,43 +159,13 @@ class PDOAdapter extends AdapterAbstract
             );
         }
 
-        if ($driver == Driver::INFORMIX) {
-            return sprintf(
-                '%s:host=%s;servicename=%d;database=%s;',
-                $driver->driver(),
-                $socket->host,
-                $socket->port,
-                $name
-            );
-        }
-
-        if ($driver == Driver::DB2) {
-            return sprintf(
-                '%2$s:DATABASE=%3$s;HOSTNAME=%1$s;PORT=%4$d;PROTOCOL=TCPIP;',
-                $socket->host,
-                $driver->driver(),
-                $name,
-                $socket->port
-            );
-        }
-
-        if ($driver == Driver::CUBRID) {
-            return sprintf(
-                '%s:dbname=%s;%s:%d',
-                $driver->driver(),
-                $name,
-                $socket->host,
-                $socket->port
-            );
-        }
-
-        $build = fn(array $dsn): string => sprintf(
+        $build = fn (array $dsn): string => sprintf(
             '%s:%s',
             $driver == Driver::MARIADB ? Driver::MYSQL->driver() : $driver->driver(),
             implode(
                 ';',
                 array_map(
-                    fn(null|int|float|string $value, string $key): string => sprintf(
+                    fn (null|int|float|string $value, string $key): string => sprintf(
                         '%s=%s',
                         $key,
                         (string) $value
@@ -258,7 +264,7 @@ class PDOAdapter extends AdapterAbstract
             if (method_exists($this->pdo, $method)) {
                 [$this->pdo, $method](
                     static::REGEXP_FUNCTION,
-                    fn(string $value, string $pattern): bool => $this->regexpFunction(
+                    fn (string $value, string $pattern): bool => $this->regexpFunction(
                         $value,
                         $pattern
                     ),
@@ -267,7 +273,7 @@ class PDOAdapter extends AdapterAbstract
 
                 [$this->pdo, $method](
                     static::REGEXP_LIKE_FUNCTION,
-                    fn(string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction(
+                    fn (string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction(
                         $value,
                         $pattern,
                         $flags
@@ -359,7 +365,7 @@ class PDOAdapter extends AdapterAbstract
 
             $pdoStatement = $this->pdo->prepare($queryWithParams->query);
         } catch (Throwable $exception) {
-            $this->debug(fn(): string => $queryWithParams->toSql($dialect), $start, $exception);
+            $this->debug(fn (): string => $queryWithParams->toSql($dialect), $start, $exception);
 
             throw $exception;
         } finally {
@@ -388,7 +394,7 @@ class PDOAdapter extends AdapterAbstract
         try {
             $pdoStatement->execute();
         } catch (Throwable $exception) {
-            $this->debug(fn(): string => $queryWithParams->toSql($dialect), $start, $exception);
+            $this->debug(fn (): string => $queryWithParams->toSql($dialect), $start, $exception);
 
             throw $exception;
         } finally {
@@ -397,7 +403,7 @@ class PDOAdapter extends AdapterAbstract
             }
         }
 
-        $this->debug(fn(): string => $queryWithParams->toSql($dialect), $start);
+        $this->debug(fn (): string => $queryWithParams->toSql($dialect), $start);
 
         return new PDOResult($pdoStatement);
     }
