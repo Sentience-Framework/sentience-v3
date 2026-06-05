@@ -40,7 +40,7 @@ class OCIDatabase extends DatabaseAbstract
 
     public function userTables(): array
     {
-        return $this->select(['user_tables'])
+        return $this->select('user_tables')
             ->whereNotIn('table_name', ['DUAL', 'USER_HISTORY$'])
             ->execute()
             ->fetchAssocs();
@@ -48,7 +48,7 @@ class OCIDatabase extends DatabaseAbstract
 
     public function userTabColumns(string $table): array
     {
-        return $this->select(['user_tab_columns'])
+        return $this->select('user_tab_columns')
             ->whereEquals('table_name', $table)
             ->orderByAsc('column_id')
             ->execute()

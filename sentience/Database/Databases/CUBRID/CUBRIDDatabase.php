@@ -49,11 +49,6 @@ class CUBRIDDatabase extends DatabaseAbstract
     public function informationSchemaColumns(string $table): array
     {
         return $this->select(['information_schema', 'columns'])
-            ->columns([
-                'COLUMN_NAME' => 'column_name',
-                'DATA_TYPE' => 'data_type',
-                'CHARACTER_MAXIMUM_LENGTH' => 'character_maximum_length'
-            ])
             ->whereEquals('TABLE_NAME', $table)
             ->execute()
             ->fetchAssocs();

@@ -6,6 +6,7 @@ use Closure;
 use Sentience\Database\Databases\DatabaseAbstract;
 use Sentience\Database\Driver;
 use Sentience\Database\Queries\Objects\Join;
+use Sentience\Database\Queries\Query;
 use Sentience\Database\Sockets\NetworkSocket;
 
 class InformixDatabase extends DatabaseAbstract
@@ -62,6 +63,7 @@ class InformixDatabase extends DatabaseAbstract
     public function sysColumns(string $table): array
     {
         return $this->select('systables')
+            ->columns(['syscolumns', Query::raw('*')])
             ->innerJoin(
                 'syscolumns',
                 fn (Join $join) => $join->on(
@@ -69,11 +71,6 @@ class InformixDatabase extends DatabaseAbstract
                     ['syscolumns', 'tabid']
                 )
             )
-            ->columns([
-                'table_name' => ['systables', 'tabname'],
-                'column_name' => ['syscolumns', 'name'],
-                'type_code' => ['syscolumns', 'ttype']
-            ])
             ->whereEquals(['systables', 'tabname'], $table)
             ->orderByAsc(['syscolumns', 'colno'])
             ->execute()
