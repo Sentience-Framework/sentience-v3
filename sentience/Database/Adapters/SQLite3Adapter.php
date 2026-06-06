@@ -43,23 +43,33 @@ class SQLite3Adapter extends AdapterAbstract
 
         $this->sqlite3->enableExceptions(true);
 
-        $this->sqlite3->createFunction(
-            static::REGEXP_FUNCTION,
-            fn (string $value, string $pattern): bool => $this->regexpFunction(
-                $value,
-                $pattern
-            ),
-            2
-        );
+        $createFunctions = $options[static::OPTIONS_SQLITE_CREATE_FUNCTIONS] ?? [];
 
-        $this->sqlite3->createFunction(
-            static::REGEXP_LIKE_FUNCTION,
-            fn (string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction(
-                $value,
-                $pattern,
-                $flags
-            )
-        );
+        if (!array_key_exists(static::REGEXP_FUNCTION, $createFunctions)) {
+            $this->sqlite3->createFunction(
+                static::REGEXP_FUNCTION,
+                fn (string $value, string $pattern): bool => $this->regexpFunction(
+                    $value,
+                    $pattern
+                ),
+                2
+            );
+        }
+
+        if (!array_key_exists(static::REGEXP_LIKE_FUNCTION, $createFunctions)) {
+            $this->sqlite3->createFunction(
+                static::REGEXP_LIKE_FUNCTION,
+                fn (string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction(
+                    $value,
+                    $pattern,
+                    $flags
+                )
+            );
+        }
+
+        foreach ($createFunctions as $function => $callback) {
+            $this->sqlite3->createFunction($function, $callback);
+        }
 
         if (array_key_exists(static::OPTIONS_SQLITE_BUSY_TIMEOUT, $options)) {
             $this->sqlite3->busyTimeout((int) $options[static::OPTIONS_SQLITE_BUSY_TIMEOUT]);

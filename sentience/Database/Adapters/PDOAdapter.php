@@ -262,23 +262,33 @@ class PDOAdapter extends AdapterAbstract
     {
         foreach (['sqliteCreateFunction', 'createFunction'] as $method) {
             if (method_exists($this->pdo, $method)) {
-                [$this->pdo, $method](
-                    static::REGEXP_FUNCTION,
-                    fn (string $value, string $pattern): bool => $this->regexpFunction(
-                        $value,
-                        $pattern
-                    ),
-                    2
-                );
+                $createFunctions = $options[static::OPTIONS_SQLITE_CREATE_FUNCTIONS] ?? [];
 
-                [$this->pdo, $method](
-                    static::REGEXP_LIKE_FUNCTION,
-                    fn (string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction(
-                        $value,
-                        $pattern,
-                        $flags
-                    )
-                );
+                if (!array_key_exists(static::REGEXP_FUNCTION, $createFunctions)) {
+                    [$this->pdo, $method](
+                        static::REGEXP_FUNCTION,
+                        fn (string $value, string $pattern): bool => $this->regexpFunction(
+                            $value,
+                            $pattern
+                        ),
+                        2
+                    );
+                }
+
+                if (!array_key_exists(static::REGEXP_LIKE_FUNCTION, $createFunctions)) {
+                    [$this->pdo, $method](
+                        static::REGEXP_LIKE_FUNCTION,
+                        fn (string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction(
+                            $value,
+                            $pattern,
+                            $flags
+                        )
+                    );
+                }
+
+                foreach ($createFunctions as $function => $callback) {
+                    [$this->pdo, $method]($function, $callback);
+                }
             }
         }
 
