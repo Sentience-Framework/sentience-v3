@@ -1,6 +1,6 @@
 <?php
 
-namespace Sentience\Ai;
+namespace Sentience\Ai\Messages;
 
 enum Role: string
 {

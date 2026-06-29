@@ -2,32 +2,42 @@
 
 namespace Sentience\Ai;
 
-use Sentience\Ai\Connectors\ConnectorInterface;
+use BackedEnum;
+use Sentience\Ai\Apis\ApiInterface;
+use Sentience\Ai\Apis\OpenAI\OpenAIApi;
 
 class Ai
 {
-    protected ConnectorInterface $connector;
+    protected ApiInterface $api;
 
     public static function connect(
-        Connector $connector,
+        Api $api,
         string $baseUri,
         string $apiKey
     ): static {
         return new static(
-            $connector,
+            $api,
             $baseUri,
             $apiKey
         );
     }
 
     public function __construct(
-        Connector $connector,
+        Api $api,
         string $baseUri,
         string $apiKey
     ) {
-        $this->connector = $connector->getConnector(
-            $baseUri,
-            $apiKey
+        $this->api = match ($api) {
+            Api::OpenAI => new OpenAIApi($baseUri, $apiKey)
+        };
+    }
+
+    public function prompt(string|BackedEnum $model, string $prompt): Prompt
+    {
+        return new Prompt(
+            $this->api,
+            $model instanceof BackedEnum ? $model->value : $model,
+            $prompt
         );
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Sentience\Ai\Attachments;
 
-enum AttachmentType
+enum Type
 {
     case BASE64;
     case FILE;

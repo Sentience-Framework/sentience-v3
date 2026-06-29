@@ -2,20 +2,24 @@
 
 namespace Sentience\Ai;
 
+use Sentience\Ai\Apis\ApiInterface;
+use Sentience\Ai\Apis\ResponseInterface;
 use Sentience\Ai\Attachments\Audio;
 use Sentience\Ai\Attachments\Document;
 use Sentience\Ai\Attachments\Image;
 use Sentience\Ai\Attachments\Video;
-use Sentience\Ai\Connectors\ConnectorInterface;
+use Sentience\Ai\Tools\ToolInterface;
 
 class Prompt
 {
     protected ?string $systemPrompt = null;
     protected array $previousMessages = [];
     protected array $attachments = [];
+    protected array $tools = [];
 
     public function __construct(
-        protected ConnectorInterface $connector,
+        protected ApiInterface $api,
+        protected string $model,
         protected string $prompt
     ) {
     }
@@ -60,5 +64,23 @@ class Prompt
         $this->attachments[] = $video;
 
         return $this;
+    }
+
+    public function withTool(string $name, callable|ToolInterface $tool): static
+    {
+        $this->tools[$name] = $tool;
+
+        return $this;
+    }
+
+    public function execute(): ResponseInterface
+    {
+        return $this->api->prompt(
+            $this->model,
+            $this->prompt,
+            $this->systemPrompt,
+            $this->previousMessages,
+            $this->tools
+        );
     }
 }
