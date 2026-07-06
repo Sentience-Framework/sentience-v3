@@ -2,37 +2,46 @@
 
 namespace Sentience\Ai\Apis\OpenAI;
 
-use OpenAI\Responses\Completions\CreateResponse;
+use GuzzleHttp\Psr7\Response;
 use Sentience\Ai\Apis\ResponseInterface;
+use Sentience\Ai\Apis\ToolCall;
 
 class OpenAIResponse implements ResponseInterface
 {
-    public function __construct(protected CreateResponse $createResponse)
+    protected array $response = [];
+
+    public function __construct(Response $response)
     {
+        $this->response = json_decode($response->getBody()->getContents(), true);
     }
 
     public function getContent(): string
     {
-        $content = '';
-
-        foreach ($this->createResponse->choices as $choice) {
-            $content .= $choice->text;
-        }
-
-        return $content;
+        return $this->response['choices'][0]['message']['content'];
     }
 
     public function getReasoningContent(): string
     {
-        return '';
+        return $this->response['choices'][0]['message']['reasoning_content'];
     }
 
     public function getToolCalls(): array
     {
         $toolCalls = [];
 
-        // TODO: Finish
+        foreach ($this->response['choices'][0]['message']['tool_calls'] ?? [] as $toolCall) {
+            $toolCallId = $toolCall['id'];
+            $name = $toolCall['function']['name'];
+            $arguments = json_decode($toolCall['function']['arguments'], true);
+
+            $toolCalls[] = new ToolCall($toolCallId, $name, $arguments);
+        }
 
         return $toolCalls;
+    }
+
+    public function getFinishReason(): string
+    {
+        return $this->response['choices'][0]['finish_reason'];
     }
 }

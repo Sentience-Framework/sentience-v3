@@ -2,59 +2,79 @@
 
 namespace Sentience\Ai\Apis\OpenAI;
 
-use OpenAI;
-use OpenAI\Client;
-use Sentience\Ai\Apis\ApiInterface;
+use GuzzleHttp\Client;
+use Sentience\Ai\Apis\ApiAbstract;
+use Sentience\Ai\Apis\ToolCall;
+use Sentience\Ai\Messages\AssistantMessage;
+use Sentience\Ai\Messages\Message;
 use Sentience\Ai\Messages\Role;
+use Sentience\Ai\Messages\ToolMessage;
 
-class OpenAIApi implements ApiInterface
+class OpenAIApi extends ApiAbstract
 {
     protected Client $client;
 
     public function __construct(string $baseUri, string $apiKey)
     {
-        $this->client = OpenAI::factory()
-            ->withBaseUri($baseUri)
-            ->withApiKey($apiKey)
-            ->withHttpClient($httpClient = new \GuzzleHttp\Client([]))
-            ->withStreamHandler(fn(\Psr\Http\Message\RequestInterface $request): \Psr\Http\Message\ResponseInterface => $httpClient->send($request, ['stream' => true]))
-            ->make();
+        $this->client = new Client([
+            'base_uri' => $baseUri,
+            'headers' => [
+                'Authorization' => 'Bearer ' . $apiKey,
+            ],
+        ]);
     }
 
     public function prompt(
         string $model,
-        string $prompt,
-        ?string $systemPrompt,
-        array $previousMessages,
+        array $messages,
         array $tools
     ): OpenAIResponse {
-        $messages = [];
+        $response = $this->client->post(
+            '/v1/chat/completions',
+            [
+                'json' => [
+                    'model' => $model,
+                    'messages' => array_map(
+                        function (Message $message): array {
+                            if ($message instanceof AssistantMessage) {
+                                return [
+                                    'role' => $message->role->value,
+                                    'content' => $message->content,
+                                    'reasoning_content' => $message->reasoningContent,
+                                    'tool_calls' => array_map(
+                                        fn(ToolCall $toolCall): array => [
+                                            'id' => $toolCall->toolCallId,
+                                            'type' => 'function',
+                                            'function' => [
+                                                'name' => $toolCall->name,
+                                                'arguments' => json_encode($toolCall->arguments)
+                                            ]
+                                        ],
+                                        $message->toolCalls
+                                    )
+                                ];
+                            }
 
-        foreach ($previousMessages as $previousMessage) {
-            $messages[] = [
-                'role' => $previousMessage->role->value,
-                'content' => $previousMessage->content,
-            ];
-        }
+                            if ($message instanceof ToolMessage) {
+                                return [
+                                    'role' => $message->role->value,
+                                    'tool_call_id' => $message->toolCallId,
+                                    'content' => $message->content,
+                                ];
+                            }
 
-        if ($systemPrompt) {
-            $messages[] = [
-                'role' => Role::System->value,
-                'content' => $systemPrompt,
-            ];
-        }
+                            return [
+                                'role' => $message->role->value,
+                                'content' => $message->content,
+                            ];
+                        },
+                        $messages
+                    ),
+                    'tools' => $this->buildToolsSchema($tools)
+                ]
+            ]
+        );
 
-        $messages[] = [
-            'role' => Role::User->value,
-            'content' => $prompt,
-        ];
-
-        $createResponse = $this->client->completions()->create([
-            'model' => $model,
-            'messages' => $messages,
-            'tools' => $tools
-        ]);
-
-        return new OpenAIResponse($createResponse);
+        return new OpenAIResponse($response);
     }
 }

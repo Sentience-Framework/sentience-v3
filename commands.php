@@ -3,6 +3,7 @@
 use Sentience\Database\Queries\Query;
 use Sentience\ORM\Database\DB;
 use Sentience\Routers\Command;
+use Src\Controllers\AiController;
 use Src\Controllers\DevToolsController;
 use Src\Controllers\ExampleController;
 use Src\Controllers\SentienceController;
@@ -164,5 +165,10 @@ return [
     Command::register(
         'table',
         [ExampleController::class, 'table']
+    ),
+
+    Command::register(
+        'ai',
+        [AiController::class, 'ai']
     )
 ];

@@ -6,9 +6,7 @@ interface ApiInterface
 {
     public function prompt(
         string $model,
-        string $prompt,
-        ?string $systemPrompt,
-        array $previousMessages,
+        array $messages,
         array $tools
     ): ResponseInterface;
 }

@@ -2,12 +2,19 @@
 
 namespace Sentience\Ai;
 
+use Closure;
 use Sentience\Ai\Apis\ApiInterface;
 use Sentience\Ai\Apis\ResponseInterface;
 use Sentience\Ai\Attachments\Audio;
 use Sentience\Ai\Attachments\Document;
 use Sentience\Ai\Attachments\Image;
 use Sentience\Ai\Attachments\Video;
+use Sentience\Ai\Exceptions\ToolNotFoundException;
+use Sentience\Ai\Messages\AssistantMessage;
+use Sentience\Ai\Messages\Message;
+use Sentience\Ai\Messages\Role;
+use Sentience\Ai\Messages\ToolMessage;
+use Sentience\Ai\Tools\ClosureTool;
 use Sentience\Ai\Tools\ToolInterface;
 
 class Prompt
@@ -68,19 +75,60 @@ class Prompt
 
     public function withTool(string $name, callable|ToolInterface $tool): static
     {
-        $this->tools[$name] = $tool;
+        $this->tools[$name] = is_callable($tool) ? new ClosureTool(Closure::fromCallable($tool)) : $tool;
 
         return $this;
     }
 
-    public function execute(): ResponseInterface
+    public function execute(bool $loop = true): ResponseInterface
     {
-        return $this->api->prompt(
-            $this->model,
-            $this->prompt,
-            $this->systemPrompt,
-            $this->previousMessages,
-            $this->tools
+        $messages = [];
+
+        if ($this->systemPrompt) {
+            $messages[] = new Message(
+                Role::System,
+                $this->systemPrompt,
+            );
+        }
+
+        $messages[] = new Message(
+            Role::User,
+            $this->prompt
         );
+
+        while (true) {
+            $response = $this->api->prompt(
+                $this->model,
+                $messages,
+                $this->tools
+            );
+
+            if (!$loop) {
+                return $response;
+            }
+
+            $toolCalls = $response->getToolCalls();
+
+            if (count($toolCalls) === 0) {
+                return $response;
+            }
+
+            $messages[] = AssistantMessage::fromResponse($response);
+
+            foreach ($toolCalls as $toolCall) {
+                if (!array_key_exists($toolCall->name, $this->tools)) {
+                    throw new ToolNotFoundException("tool $toolCall->name does not exist");
+                }
+
+                $tool = $this->tools[$toolCall->name];
+
+                $result = $tool->execute($toolCall->arguments);
+
+                $messages[] = new ToolMessage(
+                    $result,
+                    $toolCall->toolCallId
+                );
+            }
+        }
     }
 }

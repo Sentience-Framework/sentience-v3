@@ -4,6 +4,6 @@ namespace Sentience\Ai\Tools;
 
 interface ToolInterface
 {
-    public function name(): string;
-    public function execute(): string;
+    public function schema(string $name): array;
+    public function execute(array $arguments): string;
 }
