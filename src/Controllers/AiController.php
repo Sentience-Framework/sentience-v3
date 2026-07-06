@@ -42,8 +42,8 @@ class AiController extends Controller
 
         $prompt = $ai->prompt(
             // 'qwen3.6-35b-a3b-mtp',
-            // 'granite-4.1-8b',
-            'google/gemma-4-e4b',
+            'granite-4.1-8b',
+            // 'google/gemma-4-e4b',
             'What will the weather be in Amsterdam?'
         );
 
@@ -51,7 +51,8 @@ class AiController extends Controller
 
         $prompt->withTool(
             'get_weather_info',
-            fn(string $city = 'Amsterdam'): string => "23 degrees mostly in $city, with lows of 19 and highs of 28"
+            fn(string $city = 'Amsterdam'): string => "23 degrees mostly in $city, with lows of 19 and highs of 28",
+            ['city' => Schema::string()->description('City name')]
         );
 
         $prompt->withStructuredOutput([
@@ -62,22 +63,6 @@ class AiController extends Controller
             ]),
             'reasons_why_you_think' => Schema::array(Schema::string())
         ]);
-
-        // $schema = new Schema();
-
-        // Stdio::printLn(
-        //     json_encode(
-        //         $schema->object([
-        //             'weather' => $schema->float()->description('The temperature in celcius'),
-        //             'lows_and_highs' => $schema->object([
-        //                 'min' => $schema->float()->description('The lows of temps'),
-        //                 'max' => $schema->float()->description('The highs of temps')
-        //             ])
-        //         ])->schema(),
-        //         JSON_PRETTY_PRINT
-        //     )
-        // );
-        // exit;
 
         $response = $prompt->execute();
 

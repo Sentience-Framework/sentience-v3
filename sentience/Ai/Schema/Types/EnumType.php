@@ -23,9 +23,15 @@ abstract class EnumType extends TypeAbstract
             return 'string';
         })();
 
-        return [
+        $schema = [
             'type' => $this->nullable ? [$type, 'null'] : $type,
             'enum' => $this->values
         ];
+
+        if ($this->description !== null) {
+            $schema['description'] = $this->description;
+        }
+
+        return $schema;
     }
 }

@@ -27,6 +27,10 @@ abstract class IntType extends TypeAbstract
     {
         $schema = ['type' => $this->nullable ? ['integer', 'null'] : 'integer'];
 
+        if ($this->description !== null) {
+            $schema['description'] = $this->description;
+        }
+
         if ($this->minimum !== null) {
             $schema['minimum'] = $this->minimum;
         }

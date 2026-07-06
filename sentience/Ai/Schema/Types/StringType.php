@@ -43,6 +43,10 @@ abstract class StringType extends TypeAbstract
     {
         $schema = ['type' => $this->nullable ? ['string', 'null'] : 'string'];
 
+        if ($this->description !== null) {
+            $schema['description'] = $this->description;
+        }
+
         if ($this->minLength !== null) {
             $schema['minLength'] = $this->minLength;
         }

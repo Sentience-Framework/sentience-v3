@@ -8,6 +8,12 @@ abstract class BoolType extends TypeAbstract
 
     public function schema(): array
     {
-        return ['type' => $this->nullable ? ['boolean', 'null'] : 'boolean'];
+        $schema = ['type' => $this->nullable ? ['boolean', 'null'] : 'boolean'];
+
+        if ($this->description !== null) {
+            $schema['description'] = $this->description;
+        }
+
+        return $schema;
     }
 }

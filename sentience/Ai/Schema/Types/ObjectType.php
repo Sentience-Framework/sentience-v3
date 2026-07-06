@@ -32,6 +32,10 @@ abstract class ObjectType extends TypeAbstract
             )
         ];
 
+        if ($this->description !== null) {
+            $schema['description'] = $this->description;
+        }
+
         return $schema;
     }
 }

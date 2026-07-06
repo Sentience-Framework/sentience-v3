@@ -27,6 +27,10 @@ abstract class FloatType extends TypeAbstract
     {
         $schema = ['type' => $this->nullable ? ['number', 'null'] : 'number'];
 
+        if ($this->description !== null) {
+            $schema['description'] = $this->description;
+        }
+
         if ($this->minimum !== null) {
             $schema['minimum'] = $this->minimum;
         }

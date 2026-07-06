@@ -38,9 +38,15 @@ abstract class ArrayType extends TypeAbstract
             return $item;
         };
 
-        return [
+        $schema = [
             'type' => $this->nullable ? ['array', 'null'] : 'array',
             'items' => $items($this->items),
         ];
+
+        if ($this->description !== null) {
+            $schema['description'] = $this->description;
+        }
+
+        return $schema;
     }
 }

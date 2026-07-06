@@ -50,12 +50,15 @@ class Prompt
         return $this;
     }
 
-    public function withTool(string $name, callable|ToolInterface $tool, ?Schemable $schema = null): static
-    {
+    public function withTool(
+        string $name,
+        callable|ToolInterface $tool,
+        ?array $schema = null
+    ): static {
         $this->tools[$name] = is_callable($tool)
             ? new Tool(
                 Closure::fromCallable($tool),
-                $schema
+                $schema !== null ? Schema::object($schema) : $schema
             )
             : $tool;
 
