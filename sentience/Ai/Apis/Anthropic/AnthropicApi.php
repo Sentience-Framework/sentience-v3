@@ -46,7 +46,7 @@ class AnthropicApi extends ApiAbstract
 
             if (!$hasStructuredOutputMessage) {
                 array_unshift($messages, new StructuredOutputMessage(
-                    'The final response to the user should be in minified JSON to save on output tokens. '
+                    'The final response to the user should be in minified JSON. '
                     . 'Follow the JSON standard (ISO/IEC 21778, ECMA-404, https://www.json.org/). '
                     . 'Strictly adhere to the following schema: '
                     . json_encode($structuredOutput->schema())
