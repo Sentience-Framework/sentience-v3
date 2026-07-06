@@ -30,6 +30,7 @@ class OpenAIApi extends ApiAbstract
         string $model,
         array $messages,
         array $tools,
+        int $maxTokens,
         ?Schemable $structuredOutput
     ): OpenAIResponse {
         if ($structuredOutput) {
@@ -73,7 +74,8 @@ class OpenAIApi extends ApiAbstract
                         },
                         $messages
                     ),
-                    'tools' => $this->buildToolsSchema($tools)
+                    'tools' => $this->buildToolsSchema($tools),
+                    'max_tokens' => $maxTokens
                 ]
             ]
         );

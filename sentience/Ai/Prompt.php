@@ -5,12 +5,6 @@ namespace Sentience\Ai;
 use Closure;
 use Sentience\Ai\Apis\ApiInterface;
 use Sentience\Ai\Apis\ResponseInterface;
-use Sentience\Ai\Attachments\Audio;
-use Sentience\Ai\Attachments\Base64Attachment;
-use Sentience\Ai\Attachments\Document;
-use Sentience\Ai\Attachments\Image;
-use Sentience\Ai\Attachments\UrlAttachment;
-use Sentience\Ai\Attachments\Video;
 use Sentience\Ai\Exceptions\ToolNotFoundException;
 use Sentience\Ai\Messages\AssistantMessage;
 use Sentience\Ai\Messages\Message;
@@ -18,7 +12,6 @@ use Sentience\Ai\Messages\Role;
 use Sentience\Ai\Messages\ToolMessage;
 use Sentience\Ai\Schema\Schema;
 use Sentience\Ai\Schema\Schemable;
-use Sentience\Ai\Tools\ClosureTool;
 use Sentience\Ai\Tools\Tool;
 use Sentience\Ai\Tools\ToolInterface;
 
@@ -27,6 +20,7 @@ class Prompt
     protected ?string $systemPrompt = null;
     protected array $previousMessages = [];
     protected array $tools = [];
+    protected int $maxTokens = 1048578;
     protected ?Schemable $structuredOutput = null;
 
     public function __construct(
@@ -65,6 +59,13 @@ class Prompt
         return $this;
     }
 
+    public function withMaxTokens(int $maxTokens): static
+    {
+        $this->maxTokens = $maxTokens;
+
+        return $this;
+    }
+
     public function withStructuredOutput(array $properties): static
     {
         $this->structuredOutput = Schema::object($properties);
@@ -98,6 +99,7 @@ class Prompt
                 $this->model,
                 $messages,
                 $this->tools,
+                $this->maxTokens,
                 $this->structuredOutput,
             );
 

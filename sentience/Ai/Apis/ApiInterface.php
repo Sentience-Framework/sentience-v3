@@ -10,6 +10,7 @@ interface ApiInterface
         string $model,
         array $messages,
         array $tools,
+        int $maxTokens,
         ?Schemable $structuredOutput
     ): ResponseInterface;
 }

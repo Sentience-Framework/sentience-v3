@@ -35,8 +35,8 @@ class AiController extends Controller
     public function ai(array $words, array $flags): void
     {
         $ai = Ai::connect(
-            Api::OpenAI,
-            'http://localhost:1234/v1',
+            Api::Anthropic,
+            'http://localhost:1234',
             'abcdefgh12345678'
         );
 
