@@ -1,20 +1,22 @@
 <?php
 
-namespace Sentience\Ai\Schema;
+namespace Sentience\Ai\Schema\Types;
 
-class FloatType extends TypeAbstract
+abstract class IntType extends TypeAbstract
 {
-    protected null|int|float $minimum = null;
-    protected null|int|float $maximum = null;
+    public const SCHEMA_TYPE = 'int';
 
-    public function minimum(float|int $minimum): static
+    protected ?int $minimum = null;
+    protected ?int $maximum = null;
+
+    public function minimum(int $minimum): static
     {
         $this->minimum = $minimum;
 
         return $this;
     }
 
-    public function maximum(float|int $maximum): static
+    public function maximum(int $maximum): static
     {
         $this->maximum = $maximum;
 
@@ -23,7 +25,7 @@ class FloatType extends TypeAbstract
 
     public function schema(): array
     {
-        $schema = ['type' => $this->nullable ? ['number', 'null'] : 'number'];
+        $schema = ['type' => $this->nullable ? ['integer', 'null'] : 'integer'];
 
         if ($this->minimum !== null) {
             $schema['minimum'] = $this->minimum;

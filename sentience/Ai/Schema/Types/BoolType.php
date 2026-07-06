@@ -1,9 +1,11 @@
 <?php
 
-namespace Sentience\Ai\Schema;
+namespace Sentience\Ai\Schema\Types;
 
-class BoolType extends TypeAbstract
+abstract class BoolType extends TypeAbstract
 {
+    public const SCHEMA_TYPE = 'boolean';
+
     public function schema(): array
     {
         return ['type' => $this->nullable ? ['boolean', 'null'] : 'boolean'];

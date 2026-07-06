@@ -2,12 +2,13 @@
 
 namespace Sentience\Ai\Messages;
 
-class ToolMessage extends Message
+class ToolMessage
 {
+    public Role $role = Role::Tool;
+
     public function __construct(
-        string $content,
-        public string $toolCallId
+        public string $id,
+        public string $content,
     ) {
-        parent::__construct(Role::Tool, $content);
     }
 }

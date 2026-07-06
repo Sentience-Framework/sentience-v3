@@ -6,8 +6,10 @@ use Closure;
 use Sentience\Ai\Apis\ApiInterface;
 use Sentience\Ai\Apis\ResponseInterface;
 use Sentience\Ai\Attachments\Audio;
+use Sentience\Ai\Attachments\Base64Attachment;
 use Sentience\Ai\Attachments\Document;
 use Sentience\Ai\Attachments\Image;
+use Sentience\Ai\Attachments\UrlAttachment;
 use Sentience\Ai\Attachments\Video;
 use Sentience\Ai\Exceptions\ToolNotFoundException;
 use Sentience\Ai\Messages\AssistantMessage;
@@ -15,17 +17,15 @@ use Sentience\Ai\Messages\Message;
 use Sentience\Ai\Messages\Role;
 use Sentience\Ai\Messages\ToolMessage;
 use Sentience\Ai\Schema\Schema;
-use Sentience\Ai\Schema\StructuredOutput;
-use Sentience\Ai\Schema\StructuredOutputInterface;
 use Sentience\Ai\Schema\Schemable;
 use Sentience\Ai\Tools\ClosureTool;
+use Sentience\Ai\Tools\Tool;
 use Sentience\Ai\Tools\ToolInterface;
 
 class Prompt
 {
     protected ?string $systemPrompt = null;
     protected array $previousMessages = [];
-    protected array $attachments = [];
     protected array $tools = [];
     protected ?Schemable $structuredOutput = null;
 
@@ -50,48 +50,21 @@ class Prompt
         return $this;
     }
 
-    public function withDocument(Document $document): static
+    public function withTool(string $name, callable|ToolInterface $tool, ?Schemable $schema = null): static
     {
-        $this->attachments[] = $document;
+        $this->tools[$name] = is_callable($tool)
+            ? new Tool(
+                Closure::fromCallable($tool),
+                $schema
+            )
+            : $tool;
 
         return $this;
     }
 
-    public function withAudio(Audio $audio): static
+    public function withStructuredOutput(array $properties): static
     {
-        $this->attachments[] = $audio;
-
-        return $this;
-    }
-
-    public function withImage(Image $image): static
-    {
-        $this->attachments[] = $image;
-
-        return $this;
-    }
-
-    public function withVideo(Video $video): static
-    {
-        $this->attachments[] = $video;
-
-        return $this;
-    }
-
-    public function withTool(string $name, callable|ToolInterface $tool): static
-    {
-        $this->tools[$name] = is_callable($tool) ? new ClosureTool(Closure::fromCallable($tool)) : $tool;
-
-        return $this;
-    }
-
-    public function withStructuredOutput(callable $schema): static
-    {
-        $structuredOutput = $schema(new Schema());
-
-        if ($structuredOutput instanceof StructuredOutputInterface) {
-            $this->structuredOutput = $structuredOutput;
-        }
+        $this->structuredOutput = Schema::object($properties);
 
         return $this;
     }
@@ -107,22 +80,22 @@ class Prompt
             );
         }
 
-        $messages[] = new Message(
-            Role::User,
-            $this->prompt
-        );
-
         $messages = [
             ...$messages,
             ...$this->previousMessages
         ];
+
+        $messages[] = new Message(
+            Role::User,
+            $this->prompt
+        );
 
         while (true) {
             $response = $this->api->prompt(
                 $this->model,
                 $messages,
                 $this->tools,
-                $this->structuredOutput
+                $this->structuredOutput,
             );
 
             if (!$loop) {
@@ -147,8 +120,8 @@ class Prompt
                 $result = $tool->execute($toolCall->arguments);
 
                 $messages[] = new ToolMessage(
-                    $result,
-                    $toolCall->toolCallId
+                    $toolCall->id,
+                    $result
                 );
             }
         }

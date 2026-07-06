@@ -4,9 +4,12 @@ namespace Sentience\Ai\Messages;
 
 class Message
 {
+    public array $content;
+
     public function __construct(
         public Role $role,
-        public string $content
+        string|array $content
     ) {
+        $this->content = (array) $content;
     }
 }

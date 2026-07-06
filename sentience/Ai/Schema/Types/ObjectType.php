@@ -1,0 +1,37 @@
+<?php
+
+namespace Sentience\Ai\Schema\Types;
+
+use Sentience\Ai\Schema\Schemable;
+use Sentience\Ai\Schema\Types\Required\RequiredType;
+use stdClass;
+
+abstract class ObjectType extends TypeAbstract
+{
+    public const SCHEMA_TYPE = 'object';
+
+    public function __construct(protected array $properties)
+    {
+    }
+
+    public function schema(): array
+    {
+        $schema = [
+            'type' => $this->nullable ? ['object', 'null'] : 'object',
+            'properties' => count($this->properties) > 0
+                ? array_map(
+                    fn(Schemable $type): array => $type->schema(),
+                    $this->properties
+                )
+                : new stdClass(),
+            'required' => array_keys(
+                array_filter(
+                    $this->properties,
+                    fn(TypeAbstract $type): bool => $type instanceof RequiredType
+                )
+            )
+        ];
+
+        return $schema;
+    }
+}

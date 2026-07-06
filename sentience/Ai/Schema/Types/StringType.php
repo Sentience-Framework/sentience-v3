@@ -1,12 +1,15 @@
 <?php
 
-namespace Sentience\Ai\Schema;
+namespace Sentience\Ai\Schema\Types;
 
-class StringType extends TypeAbstract
+abstract class StringType extends TypeAbstract
 {
+    public const SCHEMA_TYPE = 'string';
+
     protected ?int $minLength = null;
     protected ?int $maxLength = null;
     protected ?string $pattern = null;
+    protected ?string $format = null;
 
     public function minLength(int $minLength): static
     {
@@ -29,6 +32,13 @@ class StringType extends TypeAbstract
         return $this;
     }
 
+    public function format(string $format): static
+    {
+        $this->format = $format;
+
+        return $this;
+    }
+
     public function schema(): array
     {
         $schema = ['type' => $this->nullable ? ['string', 'null'] : 'string'];
@@ -43,6 +53,10 @@ class StringType extends TypeAbstract
 
         if ($this->pattern !== null) {
             $schema['pattern'] = $this->pattern;
+        }
+
+        if ($this->format !== null) {
+            $schema['format'] = $this->format;
         }
 
         return $schema;

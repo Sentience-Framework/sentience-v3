@@ -5,9 +5,9 @@ namespace Src\Controllers;
 use Sentience\Abstracts\Controller;
 use Sentience\Ai\Ai;
 use Sentience\Ai\Api;
+use Sentience\Ai\Attachments\Document;
 use Sentience\Ai\Schema\Schema;
 use Sentience\Ai\Schema\StructuredOutput;
-use Sentience\Ai\Schema\StructuredOutputInterface;
 use Sentience\Ai\Schema\Schemable;
 use Sentience\Database\Databases\SQLite\SQLiteDatabase;
 use Sentience\Database\Queries\Enums\ReferentialActionEnum;
@@ -44,23 +44,40 @@ class AiController extends Controller
             // 'qwen3.6-35b-a3b-mtp',
             // 'granite-4.1-8b',
             'google/gemma-4-e4b',
-            'What will the weather be in Germany'
+            'What will the weather be in Amsterdam?'
         );
 
         $prompt->withSystemPrompt('Use the provided tools to generate an answer. Answer and reason in maximum 2 sentences');
 
         $prompt->withTool(
             'get_weather_info',
-            fn(): string => "23 degrees mostly"
+            fn(string $city = 'Amsterdam'): string => "23 degrees mostly in $city, with lows of 19 and highs of 28"
         );
 
-        $prompt->withStructuredOutput(
-            function (Schema $schema) {
-                return $schema->object([
-                    'weather' => $schema->float()->description('The temperature in celcius')
-                ]);
-            }
-        );
+        $prompt->withStructuredOutput([
+            'weather' => Schema::float()->description('The temperature in celcius'),
+            'lows_and_highs' => Schema::object([
+                'min' => Schema::float()->description('The lows of temps'),
+                'max' => Schema::float()->description('The highs of temps')
+            ]),
+            'reasons_why_you_think' => Schema::array(Schema::string())
+        ]);
+
+        // $schema = new Schema();
+
+        // Stdio::printLn(
+        //     json_encode(
+        //         $schema->object([
+        //             'weather' => $schema->float()->description('The temperature in celcius'),
+        //             'lows_and_highs' => $schema->object([
+        //                 'min' => $schema->float()->description('The lows of temps'),
+        //                 'max' => $schema->float()->description('The highs of temps')
+        //             ])
+        //         ])->schema(),
+        //         JSON_PRETTY_PRINT
+        //     )
+        // );
+        // exit;
 
         $response = $prompt->execute();
 

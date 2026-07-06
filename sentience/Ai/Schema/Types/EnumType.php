@@ -1,11 +1,11 @@
 <?php
 
-namespace Sentience\Ai\Schema;
+namespace Sentience\Ai\Schema\Types;
 
-class EnumType extends TypeAbstract
+abstract class EnumType extends TypeAbstract
 {
     public function __construct(
-        protected array $values,
+        protected array $values
     ) {
     }
 
