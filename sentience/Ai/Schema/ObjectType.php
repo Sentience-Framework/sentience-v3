@@ -1,8 +1,8 @@
 <?php
 
-namespace Sentience\Ai\StructuredOutput;
+namespace Sentience\Ai\Schema;
 
-class ObjectType extends StructuredOutputAbstract
+class ObjectType extends TypeAbstract
 {
     public function __construct(protected array $properties)
     {
@@ -13,7 +13,7 @@ class ObjectType extends StructuredOutputAbstract
         $schema = [
             'type' => $this->nullable ? ['object', 'null'] : 'object',
             'properties' => array_map(
-                fn(StructuredOutputInterface $structuredOutputInterface): array => $structuredOutputInterface->schema(),
+                fn(Schemable $type): array => $type->schema(),
                 $this->properties
             ),
             'required' => array_keys($this->properties)

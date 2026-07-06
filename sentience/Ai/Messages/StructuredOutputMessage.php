@@ -2,7 +2,7 @@
 
 namespace Sentience\Ai\Messages;
 
-use Sentience\Ai\StructuredOutput\StructuredOutputInterface;
+use Sentience\Ai\Schema\StructuredOutputInterface;
 
 class StructuredOutputMessage extends Message
 {

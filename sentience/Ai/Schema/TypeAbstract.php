@@ -1,8 +1,8 @@
 <?php
 
-namespace Sentience\Ai\StructuredOutput;
+namespace Sentience\Ai\Schema;
 
-abstract class StructuredOutputAbstract implements StructuredOutputInterface
+abstract class TypeAbstract implements Schemable
 {
     protected bool $nullable = false;
     protected bool $required = false;

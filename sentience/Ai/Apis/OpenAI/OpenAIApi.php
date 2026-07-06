@@ -10,7 +10,8 @@ use Sentience\Ai\Messages\Message;
 use Sentience\Ai\Messages\Role;
 use Sentience\Ai\Messages\StructuredOutputMessage;
 use Sentience\Ai\Messages\ToolMessage;
-use Sentience\Ai\StructuredOutput\StructuredOutputInterface;
+use Sentience\Ai\Schema\StructuredOutputInterface;
+use Sentience\Ai\Schema\Schemable;
 
 class OpenAIApi extends ApiAbstract
 {
@@ -30,7 +31,7 @@ class OpenAIApi extends ApiAbstract
         string $model,
         array $messages,
         array $tools,
-        ?StructuredOutputInterface $structuredOutput
+        ?Schemable $structuredOutput
     ): OpenAIResponse {
         if ($structuredOutput) {
             $hasStructuredOutputMessage = false;

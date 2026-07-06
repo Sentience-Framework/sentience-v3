@@ -1,6 +1,6 @@
 <?php
 
-namespace Sentience\Ai\StructuredOutput;
+namespace Sentience\Ai\Schema;
 
 class Schema
 {
@@ -29,7 +29,7 @@ class Schema
         return new EnumType($values);
     }
 
-    public function array(StructuredOutputInterface|array $items): ArrayType
+    public function array(Schemable|array $items): ArrayType
     {
         return new ArrayType($items);
     }

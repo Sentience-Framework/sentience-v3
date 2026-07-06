@@ -1,8 +1,8 @@
 <?php
 
-namespace Sentience\Ai\StructuredOutput;
+namespace Sentience\Ai\Schema;
 
-class EnumType extends StructuredOutputAbstract
+class EnumType extends TypeAbstract
 {
     public function __construct(
         protected array $values,

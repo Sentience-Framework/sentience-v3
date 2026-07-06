@@ -14,10 +14,10 @@ use Sentience\Ai\Messages\AssistantMessage;
 use Sentience\Ai\Messages\Message;
 use Sentience\Ai\Messages\Role;
 use Sentience\Ai\Messages\ToolMessage;
-use Sentience\Ai\StructuredOutput\Schema;
-use Sentience\Ai\StructuredOutput\StructuredOutput;
-use Sentience\Ai\StructuredOutput\StructuredOutputInterface;
-use Sentience\Ai\StructuredOutput\TypeInterface;
+use Sentience\Ai\Schema\Schema;
+use Sentience\Ai\Schema\StructuredOutput;
+use Sentience\Ai\Schema\StructuredOutputInterface;
+use Sentience\Ai\Schema\Schemable;
 use Sentience\Ai\Tools\ClosureTool;
 use Sentience\Ai\Tools\ToolInterface;
 
@@ -27,7 +27,7 @@ class Prompt
     protected array $previousMessages = [];
     protected array $attachments = [];
     protected array $tools = [];
-    protected ?StructuredOutputInterface $structuredOutput = null;
+    protected ?Schemable $structuredOutput = null;
 
     public function __construct(
         protected ApiInterface $api,
@@ -111,6 +111,11 @@ class Prompt
             Role::User,
             $this->prompt
         );
+
+        $messages = [
+            ...$messages,
+            ...$this->previousMessages
+        ];
 
         while (true) {
             $response = $this->api->prompt(

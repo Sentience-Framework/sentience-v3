@@ -1,20 +1,20 @@
 <?php
 
-namespace Sentience\Ai\StructuredOutput;
+namespace Sentience\Ai\Schema;
 
-class IntType extends StructuredOutputAbstract
+class FloatType extends TypeAbstract
 {
-    protected ?int $minimum = null;
-    protected ?int $maximum = null;
+    protected null|int|float $minimum = null;
+    protected null|int|float $maximum = null;
 
-    public function minimum(int $minimum): static
+    public function minimum(float|int $minimum): static
     {
         $this->minimum = $minimum;
 
         return $this;
     }
 
-    public function maximum(int $maximum): static
+    public function maximum(float|int $maximum): static
     {
         $this->maximum = $maximum;
 
@@ -23,7 +23,7 @@ class IntType extends StructuredOutputAbstract
 
     public function schema(): array
     {
-        $schema = ['type' => $this->nullable ? ['integer', 'null'] : 'integer'];
+        $schema = ['type' => $this->nullable ? ['number', 'null'] : 'number'];
 
         if ($this->minimum !== null) {
             $schema['minimum'] = $this->minimum;

@@ -1,8 +1,8 @@
 <?php
 
-namespace Sentience\Ai\StructuredOutput;
+namespace Sentience\Ai\Schema;
 
-class BoolType extends StructuredOutputAbstract
+class BoolType extends TypeAbstract
 {
     public function schema(): array
     {

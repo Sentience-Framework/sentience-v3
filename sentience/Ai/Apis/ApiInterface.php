@@ -2,7 +2,7 @@
 
 namespace Sentience\Ai\Apis;
 
-use Sentience\Ai\StructuredOutput\StructuredOutputInterface;
+use Sentience\Ai\Schema\Schemable;
 
 interface ApiInterface
 {
@@ -10,6 +10,6 @@ interface ApiInterface
         string $model,
         array $messages,
         array $tools,
-        ?StructuredOutputInterface $structuredOutput
+        ?Schemable $structuredOutput
     ): ResponseInterface;
 }

@@ -1,10 +1,10 @@
 <?php
 
-namespace Sentience\Ai\StructuredOutput;
+namespace Sentience\Ai\Schema;
 
-class ArrayType extends StructuredOutputAbstract
+class ArrayType extends TypeAbstract
 {
-    public function __construct(protected StructuredOutputInterface|array $items)
+    public function __construct(protected Schemable|array $items)
     {
     }
 

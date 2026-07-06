@@ -1,8 +1,8 @@
 <?php
 
-namespace Sentience\Ai\StructuredOutput;
+namespace Sentience\Ai\Schema;
 
-class StringType extends StructuredOutputAbstract
+class StringType extends TypeAbstract
 {
     protected ?int $minLength = null;
     protected ?int $maxLength = null;
