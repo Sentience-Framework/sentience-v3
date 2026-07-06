@@ -21,7 +21,8 @@ abstract class ArrayType extends TypeAbstract
                         BoolType::SCHEMA_TYPE,
                         IntType::SCHEMA_TYPE,
                         FloatType::SCHEMA_TYPE,
-                        StringType::SCHEMA_TYPE
+                        StringType::SCHEMA_TYPE,
+                        null
                     ];
                 }
 
