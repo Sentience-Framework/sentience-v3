@@ -6,7 +6,6 @@ use BackedEnum;
 use Sentience\Ai\Apis\ApiInterface;
 use Sentience\Ai\Apis\Anthropic\AnthropicApi;
 use Sentience\Ai\Apis\OpenAI\OpenAIApi;
-use Sentience\Ai\Apis\OpenRouter\OpenRouterApi;
 
 class Ai
 {
@@ -30,9 +29,9 @@ class Ai
         string $apiKey
     ) {
         $this->api = match ($api) {
-            Api::OpenAI => new OpenAIApi($baseUri, $apiKey),
-            Api::Anthropic => new AnthropicApi($baseUri, $apiKey),
+            Api::OpenAI,
             Api::OpenRouter => new OpenAIApi($baseUri, $apiKey),
+            Api::Anthropic => new AnthropicApi($baseUri, $apiKey)
         };
     }
 
