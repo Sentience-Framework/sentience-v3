@@ -8,4 +8,5 @@ interface ResponseInterface
     public function getReasoningContent(): string;
     public function getToolCalls(): array;
     public function getFinishReason(): string;
+    public function getStructuredOutput(): ?array;
 }

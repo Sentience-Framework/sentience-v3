@@ -5,6 +5,10 @@ namespace Src\Controllers;
 use Sentience\Abstracts\Controller;
 use Sentience\Ai\Ai;
 use Sentience\Ai\Api;
+use Sentience\Ai\StructuredOutput\Schema;
+use Sentience\Ai\StructuredOutput\StructuredOutput;
+use Sentience\Ai\StructuredOutput\StructuredOutputInterface;
+use Sentience\Ai\StructuredOutput\TypeInterface;
 use Sentience\Database\Databases\SQLite\SQLiteDatabase;
 use Sentience\Database\Queries\Enums\ReferentialActionEnum;
 use Sentience\Database\Queries\Objects\HavingGroup;
@@ -39,15 +43,23 @@ class AiController extends Controller
         $prompt = $ai->prompt(
             // 'qwen3.6-35b-a3b-mtp',
             // 'granite-4.1-8b',
-            'google/gemma-4-e2b',
+            'google/gemma-4-e4b',
             'What will the weather be in Germany'
         );
 
         $prompt->withSystemPrompt('Use the provided tools to generate an answer. Answer and reason in maximum 2 sentences');
 
         $prompt->withTool(
-            'get_weather',
-            fn(string $country): string => "It will be 23 degrees in $country"
+            'get_weather_info',
+            fn(): string => "23 degrees mostly"
+        );
+
+        $prompt->withStructuredOutput(
+            function (Schema $schema) {
+                return $schema->object([
+                    'weather' => $schema->float()->description('The temperature in celcius')
+                ]);
+            }
         );
 
         $response = $prompt->execute();
@@ -59,6 +71,7 @@ class AiController extends Controller
                     'reasoning' => $response->getReasoningContent(),
                     'tool_calls' => $response->getToolCalls(),
                     'finish_reason' => $response->getFinishReason(),
+                    'structured_output' => $response->getStructuredOutput(),
                 ],
                 JSON_PRETTY_PRINT
             )

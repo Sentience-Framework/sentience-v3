@@ -7,6 +7,7 @@ use ReflectionFunction;
 use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionUnionType;
+use stdClass;
 
 class ClosureTool implements ToolInterface
 {
@@ -32,6 +33,10 @@ class ClosureTool implements ToolInterface
             }
 
             $properties[$parameterName] = $schema;
+        }
+
+        if (array_is_list($properties)) {
+            $properties = new stdClass();
         }
 
         $schema = [

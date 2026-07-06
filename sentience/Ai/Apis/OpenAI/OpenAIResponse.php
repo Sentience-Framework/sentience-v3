@@ -3,10 +3,10 @@
 namespace Sentience\Ai\Apis\OpenAI;
 
 use GuzzleHttp\Psr7\Response;
-use Sentience\Ai\Apis\ResponseInterface;
+use Sentience\Ai\Apis\ResponseAbstract;
 use Sentience\Ai\Apis\ToolCall;
 
-class OpenAIResponse implements ResponseInterface
+class OpenAIResponse extends ResponseAbstract
 {
     protected array $response = [];
 

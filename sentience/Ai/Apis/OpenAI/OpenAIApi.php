@@ -8,7 +8,9 @@ use Sentience\Ai\Apis\ToolCall;
 use Sentience\Ai\Messages\AssistantMessage;
 use Sentience\Ai\Messages\Message;
 use Sentience\Ai\Messages\Role;
+use Sentience\Ai\Messages\StructuredOutputMessage;
 use Sentience\Ai\Messages\ToolMessage;
+use Sentience\Ai\StructuredOutput\StructuredOutputInterface;
 
 class OpenAIApi extends ApiAbstract
 {
@@ -27,8 +29,29 @@ class OpenAIApi extends ApiAbstract
     public function prompt(
         string $model,
         array $messages,
-        array $tools
+        array $tools,
+        ?StructuredOutputInterface $structuredOutput
     ): OpenAIResponse {
+        if ($structuredOutput) {
+            $hasStructuredOutputMessage = false;
+
+            foreach ($messages as $message) {
+                if ($message instanceof StructuredOutputMessage) {
+                    $hasStructuredOutputMessage = true;
+
+                    break;
+                }
+            }
+
+            if (!$hasStructuredOutputMessage) {
+                $messages = [
+                    new StructuredOutputMessage('The final response to the user should be in minified JSON. Adhere to the JSON standard from https://www.json.org/. Strictly adhere to the following schema: ' . json_encode($structuredOutput->schema())),
+                    ...$messages
+                ];
+            }
+
+        }
+
         $response = $this->client->post(
             '/v1/chat/completions',
             [
@@ -47,7 +70,9 @@ class OpenAIApi extends ApiAbstract
                                             'type' => 'function',
                                             'function' => [
                                                 'name' => $toolCall->name,
-                                                'arguments' => json_encode($toolCall->arguments)
+                                                'arguments' => count($toolCall->arguments) > 0
+                                                    ? json_encode($toolCall->arguments)
+                                                    : '{}'
                                             ]
                                         ],
                                         $message->toolCalls
