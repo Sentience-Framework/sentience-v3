@@ -89,7 +89,7 @@ class AnthropicApi extends ApiAbstract
                     'model' => $model,
                     'messages' => $transformedMessages,
                     'system' => $systemPrompt,
-                    'tools' => count($tools) > 0 ? $this->buildAnthropicToolsSchema($tools) : null,
+                    'tools' => count($tools) > 0 ? $this->buildToolsSchema($tools) : null,
                     'max_tokens' => $maxTokens,
                 ], fn($v) => $v !== null)
             ]
@@ -158,28 +158,18 @@ class AnthropicApi extends ApiAbstract
         return count($blocks) === 1 ? $blocks[0]['text'] : $blocks;
     }
 
-    protected function buildAnthropicToolsSchema(array $tools): array
+    protected function buildToolsSchema(array $tools): array
     {
-        $anthropicTools = [];
+        $schema = [];
 
         foreach ($tools as $name => $toolInterface) {
-            $openAiSchema = $toolInterface->schema($name);
-
-            if (isset($openAiSchema['type']) && $openAiSchema['type'] === 'function' && isset($openAiSchema['function'])) {
-                $anthropicTools[] = [
-                    'name' => $openAiSchema['function']['name'],
-                    'description' => $openAiSchema['function']['description'] ?? '',
-                    'input_schema' => $openAiSchema['function']['parameters'] ?? [],
-                ];
-            } else {
-                $anthropicTools[] = [
-                    'name' => $name,
-                    'description' => $openAiSchema['description'] ?? '',
-                    'input_schema' => $openAiSchema,
-                ];
-            }
+            $schema[] = [
+                'name' => $name,
+                'description' => '',
+                'input_schema' => $toolInterface->schema(),
+            ];
         }
 
-        return $anthropicTools;
+        return $schema;
     }
 }

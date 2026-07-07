@@ -17,50 +17,44 @@ class Tool implements ToolInterface
     ) {
     }
 
-    public function schema(string $name): array
+    public function schema(): array
     {
-        return [
-            'type' => 'function',
-            'function' => [
-                'name' => $name,
-                'parameters' => $this->schema ?
-                    $this->schema->schema()
-                    : (function (): array{
-                        $parameters = [];
+        if ($this->schema) {
+            return $this->schema->schema();
+        }
 
-                        foreach ((new ReflectionFunction($this->closure))->getParameters() as $parameter) {
-                            $reflectionType = $parameter->getType();
+        $parameters = [];
 
-                            if (!($reflectionType instanceof ReflectionNamedType)) {
-                                throw new InvalidArgumentException('schemas only support named types');
-                            }
+        foreach ((new ReflectionFunction($this->closure))->getParameters() as $parameter) {
+            $reflectionType = $parameter->getType();
 
-                            if (!$reflectionType->isBuiltin()) {
-                                throw new InvalidArgumentException('schemas only support built in types');
-                            }
+            if (!($reflectionType instanceof ReflectionNamedType)) {
+                throw new InvalidArgumentException('schemas only support named types');
+            }
 
-                            $required = !$parameter->isOptional() || $parameter->isDefaultValueAvailable();
+            if (!$reflectionType->isBuiltin()) {
+                throw new InvalidArgumentException('schemas only support built in types');
+            }
 
-                            $type = match ($reflectionType->getName()) {
-                                'bool' => Schema::bool($required),
-                                'int' => Schema::int($required),
-                                'float' => Schema::float($required),
-                                'string' => Schema::string($required),
-                                'array' => Schema::array(required: $required),
-                                default => throw new InvalidArgumentException('automatically generated schema does not support objects')
-                            };
+            $required = !$parameter->isOptional() || $parameter->isDefaultValueAvailable();
 
-                            if ($reflectionType->allowsNull()) {
-                                $type->nullable();
-                            }
+            $type = match ($reflectionType->getName()) {
+                'bool' => Schema::bool($required),
+                'int' => Schema::int($required),
+                'float' => Schema::float($required),
+                'string' => Schema::string($required),
+                'array' => Schema::array(required: $required),
+                default => throw new InvalidArgumentException('automatically generated schema does not support objects or closures')
+            };
 
-                            $parameters[$parameter->getName()] = $type;
-                        }
+            if ($reflectionType->allowsNull()) {
+                $type->nullable();
+            }
 
-                        return Schema::object($parameters)->schema();
-                    })()
-            ],
-        ];
+            $parameters[$parameter->getName()] = $type;
+        }
+
+        return Schema::object($parameters)->schema();
     }
 
     public function execute(array $arguments): string

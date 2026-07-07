@@ -19,16 +19,16 @@ class AiController extends Controller
     public function ai(array $words, array $flags): void
     {
         $ai = Ai::connect(
-            Api::OpenAI,
-            // Api::Anthropic,
+                // Api::OpenAI,
+            Api::Anthropic,
             'http://localhost:1234',
             'abcdefgh12345678'
         );
 
         $prompt = $ai->prompt(
             // 'qwen3.6-35b-a3b-mtp',
-            // 'granite-4.1-8b',
-            'google/gemma-4-e4b',
+            'granite-4.1-8b',
+            // 'google/gemma-4-e4b',
             'What will the weather be in Amsterdam?'
         );
 

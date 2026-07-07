@@ -157,4 +157,21 @@ class OpenAIApi extends ApiAbstract
 
         return $inputs;
     }
+
+    protected function buildToolsSchema(array $tools): array
+    {
+        $schema = [];
+
+        foreach ($tools as $name => $toolInterface) {
+            $schema[] = [
+                'type' => 'function',
+                'function' => [
+                    'name' => $name,
+                    'parameters' => $toolInterface->schema($name)
+                ]
+            ];
+        }
+
+        return $schema;
+    }
 }
