@@ -5,26 +5,10 @@ namespace Src\Controllers;
 use Sentience\Abstracts\Controller;
 use Sentience\Ai\Ai;
 use Sentience\Ai\Api;
-use Sentience\Ai\Attachments\Document;
 use Sentience\Ai\Schema\Schema;
-use Sentience\Ai\Schema\StructuredOutput;
-use Sentience\Ai\Schema\Schemable;
-use Sentience\Database\Databases\SQLite\SQLiteDatabase;
-use Sentience\Database\Queries\Enums\ReferentialActionEnum;
-use Sentience\Database\Queries\Objects\HavingGroup;
-use Sentience\Database\Queries\Objects\Join;
-use Sentience\Database\Queries\Objects\WhereGroup;
-use Sentience\Database\Queries\Query;
 use Sentience\Helpers\Json;
-use Sentience\Mapper\Mapper;
-use Sentience\ORM\Database\DB;
 use Sentience\Sentience\Request;
-use Sentience\Sentience\Response;
 use Sentience\Sentience\Stdio;
-use Src\Models\Author;
-use Src\Models\Book;
-use Src\Models\Migration;
-use Src\Payloads\TestPayload;
 
 class AiController extends Controller
 {
@@ -36,14 +20,15 @@ class AiController extends Controller
     {
         $ai = Ai::connect(
             Api::OpenAI,
+            // Api::Anthropic,
             'http://localhost:1234',
             'abcdefgh12345678'
         );
 
         $prompt = $ai->prompt(
             // 'qwen3.6-35b-a3b-mtp',
-            'granite-4.1-8b',
-            // 'google/gemma-4-e4b',
+            // 'granite-4.1-8b',
+            'google/gemma-4-e4b',
             'What will the weather be in Amsterdam?'
         );
 
@@ -52,17 +37,19 @@ class AiController extends Controller
         $prompt->withTool(
             'get_weather_info',
             fn(string $city = 'Amsterdam'): string => "23 degrees mostly in $city, with lows of 19 and highs of 28",
-            ['city' => Schema::string()->description('City name')]
+            // ['city' => Schema::string()->description('City name')]
         );
 
-        $prompt->withStructuredOutput([
-            'weather' => Schema::float()->description('The temperature in celcius'),
-            'lows_and_highs' => Schema::object([
-                'min' => Schema::float()->description('The lows of temps'),
-                'max' => Schema::float()->description('The highs of temps')
-            ]),
-            'reasons_why_you_think' => Schema::array(Schema::string())
-        ]);
+        $prompt->withStructuredOutput(
+            Schema::object([
+                'weather' => Schema::float()->description('The temperature in celcius'),
+                'lows_and_highs' => Schema::object([
+                    'min' => Schema::float()->description('The lows of temps'),
+                    'max' => Schema::float()->description('The highs of temps')
+                ]),
+                'reasons_why_you_think' => Schema::array(Schema::string())
+            ])
+        );
 
         $response = $prompt->execute();
 

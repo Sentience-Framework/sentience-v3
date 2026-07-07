@@ -12,6 +12,7 @@ use Sentience\Ai\Messages\Role;
 use Sentience\Ai\Messages\ToolMessage;
 use Sentience\Ai\Schema\Schema;
 use Sentience\Ai\Schema\Schemable;
+use Sentience\Ai\Schema\Types\ObjectType;
 use Sentience\Ai\Tools\Tool;
 use Sentience\Ai\Tools\ToolInterface;
 
@@ -66,9 +67,9 @@ class Prompt
         return $this;
     }
 
-    public function withStructuredOutput(array $properties): static
+    public function withStructuredOutput(ObjectType $schema): static
     {
-        $this->structuredOutput = Schema::object($properties);
+        $this->structuredOutput = $schema;
 
         return $this;
     }
