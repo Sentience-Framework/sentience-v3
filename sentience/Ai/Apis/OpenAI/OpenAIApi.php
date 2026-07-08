@@ -106,11 +106,7 @@ class OpenAIApi extends ApiAbstract
                     'type' => 'function',
                     'function' => [
                         'name' => $toolCall->name,
-                        'arguments' => json_encode(
-                            count($toolCall->arguments) > 0
-                            ? $toolCall->arguments
-                            : new stdClass()
-                        )
+                        'arguments' => json_encode((object) $toolCall->arguments)
                     ]
                 ],
                 $message->toolCalls

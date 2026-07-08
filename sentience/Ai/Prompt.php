@@ -8,7 +8,7 @@ use Sentience\Ai\Apis\ResponseInterface;
 use Sentience\Ai\Exceptions\ToolNotFoundException;
 use Sentience\Ai\Messages\AssistantMessage;
 use Sentience\Ai\Messages\ToolMessage;
-use Sentience\Ai\Schema\Schema;
+use Sentience\Ai\Messages\UserMessage;
 use Sentience\Ai\Schema\Schemable;
 use Sentience\Ai\Schema\Types\ObjectType;
 use Sentience\Ai\Tools\Tool;
@@ -46,7 +46,7 @@ class Prompt
     public function withTool(
         string $name,
         string|array|callable $tool,
-        ?array $schema = null,
+        ?Schemable $schema = null,
         ?string $description = null
     ): static {
         $this->tools[$name] = is_callable($tool)
@@ -54,7 +54,7 @@ class Prompt
                 $name,
                 $description,
                 Closure::fromCallable($tool),
-                $schema !== null ? Schema::object($schema) : $schema
+                $schema
             )
             : $tool;
 
@@ -98,6 +98,8 @@ class Prompt
             if (!$loop) {
                 return $response;
             }
+
+            $this->previousMessages[] = new UserMessage($this->prompt);
 
             $toolCalls = $response->getToolCalls();
 

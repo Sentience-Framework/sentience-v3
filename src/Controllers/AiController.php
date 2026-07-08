@@ -27,17 +27,22 @@ class AiController extends Controller
 
         $prompt = $ai->prompt(
             // 'qwen3.6-35b-a3b-mtp',
-            'granite-4.1-8b',
-            // 'google/gemma-4-e4b',
-            'What will the weather be in Amsterdam?'
+            // 'granite-4.1-8b',
+            'google/gemma-4-e4b',
+            'What will the weather be in where i currently am?'
         );
 
         $prompt->withSystemPrompt('Use the provided tools to generate an answer. Answer and reason in maximum 2 sentences');
 
         $prompt->withTool(
+            'get_user_location',
+            fn(): string => "User is based in Amsterdam",
+        );
+
+        $prompt->withTool(
             'get_weather_info',
-            fn(string $city = 'Amsterdam'): string => "23 degrees mostly in $city, with lows of 19 and highs of 28",
-            // ['city' => Schema::string()->description('City name')]
+            fn(string $city): string => "23 degrees mostly in $city, with lows of 19 and highs of 28",
+            Schema::object(['city' => Schema::string()->description('City name')])
         );
 
         $prompt->withStructuredOutput(

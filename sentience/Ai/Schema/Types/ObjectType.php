@@ -18,12 +18,10 @@ abstract class ObjectType extends TypeAbstract
     {
         $schema = [
             'type' => $this->nullable ? ['object', 'null'] : 'object',
-            'properties' => count($this->properties) > 0
-                ? array_map(
-                    fn(Schemable $type): array => $type->schema(),
-                    $this->properties
-                )
-                : new stdClass(),
+            'properties' => (object) array_map(
+                fn(Schemable $type): array => $type->schema(),
+                $this->properties
+            ),
             'required' => array_keys(
                 array_filter(
                     $this->properties,
