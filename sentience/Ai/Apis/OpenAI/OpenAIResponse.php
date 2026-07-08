@@ -10,8 +10,10 @@ class OpenAIResponse extends ResponseAbstract
 {
     protected array $response = [];
 
-    public function __construct(Response $response)
+    public function __construct(Response $response, bool $hasStructuredOutput)
     {
+        parent::__construct($hasStructuredOutput);
+
         $this->response = json_decode($response->getBody()->getContents(), true);
     }
 

@@ -12,9 +12,21 @@ use Sentience\Ai\Schema\Schemable;
 class Tool implements ToolInterface
 {
     public function __construct(
+        protected string $name,
+        protected ?string $description,
         protected Closure $closure,
         protected ?Schemable $schema = null
     ) {
+    }
+
+    public function name(): string
+    {
+        return $this->name;
+    }
+
+    public function description(): string
+    {
+        return $this->description ?? '';
     }
 
     public function schema(): array

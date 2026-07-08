@@ -48,10 +48,13 @@ class Prompt
     public function withTool(
         string $name,
         callable|ToolInterface $tool,
-        ?array $schema = null
+        ?array $schema = null,
+        ?string $description = null
     ): static {
         $this->tools[$name] = is_callable($tool)
             ? new Tool(
+                $name,
+                $description,
                 Closure::fromCallable($tool),
                 $schema !== null ? Schema::object($schema) : $schema
             )

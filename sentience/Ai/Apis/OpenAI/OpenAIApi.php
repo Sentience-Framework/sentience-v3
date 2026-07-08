@@ -65,7 +65,7 @@ class OpenAIApi extends ApiAbstract
             ]
         );
 
-        return new OpenAIResponse($response);
+        return new OpenAIResponse($response, (bool) $structuredOutput);
     }
 
     protected function buildMessage(MessageInterface $message): array
@@ -74,7 +74,7 @@ class OpenAIApi extends ApiAbstract
             $message instanceof SystemMessage => $this->buildSystemMessage($message),
             $message instanceof UserMessage => $this->buildUserMessage($message),
             $message instanceof AssistantMessage => $this->buildAssistentMessage($message),
-            $message instanceof ToolMessage => $this->buildToolMessage($message),
+            $message instanceof ToolMessage => $this->buildToolMessage($message)
         };
     }
 
@@ -169,7 +169,8 @@ class OpenAIApi extends ApiAbstract
             $schema[] = [
                 'type' => 'function',
                 'function' => [
-                    'name' => $name,
+                    'name' => $toolInterface->name(),
+                    'description' => $toolInterface->description(),
                     'parameters' => $toolInterface->schema($name)
                 ]
             ];

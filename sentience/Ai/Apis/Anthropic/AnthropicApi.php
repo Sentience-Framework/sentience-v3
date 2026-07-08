@@ -6,9 +6,10 @@ use GuzzleHttp\Client;
 use Sentience\Ai\Apis\ApiAbstract;
 use Sentience\Ai\Apis\ToolCall;
 use Sentience\Ai\Messages\AssistantMessage;
-use Sentience\Ai\Messages\Message;
-use Sentience\Ai\Messages\StructuredOutputMessage;
+use Sentience\Ai\Messages\MessageInterface;
+use Sentience\Ai\Messages\SystemMessage;
 use Sentience\Ai\Messages\ToolMessage;
+use Sentience\Ai\Messages\UserMessage;
 use Sentience\Ai\Schema\Schemable;
 
 class AnthropicApi extends ApiAbstract
@@ -28,103 +29,102 @@ class AnthropicApi extends ApiAbstract
 
     public function prompt(
         string $model,
-        array $messages,
+        string $prompt,
+        ?string $systemPrompt,
         array $tools,
+        array $previousMessages,
         int $maxTokens,
         ?Schemable $structuredOutput
     ): AnthropicResponse {
+        $messages = [];
+
         if ($structuredOutput) {
-            $hasStructuredOutputMessage = false;
-
-            foreach ($messages as $message) {
-                if ($message instanceof StructuredOutputMessage) {
-                    $hasStructuredOutputMessage = true;
-
-                    break;
-                }
-            }
-
-            if (!$hasStructuredOutputMessage) {
-                array_unshift($messages, new StructuredOutputMessage(
-                    'The final response to the user should be in minified JSON. '
-                    . 'Follow the JSON standard (ISO/IEC 21778, ECMA-404, https://www.json.org/). '
-                    . 'Strictly adhere to the following schema: '
-                    . json_encode($structuredOutput->schema())
-                ));
-            }
+            $messages[] = $this->buildStructuredOutputMessage($structuredOutput);
         }
 
-        $systemPrompt = '';
-        $transformedMessages = [];
+        array_push($messages, ...$previousMessages);
 
-        foreach ($messages as $message) {
-            if ($message instanceof Message && $message->role->value === 'system') {
-                $systemPrompt .= implode("\n", $message->content);
-                continue;
-            }
-
-            if ($message instanceof AssistantMessage) {
-                $transformedMessages[] = $this->buildAssistantContent($message);
-                continue;
-            }
-
-            if ($message instanceof ToolMessage) {
-                $transformedMessages[] = $this->buildToolResultContent($message);
-                continue;
-            }
-
-            if ($message instanceof Message) {
-                $role = $message->role->value;
-                $transformedMessages[] = [
-                    'role' => $role,
-                    'content' => $this->buildContent($message->content),
-                ];
-            }
-        }
+        $messages[] = new UserMessage($prompt);
 
         $response = $this->client->post(
             '/v1/messages',
             [
-                'json' => array_filter([
+                'json' => [
                     'model' => $model,
-                    'messages' => $transformedMessages,
-                    'system' => $systemPrompt,
-                    'tools' => count($tools) > 0 ? $this->buildToolsSchema($tools) : null,
+                    'system' => $systemPrompt ?? '',
+                    'messages' => array_map(
+                        fn(MessageInterface $message) => $this->buildMessage($message),
+                        $messages
+                    ),
+                    'tools' => $this->buildToolsSchema($tools),
                     'max_tokens' => $maxTokens,
-                ], fn($v) => $v !== null)
+                ],
             ]
         );
 
-        return new AnthropicResponse($response);
+        return new AnthropicResponse($response, (bool) $structuredOutput);
     }
 
-    protected function buildAssistantContent(AssistantMessage $message): array
+    protected function buildMessage(MessageInterface $message): array
     {
-        $contentBlocks = [];
+        return match (true) {
+            $message instanceof SystemMessage => $this->buildSystemMessage($message),
+            $message instanceof UserMessage => $this->buildUserMessage($message),
+            $message instanceof AssistantMessage => $this->buildAssistantMessage($message),
+            $message instanceof ToolMessage => $this->buildToolResultMessage($message)
+        };
+    }
 
-        if ($message->content !== '') {
-            $contentBlocks[] = [
+    protected function buildSystemMessage(SystemMessage $message): array
+    {
+        return [
+            'role' => $message->role->value,
+            'content' => $message->content,
+        ];
+    }
+
+    protected function buildUserMessage(UserMessage $message): array
+    {
+        return [
+            'role' => 'user',
+            'content' => $this->buildContent($message->content),
+        ];
+    }
+
+    protected function buildAssistantMessage(AssistantMessage $message): array
+    {
+        $content = [];
+
+        if ($message->reasoningContent) {
+            $content[] = [
+                'type' => 'thinking',
+                'thinking' => $message->reasoningContent,
+            ];
+        }
+
+        if ($message->content) {
+            $content[] = [
                 'type' => 'text',
                 'text' => $message->content,
             ];
         }
 
         foreach ($message->toolCalls as $toolCall) {
-            $contentBlocks[] = [
+            $content[] = [
                 'type' => 'tool_use',
                 'id' => $toolCall->id,
                 'name' => $toolCall->name,
-                'input' => count($toolCall->arguments) > 0 ? $toolCall->arguments : [],
+                'input' => $toolCall->arguments,
             ];
         }
 
         return [
             'role' => 'assistant',
-            'content' => $contentBlocks,
+            'content' => $content,
         ];
     }
 
-    protected function buildToolResultContent(ToolMessage $message): array
+    protected function buildToolResultMessage(ToolMessage $message): array
     {
         return [
             'role' => 'user',
@@ -144,18 +144,18 @@ class AnthropicApi extends ApiAbstract
             return $content[0];
         }
 
-        $blocks = [];
+        $inputs = [];
 
         foreach ($content as $input) {
             if (is_string($input)) {
-                $blocks[] = [
+                $inputs[] = [
                     'type' => 'text',
-                    'text' => $input,
+                    'text' => $input
                 ];
             }
         }
 
-        return count($blocks) === 1 ? $blocks[0]['text'] : $blocks;
+        return $inputs;
     }
 
     protected function buildToolsSchema(array $tools): array
@@ -164,9 +164,9 @@ class AnthropicApi extends ApiAbstract
 
         foreach ($tools as $name => $toolInterface) {
             $schema[] = [
-                'name' => $name,
-                'description' => '',
-                'input_schema' => $toolInterface->schema(),
+                'name' => $toolInterface->name(),
+                'description' => $toolInterface->description(),
+                'input_schema' => $toolInterface->schema($name),
             ];
         }
 
