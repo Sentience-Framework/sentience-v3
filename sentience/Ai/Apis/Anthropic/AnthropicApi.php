@@ -95,14 +95,14 @@ class AnthropicApi extends ApiAbstract
     {
         $content = [];
 
-        if ($message->reasoningContent) {
+        if (!empty($message->reasoningContent)) {
             $content[] = [
                 'type' => 'thinking',
                 'thinking' => $message->reasoningContent,
             ];
         }
 
-        if ($message->content) {
+        if (!empty($message->content)) {
             $content[] = [
                 'type' => 'text',
                 'text' => $message->content,

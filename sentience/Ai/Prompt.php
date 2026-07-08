@@ -7,8 +7,6 @@ use Sentience\Ai\Apis\ApiInterface;
 use Sentience\Ai\Apis\ResponseInterface;
 use Sentience\Ai\Exceptions\ToolNotFoundException;
 use Sentience\Ai\Messages\AssistantMessage;
-use Sentience\Ai\Messages\Message;
-use Sentience\Ai\Messages\Role;
 use Sentience\Ai\Messages\ToolMessage;
 use Sentience\Ai\Schema\Schema;
 use Sentience\Ai\Schema\Schemable;
@@ -47,7 +45,7 @@ class Prompt
 
     public function withTool(
         string $name,
-        callable|ToolInterface $tool,
+        string|array|callable $tool,
         ?array $schema = null,
         ?string $description = null
     ): static {
@@ -59,6 +57,13 @@ class Prompt
                 $schema !== null ? Schema::object($schema) : $schema
             )
             : $tool;
+
+        return $this;
+    }
+
+    public function withToolInterface(ToolInterface $tool): static
+    {
+        $this->tools[$tool->name()] = $tool;
 
         return $this;
     }
