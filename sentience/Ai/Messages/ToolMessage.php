@@ -2,7 +2,7 @@
 
 namespace Sentience\Ai\Messages;
 
-class ToolMessage
+class ToolMessage implements MessageInterface
 {
     public Role $role = Role::Tool;
 

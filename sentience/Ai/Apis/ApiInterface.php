@@ -8,8 +8,10 @@ interface ApiInterface
 {
     public function prompt(
         string $model,
-        array $messages,
+        string $prompt,
+        ?string $systemPrompt,
         array $tools,
+        array $previousMessages,
         int $maxTokens,
         ?Schemable $structuredOutput
     ): ResponseInterface;

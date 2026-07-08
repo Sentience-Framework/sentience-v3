@@ -76,30 +76,13 @@ class Prompt
 
     public function execute(bool $loop = true): ResponseInterface
     {
-        $messages = [];
-
-        if ($this->systemPrompt) {
-            $messages[] = new Message(
-                Role::System,
-                $this->systemPrompt,
-            );
-        }
-
-        $messages = [
-            ...$messages,
-            ...$this->previousMessages
-        ];
-
-        $messages[] = new Message(
-            Role::User,
-            $this->prompt
-        );
-
         while (true) {
             $response = $this->api->prompt(
                 $this->model,
-                $messages,
+                $this->prompt,
+                $this->systemPrompt,
                 $this->tools,
+                $this->previousMessages,
                 $this->maxTokens,
                 $this->structuredOutput,
             );
@@ -114,7 +97,7 @@ class Prompt
                 return $response;
             }
 
-            $messages[] = AssistantMessage::fromResponse($response);
+            $this->previousMessages[] = AssistantMessage::fromResponse($response);
 
             foreach ($toolCalls as $toolCall) {
                 if (!array_key_exists($toolCall->name, $this->tools)) {
@@ -125,7 +108,7 @@ class Prompt
 
                 $result = $tool->execute($toolCall->arguments);
 
-                $messages[] = new ToolMessage(
+                $this->previousMessages[] = new ToolMessage(
                     $toolCall->id,
                     $result
                 );

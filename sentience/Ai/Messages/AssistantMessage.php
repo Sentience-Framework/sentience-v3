@@ -4,7 +4,7 @@ namespace Sentience\Ai\Messages;
 
 use Sentience\Ai\Apis\ResponseInterface;
 
-class AssistantMessage
+class AssistantMessage implements MessageInterface
 {
     public Role $role = Role::Assistant;
 

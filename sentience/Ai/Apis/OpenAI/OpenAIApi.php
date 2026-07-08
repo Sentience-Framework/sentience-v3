@@ -8,9 +8,10 @@ use Sentience\Ai\Apis\ToolCall;
 use Sentience\Ai\Attachments\Base64Attachment;
 use Sentience\Ai\Attachments\UrlAttachment;
 use Sentience\Ai\Messages\AssistantMessage;
-use Sentience\Ai\Messages\Message;
-use Sentience\Ai\Messages\StructuredOutputMessage;
+use Sentience\Ai\Messages\MessageInterface;
+use Sentience\Ai\Messages\SystemMessage;
 use Sentience\Ai\Messages\ToolMessage;
+use Sentience\Ai\Messages\UserMessage;
 use Sentience\Ai\Schema\Schemable;
 use stdClass;
 
@@ -28,35 +29,26 @@ class OpenAIApi extends ApiAbstract
 
     public function prompt(
         string $model,
-        array $messages,
+        string $prompt,
+        ?string $systemPrompt,
         array $tools,
+        array $previousMessages,
         int $maxTokens,
         ?Schemable $structuredOutput
     ): OpenAIResponse {
-        if ($structuredOutput) {
-            $hasStructuredOutputMessage = false;
+        $messages = [];
 
-            foreach ($messages as $message) {
-                if ($message instanceof StructuredOutputMessage) {
-                    $hasStructuredOutputMessage = true;
-
-                    break;
-                }
-            }
-
-            if (!$hasStructuredOutputMessage) {
-                $messages = [
-                    new StructuredOutputMessage(
-                        'The final response to the user should be in minified JSON. '
-                        . 'Follow the JSON standard (ISO/IEC 21778, ECMA-404, https://www.json.org/). '
-                        . 'Strictly adhere to the following schema: '
-                        . json_encode($structuredOutput->schema())
-                    ),
-                    ...$messages
-                ];
-            }
-
+        if ($systemPrompt) {
+            $messages[] = new SystemMessage($systemPrompt);
         }
+
+        if ($structuredOutput) {
+            $messages[] = $this->buildStructuredOutputMessage($structuredOutput);
+        }
+
+        array_push($messages, ...$previousMessages);
+
+        $messages[] = new UserMessage($prompt);
 
         $response = $this->client->post(
             '/v1/chat/completions',
@@ -64,14 +56,7 @@ class OpenAIApi extends ApiAbstract
                 'json' => [
                     'model' => $model,
                     'messages' => array_map(
-                        function (object $message): array {
-                            return match (true) {
-                                $message instanceof AssistantMessage => $this->buildAssistentMessage($message),
-                                $message instanceof ToolMessage => $this->buildToolMessage($message),
-                                $message instanceof Message => $this->buildMessage($message),
-                                default => new stdClass()
-                            };
-                        },
+                        fn(MessageInterface $message) => $this->buildMessage($message),
                         $messages
                     ),
                     'tools' => $this->buildToolsSchema($tools),
@@ -81,6 +66,32 @@ class OpenAIApi extends ApiAbstract
         );
 
         return new OpenAIResponse($response);
+    }
+
+    protected function buildMessage(MessageInterface $message): array
+    {
+        return match (true) {
+            $message instanceof SystemMessage => $this->buildSystemMessage($message),
+            $message instanceof UserMessage => $this->buildUserMessage($message),
+            $message instanceof AssistantMessage => $this->buildAssistentMessage($message),
+            $message instanceof ToolMessage => $this->buildToolMessage($message),
+        };
+    }
+
+    protected function buildSystemMessage(SystemMessage $message): array
+    {
+        return [
+            'role' => $message->role->value,
+            'content' => $message->content,
+        ];
+    }
+
+    protected function buildUserMessage(UserMessage $message): array
+    {
+        return [
+            'role' => $message->role->value,
+            'content' => $this->buildContent($message->content),
+        ];
     }
 
     protected function buildAssistentMessage(AssistantMessage $message): array
@@ -113,14 +124,6 @@ class OpenAIApi extends ApiAbstract
             'role' => $message->role->value,
             'tool_call_id' => $message->id,
             'content' => $message->content,
-        ];
-    }
-
-    protected function buildMessage(Message $message): array
-    {
-        return [
-            'role' => $message->role->value,
-            'content' => $this->buildContent($message->content),
         ];
     }
 
