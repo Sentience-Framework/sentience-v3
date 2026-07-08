@@ -19,12 +19,24 @@ class OpenAIResponse extends ResponseAbstract
 
     public function getContent(): string
     {
-        return $this->response['choices'][0]['message']['content'];
+        $content = [];
+
+        foreach ($this->response['choices'] as $choice) {
+            $content[] = $choice['message']['content'];
+        }
+
+        return implode(PHP_EOL, $content);
     }
 
     public function getReasoningContent(): string
     {
-        return $this->response['choices'][0]['message']['reasoning_content'];
+        $reasoningContent = [];
+
+        foreach ($this->response['choices'] as $choice) {
+            $reasoningContent[] = $choice['message']['reasoning_content'];
+        }
+
+        return implode(PHP_EOL, $reasoningContent);
     }
 
     public function getToolCalls(): array
@@ -32,11 +44,11 @@ class OpenAIResponse extends ResponseAbstract
         $toolCalls = [];
 
         foreach ($this->response['choices'][0]['message']['tool_calls'] ?? [] as $toolCall) {
-            $toolCallId = $toolCall['id'];
+            $id = $toolCall['id'];
             $name = $toolCall['function']['name'];
             $arguments = json_decode($toolCall['function']['arguments'], true);
 
-            $toolCalls[] = new ToolCall($toolCallId, $name, $arguments);
+            $toolCalls[] = new ToolCall($id, $name, $arguments);
         }
 
         return $toolCalls;
@@ -44,6 +56,12 @@ class OpenAIResponse extends ResponseAbstract
 
     public function getFinishReason(): string
     {
-        return $this->response['choices'][0]['finish_reason'];
+        $finishReasons = [];
+
+        foreach ($this->response['choices'] as $choice) {
+            $finishReasons[] = $choice['finish_reason'];
+        }
+
+        return implode(PHP_EOL, $finishReasons);
     }
 }
