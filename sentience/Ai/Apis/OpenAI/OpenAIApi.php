@@ -33,6 +33,7 @@ class OpenAIApi extends ApiAbstract
         ?string $systemPrompt,
         array $tools,
         array $previousMessages,
+        array $attachments,
         int $maxTokens,
         ?Schemable $structuredOutput
     ): OpenAIResponse {
@@ -48,7 +49,13 @@ class OpenAIApi extends ApiAbstract
 
         array_push($messages, ...$previousMessages);
 
-        $messages[] = new UserMessage($prompt);
+        $content = [$prompt];
+
+        if ($attachments) {
+            $content = [...$content, ...$attachments];
+        }
+
+        $messages[] = new UserMessage($content);
 
         $response = $this->client->post(
             '/v1/chat/completions',
@@ -123,38 +130,69 @@ class OpenAIApi extends ApiAbstract
         ];
     }
 
-    protected function buildContent(array $content): string|array
+    protected function buildBase64Content(Base64Attachment $attachment): array
     {
-        if (count($content) === 1 && is_string($content[0])) {
-            return $content[0];
+        if ($this->isImageFilename($attachment->filename ?? '')) {
+            $extension = pathinfo($attachment->filename, PATHINFO_EXTENSION);
+
+            return [
+                'type' => 'image_url',
+                'image_url' => [
+                    'url' => "data:{$this->mimeTypeForExtension($extension)};base64,{$attachment->base64}",
+                ],
+            ];
         }
 
-        $inputs = [];
+        $content = '<attachment>'
+            . PHP_EOL . 'file contents: ' . $attachment->filename ?? ''
+            . PHP_EOL . '```'
+            . PHP_EOL . base64_decode($attachment->base64)
+            . PHP_EOL . '```'
+            . '</attachment>';
 
-        foreach ($content as $input) {
-            if (is_string($input)) {
-                $inputs[] = [
-                    'type' => 'input_text',
-                    'text' => $input
+        return [
+            'type' => 'text',
+            'text' => $content,
+        ];
+    }
+
+    protected function buildUrlContent(UrlAttachment $attachment): array
+    {
+        $url = $attachment->url;
+        $extension = $this->urlExtension($url);
+
+        if ($this->isImageExtension($extension)) {
+            $mimeType = $this->mimeTypeForExtension($extension);
+            $content = @file_get_contents($url);
+
+            if ($content === false) {
+                return [
+                    'type' => 'text',
+                    'text' => "Failed to fetch image from URL: {$url}",
                 ];
-
-                continue;
             }
 
-            $inputs[] = match (true) {
-                $input instanceof Base64Attachment => [
-                    'type' => 'input_file',
-                    'filename' => $input->filename,
-                    'file_data' => $input->base64
+            return [
+                'type' => 'image_url',
+                'image_url' => [
+                    'url' => "data:{$mimeType};base64," . base64_encode($content),
                 ],
-                $input instanceof UrlAttachment => [
-                    'type' => 'input_file',
-                    'file_url' => $input->url,
-                ]
-            };
+            ];
         }
 
-        return $inputs;
+        $content = @file_get_contents($url);
+
+        if ($content === false) {
+            return [
+                'type' => 'text',
+                'text' => "Failed to fetch content from URL: {$url}",
+            ];
+        }
+
+        return [
+            'type' => 'text',
+            'text' => $content,
+        ];
     }
 
     protected function buildToolsSchema(array $tools): array

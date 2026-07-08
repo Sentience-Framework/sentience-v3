@@ -5,6 +5,8 @@ namespace Sentience\Ai;
 use Closure;
 use Sentience\Ai\Apis\ApiInterface;
 use Sentience\Ai\Apis\ResponseInterface;
+use Sentience\Ai\Attachments\Base64Attachment;
+use Sentience\Ai\Attachments\UrlAttachment;
 use Sentience\Ai\Exceptions\ToolNotFoundException;
 use Sentience\Ai\Messages\AssistantMessage;
 use Sentience\Ai\Messages\ToolMessage;
@@ -18,6 +20,7 @@ class Prompt
 {
     protected ?string $systemPrompt = null;
     protected array $previousMessages = [];
+    protected array $attachments = [];
     protected array $tools = [];
     protected int $maxTokens = 1048578;
     protected ?Schemable $structuredOutput = null;
@@ -32,6 +35,13 @@ class Prompt
     public function withSystemPrompt(string $prompt): static
     {
         $this->systemPrompt = $prompt;
+
+        return $this;
+    }
+
+    public function withAttachment(Base64Attachment|UrlAttachment $attachment): static
+    {
+        $this->attachments[] = $attachment;
 
         return $this;
     }
@@ -91,6 +101,7 @@ class Prompt
                 $this->systemPrompt,
                 $this->tools,
                 $this->previousMessages,
+                $this->attachments,
                 $this->maxTokens,
                 $this->structuredOutput,
             );
@@ -111,7 +122,7 @@ class Prompt
 
             foreach ($toolCalls as $toolCall) {
                 if (!array_key_exists($toolCall->name, $this->tools)) {
-                    throw new ToolNotFoundException("tool $toolCall->name does not exist");
+                    throw new ToolNotFoundException("tool {$toolCall->name} does not exist");
                 }
 
                 $tool = $this->tools[$toolCall->name];

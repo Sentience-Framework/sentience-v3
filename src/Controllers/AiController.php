@@ -5,6 +5,8 @@ namespace Src\Controllers;
 use Sentience\Abstracts\Controller;
 use Sentience\Ai\Ai;
 use Sentience\Ai\Api;
+use Sentience\Ai\Attachments\Base64Attachment;
+use Sentience\Ai\Attachments\UrlAttachment;
 use Sentience\Ai\Schema\Schema;
 use Sentience\Helpers\Json;
 use Sentience\Sentience\Request;
@@ -19,40 +21,41 @@ class AiController extends Controller
     public function ai(array $words, array $flags): void
     {
         $ai = Ai::connect(
-            Api::OpenAI,
-            // Api::Anthropic,
+                // Api::OpenAI,
+            Api::Anthropic,
             'http://localhost:1234',
             'abcdefgh12345678'
         );
 
         $prompt = $ai->prompt(
-            // 'qwen3.6-35b-a3b-mtp',
+            'qwen3.6-35b-a3b-mtp',
+            // 'google/gemma-4-e4b',
             // 'granite-4.1-8b',
-            'google/gemma-4-e4b',
-            'What will the weather be in where i currently am?'
+            'Review the provided files and summarize their contents.'
         );
 
-        $prompt->withSystemPrompt('Use the provided tools to generate an answer. Answer and reason in maximum 2 sentences');
+        $prompt->withSystemPrompt('You are a helpful assistant that reviews files. Answer and reason in maximum 2 sentences');
 
-        $prompt->withTool(
-            'get_user_location',
-            fn(): string => "User is based in Amsterdam",
+        $prompt->withAttachment(
+            Base64Attachment::fromBase64(
+                base64_encode('I love you PHP, you are my world'),
+                'loveletter.txt'
+            )
         );
 
-        $prompt->withTool(
-            'get_weather_info',
-            fn(string $city): string => "23 degrees mostly in $city, with lows of 19 and highs of 28",
-            Schema::object(['city' => Schema::string()->description('City name')])
-        );
+        $prompt->withAttachment(Base64Attachment::fromBase64(
+            base64_encode(file_get_contents(SENTIENCE_DIR . '/docker-compose.yml')),
+            'docker-compose.yml'
+        ));
 
         $prompt->withStructuredOutput(
             Schema::object([
-                'weather' => Schema::float()->description('The temperature in celcius'),
-                'lows_and_highs' => Schema::object([
-                    'min' => Schema::float()->description('The lows of temps'),
-                    'max' => Schema::float()->description('The highs of temps')
-                ]),
-                'reasons_why_you_think' => Schema::array(Schema::string())
+                'files' => Schema::array(
+                    Schema::object([
+                        'filetype' => Schema::string(),
+                        'contents_summary' => Schema::string()
+                    ])
+                )
             ])
         );
 

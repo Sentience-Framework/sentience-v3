@@ -5,6 +5,8 @@ namespace Sentience\Ai\Apis\Anthropic;
 use GuzzleHttp\Client;
 use Sentience\Ai\Apis\ApiAbstract;
 use Sentience\Ai\Apis\ToolCall;
+use Sentience\Ai\Attachments\Base64Attachment;
+use Sentience\Ai\Attachments\UrlAttachment;
 use Sentience\Ai\Messages\AssistantMessage;
 use Sentience\Ai\Messages\MessageInterface;
 use Sentience\Ai\Messages\SystemMessage;
@@ -33,6 +35,7 @@ class AnthropicApi extends ApiAbstract
         ?string $systemPrompt,
         array $tools,
         array $previousMessages,
+        array $attachments,
         int $maxTokens,
         ?Schemable $structuredOutput
     ): AnthropicResponse {
@@ -44,7 +47,13 @@ class AnthropicApi extends ApiAbstract
 
         array_push($messages, ...$previousMessages);
 
-        $messages[] = new UserMessage($prompt);
+        $content = [$prompt];
+
+        if ($attachments) {
+            $content = [...$content, ...$attachments];
+        }
+
+        $messages[] = new UserMessage($content);
 
         $response = $this->client->post(
             '/v1/messages',
@@ -138,24 +147,56 @@ class AnthropicApi extends ApiAbstract
         ];
     }
 
-    protected function buildContent(array $content): array|string
+    protected function buildBase64Content(Base64Attachment $attachment): array
     {
-        if (count($content) === 1 && is_string($content[0])) {
-            return $content[0];
+        if ($this->isImageFilename($attachment->filename ?? '')) {
+            $extension = pathinfo($attachment->filename, PATHINFO_EXTENSION);
+
+            return [
+                'type' => 'image',
+                'source' => [
+                    'type' => 'base64',
+                    'media_type' => $this->mimeTypeForExtension($extension),
+                    'data' => $attachment->base64,
+                ],
+            ];
         }
 
-        $inputs = [];
+        $content = '<attachment>'
+            . PHP_EOL . 'file contents: ' . $attachment->filename ?? ''
+            . PHP_EOL . '```'
+            . PHP_EOL . base64_decode($attachment->base64)
+            . PHP_EOL . '```'
+            . '</attachment>';
 
-        foreach ($content as $input) {
-            if (is_string($input)) {
-                $inputs[] = [
-                    'type' => 'text',
-                    'text' => $input
-                ];
-            }
+        return [
+            'type' => 'text',
+            'text' => $content,
+        ];
+    }
+
+    protected function buildUrlContent(UrlAttachment $attachment): array
+    {
+        $url = $attachment->url;
+        $extension = $this->urlExtension($url);
+
+        if ($this->isImageExtension($extension)) {
+            return [
+                'type' => 'image',
+                'source' => [
+                    'type' => 'url',
+                    'url' => $url,
+                ],
+            ];
         }
 
-        return $inputs;
+        return [
+            'type' => 'document',
+            'source' => [
+                'type' => 'url',
+                'url' => $url,
+            ],
+        ];
     }
 
     protected function buildToolsSchema(array $tools): array

@@ -12,7 +12,8 @@ interface ApiInterface
         ?string $systemPrompt,
         array $tools,
         array $previousMessages,
+        array $attachments,
         int $maxTokens,
-        ?Schemable $structuredOutput
+        ?Schemable $structuredOutput,
     ): ResponseInterface;
 }
