@@ -6,14 +6,12 @@ use GuzzleHttp\Client;
 use Sentience\Ai\Apis\ApiAbstract;
 use Sentience\Ai\Apis\ToolCall;
 use Sentience\Ai\Attachments\Base64Attachment;
-use Sentience\Ai\Attachments\UrlAttachment;
 use Sentience\Ai\Messages\AssistantMessage;
 use Sentience\Ai\Messages\MessageInterface;
 use Sentience\Ai\Messages\SystemMessage;
 use Sentience\Ai\Messages\ToolMessage;
 use Sentience\Ai\Messages\UserMessage;
 use Sentience\Ai\Schema\Schemable;
-use stdClass;
 
 class OpenAIApi extends ApiAbstract
 {
@@ -23,7 +21,7 @@ class OpenAIApi extends ApiAbstract
     {
         $this->client = new Client([
             'base_uri' => $baseUri,
-            'headers' => ['Authorization' => "Bearer $apiKey"],
+            'headers' => ['Authorization' => "Bearer $apiKey"]
         ]);
     }
 
@@ -63,7 +61,7 @@ class OpenAIApi extends ApiAbstract
                 'json' => [
                     'model' => $model,
                     'messages' => array_map(
-                        fn(MessageInterface $message) => $this->buildMessage($message),
+                        fn (MessageInterface $message) => $this->buildMessage($message),
                         $messages
                     ),
                     'tools' => $this->buildToolsSchema($tools),
@@ -89,7 +87,7 @@ class OpenAIApi extends ApiAbstract
     {
         return [
             'role' => $message->role->value,
-            'content' => $message->content,
+            'content' => $message->content
         ];
     }
 
@@ -97,7 +95,7 @@ class OpenAIApi extends ApiAbstract
     {
         return [
             'role' => $message->role->value,
-            'content' => $this->buildContent($message->content),
+            'content' => $this->buildContent($message->content)
         ];
     }
 
@@ -108,7 +106,7 @@ class OpenAIApi extends ApiAbstract
             'content' => $message->content,
             'reasoning_content' => $message->reasoningContent,
             'tool_calls' => array_map(
-                fn(ToolCall $toolCall): array => [
+                fn (ToolCall $toolCall): array => [
                     'id' => $toolCall->id,
                     'type' => 'function',
                     'function' => [
@@ -126,7 +124,7 @@ class OpenAIApi extends ApiAbstract
         return [
             'role' => $message->role->value,
             'tool_call_id' => $message->id,
-            'content' => $message->content,
+            'content' => $message->content
         ];
     }
 
@@ -138,8 +136,8 @@ class OpenAIApi extends ApiAbstract
             return [
                 'type' => 'image_url',
                 'image_url' => [
-                    'url' => "data:{$this->mimeTypeForExtension($extension)};base64,{$attachment->base64}",
-                ],
+                    'url' => "data:{$this->mimeTypeForExtension($extension)};base64,{$attachment->base64}"
+                ]
             ];
         }
 
@@ -152,7 +150,7 @@ class OpenAIApi extends ApiAbstract
 
         return [
             'type' => 'text',
-            'text' => $content,
+            'text' => $content
         ];
     }
 

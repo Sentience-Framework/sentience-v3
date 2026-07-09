@@ -115,7 +115,7 @@ class Prompt
                 $this->previousMessages,
                 $this->attachments,
                 $this->maxTokens,
-                $this->structuredOutput,
+                $this->structuredOutput
             );
 
             if (!$loop) {

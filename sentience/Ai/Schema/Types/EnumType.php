@@ -11,7 +11,7 @@ abstract class EnumType extends TypeAbstract
 
     public function schema(): array
     {
-        $type = (function (): string{
+        $type = (function (): string {
             foreach ($this->values as $value) {
                 if (is_string($value)) {
                     continue;

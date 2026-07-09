@@ -3,8 +3,8 @@
 namespace Sentience\Ai;
 
 use BackedEnum;
-use Sentience\Ai\Apis\ApiInterface;
 use Sentience\Ai\Apis\Anthropic\AnthropicApi;
+use Sentience\Ai\Apis\ApiInterface;
 use Sentience\Ai\Apis\OpenAI\OpenAIApi;
 
 class Ai

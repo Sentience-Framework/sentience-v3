@@ -27,7 +27,7 @@ abstract class ArrayType extends TypeAbstract
                 }
 
                 return array_map(
-                    fn(Schemable|array $item) => $items($item),
+                    fn (Schemable|array $item) => $items($item),
                     $item
                 );
             }
@@ -41,7 +41,7 @@ abstract class ArrayType extends TypeAbstract
 
         $schema = [
             'type' => $this->nullable ? ['array', 'null'] : 'array',
-            'items' => $items($this->items),
+            'items' => $items($this->items)
         ];
 
         if ($this->description !== null) {

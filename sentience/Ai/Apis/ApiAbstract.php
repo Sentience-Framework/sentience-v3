@@ -3,10 +3,8 @@
 namespace Sentience\Ai\Apis;
 
 use Sentience\Ai\Attachments\Base64Attachment;
-use Sentience\Ai\Attachments\UrlAttachment;
 use Sentience\Ai\Messages\SystemMessage;
 use Sentience\Ai\Schema\Schemable;
-
 
 abstract class ApiAbstract implements ApiInterface
 {
@@ -35,7 +33,7 @@ abstract class ApiAbstract implements ApiInterface
             'gif' => 'image/gif',
             'webp' => 'image/webp',
             'bmp' => 'image/bmp',
-            default => 'image/png',
+            default => 'image/png'
         };
     }
 
@@ -58,7 +56,7 @@ abstract class ApiAbstract implements ApiInterface
             if (is_string($part)) {
                 $parts[] = [
                     'type' => 'text',
-                    'text' => $part,
+                    'text' => $part
                 ];
 
                 continue;

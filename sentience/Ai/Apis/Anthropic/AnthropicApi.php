@@ -4,9 +4,7 @@ namespace Sentience\Ai\Apis\Anthropic;
 
 use GuzzleHttp\Client;
 use Sentience\Ai\Apis\ApiAbstract;
-use Sentience\Ai\Apis\ToolCall;
 use Sentience\Ai\Attachments\Base64Attachment;
-use Sentience\Ai\Attachments\UrlAttachment;
 use Sentience\Ai\Messages\AssistantMessage;
 use Sentience\Ai\Messages\MessageInterface;
 use Sentience\Ai\Messages\SystemMessage;
@@ -24,8 +22,8 @@ class AnthropicApi extends ApiAbstract
             'base_uri' => $baseUri,
             'headers' => [
                 'x-api-key' => $apiKey,
-                'anthropic-version' => '2023-06-01',
-            ],
+                'anthropic-version' => '2023-06-01'
+            ]
         ]);
     }
 
@@ -62,12 +60,12 @@ class AnthropicApi extends ApiAbstract
                     'model' => $model,
                     'system' => $systemPrompt ?? '',
                     'messages' => array_map(
-                        fn(MessageInterface $message) => $this->buildMessage($message),
+                        fn (MessageInterface $message) => $this->buildMessage($message),
                         $messages
                     ),
                     'tools' => $this->buildToolsSchema($tools),
-                    'max_tokens' => $maxTokens,
-                ],
+                    'max_tokens' => $maxTokens
+                ]
             ]
         );
 
@@ -88,7 +86,7 @@ class AnthropicApi extends ApiAbstract
     {
         return [
             'role' => $message->role->value,
-            'content' => $message->content,
+            'content' => $message->content
         ];
     }
 
@@ -96,7 +94,7 @@ class AnthropicApi extends ApiAbstract
     {
         return [
             'role' => 'user',
-            'content' => $this->buildContent($message->content),
+            'content' => $this->buildContent($message->content)
         ];
     }
 
@@ -107,14 +105,14 @@ class AnthropicApi extends ApiAbstract
         if (!empty($message->reasoningContent)) {
             $content[] = [
                 'type' => 'thinking',
-                'thinking' => $message->reasoningContent,
+                'thinking' => $message->reasoningContent
             ];
         }
 
         if (!empty($message->content)) {
             $content[] = [
                 'type' => 'text',
-                'text' => $message->content,
+                'text' => $message->content
             ];
         }
 
@@ -123,13 +121,13 @@ class AnthropicApi extends ApiAbstract
                 'type' => 'tool_use',
                 'id' => $toolCall->id,
                 'name' => $toolCall->name,
-                'input' => $toolCall->arguments,
+                'input' => $toolCall->arguments
             ];
         }
 
         return [
             'role' => 'assistant',
-            'content' => $content,
+            'content' => $content
         ];
     }
 
@@ -141,9 +139,9 @@ class AnthropicApi extends ApiAbstract
                 [
                     'type' => 'tool_result',
                     'tool_use_id' => $message->id,
-                    'content' => $message->content,
-                ],
-            ],
+                    'content' => $message->content
+                ]
+            ]
         ];
     }
 
@@ -157,8 +155,8 @@ class AnthropicApi extends ApiAbstract
                 'source' => [
                     'type' => 'base64',
                     'media_type' => $this->mimeTypeForExtension($extension),
-                    'data' => $attachment->base64,
-                ],
+                    'data' => $attachment->base64
+                ]
             ];
         }
 
@@ -171,7 +169,7 @@ class AnthropicApi extends ApiAbstract
 
         return [
             'type' => 'text',
-            'text' => $content,
+            'text' => $content
         ];
     }
 
@@ -183,7 +181,7 @@ class AnthropicApi extends ApiAbstract
             $schema[] = [
                 'name' => $toolInterface->name(),
                 'description' => $toolInterface->description(),
-                'input_schema' => $toolInterface->schema($name),
+                'input_schema' => $toolInterface->schema($name)
             ];
         }
 

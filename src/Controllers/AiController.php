@@ -5,8 +5,6 @@ namespace Src\Controllers;
 use Sentience\Abstracts\Controller;
 use Sentience\Ai\Ai;
 use Sentience\Ai\Api;
-use Sentience\Ai\Attachments\Base64Attachment;
-use Sentience\Ai\Attachments\UrlAttachment;
 use Sentience\Ai\Schema\Schema;
 use Sentience\Helpers\Json;
 use Sentience\Sentience\Request;
@@ -63,7 +61,7 @@ class AiController extends Controller
                     'reasoning' => $response->getReasoningContent(),
                     'tool_calls' => $response->getToolCalls(),
                     'finish_reason' => $response->getFinishReason(),
-                    'structured_output' => $response->getStructuredOutput(),
+                    'structured_output' => $response->getStructuredOutput()
                 ],
                 JSON_PRETTY_PRINT
             )

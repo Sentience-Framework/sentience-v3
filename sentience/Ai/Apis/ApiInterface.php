@@ -14,6 +14,6 @@ interface ApiInterface
         array $previousMessages,
         array $attachments,
         int $maxTokens,
-        ?Schemable $structuredOutput,
+        ?Schemable $structuredOutput
     ): ResponseInterface;
 }
