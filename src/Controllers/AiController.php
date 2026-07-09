@@ -40,7 +40,7 @@ class AiController extends Controller
 
         $prompt->withRawAttachment(
             'I love you PHP, you are my world',
-            'loveletter.txt'
+            // 'loveletter.txt'
         );
 
         $prompt->withStructuredOutput(

@@ -163,7 +163,7 @@ class AnthropicApi extends ApiAbstract
         }
 
         $content = '<attachment>'
-            . PHP_EOL . 'file contents: ' . $attachment->filename ?? ''
+            . PHP_EOL . 'file contents: ' . ($attachment->filename ?? '')
             . PHP_EOL . '```'
             . PHP_EOL . base64_decode($attachment->base64)
             . PHP_EOL . '```'
