@@ -156,45 +156,6 @@ class OpenAIApi extends ApiAbstract
         ];
     }
 
-    protected function buildUrlContent(UrlAttachment $attachment): array
-    {
-        $url = $attachment->url;
-        $extension = $this->urlExtension($url);
-
-        if ($this->isImageExtension($extension)) {
-            $mimeType = $this->mimeTypeForExtension($extension);
-            $content = @file_get_contents($url);
-
-            if ($content === false) {
-                return [
-                    'type' => 'text',
-                    'text' => "Failed to fetch image from URL: {$url}",
-                ];
-            }
-
-            return [
-                'type' => 'image_url',
-                'image_url' => [
-                    'url' => "data:{$mimeType};base64," . base64_encode($content),
-                ],
-            ];
-        }
-
-        $content = @file_get_contents($url);
-
-        if ($content === false) {
-            return [
-                'type' => 'text',
-                'text' => "Failed to fetch content from URL: {$url}",
-            ];
-        }
-
-        return [
-            'type' => 'text',
-            'text' => $content,
-        ];
-    }
-
     protected function buildToolsSchema(array $tools): array
     {
         $schema = [];

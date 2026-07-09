@@ -175,30 +175,6 @@ class AnthropicApi extends ApiAbstract
         ];
     }
 
-    protected function buildUrlContent(UrlAttachment $attachment): array
-    {
-        $url = $attachment->url;
-        $extension = $this->urlExtension($url);
-
-        if ($this->isImageExtension($extension)) {
-            return [
-                'type' => 'image',
-                'source' => [
-                    'type' => 'url',
-                    'url' => $url,
-                ],
-            ];
-        }
-
-        return [
-            'type' => 'document',
-            'source' => [
-                'type' => 'url',
-                'url' => $url,
-            ],
-        ];
-    }
-
     protected function buildToolsSchema(array $tools): array
     {
         $schema = [];

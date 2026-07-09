@@ -6,7 +6,6 @@ use Closure;
 use Sentience\Ai\Apis\ApiInterface;
 use Sentience\Ai\Apis\ResponseInterface;
 use Sentience\Ai\Attachments\Base64Attachment;
-use Sentience\Ai\Attachments\UrlAttachment;
 use Sentience\Ai\Exceptions\ToolNotFoundException;
 use Sentience\Ai\Messages\AssistantMessage;
 use Sentience\Ai\Messages\ToolMessage;
@@ -39,18 +38,33 @@ class Prompt
         return $this;
     }
 
-    public function withAttachment(Base64Attachment|UrlAttachment $attachment): static
-    {
-        $this->attachments[] = $attachment;
-
-        return $this;
-    }
-
     public function withPreviousMessages(array $messages): static
     {
         $this->previousMessages = $messages;
 
         return $this;
+    }
+
+    public function withAttachment(string $filepath): static
+    {
+        $this->attachments[] = Base64Attachment::fromFilepath($filepath);
+
+        return $this;
+    }
+
+    public function withBase64Attachment(string $base64, ?string $filename = null): static
+    {
+        $this->attachments[] = Base64Attachment::fromBase64($base64, $filename);
+
+        return $this;
+    }
+
+    public function withRawAttachment(string $contents, ?string $filename = null): static
+    {
+        return $this->withBase64Attachment(
+            base64_encode($contents),
+            $filename
+        );
     }
 
     public function withTool(
@@ -59,14 +73,12 @@ class Prompt
         ?Schemable $schema = null,
         ?string $description = null
     ): static {
-        $this->tools[$name] = is_callable($tool)
-            ? new Tool(
-                $name,
-                $description,
-                Closure::fromCallable($tool),
-                $schema
-            )
-            : $tool;
+        $this->tools[$name] = new Tool(
+            $name,
+            $description,
+            Closure::fromCallable($tool),
+            $schema
+        );
 
         return $this;
     }

@@ -52,30 +52,27 @@ abstract class ApiAbstract implements ApiInterface
             return $content[0];
         }
 
-        $inputs = [];
+        $parts = [];
 
-        foreach ($content as $input) {
-            if (is_string($input)) {
-                $inputs[] = [
+        foreach ($content as $part) {
+            if (is_string($part)) {
+                $parts[] = [
                     'type' => 'text',
-                    'text' => $input,
+                    'text' => $part,
                 ];
 
                 continue;
             }
 
-            $inputs[] = match (true) {
-                $input instanceof Base64Attachment => $this->buildBase64Content($input),
-                $input instanceof UrlAttachment => $this->buildUrlContent($input),
+            $parts[] = match (true) {
+                $part instanceof Base64Attachment => $this->buildBase64Content($part)
             };
         }
 
-        return $inputs;
+        return $parts;
     }
 
     abstract protected function buildBase64Content(Base64Attachment $attachment): array;
-
-    abstract protected function buildUrlContent(UrlAttachment $attachment): array;
 
     protected function buildStructuredOutputMessage(Schemable $schema): SystemMessage
     {

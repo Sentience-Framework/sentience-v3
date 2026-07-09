@@ -21,32 +21,27 @@ class AiController extends Controller
     public function ai(array $words, array $flags): void
     {
         $ai = Ai::connect(
-                // Api::OpenAI,
-            Api::Anthropic,
+            Api::OpenAI,
+            // Api::Anthropic,
             'http://localhost:1234',
             'abcdefgh12345678'
         );
 
         $prompt = $ai->prompt(
-            'qwen3.6-35b-a3b-mtp',
-            // 'google/gemma-4-e4b',
+            // 'qwen3.6-35b-a3b-mtp',
+            'google/gemma-4-e4b',
             // 'granite-4.1-8b',
             'Review the provided files and summarize their contents.'
         );
 
         $prompt->withSystemPrompt('You are a helpful assistant that reviews files. Answer and reason in maximum 2 sentences');
 
-        $prompt->withAttachment(
-            Base64Attachment::fromBase64(
-                base64_encode('I love you PHP, you are my world'),
-                'loveletter.txt'
-            )
-        );
+        $prompt->withAttachment(SENTIENCE_DIR . '/docker-compose.yml');
 
-        $prompt->withAttachment(Base64Attachment::fromBase64(
-            base64_encode(file_get_contents(SENTIENCE_DIR . '/docker-compose.yml')),
-            'docker-compose.yml'
-        ));
+        $prompt->withRawAttachment(
+            'I love you PHP, you are my world',
+            'loveletter.txt'
+        );
 
         $prompt->withStructuredOutput(
             Schema::object([
