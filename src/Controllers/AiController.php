@@ -29,7 +29,7 @@ class AiController extends Controller
             // 'qwen3.6-35b-a3b-mtp',
             'google/gemma-4-e4b',
             // 'granite-4.1-8b',
-            'Review the provided files and summarize their contents.'
+            'Review the provided files and summarize their contents, and give me the weather for Amsterdam'
         );
 
         $prompt->withSystemPrompt('You are a helpful assistant that reviews files. Answer and reason in maximum 2 sentences');
@@ -41,6 +41,11 @@ class AiController extends Controller
             // 'loveletter.txt'
         );
 
+        $prompt->withTool(
+            'get_weather_info',
+            [$this, 'getWeatherInfo']
+        );
+
         $prompt->withStructuredOutput(
             Schema::object([
                 'files' => Schema::array(
@@ -48,7 +53,8 @@ class AiController extends Controller
                         'filetype' => Schema::string(),
                         'contents_summary' => Schema::string()
                     ])
-                )
+                ),
+                'weather' => Schema::string()
             ])
         );
 
@@ -66,5 +72,10 @@ class AiController extends Controller
                 JSON_PRETTY_PRINT
             )
         );
+    }
+
+    public function getWeatherInfo(string $city): string
+    {
+        return '23 degrees';
     }
 }
