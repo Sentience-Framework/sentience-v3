@@ -5,6 +5,8 @@ namespace Src\Controllers;
 use Sentience\Abstracts\Controller;
 use Sentience\Ai\Ai;
 use Sentience\Ai\Api;
+use Sentience\Ai\Apis\ResponseInterface;
+use Sentience\Ai\Apis\StreamedResponse;
 use Sentience\Ai\Schema\Schema;
 use Sentience\Helpers\Json;
 use Sentience\Sentience\Request;
@@ -43,8 +45,21 @@ class AiController extends Controller
 
         $prompt->withTool(
             'get_weather_info',
-            [$this, 'getWeatherInfo']
+            $this->getWeatherInfo(...)
         );
+
+        $prompt->withStream(fn(ResponseInterface $response) => Stdio::printLn(
+            Json::encode(
+                [
+                    'content' => $response->getContent(),
+                    'reasoning' => $response->getReasoningContent(),
+                    'tool_calls' => $response->getToolCalls(),
+                    'finish_reason' => $response->getFinishReason(),
+                    'structured_output' => $response->getStructuredOutput()
+                ],
+                JSON_PRETTY_PRINT
+            )
+        ));
 
         $prompt->withStructuredOutput(
             Schema::object([
