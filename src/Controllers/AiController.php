@@ -6,7 +6,6 @@ use Sentience\Abstracts\Controller;
 use Sentience\Ai\Ai;
 use Sentience\Ai\Api;
 use Sentience\Ai\Apis\ResponseInterface;
-use Sentience\Ai\Apis\StreamedResponse;
 use Sentience\Ai\Schema\Schema;
 use Sentience\Helpers\Json;
 use Sentience\Sentience\Request;
@@ -48,7 +47,7 @@ class AiController extends Controller
             $this->getWeatherInfo(...)
         );
 
-        $prompt->withStream(fn(ResponseInterface $response) => Stdio::printLn(
+        $prompt->withStream(fn (ResponseInterface $response) => Stdio::printLn(
             Json::encode(
                 [
                     'content' => $response->getContent(),

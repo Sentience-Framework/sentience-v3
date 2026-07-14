@@ -90,7 +90,7 @@ class AnthropicResponse extends ResponseAbstract
         $accumulatedToolCalls = [];
 
         $getStructuredOutput = $this->hasStructuredOutput
-            ? fn(string $content): ?array => $this->parseStructuredOutput($content)
+            ? fn (string $content): ?array => $this->parseStructuredOutput($content)
             : null;
 
         $buildResponse = function () use (&$content, &$reasoningContent, &$toolCalls, &$finishReason, $getStructuredOutput) {

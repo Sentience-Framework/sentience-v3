@@ -50,18 +50,18 @@ class AnthropicApi extends ApiAbstract
         $response = $this->client->post(
             '/v1/messages',
             [
-                'stream' => $onStreamEvent !== null,
                 'json' => array_filter([
                     'model' => $model,
                     'system' => $systemPrompt ?? '',
                     'messages' => array_map(
-                        fn(MessageInterface $message) => $this->buildMessage($message),
+                        fn (MessageInterface $message) => $this->buildMessage($message),
                         $messages
                     ),
                     'tools' => $this->buildToolsSchema($tools),
                     'max_tokens' => $maxTokens,
                     'stream' => $onStreamEvent !== null
-                ])
+                ]),
+                'stream' => $onStreamEvent !== null
             ]
         );
 

@@ -52,17 +52,17 @@ class OpenAIApi extends ApiAbstract
         $response = $this->client->post(
             '/v1/chat/completions',
             [
-                'stream' => $onStreamEvent !== null,
                 'json' => array_filter([
                     'model' => $model,
                     'messages' => array_map(
-                        fn(MessageInterface $message) => $this->buildMessage($message),
+                        fn (MessageInterface $message) => $this->buildMessage($message),
                         $messages
                     ),
                     'tools' => $this->buildToolsSchema($tools),
                     'max_tokens' => $maxTokens,
                     'stream' => $onStreamEvent !== null
-                ])
+                ]),
+                'stream' => $onStreamEvent !== null
             ]
         );
 
@@ -106,7 +106,7 @@ class OpenAIApi extends ApiAbstract
             'content' => $message->content,
             'reasoning_content' => $message->reasoningContent,
             'tool_calls' => array_map(
-                fn(ToolCall $toolCall): array => [
+                fn (ToolCall $toolCall): array => [
                     'id' => $toolCall->id,
                     'type' => 'function',
                     'function' => [
