@@ -44,7 +44,7 @@ class AiController extends Controller
 
         $prompt->withTool(
             'get_weather_info',
-            $this->getWeatherInfo(...)
+            fn (string $city): string => $this->getWeatherInfo($city)
         );
 
         $prompt->withStream(fn (ResponseInterface $response) => Stdio::printLn(

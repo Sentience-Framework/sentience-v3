@@ -66,11 +66,11 @@ class OpenAIApi extends ApiAbstract
             ]
         );
 
-        if ($onStreamEvent === null) {
-            return new OpenAIResponse($response, (bool) $structuredOutput);
-        }
-
-        return (new OpenAIResponse(null, (bool) $structuredOutput))->stream($response, $onStreamEvent);
+        return new OpenAIResponse(
+            $response,
+            (bool) $structuredOutput,
+            $onStreamEvent
+        );
     }
 
     protected function buildMessage(MessageInterface $message): array

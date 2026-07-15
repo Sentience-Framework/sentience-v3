@@ -65,11 +65,11 @@ class AnthropicApi extends ApiAbstract
             ]
         );
 
-        if ($onStreamEvent === null) {
-            return new AnthropicResponse($response, (bool) $structuredOutput);
-        }
-
-        return (new AnthropicResponse(null, (bool) $structuredOutput))->stream($response, $onStreamEvent);
+        return new AnthropicResponse(
+            $response,
+            (bool) $structuredOutput,
+            $onStreamEvent
+        );
     }
 
     protected function buildMessage(MessageInterface $message): array
