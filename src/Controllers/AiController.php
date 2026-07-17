@@ -5,7 +5,7 @@ namespace Src\Controllers;
 use Sentience\Abstracts\Controller;
 use Sentience\Ai\Ai;
 use Sentience\Ai\Api;
-use Sentience\Ai\Apis\ResponseInterface;
+use Sentience\Ai\Apis\ChunkSize;
 use Sentience\Ai\Schema\Schema;
 use Sentience\Helpers\Json;
 use Sentience\Sentience\Request;
@@ -44,21 +44,10 @@ class AiController extends Controller
 
         $prompt->withTool(
             'get_weather_info',
-            fn (string $city): string => $this->getWeatherInfo($city)
+            fn(string $city): string => $this->getWeatherInfo($city)
         );
 
-        $prompt->withStream(fn (ResponseInterface $response) => Stdio::printLn(
-            Json::encode(
-                [
-                    'content' => $response->getContent(),
-                    'reasoning' => $response->getReasoningContent(),
-                    'tool_calls' => $response->getToolCalls(),
-                    'finish_reason' => $response->getFinishReason(),
-                    'structured_output' => $response->getStructuredOutput()
-                ],
-                JSON_PRETTY_PRINT
-            )
-        ));
+        $prompt->withStream();
 
         $prompt->withStructuredOutput(
             Schema::object([
@@ -73,6 +62,23 @@ class AiController extends Controller
         );
 
         $response = $prompt->execute();
+
+        // Process streaming chunks
+        while ($response->getFinishReason() === '') {
+            $response->readStream(false, ChunkSize::M);
+            Stdio::printLn(
+                Json::encode(
+                    [
+                        'content' => $response->getContent(),
+                        'reasoning' => $response->getReasoningContent(),
+                        'tool_calls' => $response->getToolCalls(),
+                        'finish_reason' => $response->getFinishReason(),
+                        'structured_output' => $response->getStructuredOutput()
+                    ],
+                    JSON_PRETTY_PRINT
+                )
+            );
+        }
 
         Stdio::printLn(
             Json::encode(

@@ -33,7 +33,7 @@ class OpenAIApi extends ApiAbstract
         array $previousMessages,
         int $maxTokens,
         ?Schemable $structuredOutput,
-        ?callable $onStreamEvent = null
+        bool $stream = false
     ): ResponseInterface {
         $messages = [];
 
@@ -60,16 +60,16 @@ class OpenAIApi extends ApiAbstract
                     ),
                     'tools' => $this->buildToolsSchema($tools),
                     'max_tokens' => $maxTokens,
-                    'stream' => $onStreamEvent !== null
+                    'stream' => $stream
                 ]),
-                'stream' => $onStreamEvent !== null
+                'stream' => true
             ]
         );
 
         return new OpenAIResponse(
             $response,
             (bool) $structuredOutput,
-            $onStreamEvent
+            $stream
         );
     }
 

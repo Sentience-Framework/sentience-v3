@@ -23,7 +23,7 @@ class Prompt
     protected array $tools = [];
     protected int $maxTokens = 1048578;
     protected ?Schemable $structuredOutput = null;
-    protected ?Closure $streamCallback = null;
+    protected bool $stream = false;
 
     public function __construct(
         protected ApiInterface $api,
@@ -105,11 +105,9 @@ class Prompt
         return $this;
     }
 
-    public function withStream(callable $callback): static
+    public function withStream(): static
     {
-        $this->streamCallback = $callback instanceof Closure
-            ? $callback
-            : Closure::fromCallable($callback);
+        $this->stream = true;
 
         return $this;
     }
@@ -128,8 +126,12 @@ class Prompt
                 $this->previousMessages,
                 $this->maxTokens,
                 $this->structuredOutput,
-                $this->streamCallback
+                $this->stream
             );
+
+            if (!$this->stream) {
+                $response->readStream(true);
+            }
 
             if (!$loop) {
                 return $response;
