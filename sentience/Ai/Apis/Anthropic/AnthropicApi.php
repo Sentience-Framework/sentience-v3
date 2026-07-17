@@ -67,8 +67,8 @@ class AnthropicApi extends ApiAbstract
 
         return new AnthropicResponse(
             $response,
-            (bool) $structuredOutput,
-            $stream
+            $stream,
+            (bool) $structuredOutput
         );
     }
 

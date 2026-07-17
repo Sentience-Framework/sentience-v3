@@ -3,13 +3,10 @@
 namespace Sentience\Ai;
 
 use Closure;
+use Generator;
 use Sentience\Ai\Apis\ApiInterface;
-use Sentience\Ai\Apis\ResponseInterface;
+use Sentience\Ai\Apis\ResponseGenerator;
 use Sentience\Ai\Attachments\Base64Attachment;
-use Sentience\Ai\Exceptions\ToolNotFoundException;
-use Sentience\Ai\Messages\AssistantMessage;
-use Sentience\Ai\Messages\ToolMessage;
-use Sentience\Ai\Messages\UserMessage;
 use Sentience\Ai\Schema\Schemable;
 use Sentience\Ai\Schema\Types\ObjectType;
 use Sentience\Ai\Tools\Tool;
@@ -112,60 +109,21 @@ class Prompt
         return $this;
     }
 
-    public function execute(bool $loop = true): ResponseInterface
+    public function execute(): Generator
     {
-        $attachments = $this->attachments;
+        $generator = new ResponseGenerator(
+            $this->api,
+            $this->model,
+            $this->prompt,
+            $this->systemPrompt,
+            $this->attachments,
+            $this->tools,
+            $this->previousMessages,
+            $this->maxTokens,
+            $this->structuredOutput,
+            $this->stream
+        );
 
-        while (true) {
-            $response = $this->api->prompt(
-                $this->model,
-                $this->prompt,
-                $this->systemPrompt,
-                $this->attachments,
-                $this->tools,
-                $this->previousMessages,
-                $this->maxTokens,
-                $this->structuredOutput,
-                $this->stream
-            );
-
-            if (!$this->stream) {
-                $response->readStream(true);
-            }
-
-            if (!$loop) {
-                return $response;
-            }
-
-            $this->previousMessages[] = new UserMessage(
-                $this->prompt,
-                $attachments
-            );
-
-            $attachments = [];
-
-            $toolCalls = $response->getToolCalls();
-
-            if (count($toolCalls) === 0) {
-                return $response;
-            }
-
-            $this->previousMessages[] = AssistantMessage::fromResponse($response);
-
-            foreach ($toolCalls as $toolCall) {
-                if (!array_key_exists($toolCall->name, $this->tools)) {
-                    throw new ToolNotFoundException("tool {$toolCall->name} does not exist");
-                }
-
-                $tool = $this->tools[$toolCall->name];
-
-                $result = $tool->execute($toolCall->arguments);
-
-                $this->previousMessages[] = new ToolMessage(
-                    $toolCall->id,
-                    $result
-                );
-            }
-        }
+        yield from $generator;
     }
 }

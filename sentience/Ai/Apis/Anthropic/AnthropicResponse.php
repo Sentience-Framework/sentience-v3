@@ -2,48 +2,11 @@
 
 namespace Sentience\Ai\Apis\Anthropic;
 
-use GuzzleHttp\Psr7\Response;
 use Sentience\Ai\Apis\ResponseAbstract;
-use Sentience\Ai\Apis\ChunkSize;
 use Sentience\Ai\Apis\ToolCall;
 
 class AnthropicResponse extends ResponseAbstract
 {
-    protected array $response = [];
-
-    // Accumulated state during streaming
-    protected string $accumulatedContent = '';
-    protected string $accumulatedReasoningContent = '';
-    protected array $accumulatedToolCalls = [];
-    protected string $accumulatedFinishReason = '';
-    protected array $accumulatedToolCallData = [];
-    protected string $buffer = '';
-    protected bool $streamExhausted = false;
-
-    // The Guzzle Response for streaming
-    protected ?Response $guzzleResponse = null;
-
-    // Whether the API is in SSE streaming mode
-    protected bool $stream = false;
-
-    public function __construct(null|array|Response $response, bool $hasStructuredOutput = false, bool $stream = false)
-    {
-        parent::__construct($hasStructuredOutput);
-
-        if (is_array($response)) {
-            $this->response = $response;
-            return;
-        }
-
-        if ($response === null) {
-            $this->response = [];
-            return;
-        }
-
-        $this->guzzleResponse = $response;
-        $this->stream = $stream;
-    }
-
     public function getContent(): string
     {
         if (!empty($this->response)) {
@@ -52,31 +15,35 @@ class AnthropicResponse extends ResponseAbstract
                     return $block['text'];
                 }
             }
+
             return '';
         }
 
-        return $this->accumulatedContent;
+        return $this->content;
     }
 
     public function getReasoningContent(): string
     {
         if (!empty($this->response)) {
             $reasoning = [];
+
             foreach ($this->response['content'] ?? [] as $block) {
                 if (($block['type'] ?? '') === 'thinking') {
                     $reasoning[] = $block['thinking'];
                 }
             }
+
             return implode(PHP_EOL, $reasoning);
         }
 
-        return $this->accumulatedReasoningContent;
+        return $this->reasoningContent;
     }
 
     public function getToolCalls(): array
     {
         if (!empty($this->response)) {
             $toolCalls = [];
+
             foreach ($this->response['content'] ?? [] as $block) {
                 if (($block['type'] ?? '') === 'tool_use') {
                     $toolCalls[] = new ToolCall(
@@ -86,10 +53,11 @@ class AnthropicResponse extends ResponseAbstract
                     );
                 }
             }
+
             return $toolCalls;
         }
 
-        return $this->accumulatedToolCalls;
+        return $this->toolCalls;
     }
 
     public function getFinishReason(): string
@@ -98,121 +66,97 @@ class AnthropicResponse extends ResponseAbstract
             return $this->response['stop_reason'] ?? 'end_turn';
         }
 
-        return $this->accumulatedFinishReason ?: 'end_turn';
+        return $this->finishReason ?: 'end_turn';
     }
 
-    public function readStream(bool $untilEof = false, ChunkSize $chunkSize = ChunkSize::M): void
+    protected function handleSseData(?array $data, string $rawJson): void
     {
-        if ($this->streamExhausted || $this->guzzleResponse === null) {
+        if ($data === null) {
             return;
         }
 
-        if (!$this->stream) {
-            // Non-streaming mode: read the full body as JSON
-            $body = $this->guzzleResponse->getBody();
-            $this->response = json_decode($body->getContents(), true) ?: [];
-            $this->streamExhausted = true;
-            return;
+        $type = $data['type'] ?? '';
+
+        match ($type) {
+            'content_block_start' => $this->handleContentBlockStart($data),
+            'content_block_delta' => $this->handleContentBlockDelta($data),
+            'message_delta' => $this->handleMessageDelta($data),
+            default => null
+        };
+    }
+
+    protected function handleContentBlockStart(array $data): void
+    {
+        $block = $data['content_block'] ?? [];
+
+        if (($block['type'] ?? '') === 'text' && isset($block['text'])) {
+            $this->content .= $block['text'];
+        } elseif (($block['type'] ?? '') === 'thinking' && isset($block['thinking'])) {
+            $this->reasoningContent .= $block['thinking'];
+        } elseif (($block['type'] ?? '') === 'tool_use') {
+            $index = $data['index'] ?? count($this->toolCallData);
+            $this->toolCallData[$index] = [
+                'id' => $block['id'] ?? '',
+                'name' => $block['name'] ?? '',
+                'input_json' => ''
+            ];
         }
+    }
 
-        // Streaming mode: process SSE events
-        $body = $this->guzzleResponse->getBody();
+    protected function handleContentBlockDelta(array $data): void
+    {
+        $delta = $data['delta'] ?? [];
 
-        do {
-            if ($body->eof()) {
-                $this->finalizeStream();
-                $this->streamExhausted = true;
-                return;
+        if (($delta['type'] ?? '') === 'text_delta' && isset($delta['text'])) {
+            $this->content .= $delta['text'];
+        } elseif (($delta['type'] ?? '') === 'thinking_delta' && isset($delta['thinking'])) {
+            $this->reasoningContent .= $delta['thinking'];
+        } elseif (($delta['type'] ?? '') === 'input_json_delta' && isset($delta['partial_json'])) {
+            $index = $data['index'] ?? 0;
+            $this->toolCallData[$index]['input_json'] .= $delta['partial_json'];
+        }
+    }
+
+    protected function handleMessageDelta(array $data): void
+    {
+        $delta = $data['delta'] ?? [];
+
+        if (isset($delta['stop_reason'])) {
+            $this->finishReason = $delta['stop_reason'];
+
+            if (!empty($this->toolCallData)) {
+                $this->toolCalls = array_map(
+                    fn (array $toolCallData) => new ToolCall(
+                        $toolCallData['id'] ?? '',
+                        $toolCallData['name'] ?? '',
+                        is_array(json_decode($toolCallData['input_json'], true))
+                        ? json_decode($toolCallData['input_json'], true)
+                        : []
+                    ),
+                    $this->toolCallData
+                );
             }
+        }
+    }
 
-            $this->buffer .= $body->read($chunkSize->value);
-            $lines = explode("\n", $this->buffer);
-            $this->buffer = array_pop($lines);
-
-            foreach ($lines as $line) {
-                $line = rtrim($line, "\r");
-
-                if ($line === '' || str_starts_with($line, 'event: ')) {
-                    continue;
-                }
-
-                if (!str_starts_with($line, 'data: ')) {
-                    continue;
-                }
-
-                $data = json_decode(substr($line, 6), true);
-
-                if (!is_array($data)) {
-                    continue;
-                }
-
-                $type = $data['type'] ?? '';
-
-                if ($type === 'content_block_start') {
-                    $block = $data['content_block'] ?? [];
-
-                    if (($block['type'] ?? '') === 'text' && isset($block['text'])) {
-                        $this->accumulatedContent .= $block['text'];
-                    } elseif (($block['type'] ?? '') === 'thinking' && isset($block['thinking'])) {
-                        $this->accumulatedReasoningContent .= $block['thinking'];
-                    } elseif (($block['type'] ?? '') === 'tool_use') {
-                        $index = $data['index'] ?? count($this->accumulatedToolCallData);
-                        $this->accumulatedToolCallData[$index] = [
-                            'id' => $block['id'] ?? '',
-                            'name' => $block['name'] ?? '',
-                            'input_json' => ''
-                        ];
-                    }
-                } elseif ($type === 'content_block_delta') {
-                    $delta = $data['delta'] ?? [];
-
-                    if (($delta['type'] ?? '') === 'text_delta' && isset($delta['text'])) {
-                        $this->accumulatedContent .= $delta['text'];
-                    } elseif (($delta['type'] ?? '') === 'thinking_delta' && isset($delta['thinking'])) {
-                        $this->accumulatedReasoningContent .= $delta['thinking'];
-                    } elseif (($delta['type'] ?? '') === 'input_json_delta' && isset($delta['partial_json'])) {
-                        $index = $data['index'] ?? 0;
-                        $this->accumulatedToolCallData[$index]['input_json'] .= $delta['partial_json'];
-                    }
-                } elseif ($type === 'message_delta') {
-                    $delta = $data['delta'] ?? [];
-
-                    if (isset($delta['stop_reason'])) {
-                        $this->accumulatedFinishReason = $delta['stop_reason'];
-
-                        if (!empty($this->accumulatedToolCallData)) {
-                            $this->accumulatedToolCalls = array_map(
-                                fn(array $toolCallData) => new ToolCall(
-                                    $toolCallData['id'] ?? '',
-                                    $toolCallData['name'] ?? '',
-                                    is_array(json_decode($toolCallData['input_json'], true))
-                                    ? json_decode($toolCallData['input_json'], true)
-                                    : []
-                                ),
-                                $this->accumulatedToolCallData
-                            );
-                        }
-                    }
-                } elseif ($type === 'ping') {
-                    continue;
-                }
-            }
-        } while ($untilEof && !$body->eof());
+    protected function isStreamEnd(string $rawJson): bool
+    {
+        return false;
     }
 
     protected function finalizeStream(): void
     {
         $contentBlocks = [];
 
-        if ($this->accumulatedReasoningContent !== '') {
-            $contentBlocks[] = ['type' => 'thinking', 'thinking' => $this->accumulatedReasoningContent];
+        if ($this->reasoningContent !== '') {
+            $contentBlocks[] = ['type' => 'thinking', 'thinking' => $this->reasoningContent];
         }
 
-        if ($this->accumulatedContent !== '') {
-            $contentBlocks[] = ['type' => 'text', 'text' => $this->accumulatedContent];
+        if ($this->content !== '') {
+            $contentBlocks[] = ['type' => 'text', 'text' => $this->content];
         }
 
-        foreach ($this->accumulatedToolCalls as $toolCall) {
+        foreach ($this->toolCalls as $toolCall) {
             $contentBlocks[] = [
                 'type' => 'tool_use',
                 'id' => $toolCall->id,
@@ -225,8 +169,8 @@ class AnthropicResponse extends ResponseAbstract
             'content' => $contentBlocks
         ];
 
-        if ($this->accumulatedFinishReason !== '') {
-            $responseData['stop_reason'] = $this->accumulatedFinishReason;
+        if ($this->finishReason !== '') {
+            $responseData['stop_reason'] = $this->finishReason;
         }
 
         $this->response = $responseData;

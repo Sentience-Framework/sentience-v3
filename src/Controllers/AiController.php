@@ -27,8 +27,8 @@ class AiController extends Controller
         );
 
         $prompt = $ai->prompt(
-            // 'qwen3.6-35b-a3b-mtp',
-            'google/gemma-4-e4b',
+            'qwen3.6-35b-a3b-mtp',
+            // 'google/gemma-4-e4b',
             // 'granite-4.1-8b',
             'Review the provided files and summarize their contents, and give me the weather for Amsterdam'
         );
@@ -44,7 +44,7 @@ class AiController extends Controller
 
         $prompt->withTool(
             'get_weather_info',
-            fn(string $city): string => $this->getWeatherInfo($city)
+            fn (string $city): string => $this->getWeatherInfo($city)
         );
 
         $prompt->withStream();
@@ -61,37 +61,26 @@ class AiController extends Controller
             ])
         );
 
-        $response = $prompt->execute();
+        Stdio::printLn('Running prompt');
 
-        // Process streaming chunks
-        while ($response->getFinishReason() === '') {
-            $response->readStream(false, ChunkSize::M);
-            Stdio::printLn(
-                Json::encode(
-                    [
-                        'content' => $response->getContent(),
-                        'reasoning' => $response->getReasoningContent(),
-                        'tool_calls' => $response->getToolCalls(),
-                        'finish_reason' => $response->getFinishReason(),
-                        'structured_output' => $response->getStructuredOutput()
-                    ],
-                    JSON_PRETTY_PRINT
-                )
-            );
+        $responses = $prompt->execute();
+
+        foreach ($responses as $response) {
+            while ($response->readStream(false, ChunkSize::M)) {
+                Stdio::printLn(
+                    Json::encode(
+                        [
+                            'content' => $response->getContent(),
+                            'reasoning' => $response->getReasoningContent(),
+                            'tool_calls' => $response->getToolCalls(),
+                            'finish_reason' => $response->getFinishReason(),
+                            'structured_output' => $response->getStructuredOutput()
+                        ],
+                        JSON_PRETTY_PRINT
+                    )
+                );
+            }
         }
-
-        Stdio::printLn(
-            Json::encode(
-                [
-                    'content' => $response->getContent(),
-                    'reasoning' => $response->getReasoningContent(),
-                    'tool_calls' => $response->getToolCalls(),
-                    'finish_reason' => $response->getFinishReason(),
-                    'structured_output' => $response->getStructuredOutput()
-                ],
-                JSON_PRETTY_PRINT
-            )
-        );
     }
 
     public function getWeatherInfo(string $city): string
