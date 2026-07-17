@@ -5,7 +5,6 @@ namespace Src\Controllers;
 use Sentience\Abstracts\Controller;
 use Sentience\Ai\Ai;
 use Sentience\Ai\Api;
-use Sentience\Ai\Apis\ChunkSize;
 use Sentience\Ai\Schema\Schema;
 use Sentience\Helpers\Json;
 use Sentience\Sentience\Request;
@@ -66,7 +65,7 @@ class AiController extends Controller
         $responses = $prompt->execute();
 
         foreach ($responses as $response) {
-            while ($response->readStream(false, ChunkSize::M)) {
+            while ($response->read()) {
                 Stdio::printLn(
                     Json::encode(
                         [
