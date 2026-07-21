@@ -139,7 +139,7 @@ class OpenAIApi extends ApiAbstract
             . PHP_EOL . '```'
             . PHP_EOL . base64_decode($attachment->base64)
             . PHP_EOL . '```'
-            . '</attachment>';
+            . PHP_EOL . '</attachment>';
 
         return [
             'type' => 'text',

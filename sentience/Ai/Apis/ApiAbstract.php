@@ -15,7 +15,7 @@ abstract class ApiAbstract implements ApiInterface
     {
         return in_array(
             strtolower($extension),
-            ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'],
+            ['png', 'jpg', 'jpeg', 'gif', 'bmp'],
             true
         );
     }
@@ -32,9 +32,9 @@ abstract class ApiAbstract implements ApiInterface
     protected function mimeTypeForExtension(string $extension): string
     {
         return match (strtolower($extension)) {
-            'jpg', 'jpeg' => 'image/jpeg',
+            'jpg',
+            'jpeg' => 'image/jpeg',
             'gif' => 'image/gif',
-            'webp' => 'image/webp',
             'bmp' => 'image/bmp',
             default => 'image/png'
         };

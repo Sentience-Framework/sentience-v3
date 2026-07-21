@@ -170,5 +170,5 @@ return [
     Command::register(
         'ai',
         [AiController::class, 'ai']
-    )
+    ),
 ];

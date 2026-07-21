@@ -19,8 +19,8 @@ class AiController extends Controller
     public function ai(array $words, array $flags): void
     {
         $ai = Ai::connect(
-            // Api::OpenAI,
-            Api::Anthropic,
+            Api::OpenAI,
+            // Api::Anthropic,
             'http://localhost:1234',
             'abcdefgh12345678'
         );
@@ -29,12 +29,13 @@ class AiController extends Controller
             // 'qwen3.6-35b-a3b-mtp',
             'google/gemma-4-e4b',
             // 'granite-4.1-8b',
-            'Review the provided files and summarize their contents, and give me the weather for Amsterdam'
+            'Review the provided files and summarize their contents, and give me the weather for Amsterdam. If a file is a picture, describe the contents of the image'
         );
 
         $prompt->withSystemPrompt('You are a helpful assistant that reviews files. Answer and reason in maximum 2 sentences');
 
         $prompt->withAttachment(SENTIENCE_DIR . '/docker-compose.yml');
+        $prompt->withAttachment(SENTIENCE_DIR . '/pictures/example.png');
 
         $prompt->withRawAttachment(
             'I love you PHP, you are my world',
@@ -43,7 +44,7 @@ class AiController extends Controller
 
         $prompt->withTool(
             'get_weather_info',
-            fn (string $city): string => $this->getWeatherInfo($city)
+            fn(string $city): string => $this->getWeatherInfo($city)
         );
 
         $prompt->withStream();
