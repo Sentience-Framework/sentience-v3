@@ -4,7 +4,6 @@ namespace Sentience\Ai;
 
 use Closure;
 use Sentience\Ai\Apis\ApiInterface;
-use Sentience\Ai\Apis\ResponseGenerator;
 use Sentience\Ai\Attachments\Base64Attachment;
 use Sentience\Ai\Schema\Schemable;
 use Sentience\Ai\Schema\Types\ObjectType;

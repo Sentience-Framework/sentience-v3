@@ -1,9 +1,10 @@
 <?php
 
-namespace Sentience\Ai\Apis;
+namespace Sentience\Ai;
 
 use Generator;
 use IteratorAggregate;
+use Sentience\Ai\Apis\ApiInterface;
 use Sentience\Ai\Exceptions\ExecutionNotStartedException;
 use Sentience\Ai\Exceptions\ToolNotFoundException;
 use Sentience\Ai\Messages\AssistantMessage;

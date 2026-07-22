@@ -5,6 +5,7 @@ namespace Src\Controllers;
 use Sentience\Abstracts\Controller;
 use Sentience\Ai\Ai;
 use Sentience\Ai\Api;
+use Sentience\Ai\Apis\Length;
 use Sentience\Ai\Schema\Schema;
 use Sentience\Helpers\Json;
 use Sentience\Sentience\Request;
@@ -66,7 +67,7 @@ class AiController extends Controller
         $responses = $prompt->execute();
 
         foreach ($responses as $response) {
-            while ($response->read()) {
+            while ($response->read(Length::ExtraSmall)) {
                 Stdio::printLn(
                     Json::encode(
                         [
@@ -84,15 +85,17 @@ class AiController extends Controller
 
         $responses = $responses
             ->continue('Can you write all sumaries and weathers in Dutch')
-            ->withStructuredOutput(Schema::object([
-                'files' => Schema::array(
-                    Schema::object([
-                        'filetype' => Schema::string(),
-                        'contents_summary_in_dutch' => Schema::string()
-                    ])
-                ),
-                'weather_in_dutch' => Schema::string()
-            ]))
+            ->withStructuredOutput(
+                Schema::object([
+                    'files' => Schema::array(
+                        Schema::object([
+                            'filetype' => Schema::string(),
+                            'contents_summary_in_dutch' => Schema::string()
+                        ])
+                    ),
+                    'weather_in_dutch' => Schema::string()
+                ])
+            )
             ->execute();
 
         foreach ($responses as $response) {
