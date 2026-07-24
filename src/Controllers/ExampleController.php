@@ -228,7 +228,7 @@ class ExampleController extends Controller
             ->column('column2', 'varchar(255)')
             ->primaryKeys(['primary_key'])
             ->uniqueConstraint(['column1', 'column2'])
-            ->foreignKeyConstraint('column1', 'table_2', 'reference_column', 'fk_table_1', [ReferentialActionEnum::ON_UPDATE_NO_ACTION])
+            ->foreignKeyConstraint('column1', 'table_2', 'reference_column', 'fk_table_1', [ReferentialActionEnum::OnUpdateNoAction])
             ->constraint('UNIQUE "test" COLUMNS ("column1", "column2")')
             ->toSql();
 
@@ -445,7 +445,7 @@ class ExampleController extends Controller
                 'authors',
                 'id',
                 'author_fk',
-                [ReferentialActionEnum::ON_DELETE_SET_NULL]
+                [ReferentialActionEnum::OnDeleteSetNull]
             )
             ->execute();
     }

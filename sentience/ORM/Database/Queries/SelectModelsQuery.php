@@ -61,10 +61,10 @@ class SelectModelsQuery extends ModelsQueryAbstract
             $selectQuery->distinct();
         }
 
-        $selectQuery->whereGroup(fn (): ConditionGroup => (new ConditionGroup(ChainEnum::AND, false))->addConditions($this->where));
+        $selectQuery->whereGroup(fn (): ConditionGroup => (new ConditionGroup(ChainEnum::And, false))->addConditions($this->where));
 
         foreach ($this->orderBy as $orderBy) {
-            $orderBy->direction == OrderByDirectionEnum::ASC
+            $orderBy->direction == OrderByDirectionEnum::Asc
                 ? $selectQuery->orderByAsc($orderBy->column)
                 : $selectQuery->orderByDesc($orderBy->column);
         }
@@ -121,10 +121,10 @@ class SelectModelsQuery extends ModelsQueryAbstract
             $selectQuery->distinct();
         }
 
-        $selectQuery->whereGroup(fn (): ConditionGroup => (new ConditionGroup(ChainEnum::AND, false))->addConditions($this->where));
+        $selectQuery->whereGroup(fn (): ConditionGroup => (new ConditionGroup(ChainEnum::And, false))->addConditions($this->where));
 
         foreach ($this->orderBy as $orderBy) {
-            $orderBy->direction == OrderByDirectionEnum::ASC
+            $orderBy->direction == OrderByDirectionEnum::Asc
                 ? $selectQuery->orderByAsc($orderBy->column)
                 : $selectQuery->orderByDesc($orderBy->column);
         }
