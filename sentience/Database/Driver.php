@@ -16,10 +16,10 @@ use Sentience\Database\Sockets\SocketAbstract;
 
 enum Driver: string implements DriverInterface
 {
-    case MARIADB = 'mariadb';
-    case MYSQL = 'mysql';
-    case PGSQL = 'pgsql';
-    case SQLITE = 'sqlite';
+    case MariaDB = 'mariadb';
+    case MySQL = 'mysql';
+    case PgSQL = 'pgsql';
+    case SQLite = 'sqlite';
 
     public function driver(): string
     {
@@ -36,9 +36,9 @@ enum Driver: string implements DriverInterface
     ): AdapterInterface {
         $adapter = !$usePDOAdapter
             ? match ($this) {
-                static::MARIADB,
-                static::MYSQL => MySQLiAdapter::class,
-                static::SQLITE => SQLite3Adapter::class,
+                static::MariaDB,
+                static::MySQL => MySQLiAdapter::class,
+                static::SQLite => SQLite3Adapter::class,
                 default => PDOAdapter::class
             }
         : PDOAdapter::class;
@@ -56,10 +56,10 @@ enum Driver: string implements DriverInterface
     public function dialect(int|string $version, array $options = []): DialectInterface
     {
         return match ($this) {
-            static::MARIADB,
-            static::MYSQL => new MySQLDialect($this, $version, $options),
-            static::PGSQL => new PgSQLDialect($this, $version, $options),
-            static::SQLITE => new SQLiteDialect($this, $version, $options),
+            static::MariaDB,
+            static::MySQL => new MySQLDialect($this, $version, $options),
+            static::PgSQL => new PgSQLDialect($this, $version, $options),
+            static::SQLite => new SQLiteDialect($this, $version, $options),
             default => new SQLDialect($this, $version, $options)
         };
     }

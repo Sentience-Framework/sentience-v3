@@ -55,15 +55,15 @@ class PDOAdapter extends AdapterAbstract
             ]
         );
 
-        if (in_array($driver, [Driver::MARIADB, Driver::MYSQL])) {
+        if (in_array($driver, [Driver::MariaDB, Driver::MySQL])) {
             $this->configurePDOForMySQL($options);
         }
 
-        if ($driver == Driver::PGSQL) {
+        if ($driver == Driver::PgSQL) {
             $this->configurePDOForPgSQL($options);
         }
 
-        if ($driver == Driver::SQLITE) {
+        if ($driver == Driver::SQLite) {
             $this->configurePDOForSQLite($options);
         }
 
@@ -82,7 +82,7 @@ class PDOAdapter extends AdapterAbstract
             return (string) $options[static::OPTIONS_PDO_DSN];
         }
 
-        if ($driver == Driver::SQLITE) {
+        if ($driver == Driver::SQLite) {
             return sprintf(
                 '%s:%s',
                 $driver->driver(),
@@ -96,7 +96,7 @@ class PDOAdapter extends AdapterAbstract
 
         $build = fn (array $dsn): string => sprintf(
             '%s:%s',
-            $driver == Driver::MARIADB ? Driver::MYSQL->driver() : $driver->driver(),
+            $driver == Driver::MariaDB ? Driver::MySQL->driver() : $driver->driver(),
             implode(
                 ';',
                 array_map(
@@ -113,7 +113,7 @@ class PDOAdapter extends AdapterAbstract
 
         $dsn = ['dbname' => $name];
 
-        if (in_array($driver, [Driver::MARIADB, Driver::MYSQL])) {
+        if (in_array($driver, [Driver::MariaDB, Driver::MySQL])) {
             $dsn = array_merge(
                 $dsn,
                 $socket instanceof NetworkSocket
@@ -416,7 +416,7 @@ class PDOAdapter extends AdapterAbstract
 
     public function __destruct()
     {
-        if ($this->driver == Driver::SQLITE) {
+        if ($this->driver == Driver::SQLite) {
             $this->sqliteOptimize($this->options[static::OPTIONS_SQLITE_OPTIMIZE] ?? false);
         }
     }
