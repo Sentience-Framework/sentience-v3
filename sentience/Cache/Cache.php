@@ -15,7 +15,7 @@ class Cache extends Singleton
     {
         return new static(
             DB::connect(
-                Driver::SQLITE,
+                Driver::SQLite,
                 Filesystem::path(
                     SENTIENCE_DIR,
                     'sqlite',
