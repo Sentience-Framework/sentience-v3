@@ -54,7 +54,7 @@ class UpdateModelsQuery extends ModelsQueryAbstract
                 $values[$column] = $this->getValueIfBackedEnum($value);
             }
 
-            $updateQuery->updates([...$values, ...$this->updates]);
+            $updateQuery->set([...$values, ...$this->updates]);
             $updateQuery->whereGroup(fn (): ConditionGroup => (new ConditionGroup(ChainEnum::And, false))->addConditions($this->where));
             // $updateQuery->returning($columns);
 
