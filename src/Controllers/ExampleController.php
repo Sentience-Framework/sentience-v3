@@ -199,7 +199,7 @@ class ExampleController extends Controller
             ->toSql();
 
         $queries[] = $db->update('table_1')
-            ->updates([
+            ->set([
                 'column1' => Query::now(),
                 'column2' => true,
                 'column3' => false,
