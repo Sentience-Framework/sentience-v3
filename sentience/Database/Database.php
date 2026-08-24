@@ -7,8 +7,10 @@ use Throwable;
 use Sentience\Database\Adapters\AdapterInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\AlterTableQuery;
+use Sentience\Database\Queries\CreateIndexQuery;
 use Sentience\Database\Queries\CreateTableQuery;
 use Sentience\Database\Queries\DeleteQuery;
+use Sentience\Database\Queries\DropIndexQuery;
 use Sentience\Database\Queries\DropTableQuery;
 use Sentience\Database\Queries\InsertQuery;
 use Sentience\Database\Queries\Interfaces\Sql;
@@ -210,6 +212,16 @@ class Database implements DatabaseInterface
     public function dropTable(string|array|Sql $table): DropTableQuery
     {
         return new DropTableQuery($this, $this->dialect, $table);
+    }
+
+    public function createIndex(string|array|Sql $table, string $name): CreateIndexQuery
+    {
+        return new CreateIndexQuery($this, $this->dialect, $table, $name);
+    }
+
+    public function dropIndex(string|array|Sql $table, string $name): DropIndexQuery
+    {
+        return new DropIndexQuery($this, $this->dialect, $table, $name);
     }
 
     public function table(string|array|Sql $table): QueryFactory
