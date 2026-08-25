@@ -252,6 +252,16 @@ class ExampleController extends Controller
             ->ifExists()
             ->toSql();
 
+        $queries[] = $db->createIndex('indexable_table', 'index')
+            ->ifNotExists()
+            ->unique()
+            ->columns(['column1', 'column2'])
+            ->toSql();
+
+        $queries[] = $db->dropIndex('indexable_table', 'index')
+            ->ifExists()
+            ->toSql();
+
         foreach ($queries as $query) {
             Stdio::printLn($query);
             Stdio::printLn('');
