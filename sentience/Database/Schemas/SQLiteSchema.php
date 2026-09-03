@@ -105,8 +105,8 @@ class SQLiteSchema extends SchemaAbstract
                 $foreignKey['table'],
                 $foreignKey['to'],
                 null,
-                ReferentialActionEnum::tryFrom($foreignKey['on_update']) ?: $foreignKey['on_update'],
-                ReferentialActionEnum::tryFrom($foreignKey['on_delete']) ?: $foreignKey['on_delete']
+                ReferentialActionEnum::tryFrom($foreignKey['on_update']) ?? $foreignKey['on_update'],
+                ReferentialActionEnum::tryFrom($foreignKey['on_delete']) ?? $foreignKey['on_delete']
             ),
             $foreignKeys
         );

@@ -2,6 +2,7 @@
 
 namespace Sentience\Database\Queries;
 
+use Sentience\Database\Schemas\SchemaInterface;
 use Throwable;
 use Sentience\Database\Databases\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
@@ -189,7 +190,7 @@ class Table
                 $this->insert(
                     array_filter(
                         $map ? $map($assoc) : $assoc,
-                        fn (string $column): bool => in_array($column, $columns),
+                        fn(string $column): bool => in_array($column, $columns),
                         ARRAY_FILTER_USE_KEY
                     )
                 )->execute($emulatePrepare);
@@ -222,7 +223,7 @@ class Table
                 $table->insert(
                     array_filter(
                         $map ? $map($assoc) : $assoc,
-                        fn (string $column): bool => in_array($column, $columns),
+                        fn(string $column): bool => in_array($column, $columns),
                         ARRAY_FILTER_USE_KEY
                     )
                 )->execute($emulatePrepare);

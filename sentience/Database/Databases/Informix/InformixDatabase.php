@@ -66,7 +66,7 @@ class InformixDatabase extends DatabaseAbstract
             ->columns([['syscolumns', Query::raw('*')]])
             ->innerJoin(
                 'syscolumns',
-                fn (Join $join) => $join->on(
+                fn(Join $join) => $join->on(
                     ['systables', 'tabid'],
                     ['syscolumns', 'tabid']
                 )

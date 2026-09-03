@@ -20,9 +20,10 @@ use Sentience\Database\Dialects\SQLDialect;
 use Sentience\Database\Dialects\SQLiteDialect;
 use Sentience\Database\Dialects\SQLServerDialect;
 use Sentience\Database\Schemas\MySQLSchema;
-use Sentience\Database\Schemas\PostgreSQLSchema;
+use Sentience\Database\Schemas\PgSQLSchema;
 use Sentience\Database\Schemas\SchemaInterface;
 use Sentience\Database\Schemas\SQLiteSchema;
+use Sentience\Database\Schemas\SQLSchema;
 use Sentience\Database\Sockets\SocketAbstract;
 
 enum Driver: string implements DriverInterface
@@ -92,8 +93,9 @@ enum Driver: string implements DriverInterface
         return match ($this) {
             static::MariaDB,
             static::MySQL => new MySQLSchema($database, $dialect),
-            static::PgSQL => new PostgreSQLSchema($database, $dialect),
-            static::SQLite => new SQLiteSchema($database, $dialect)
+            static::PgSQL => new PgSQLSchema($database, $dialect),
+            static::SQLite => new SQLiteSchema($database, $dialect),
+            default => new SQLSchema($database, $dialect)
         };
     }
 }

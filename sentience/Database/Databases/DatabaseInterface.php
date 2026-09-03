@@ -17,6 +17,7 @@ use Sentience\Database\Queries\SelectQuery;
 use Sentience\Database\Queries\Table;
 use Sentience\Database\Queries\UpdateQuery;
 use Sentience\Database\Results\ResultInterface;
+use Sentience\Database\Schemas\SchemaInterface;
 
 interface DatabaseInterface
 {
@@ -42,4 +43,5 @@ interface DatabaseInterface
     public function createIndex(string|array|Sql $table, string $name): CreateIndexQuery;
     public function dropIndex(string|array|Sql $table, string $name): DropIndexQuery;
     public function table(string|array|Sql $table): Table;
+    public function schema(): SchemaInterface;
 }
