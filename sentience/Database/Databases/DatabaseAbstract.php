@@ -2,6 +2,9 @@
 
 namespace Sentience\Database\Databases;
 
+use Sentience\Database\Driver;
+use Sentience\Database\DriverInterface;
+use Sentience\Database\Schemas\MySQLSchema;
 use Sentience\Database\Schemas\SchemaInterface;
 use Sentience\Database\Schemas\SQLiteSchema;
 use Throwable;
@@ -206,6 +209,7 @@ abstract class DatabaseAbstract implements DatabaseInterface
 
     public function schema(): SchemaInterface
     {
-        return new SQLiteSchema($this, $this->dialect);
+        // return new SQLiteSchema($this, $this->dialect);
+        return new MySQLSchema($this, $this->dialect);
     }
 }

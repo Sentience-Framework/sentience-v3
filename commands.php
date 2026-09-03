@@ -108,9 +108,41 @@ return [
     Command::register(
         'test',
         function (DB $db): void {
+            $table = 'migrations';
+
             Stdio::printLn(
                 Json::encode(
-                    $db->schema()->columns('migrations'),
+                    $db->schema()->tables(),
+                    JSON_PRETTY_PRINT
+                )
+            );
+            Stdio::printLn(
+                Json::encode(
+                    $db->schema()->columns($table),
+                    JSON_PRETTY_PRINT
+                )
+            );
+            Stdio::printLn(
+                Json::encode(
+                    $db->schema()->primaryKeys($table),
+                    JSON_PRETTY_PRINT
+                )
+            );
+            Stdio::printLn(
+                Json::encode(
+                    $db->schema()->uniqueConstraints($table),
+                    JSON_PRETTY_PRINT
+                )
+            );
+            Stdio::printLn(
+                Json::encode(
+                    $db->schema()->foreignKeyConstraints($table),
+                    JSON_PRETTY_PRINT
+                )
+            );
+            Stdio::printLn(
+                Json::encode(
+                    $db->schema()->indexes($table),
                     JSON_PRETTY_PRINT
                 )
             );

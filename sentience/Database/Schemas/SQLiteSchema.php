@@ -21,35 +21,26 @@ class SQLiteSchema extends SchemaAbstract
             ->execute()
             ->fetchAssocs();
 
-        return array_map(
-            fn(array $row) => $row['name'],
-            $tables
-        );
+        return array_column($tables, 'name');
     }
 
     public function columns(string|array|Sql $table): array
     {
         $type = function (string $type): string|Type {
-            if ((bool) preg_match('/^(DECIMAL|VARCHAR)\((\d+)\)$/', $type, $matches)) {
-                $size = (int) $matches[2];
+            preg_match('/^(\w+)(?:\((\d+)\))?$/', $type, $match);
 
-                return match ($matches[1]) {
-                    'DECIMAL' => new Type(TypeEnum::Float, $size),
-                    'VARCHAR' => new Type(TypeEnum::String, $size),
-                };
-            }
+            $size = !empty($match[2]) ? $match[2] : null;
 
-            $types = [
+            return match ($match[1]) {
                 'BOOLEAN' => new Type(TypeEnum::Bool),
                 'INTEGER' => new Type(TypeEnum::Int, 32),
                 'BIGINT' => new Type(TypeEnum::Int, 64),
                 'REAL' => new Type(TypeEnum::Float, 64),
                 'VARCHAR',
-                'TEXT' => new Type(TypeEnum::String, PHP_INT_MAX),
-                'DATETIME' => new Type(TypeEnum::DateTime, 0),
-            ];
-
-            return $types[$type] ?? $type;
+                'TEXT' => new Type(TypeEnum::String, $size ?? PHP_INT_MAX),
+                'DATETIME' => new Type(TypeEnum::DateTime, $size ?? 0),
+                default => $type
+            };
         };
 
         $columns = $this->database->query("PRAGMA table_info({$this->dialect->escapeIdentifier($table)})")->fetchAssocs();

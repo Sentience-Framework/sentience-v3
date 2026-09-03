@@ -19,6 +19,8 @@ use Sentience\Database\Dialects\PgSQLDialect;
 use Sentience\Database\Dialects\SQLDialect;
 use Sentience\Database\Dialects\SQLiteDialect;
 use Sentience\Database\Dialects\SQLServerDialect;
+use Sentience\Database\Schemas\MySQLSchema;
+use Sentience\Database\Schemas\PostgreSQLSchema;
 use Sentience\Database\Schemas\SchemaInterface;
 use Sentience\Database\Schemas\SQLiteSchema;
 use Sentience\Database\Sockets\SocketAbstract;
@@ -88,6 +90,9 @@ enum Driver: string implements DriverInterface
     public function schema(DatabaseInterface $database, DialectInterface $dialect): SchemaInterface
     {
         return match ($this) {
+            static::MariaDB,
+            static::MySQL => new MySQLSchema($database, $dialect),
+            static::PgSQL => new PostgreSQLSchema($database, $dialect),
             static::SQLite => new SQLiteSchema($database, $dialect)
         };
     }
