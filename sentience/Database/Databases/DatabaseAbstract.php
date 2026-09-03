@@ -2,6 +2,8 @@
 
 namespace Sentience\Database\Databases;
 
+use Sentience\Database\Schemas\SchemaInterface;
+use Sentience\Database\Schemas\SQLiteSchema;
 use Throwable;
 use Sentience\Database\Adapters\AdapterInterface;
 use Sentience\Database\Dialects\DialectInterface;
@@ -200,5 +202,10 @@ abstract class DatabaseAbstract implements DatabaseInterface
     public function table(string|array|Sql $table): Table
     {
         return new Table($this, $this->dialect, $table);
+    }
+
+    public function schema(): SchemaInterface
+    {
+        return new SQLiteSchema($this, $this->dialect);
     }
 }

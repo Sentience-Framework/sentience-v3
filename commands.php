@@ -1,8 +1,10 @@
 <?php
 
 use Sentience\Database\Queries\Query;
+use Sentience\Helpers\Json;
 use Sentience\ORM\Database\DB;
 use Sentience\Routers\Command;
+use Sentience\Sentience\Stdio;
 use Src\Controllers\DevToolsController;
 use Src\Controllers\ExampleController;
 use Src\Controllers\SentienceController;
@@ -106,32 +108,12 @@ return [
     Command::register(
         'test',
         function (DB $db): void {
-            $db->insert('migrations')
-                ->values(
-                    [
-                        'filename' => 'test1',
-                        'batch' => 1,
-                        'applied_at' => Query::now()
-                    ],
-                    [
-                        'filename' => 'test2',
-                        'batch' => 1,
-                        'applied_at' => Query::now()
-                    ],
-                    [
-                        'filename' => 'test3',
-                        'batch' => 1,
-                        'applied_at' => Query::now()
-                    ],
-                    [
-                        'filename' => 'test4',
-                        'batch' => 1,
-                        'applied_at' => Query::now()
-                    ]
+            Stdio::printLn(
+                Json::encode(
+                    $db->schema()->columns('migrations'),
+                    JSON_PRETTY_PRINT
                 )
-                ->onConflictDoUpdate(['filename'])
-                ->emulateOnConflict('id')
-                ->execute();
+            );
         }
     ),
 

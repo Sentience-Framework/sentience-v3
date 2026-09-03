@@ -7,6 +7,7 @@ use Sentience\Database\Adapters\AdapterInterface;
 use Sentience\Database\Adapters\MySQLiAdapter;
 use Sentience\Database\Adapters\PDOAdapter;
 use Sentience\Database\Adapters\SQLite3Adapter;
+use Sentience\Database\Databases\DatabaseInterface;
 use Sentience\Database\Dialects\CUBRIDDialect;
 use Sentience\Database\Dialects\DB2Dialect;
 use Sentience\Database\Dialects\DialectInterface;
@@ -18,6 +19,8 @@ use Sentience\Database\Dialects\PgSQLDialect;
 use Sentience\Database\Dialects\SQLDialect;
 use Sentience\Database\Dialects\SQLiteDialect;
 use Sentience\Database\Dialects\SQLServerDialect;
+use Sentience\Database\Schemas\SchemaInterface;
+use Sentience\Database\Schemas\SQLiteSchema;
 use Sentience\Database\Sockets\SocketAbstract;
 
 enum Driver: string implements DriverInterface
@@ -53,7 +56,7 @@ enum Driver: string implements DriverInterface
                 static::SQLite => SQLite3Adapter::class,
                 default => PDOAdapter::class
             }
-        : PDOAdapter::class;
+            : PDOAdapter::class;
 
         return new $adapter(
             $this,
@@ -79,6 +82,13 @@ enum Driver: string implements DriverInterface
             static::SQLite => new SQLiteDialect($this, $version, $options),
             static::SQLSrv => new SQLServerDialect($this, $version, $options),
             default => new SQLDialect($this, $version, $options)
+        };
+    }
+
+    public function schema(DatabaseInterface $database, DialectInterface $dialect): SchemaInterface
+    {
+        return match ($this) {
+            static::SQLite => new SQLiteSchema($database, $dialect)
         };
     }
 }
