@@ -7,10 +7,7 @@ use PDO;
 use Sentience\Database\Adapters\AdapterInterface;
 use Sentience\Database\Databases\DatabaseAbstract;
 use Sentience\Database\Dialects\DialectInterface;
-use Sentience\Database\Schemas\MySQLSchema;
-use Sentience\Database\Schemas\PgSQLSchema;
 use Sentience\Database\Schemas\SchemaInterface;
-use Sentience\Database\Schemas\SQLiteSchema;
 use Sentience\Database\Sockets\SocketAbstract;
 
 class Database extends DatabaseAbstract

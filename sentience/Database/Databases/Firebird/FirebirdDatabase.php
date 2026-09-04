@@ -6,6 +6,8 @@ use Closure;
 use Sentience\Database\Databases\DatabaseAbstract;
 use Sentience\Database\Driver;
 use Sentience\Database\Queries\Query;
+use Sentience\Database\Schemas\SchemaInterface;
+use Sentience\Database\Schemas\SQLSchema;
 use Sentience\Database\Sockets\NetworkSocket;
 
 class FirebirdDatabase extends DatabaseAbstract
@@ -81,5 +83,10 @@ class FirebirdDatabase extends DatabaseAbstract
             ->orderByAsc(Query::raw('R.RDB$FIELD_POSITION'))
             ->execute()
             ->fetchAssocs();
+    }
+
+    public function schema(): SchemaInterface
+    {
+        return new SQLSchema($this, $this->dialect);
     }
 }

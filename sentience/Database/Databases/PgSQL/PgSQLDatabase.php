@@ -5,6 +5,8 @@ namespace Sentience\Database\Databases\PgSQL;
 use Closure;
 use Sentience\Database\Databases\DatabaseAbstract;
 use Sentience\Database\Driver;
+use Sentience\Database\Schemas\PgSQLSchema;
+use Sentience\Database\Schemas\SchemaInterface;
 use Sentience\Database\Sockets\NetworkSocket;
 use Sentience\Database\Sockets\UnixSocket;
 
@@ -80,5 +82,10 @@ class PgSQLDatabase extends DatabaseAbstract
             ->whereEquals('table_name', $table)
             ->execute()
             ->fetchAssocs();
+    }
+
+    public function schema(): SchemaInterface
+    {
+        return new PgSQLSchema($this, $this->dialect);
     }
 }

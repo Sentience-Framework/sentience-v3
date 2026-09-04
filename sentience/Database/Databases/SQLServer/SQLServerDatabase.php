@@ -5,6 +5,8 @@ namespace Sentience\Database\Databases\SQLServer;
 use Closure;
 use Sentience\Database\Databases\DatabaseAbstract;
 use Sentience\Database\Driver;
+use Sentience\Database\Schemas\SchemaInterface;
+use Sentience\Database\Schemas\SQLSchema;
 use Sentience\Database\Sockets\NetworkSocket;
 
 class SQLServerDatabase extends DatabaseAbstract
@@ -54,5 +56,10 @@ class SQLServerDatabase extends DatabaseAbstract
         );
 
         return $this->query($query)->fetchAssocs();
+    }
+
+    public function schema(): SchemaInterface
+    {
+        return new SQLSchema($this, $this->dialect);
     }
 }

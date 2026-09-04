@@ -4,7 +4,6 @@ namespace Sentience\Database\Schemas;
 
 use Sentience\Database\Queries\Enums\ReferentialActionEnum;
 use Sentience\Database\Queries\Enums\TypeEnum;
-use Sentience\Database\Queries\Interfaces\Sql;
 use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\ForeignKeyConstraint;
 use Sentience\Database\Queries\Objects\Index;
@@ -24,7 +23,7 @@ class SQLiteSchema extends SchemaAbstract
         return array_column($tables, 'name');
     }
 
-    public function columns(string|array|Sql $table): array
+    public function columns(string $table): array
     {
         $type = function (string $type): string|Type {
             preg_match('/^(\w+)(?:\((\d+)\))?$/', $type, $match);
@@ -46,7 +45,7 @@ class SQLiteSchema extends SchemaAbstract
         $columns = $this->database->query("PRAGMA table_info({$this->dialect->escapeIdentifier($table)})")->fetchAssocs();
 
         return array_map(
-            fn(array $column): Column => new Column(
+            fn (array $column): Column => new Column(
                 $column['name'],
                 $type($column['type']),
                 (bool) $column['notnull'],
@@ -57,7 +56,7 @@ class SQLiteSchema extends SchemaAbstract
         );
     }
 
-    public function primaryKeys(string|array|Sql $table): array
+    public function primaryKeys(string $table): array
     {
         $rows = $this->database->query("PRAGMA table_info({$this->dialect->escapeIdentifier($table)})")->fetchAssocs();
 
@@ -80,27 +79,27 @@ class SQLiteSchema extends SchemaAbstract
         return $columns;
     }
 
-    public function uniqueConstraints(string|array|Sql $table): array
+    public function uniqueConstraints(string $table): array
     {
         $uniqueIndexes = array_filter(
             $this->indexes($table),
-            fn(Index $index) => $index->unique
+            fn (Index $index) => $index->unique
         );
 
         return array_values(
             array_map(
-                fn(Index $index) => new UniqueConstraint($index->columns, $index->name),
+                fn (Index $index) => new UniqueConstraint($index->columns, $index->name),
                 $uniqueIndexes
             )
         );
     }
 
-    public function foreignKeyConstraints(string|array|Sql $table): array
+    public function foreignKeyConstraints(string $table): array
     {
         $foreignKeys = $this->database->query("PRAGMA foreign_key_list({$this->dialect->escapeIdentifier($table)})")->fetchAssocs();
 
         return array_map(
-            fn(array $foreignKey) => new ForeignKeyConstraint(
+            fn (array $foreignKey) => new ForeignKeyConstraint(
                 $foreignKey['from'],
                 $foreignKey['table'],
                 $foreignKey['to'],
@@ -112,7 +111,7 @@ class SQLiteSchema extends SchemaAbstract
         );
     }
 
-    public function indexes(string|array|Sql $table): array
+    public function indexes(string $table): array
     {
         $indexes = $this->database->query("PRAGMA index_list({$this->dialect->escapeIdentifier($table)})")->fetchAssocs();
 

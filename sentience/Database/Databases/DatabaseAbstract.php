@@ -2,7 +2,6 @@
 
 namespace Sentience\Database\Databases;
 
-use Sentience\Database\Schemas\SchemaInterface;
 use Throwable;
 use Sentience\Database\Adapters\AdapterInterface;
 use Sentience\Database\Dialects\DialectInterface;
@@ -22,6 +21,7 @@ use Sentience\Database\Queries\SelectQuery;
 use Sentience\Database\Queries\Table;
 use Sentience\Database\Queries\UpdateQuery;
 use Sentience\Database\Results\ResultInterface;
+use Sentience\Database\Schemas\SchemaInterface;
 
 abstract class DatabaseAbstract implements DatabaseInterface
 {
@@ -203,8 +203,5 @@ abstract class DatabaseAbstract implements DatabaseInterface
         return new Table($this, $this->dialect, $table);
     }
 
-    public function schema(): SchemaInterface
-    {
-        return new Table($this, $this->dialect, $table);
-    }
+    abstract public function schema(): SchemaInterface;
 }

@@ -5,6 +5,8 @@ namespace Sentience\Database\Databases\DB2;
 use Closure;
 use Sentience\Database\Databases\DatabaseAbstract;
 use Sentience\Database\Driver;
+use Sentience\Database\Schemas\SchemaInterface;
+use Sentience\Database\Schemas\SQLSchema;
 use Sentience\Database\Sockets\NetworkSocket;
 
 class DB2Database extends DatabaseAbstract
@@ -65,5 +67,10 @@ class DB2Database extends DatabaseAbstract
             ->orderByAsc('COLNO')
             ->execute()
             ->fetchAssocs();
+    }
+
+    public function schema(): SchemaInterface
+    {
+        return new SQLSchema($this, $this->dialect);
     }
 }

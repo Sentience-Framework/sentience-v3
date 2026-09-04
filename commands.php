@@ -1,6 +1,5 @@
 <?php
 
-use Sentience\Database\Queries\Query;
 use Sentience\Helpers\Json;
 use Sentience\ORM\Database\DB;
 use Sentience\Routers\Command;

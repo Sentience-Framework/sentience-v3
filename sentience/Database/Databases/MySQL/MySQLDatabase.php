@@ -5,6 +5,8 @@ namespace Sentience\Database\Databases\MySQL;
 use Closure;
 use Sentience\Database\Databases\DatabaseAbstract;
 use Sentience\Database\Driver;
+use Sentience\Database\Schemas\SchemaInterface;
+use Sentience\Database\Schemas\SQLSchema;
 use Sentience\Database\Sockets\NetworkSocket;
 use Sentience\Database\Sockets\UnixSocket;
 
@@ -94,5 +96,10 @@ class MySQLDatabase extends DatabaseAbstract
         );
 
         return $this->query($query)->fetchAssocs();
+    }
+
+    public function schema(): SchemaInterface
+    {
+        return new SQLSchema($this, $this->dialect);
     }
 }

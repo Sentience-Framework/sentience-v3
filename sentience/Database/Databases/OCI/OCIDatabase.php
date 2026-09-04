@@ -5,6 +5,8 @@ namespace Sentience\Database\Databases\OCI;
 use Closure;
 use Sentience\Database\Databases\DatabaseAbstract;
 use Sentience\Database\Driver;
+use Sentience\Database\Schemas\SchemaInterface;
+use Sentience\Database\Schemas\SQLSchema;
 use Sentience\Database\Sockets\NetworkSocket;
 
 class OCIDatabase extends DatabaseAbstract
@@ -53,5 +55,10 @@ class OCIDatabase extends DatabaseAbstract
             ->orderByAsc('column_id')
             ->execute()
             ->fetchAssocs();
+    }
+
+    public function schema(): SchemaInterface
+    {
+        return new SQLSchema($this, $this->dialect);
     }
 }

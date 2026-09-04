@@ -59,7 +59,7 @@ enum Driver: string implements DriverInterface
                 static::SQLite => SQLite3Adapter::class,
                 default => PDOAdapter::class
             }
-            : PDOAdapter::class;
+        : PDOAdapter::class;
 
         return new $adapter(
             $this,
