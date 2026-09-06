@@ -6,6 +6,7 @@ use Sentience\Database\Queries\Enums\TypeEnum;
 use Sentience\Database\Queries\Objects\Index;
 use Sentience\Database\Queries\Objects\Join;
 use Sentience\Database\Queries\Objects\Type;
+use Sentience\Database\Queries\Objects\WhereGroup;
 use Sentience\Database\Queries\Query;
 
 class PgSQLSchema extends SQLSchema
@@ -53,17 +54,19 @@ class PgSQLSchema extends SQLSchema
         );
     }
 
-    protected function type(string $type): string|Type
+    protected function databaseSchema(WhereGroup $whereGroup): WhereGroup
     {
-        preg_match('/^([a-z ]+)(?:\((\d+)\))?$/i', $type, $match);
+        return $whereGroup->whereEquals('table_schema', Query::raw('current_schema()'));
+    }
 
-        $size = !empty($match[2]) ? $match[2] : null;
-
+    protected function type(string $type, ?int $size): string|Type
+    {
         return match ($match[1] ?? $type) {
             'DOUBLE PRECISION' => new Type(TypeEnum::Float, 64),
             'CHARACTER VARYING' => new Type(TypeEnum::String, $size ?? 255),
-            'TIMESTAMP WITHOUT TIME ZONE' => new Type(TypeEnum::DateTime, $size ?? 0),
-            default => parent::type($type)
+            'TIMESTAMP WITHOUT TIME ZONE',
+            'TIMESTAMP WITH TIME ZONE' => new Type(TypeEnum::DateTime, $size ?? 0),
+            default => parent::type($type, $size)
         };
     }
 }

@@ -9,6 +9,7 @@ use Sentience\Database\Queries\Objects\ForeignKeyConstraint;
 use Sentience\Database\Queries\Objects\Index;
 use Sentience\Database\Queries\Objects\Type;
 use Sentience\Database\Queries\Objects\UniqueConstraint;
+use Sentience\Database\Queries\Objects\WhereGroup;
 use Sentience\Database\Queries\Query;
 
 class SQLSchema extends SchemaAbstract
@@ -18,6 +19,7 @@ class SQLSchema extends SchemaAbstract
         $tables = $this->database->select(['information_schema', 'tables'])
             ->columns(['table_name' => 'table_name'])
             ->whereLike('table_type', 'BASE TABLE', true)
+            ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
             ->execute()
             ->fetchAssocs();
 
@@ -37,6 +39,7 @@ class SQLSchema extends SchemaAbstract
                 'datetime_precision' => 'datetime_precision',
                 Query::raw('information_schema.columns.*')
             ])
+            ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
             ->whereEquals('table_name', $table)
             ->orderByAsc('ordinal_position')
             ->execute()
@@ -47,18 +50,12 @@ class SQLSchema extends SchemaAbstract
                 $type = $column['data_type'];
                 $size = $column['character_maximum_length'] ?? $column['numeric_precision'] ?? $column['datetime_precision'];
 
-                if (!is_null($size) && !str_contains($type, '(')) {
-                    $type = sprintf('%s(%d)', $type, $size);
-                }
-
-                $identity = $this->true($column['is_identity'] ?? null) || (bool) preg_match('/.*increment.*/i', array_change_key_case($column, CASE_LOWER)['extra'] ?? '');
-
                 return new Column(
                     $column['column_name'],
-                    $this->type(strtoupper($type)),
+                    $this->type($type, $size),
                     $this->true($column['is_nullable']),
                     $column['column_default'],
-                    $identity
+                    $this->isIdentity($column)
                 );
             },
             $columns
@@ -69,11 +66,13 @@ class SQLSchema extends SchemaAbstract
     {
         $primaryKeys = $this->database->select(['information_schema', 'key_column_usage'])
             ->columns(['column_name' => 'column_name'])
+            ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
             ->whereEquals('table_name', $table)
             ->whereIn(
                 'constraint_name',
                 $this->database->select(['information_schema', 'table_constraints'])
                     ->columns(['constraint_name'])
+                    ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
                     ->whereEquals('table_name', $table)
                     ->whereContains('constraint_type', 'PRIMARY', true)
             )
@@ -91,11 +90,13 @@ class SQLSchema extends SchemaAbstract
                 'constraint_name' => 'constraint_name',
                 'column_name' => 'column_name'
             ])
+            ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
             ->whereEquals('table_name', $table)
             ->whereIn(
                 'constraint_name',
                 $this->database->select(['information_schema', 'table_constraints'])
                     ->columns(['constraint_name'])
+                    ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
                     ->whereEquals('table_name', $table)
                     ->whereContains('constraint_type', 'UNIQUE', true)
             )
@@ -135,8 +136,9 @@ class SQLSchema extends SchemaAbstract
                     'constraint_name',
                     $this->database->select(['information_schema', 'table_constraints'])
                         ->columns(['constraint_name'])
+                        ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
                         ->whereEquals('table_name', $table)
-                        ->whereContains('constraint_type', 'FOREIGN', true)
+                        ->whereContains('constraint_type', 'FOREIGN KEY', true)
                 )
                 ->execute()
                 ->fetchAssocs()
@@ -211,13 +213,14 @@ class SQLSchema extends SchemaAbstract
         return $indexes;
     }
 
-    protected function type(string $type): string|Type
+    protected function databaseSchema(WhereGroup $whereGroup): WhereGroup
     {
-        preg_match('/^(\w+)(?:\((\d+)\))?$/', $type, $match);
+        return $whereGroup;
+    }
 
-        $size = !empty($match[2]) ? $match[2] : null;
-
-        return match ($match[1] ?? $type) {
+    protected function type(string $type, ?int $size): string|Type
+    {
+        return match (strtoupper($type)) {
             'BOOLEAN',
             'BOOL' => new Type(TypeEnum::Bool),
             'INTEGER',
@@ -231,8 +234,15 @@ class SQLSchema extends SchemaAbstract
             'TEXT' => new Type(TypeEnum::String, $size ?? PHP_INT_MAX),
             'DATETIME',
             'TIMESTAMP' => new Type(TypeEnum::DateTime, $size ?? 0),
-            default => $type
+            default => !is_null($size) ? sprintf('%s(%d)', $type, $size) : $size
         };
+    }
+
+    protected function isIdentity(array $column): bool
+    {
+        $column = array_change_key_case($column, CASE_LOWER);
+
+        return $this->true($column['is_identity'] ?? null);
     }
 
     protected function true(mixed $value): bool

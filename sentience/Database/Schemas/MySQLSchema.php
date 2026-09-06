@@ -5,6 +5,8 @@ namespace Sentience\Database\Schemas;
 use Sentience\Database\Queries\Enums\TypeEnum;
 use Sentience\Database\Queries\Objects\Index;
 use Sentience\Database\Queries\Objects\Type;
+use Sentience\Database\Queries\Objects\WhereGroup;
+use Sentience\Database\Queries\Query;
 
 class MySQLSchema extends SQLSchema
 {
@@ -40,12 +42,13 @@ class MySQLSchema extends SQLSchema
         );
     }
 
-    protected function type(string $type): string|Type
+    protected function databaseSchema(WhereGroup $whereGroup): WhereGroup
     {
-        preg_match('/^(\w+)(?:\((\d+)\))?$/', $type, $match);
+        return $whereGroup->whereEquals('TABLE_SCHEMA', Query::raw('database()'));
+    }
 
-        $size = !empty($match[2]) ? $match[2] : null;
-
+    protected function type(string $type, ?int $size): string|Type
+    {
         return match ($match[1] ?? $match[0] ?? $type) {
             'TINYINT' => new Type(TypeEnum::Bool),
             'DOUBLE' => new Type(TypeEnum::Float, 64),
@@ -53,7 +56,14 @@ class MySQLSchema extends SQLSchema
             'MEDIUMTEXT' => new Type(TypeEnum::String, $size ?? 16777215),
             'LONGTEXT' => new Type(TypeEnum::String, $size ?? 4294967295),
             'DATETIME' => new Type(TypeEnum::DateTime, $size ?? 0),
-            default => parent::type($type)
+            default => parent::type($type, $size)
         };
+    }
+
+    protected function isIdentity(array $column): bool
+    {
+        $column = array_change_key_case($column, CASE_LOWER);
+
+        return (bool) preg_match('/.*increment.*/i', (string) ($column['extra'] ?? ''));
     }
 }
