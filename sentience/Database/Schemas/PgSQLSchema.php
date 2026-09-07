@@ -15,53 +15,92 @@ class PgSQLSchema extends SQLSchema
 {
     public function indexes(DatabaseInterface $database, DialectInterface $dialect, string $table): array
     {
-        $rows = $database->select(Query::alias(['pg_catalog', 'pg_index'], 'ix'))
+        $indexes = $database->select(['pg_catalog', 'pg_index'])
             ->columns([
-                'database_name' => Query::raw('current_database()'),
-                'schema_name' => Query::raw('current_schema()'),
-                'index_name' => ['i', 'relname'],
-                'column_name' => ['a', 'attname'],
-                'unique' => ['ix', 'indisunique']
+                'index_name' => $database->select(['pg_catalog', 'pg_class'])
+                    ->columns([['pg_catalog', 'pg_class', 'relname']])
+                    ->where('pg_catalog.pg_class.oid = pg_catalog.pg_index.indexrelid'),
+                'column_name' => ['pg_catalog', 'pg_attribute', 'attname'],
+                'unique' => ['pg_catalog', 'pg_index', 'indisunique']
             ])
             ->innerJoin(
-                Query::alias(['pg_catalog', 'pg_class'], 't'),
-                fn (Join $join): Join => $join->on(['t', 'oid'], ['ix', 'indrelid'])
-            )
-            ->innerJoin(
-                Query::alias(['pg_catalog', 'pg_class'], 'i'),
-                fn (Join $join): Join => $join->on(['i', 'oid'], ['ix', 'indexrelid'])
-            )->innerJoin(
-                Query::alias(['pg_catalog', 'pg_attribute'], 'a'),
+                ['pg_catalog', 'pg_attribute'],
                 fn (Join $join): Join => $join
-                    ->on(['a', 'attrelid'], ['t', 'oid'])
-                    ->whereEquals(['a', 'attnum'], Query::raw('any(ix.indkey)'))
-            )->innerJoin(
-                Query::alias(['pg_catalog', 'pg_namespace'], 'n'),
-                fn (Join $join): Join => $join->on(['n', 'oid'], ['t', 'relnamespace'])
+                    ->on(
+                        ['pg_catalog', 'pg_attribute', 'attrelid'],
+                        ['pg_catalog', 'pg_index', 'indrelid']
+                    )
+                    ->whereEquals(
+                        ['pg_catalog', 'pg_attribute', 'attnum'],
+                        Query::raw('ANY(pg_catalog.pg_index.indkey)')
+                    )
             )
-            ->whereEquals(['t', 'relname'], $table)
-            ->whereEquals(['n', 'nspname'], Query::raw('current_schema()'))
-            ->whereEquals(['ix', 'indisprimary'], Query::raw('false'))
-            ->orderByAsc(['i', 'relname'])
-            ->orderByAsc(Query::raw('array_position(ix.indkey::int2[], a.attnum)'))
+            ->whereEquals(
+                Query::expressionf(
+                    '(%s)',
+                    $database->select(['pg_catalog', 'pg_class'])
+                        ->columns([['pg_catalog', 'pg_class', 'relname']])
+                        ->where(
+                            'pg_catalog.pg_class.oid = pg_catalog.pg_index.indrelid'
+                        )
+                ),
+                $table
+            )
+            ->whereEquals(
+                Query::expressionf(
+                    '(%s)',
+                    $database->select(['pg_catalog', 'pg_namespace'])
+                        ->columns([['pg_catalog', 'pg_namespace', 'nspname']])
+                        ->whereEquals(
+                            ['pg_catalog', 'pg_namespace', 'oid'],
+                            $database->select(['pg_catalog', 'pg_class'])
+                                ->columns([['pg_catalog', 'pg_class', 'relnamespace']])
+                                ->where('pg_catalog.pg_class.oid = pg_catalog.pg_index.indrelid')
+                        )
+                ),
+                Query::raw('current_schema()')
+            )
+            ->whereEquals(['pg_catalog', 'pg_index', 'indisprimary'], false)
+            ->orderByAsc(
+                Query::expressionf(
+                    '(%s)',
+                    $database->select(['pg_catalog', 'pg_class'])
+                        ->columns([['pg_catalog', 'pg_class', 'relname']])
+                        ->where('pg_catalog.pg_class.oid = pg_catalog.pg_index.indexrelid')
+                )
+            )
+            ->orderByAsc(Query::raw('array_position(pg_catalog.pg_index.indkey::int2[], pg_catalog.pg_attribute.attnum)'))
             ->execute()
             ->fetchAssocs();
 
-        $indexes = [];
+        $indexNames = [];
+        $indexUnique = [];
+        $indexColumns = [];
 
-        foreach ($rows as $row) {
-            $indexName = $row['index_name'];
-            $unique = (bool) $row['unique'];
-            $columnName = $row['column_name'];
+        foreach ($indexes as $index) {
+            $indexName = $index['index_name'];
+            $columnName = $index['column_name'];
+            $unique = (bool) $index['unique'];
 
-            $indexes[$indexName]['unique'] = $unique;
-            $indexes[$indexName]['columns'][] = $columnName;
+            if (!in_array($indexName, $indexNames)) {
+                $indexNames[] = $indexName;
+            }
+
+            if (!array_key_exists($indexName, $indexColumns)) {
+                $indexColumns[$indexName] = [];
+            }
+
+            $indexColumns[$indexName][] = $columnName;
+            $indexUnique[$indexName] = $unique;
         }
 
         return array_map(
-            fn (string $name, array $index): Index => new Index($name, $index['columns'], $index['unique']),
-            array_keys($indexes),
-            array_values($indexes)
+            fn (string $name): Index => new Index(
+                $name,
+                $indexColumns[$name],
+                $indexUnique[$name]
+            ),
+            $indexNames
         );
     }
 
@@ -74,12 +113,23 @@ class PgSQLSchema extends SQLSchema
 
     protected function type(string $type, ?int $size): string|Type
     {
-        return match ($match[1] ?? $type) {
+        return match ($type) {
             'DOUBLE PRECISION' => new Type(TypeEnum::Float, 64),
             'CHARACTER VARYING' => new Type(TypeEnum::String, $size ?? 255),
             'TIMESTAMP WITHOUT TIME ZONE',
             'TIMESTAMP WITH TIME ZONE' => new Type(TypeEnum::DateTime, $size ?? 0),
             default => parent::type($type, $size)
         };
+    }
+
+    protected function isIdentity(array $column): bool
+    {
+        $column = array_change_key_case($column, CASE_LOWER);
+
+        if ((bool) preg_match('/nextval\(/i', (string) ($column['column_default'] ?? ''))) {
+            return true;
+        }
+
+        return parent::isIdentity($column) && preg_match('/int|serial/i', $column['data_type']);
     }
 }
