@@ -16,33 +16,40 @@ class MySQLSchema extends SQLSchema
     {
         $indexes = $database->select(['INFORMATION_SCHEMA', 'STATISTICS'])
             ->columns(['INDEX_NAME', 'COLUMN_NAME', 'NON_UNIQUE'])
-            ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+            ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
             ->whereEquals('TABLE_NAME', $table)
             ->whereNotContains('INDEX_NAME', 'PRIMARY', true)
-            ->whereIn(
-                'INDEX_NAME',
-                $database->select(['INFORMATION_SCHEMA', 'KEY_COLUMN_USAGE'])
-                    ->columns(['CONSTRAINT_NAME'])
-                    ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
-                    ->whereIsNull('REFERENCED_TABLE_NAME')
-                    ->whereIsNull('REFERENCED_COLUMN_NAME')
-            )
             ->execute()
             ->fetchAssocs();
 
+        $indexNames = [];
         $indexColumns = [];
+        $indexUnique = [];
 
         foreach ($indexes as $index) {
-            $indexColumns[$index['INDEX_NAME']][] = $index['COLUMN_NAME'];
+            $indexName = $index['INDEX_NAME'];
+            $columnName = $index['COLUMN_NAME'];
+            $nonUnique = (bool) $index['NON_UNIQUE'];
+
+            if (!in_array($indexName, $indexNames)) {
+                $indexNames[] = $indexName;
+            }
+
+            if (!array_key_exists($indexName, $indexColumns)) {
+                $indexColumns[$indexName] = [];
+            }
+
+            $indexColumns[$indexName][] = $columnName;
+            $indexUnique[$indexName] = !$nonUnique;
         }
 
         return array_map(
-            fn (array $index): Index => new Index(
-                $index['INDEX_NAME'],
-                $indexColumns[$index['INDEX_NAME']],
-                !(bool) $index['NON_UNIQUE']
+            fn(string $name): Index => new Index(
+                $name,
+                $indexColumns[$name],
+                $indexUnique[$name]
             ),
-            $indexes
+            $indexNames
         );
     }
 
