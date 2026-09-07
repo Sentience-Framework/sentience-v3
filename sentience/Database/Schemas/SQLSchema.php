@@ -199,19 +199,15 @@ class SQLSchema extends SchemaAbstract
     public function indexes(DatabaseInterface $database, DialectInterface $dialect, string $table): array
     {
         $uniqueConstraints = $this->uniqueConstraints($database, $dialect, $table);
-        $foreignKeyConstraints = $this->foreignKeyConstraints($database, $dialect, $table);
 
-        $indexes = [];
-
-        foreach ($uniqueConstraints as $uniqueConstraint) {
-            $indexes[] = new Index($uniqueConstraint->name, $uniqueConstraint->columns, true);
-        }
-
-        foreach ($foreignKeyConstraints as $foreignKeyConstraint) {
-            $indexes[] = new Index($foreignKeyConstraint->name, [$foreignKeyConstraint->column], false);
-        }
-
-        return $indexes;
+        return array_map(
+            fn (UniqueConstraint $uniqueConstraint): Index => new Index(
+                $uniqueConstraint->name,
+                $uniqueConstraint->columns,
+                true
+            ),
+            $uniqueConstraints
+        );
     }
 
     protected function databaseSchema(WhereGroup $whereGroup): WhereGroup

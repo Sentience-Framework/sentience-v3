@@ -40,7 +40,9 @@ class MySQLDialect extends SQLDialect
         "\x1A" => '\\Z',
         "'" => "\\'"
     ];
+    public const bool DROP_INDEX_ON_TABLE = true;
     public const bool GENERATED_BY_DEFAULT_AS_IDENTITY = false;
+    public const bool INDEX_EXISTS = false;
 
     public function createTable(
         bool $ifNotExists,
@@ -68,27 +70,6 @@ class MySQLDialect extends SQLDialect
             $primaryKeys,
             $constraints
         );
-    }
-
-    public function dropIndex(
-        bool $ifExists,
-        string $name,
-        string|array|Sql $table
-    ): QueryWithParams {
-        $queryWithParams = parent::dropIndex(
-            $ifExists,
-            $name,
-            $table
-        );
-
-        $query = $queryWithParams->query;
-        $params = $queryWithParams->params;
-
-        $query .= ' ON';
-
-        $this->buildTable($query, $params, $table);
-
-        return new QueryWithParams($query, $params);
     }
 
     protected function buildConditionLike(string &$query, array &$params, Condition $condition): void

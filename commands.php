@@ -172,9 +172,9 @@ return [
             Stdio::printLn('Indexes:');
             Stdio::printLn(Json::encode($db->informationSchemaIndexes($table), JSON_PRETTY_PRINT));
 
-            $db->dropIndex('test_migrations', 'idx_test_migrations')->execute();
-            $db->dropTable('test_migrations')->execute();
-            $db->dropTable('test_fk')->execute();
+            $db->dropIndex('test_migrations', 'idx_test_migrations')->ifExists()->execute();
+            $db->dropTable('test_migrations')->ifExists()->execute();
+            $db->dropTable('test_fk')->ifExists()->execute();
         }
     )
 ];

@@ -214,6 +214,11 @@ class SQLiteDialect extends SQLDialect
         };
     }
 
+    public function indexExists(): bool
+    {
+        return $this->version >= 30300;
+    }
+
     public function onConflict(): bool
     {
         return $this->version >= 32400;

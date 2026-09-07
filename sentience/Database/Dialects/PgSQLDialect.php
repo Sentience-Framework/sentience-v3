@@ -121,6 +121,11 @@ class PgSQLDialect extends SQLDialect
         return $this->version >= 1700;
     }
 
+    public function indexExists(): bool
+    {
+        return $this->version >= 905;
+    }
+
     public function lateral(): bool
     {
         return $this->version >= 903;
