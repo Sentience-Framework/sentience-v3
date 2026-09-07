@@ -5,8 +5,6 @@ namespace Sentience\Database\Databases\PgSQL;
 use Closure;
 use Sentience\Database\Databases\DatabaseAbstract;
 use Sentience\Database\Driver;
-use Sentience\Database\Schemas\PgSQLSchema;
-use Sentience\Database\Schemas\SchemaInterface;
 use Sentience\Database\Sockets\NetworkSocket;
 use Sentience\Database\Sockets\UnixSocket;
 

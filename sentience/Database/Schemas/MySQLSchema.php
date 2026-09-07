@@ -14,14 +14,16 @@ class MySQLSchema extends SQLSchema
 {
     public function indexes(DatabaseInterface $database, DialectInterface $dialect, string $table): array
     {
-        $indexes = $database->select(['information_schema', 'statistics'])
+        $indexes = $database->select(['INFORMATION_SCHEMA', 'STATISTICS'])
             ->columns(['INDEX_NAME', 'COLUMN_NAME', 'NON_UNIQUE'])
+            ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
             ->whereEquals('TABLE_NAME', $table)
             ->whereNotContains('INDEX_NAME', 'PRIMARY', true)
             ->whereIn(
                 'INDEX_NAME',
-                $database->select(['information_schema', 'key_column_usage'])
+                $database->select(['INFORMATION_SCHEMA', 'KEY_COLUMN_USAGE'])
                     ->columns(['CONSTRAINT_NAME'])
+                    ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
                     ->whereIsNull('REFERENCED_TABLE_NAME')
                     ->whereIsNull('REFERENCED_COLUMN_NAME')
             )
@@ -35,10 +37,10 @@ class MySQLSchema extends SQLSchema
         }
 
         return array_map(
-            fn(array $index): Index => new Index(
+            fn (array $index): Index => new Index(
                 $index['INDEX_NAME'],
                 $indexColumns[$index['INDEX_NAME']],
-                (bool) !$index['NON_UNIQUE']
+                !(bool) $index['NON_UNIQUE']
             ),
             $indexes
         );
@@ -66,6 +68,6 @@ class MySQLSchema extends SQLSchema
     {
         $column = array_change_key_case($column, CASE_LOWER);
 
-        return (bool) preg_match('/.*increment.*/i', (string) ($column['extra'] ?? ''));
+        return (bool) preg_match('/.*auto_increment.*/i', (string) ($column['extra'] ?? ''));
     }
 }

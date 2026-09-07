@@ -47,12 +47,12 @@ class SQLiteSchema extends SchemaAbstract
         $columns = $database->query("PRAGMA table_info({$dialect->escapeIdentifier($table)})")->fetchAssocs();
 
         return array_map(
-            fn(array $column): Column => new Column(
+            fn (array $column): Column => new Column(
                 $column['name'],
-                $type($column['type']),
+                $type(strtoupper($column['type'])),
                 (bool) $column['notnull'],
                 $column['dflt_value'],
-                (bool) $column['pk'] && $column['type'] == 'INTEGER'
+                (bool) $column['pk'] && (bool) preg_match('/.*INT.*/i', $column['type'])
             ),
             $columns
         );
@@ -65,7 +65,7 @@ class SQLiteSchema extends SchemaAbstract
         $columns = [];
 
         foreach ($rows as $row) {
-            if ((int) $row['pk'] == 0) {
+            if (!(bool) $row['pk']) {
                 continue;
             }
 
@@ -85,12 +85,12 @@ class SQLiteSchema extends SchemaAbstract
     {
         $uniqueIndexes = array_filter(
             $this->indexes($database, $dialect, $table),
-            fn(Index $index) => $index->unique
+            fn (Index $index) => $index->unique
         );
 
         return array_values(
             array_map(
-                fn(Index $index) => new UniqueConstraint($index->columns, $index->name),
+                fn (Index $index) => new UniqueConstraint($index->columns, $index->name),
                 $uniqueIndexes
             )
         );
@@ -101,14 +101,22 @@ class SQLiteSchema extends SchemaAbstract
         $foreignKeys = $database->query("PRAGMA foreign_key_list({$dialect->escapeIdentifier($table)})")->fetchAssocs();
 
         return array_map(
-            fn(array $foreignKey) => new ForeignKeyConstraint(
-                $foreignKey['from'],
-                $foreignKey['table'],
-                $foreignKey['to'],
-                null,
-                ReferentialActionEnum::tryFrom($foreignKey['on_update']) ?? $foreignKey['on_update'],
-                ReferentialActionEnum::tryFrom($foreignKey['on_delete']) ?? $foreignKey['on_delete']
-            ),
+            function (array $foreignKey): ForeignKeyConstraint {
+                $column = $foreignKey['from'];
+                $referenceTable = $foreignKey['table'];
+                $referenceColumn = $foreignKey['to'];
+                $onUpdate = $foreignKey['on_update'];
+                $onDelete = $foreignKey['on_delete'];
+
+                return new ForeignKeyConstraint(
+                    $column,
+                    $referenceTable,
+                    $referenceColumn,
+                    null,
+                    ReferentialActionEnum::tryFrom($onUpdate) ?? $onUpdate,
+                    ReferentialActionEnum::tryFrom($onDelete) ?? $onDelete
+                );
+            },
             $foreignKeys
         );
     }
@@ -121,8 +129,9 @@ class SQLiteSchema extends SchemaAbstract
             function (array $index) use ($database): Index {
                 $name = $index['name'];
                 $columns = array_column($database->query("PRAGMA index_info({$name})")->fetchAssocs(), 'name');
+                $unique = (bool) $index['unique'];
 
-                return new Index($name, $columns, (bool) $index['unique']);
+                return new Index($name, $columns, $unique);
             },
             $indexes
         );

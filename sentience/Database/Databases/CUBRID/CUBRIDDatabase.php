@@ -5,8 +5,6 @@ namespace Sentience\Database\Databases\CUBRID;
 use Closure;
 use Sentience\Database\Databases\DatabaseAbstract;
 use Sentience\Database\Driver;
-use Sentience\Database\Schemas\SchemaInterface;
-use Sentience\Database\Schemas\SQLSchema;
 use Sentience\Database\Sockets\NetworkSocket;
 
 class CUBRIDDatabase extends DatabaseAbstract

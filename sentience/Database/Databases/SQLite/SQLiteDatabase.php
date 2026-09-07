@@ -5,8 +5,6 @@ namespace Sentience\Database\Databases\SQLite;
 use Closure;
 use Sentience\Database\Databases\DatabaseAbstract;
 use Sentience\Database\Driver;
-use Sentience\Database\Schemas\SchemaInterface;
-use Sentience\Database\Schemas\SQLiteSchema;
 
 class SQLiteDatabase extends DatabaseAbstract
 {

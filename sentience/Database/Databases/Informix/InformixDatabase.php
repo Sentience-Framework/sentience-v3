@@ -7,8 +7,6 @@ use Sentience\Database\Databases\DatabaseAbstract;
 use Sentience\Database\Driver;
 use Sentience\Database\Queries\Objects\Join;
 use Sentience\Database\Queries\Query;
-use Sentience\Database\Schemas\SchemaInterface;
-use Sentience\Database\Schemas\SQLSchema;
 use Sentience\Database\Sockets\NetworkSocket;
 
 class InformixDatabase extends DatabaseAbstract
@@ -70,7 +68,7 @@ class InformixDatabase extends DatabaseAbstract
             ->columns([['syscolumns', Query::raw('*')]])
             ->innerJoin(
                 'syscolumns',
-                fn(Join $join) => $join->on(
+                fn (Join $join) => $join->on(
                     ['systables', 'tabid'],
                     ['syscolumns', 'tabid']
                 )

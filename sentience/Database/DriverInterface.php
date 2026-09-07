@@ -4,7 +4,6 @@ namespace Sentience\Database;
 
 use Closure;
 use Sentience\Database\Adapters\AdapterInterface;
-use Sentience\Database\Databases\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Schemas\SchemaInterface;
 use Sentience\Database\Sockets\SocketAbstract;

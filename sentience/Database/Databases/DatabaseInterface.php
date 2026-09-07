@@ -17,7 +17,6 @@ use Sentience\Database\Queries\SelectQuery;
 use Sentience\Database\Queries\Table;
 use Sentience\Database\Queries\UpdateQuery;
 use Sentience\Database\Results\ResultInterface;
-use Sentience\Database\Schemas\SchemaInterface;
 
 interface DatabaseInterface
 {

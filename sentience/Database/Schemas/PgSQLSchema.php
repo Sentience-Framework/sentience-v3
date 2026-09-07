@@ -17,25 +17,30 @@ class PgSQLSchema extends SQLSchema
     {
         $rows = $database->select(Query::alias(['pg_catalog', 'pg_index'], 'ix'))
             ->columns([
+                'database_name' => Query::raw('current_database()'),
+                'schema_name' => Query::raw('current_schema()'),
                 'index_name' => ['i', 'relname'],
                 'column_name' => ['a', 'attname'],
                 'unique' => ['ix', 'indisunique']
             ])
             ->innerJoin(
                 Query::alias(['pg_catalog', 'pg_class'], 't'),
-                fn(Join $join): Join => $join->on(['t', 'oid'], ['ix', 'indrelid'])
+                fn (Join $join): Join => $join->on(['t', 'oid'], ['ix', 'indrelid'])
             )
             ->innerJoin(
                 Query::alias(['pg_catalog', 'pg_class'], 'i'),
-                fn(Join $join): Join => $join->on(['i', 'oid'], ['ix', 'indexrelid'])
-            )
-            ->innerJoin(
+                fn (Join $join): Join => $join->on(['i', 'oid'], ['ix', 'indexrelid'])
+            )->innerJoin(
                 Query::alias(['pg_catalog', 'pg_attribute'], 'a'),
-                fn(Join $join): Join => $join
+                fn (Join $join): Join => $join
                     ->on(['a', 'attrelid'], ['t', 'oid'])
                     ->whereEquals(['a', 'attnum'], Query::raw('any(ix.indkey)'))
+            )->innerJoin(
+                Query::alias(['pg_catalog', 'pg_namespace'], 'n'),
+                fn (Join $join): Join => $join->on(['n', 'oid'], ['t', 'relnamespace'])
             )
             ->whereEquals(['t', 'relname'], $table)
+            ->whereEquals(['n', 'nspname'], Query::raw('current_schema()'))
             ->whereEquals(['ix', 'indisprimary'], Query::raw('false'))
             ->orderByAsc(['i', 'relname'])
             ->orderByAsc(Query::raw('array_position(ix.indkey::int2[], a.attnum)'))
@@ -45,12 +50,16 @@ class PgSQLSchema extends SQLSchema
         $indexes = [];
 
         foreach ($rows as $row) {
-            $indexes[$row['index_name']]['unique'] = (bool) $row['unique'];
-            $indexes[$row['index_name']]['columns'][] = $row['column_name'];
+            $indexName = $row['index_name'];
+            $unique = (bool) $row['unique'];
+            $columnName = $row['column_name'];
+
+            $indexes[$indexName]['unique'] = $unique;
+            $indexes[$indexName]['columns'][] = $columnName;
         }
 
         return array_map(
-            fn(string $name, array $index): Index => new Index($name, $index['columns'], $index['unique']),
+            fn (string $name, array $index): Index => new Index($name, $index['columns'], $index['unique']),
             array_keys($indexes),
             array_values($indexes)
         );
@@ -58,7 +67,9 @@ class PgSQLSchema extends SQLSchema
 
     protected function databaseSchema(WhereGroup $whereGroup): WhereGroup
     {
-        return $whereGroup->whereEquals('table_schema', Query::raw('current_schema()'));
+        return $whereGroup
+            ->whereEquals('table_catalog', Query::raw('current_database()'))
+            ->whereEquals('table_schema', Query::raw('current_schema()'));
     }
 
     protected function type(string $type, ?int $size): string|Type

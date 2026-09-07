@@ -18,10 +18,10 @@ class SQLSchema extends SchemaAbstract
 {
     public function tables(DatabaseInterface $database, DialectInterface $dialect): array
     {
-        $tables = $database->select(['information_schema', 'tables'])
-            ->columns(['table_name' => 'table_name'])
-            ->whereLike('table_type', 'BASE TABLE', true)
-            ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+        $tables = $database->select(Query::raw('information_schema.tables'))
+            ->columns(['table_name' => Query::raw('table_name')])
+            ->whereLike(Query::raw('table_type'), 'BASE TABLE', true)
+            ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
             ->execute()
             ->fetchAssocs();
 
@@ -30,20 +30,20 @@ class SQLSchema extends SchemaAbstract
 
     public function columns(DatabaseInterface $database, DialectInterface $dialect, string $table): array
     {
-        $columns = $database->select(['information_schema', 'columns'])
+        $columns = $database->select(Query::raw('information_schema.columns'))
             ->columns([
-                'column_name' => 'column_name',
-                'data_type' => 'data_type',
-                'character_maximum_length' => 'character_maximum_length',
-                'numeric_precision' => 'numeric_precision',
-                'datetime_precision' => 'datetime_precision',
-                'is_nullable' => 'is_nullable',
-                'column_default' => 'column_default',
+                'column_name' => Query::raw('column_name'),
+                'data_type' => Query::raw('data_type'),
+                'character_maximum_length' => Query::raw('character_maximum_length'),
+                'numeric_precision' => Query::raw('numeric_precision'),
+                'datetime_precision' => Query::raw('datetime_precision'),
+                'is_nullable' => Query::raw('is_nullable'),
+                'column_default' => Query::raw('column_default'),
                 Query::raw('information_schema.columns.*')
             ])
-            ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
-            ->whereEquals('table_name', $table)
-            ->orderByAsc('ordinal_position')
+            ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+            ->whereEquals(Query::raw('table_name'), $table)
+            ->orderByAsc(Query::raw('ordinal_position'))
             ->execute()
             ->fetchAssocs();
 
@@ -66,19 +66,19 @@ class SQLSchema extends SchemaAbstract
 
     public function primaryKeys(DatabaseInterface $database, DialectInterface $dialect, string $table): array
     {
-        $primaryKeys = $database->select(['information_schema', 'key_column_usage'])
-            ->columns(['column_name' => 'column_name'])
-            ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
-            ->whereEquals('table_name', $table)
+        $primaryKeys = $database->select(Query::raw('information_schema.key_column_usage'))
+            ->columns(['column_name' => Query::raw('column_name')])
+            ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+            ->whereEquals(Query::raw('table_name'), $table)
             ->whereIn(
-                'constraint_name',
-                $database->select(['information_schema', 'table_constraints'])
-                    ->columns(['constraint_name'])
-                    ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
-                    ->whereEquals('table_name', $table)
-                    ->whereContains('constraint_type', 'PRIMARY', true)
+                Query::raw('constraint_name'),
+                $database->select(Query::raw('information_schema.table_constraints'))
+                    ->columns(['constraint_name' => Query::raw('constraint_name')])
+                    ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+                    ->whereEquals(Query::raw('table_name'), $table)
+                    ->whereContains(Query::raw('constraint_type'), 'PRIMARY', true)
             )
-            ->orderByAsc('ordinal_position')
+            ->orderByAsc(Query::raw('ordinal_position'))
             ->execute()
             ->fetchAssocs();
 
@@ -87,30 +87,33 @@ class SQLSchema extends SchemaAbstract
 
     public function uniqueConstraints(DatabaseInterface $database, DialectInterface $dialect, string $table): array
     {
-        $indexes = $database->select(['information_schema', 'key_column_usage'])
+        $indexes = $database->select(Query::raw('information_schema.key_column_usage'))
             ->columns([
-                'constraint_name' => 'constraint_name',
-                'column_name' => 'column_name'
+                'constraint_name' => Query::raw('constraint_name'),
+                'column_name' => Query::raw('column_name')
             ])
-            ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
-            ->whereEquals('table_name', $table)
+            ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+            ->whereEquals(Query::raw('table_name'), $table)
             ->whereIn(
-                'constraint_name',
-                $database->select(['information_schema', 'table_constraints'])
-                    ->columns(['constraint_name'])
-                    ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
-                    ->whereEquals('table_name', $table)
-                    ->whereContains('constraint_type', 'UNIQUE', true)
+                Query::raw('constraint_name'),
+                $database->select(Query::raw('information_schema.table_constraints'))
+                    ->columns(['constraint_name' => Query::raw('constraint_name')])
+                    ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+                    ->whereEquals(Query::raw('table_name'), $table)
+                    ->whereContains(Query::raw('constraint_type'), 'UNIQUE', true)
             )
-            ->orderByAsc('constraint_name')
-            ->orderByAsc('ordinal_position')
+            ->orderByAsc(Query::raw('constraint_name'))
+            ->orderByAsc(Query::raw('ordinal_position'))
             ->execute()
             ->fetchAssocs();
 
         $constraints = [];
 
         foreach ($indexes as $index) {
-            $constraints[$index['constraint_name']][] = $index['column_name'];
+            $constraintName = $index['constraint_name'];
+            $columnName = $index['column_name'];
+
+            $constraints[$constraintName][] = $columnName;
         }
 
         $uniqueConstraints = [];
@@ -125,41 +128,37 @@ class SQLSchema extends SchemaAbstract
     public function foreignKeyConstraints(DatabaseInterface $database, DialectInterface $dialect, string $table): array
     {
         $constraints = array_map(
-            fn(array $constraint) => array_change_key_case($constraint, CASE_LOWER),
-            $database->select(['information_schema', 'referential_constraints'])
+            fn (array $constraint) => array_change_key_case($constraint, CASE_LOWER),
+            $database->select(Query::raw('information_schema.referential_constraints'))
                 ->columns([
-                    'constraint_name' => 'constraint_name',
-                    'unique_constraint_name' => 'unique_constraint_name',
-                    'update_rule' => 'update_rule',
-                    'delete_rule' => 'delete_rule',
+                    'constraint_name' => Query::raw('constraint_name'),
+                    'update_rule' => Query::raw('update_rule'),
+                    'delete_rule' => Query::raw('delete_rule'),
                     Query::raw('information_schema.referential_constraints.*')
                 ])
                 ->whereIn(
-                    'constraint_name',
-                    $database->select(['information_schema', 'table_constraints'])
-                        ->columns(['constraint_name'])
-                        ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
-                        ->whereEquals('table_name', $table)
-                        ->whereContains('constraint_type', 'FOREIGN KEY', true)
+                    Query::raw('constraint_name'),
+                    $database->select(Query::raw('information_schema.table_constraints'))
+                        ->columns(['constraint_name' => Query::raw('constraint_name')])
+                        ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+                        ->whereEquals(Query::raw('table_name'), $table)
+                        ->whereContains(Query::raw('constraint_type'), 'FOREIGN KEY', true)
                 )
                 ->execute()
                 ->fetchAssocs()
         );
 
-        $columns = $database->select(['information_schema', 'key_column_usage'])
+        $columns = $database->select(Query::raw('information_schema.key_column_usage'))
             ->columns([
-                'constraint_name' => 'constraint_name',
-                'table_name' => 'table_name',
-                'column_name' => 'column_name'
+                'constraint_name' => Query::raw('constraint_name'),
+                'table_name' => Query::raw('table_name'),
+                'column_name' => Query::raw('column_name')
             ])
             ->whereIn(
-                'constraint_name',
-                [
-                    ...array_column($constraints, 'constraint_name'),
-                    ...array_column($constraints, 'unique_constraint_name')
-                ]
+                Query::raw('constraint_name'),
+                array_column($constraints, 'constraint_name')
             )
-            ->orderByAsc('ordinal_position')
+            ->orderByAsc(Query::raw('ordinal_position'))
             ->execute()
             ->fetchAssocs();
 
@@ -177,7 +176,7 @@ class SQLSchema extends SchemaAbstract
 
         foreach ($constraints as $constraint) {
             $constraintName = $constraint['constraint_name'];
-            $references = $constraintColumns[$constraint['unique_constraint_name']] ?? [];
+            $references = $constraintColumns[$constraintName];
             $referenceTable = array_key_first($references);
             $updateRule = $constraint['update_rule'];
             $deleteRule = $constraint['delete_rule'];
@@ -254,10 +253,10 @@ class SQLSchema extends SchemaAbstract
         }
 
         return in_array(
-            strtolower((string) $value),
+            strtoupper((string) $value),
             [
-                'yes',
-                'true',
+                'YES',
+                'TRUE',
                 '1'
             ]
         );
