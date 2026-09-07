@@ -5,11 +5,9 @@ namespace Sentience\Database\Schemas;
 use Sentience\Database\Databases\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Enums\ReferentialActionEnum;
-use Sentience\Database\Queries\Enums\TypeEnum;
 use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\ForeignKeyConstraint;
 use Sentience\Database\Queries\Objects\Index;
-use Sentience\Database\Queries\Objects\Type;
 use Sentience\Database\Queries\Objects\UniqueConstraint;
 use Sentience\Database\Queries\Objects\WhereGroup;
 use Sentience\Database\Queries\Query;
@@ -55,7 +53,7 @@ class SQLSchema extends SchemaAbstract
                 return new Column(
                     $column['column_name'],
                     $this->type($type, $size),
-                    $this->true($column['is_nullable']),
+                    !$this->true($column['is_nullable']),
                     $column['column_default'],
                     $this->isIdentity($column)
                 );
@@ -219,46 +217,10 @@ class SQLSchema extends SchemaAbstract
         return $whereGroup;
     }
 
-    protected function type(string $type, ?int $size): string|Type
-    {
-        return match ($type) {
-            'BOOLEAN',
-            'BOOL' => new Type(TypeEnum::Bool),
-            'INTEGER',
-            'INT' => new Type(TypeEnum::Int, 32),
-            'BIGINT' => new Type(TypeEnum::Int, 64),
-            'REAL',
-            'FLOAT',
-            'DOUBLE',
-            'DECIMAL' => new Type(TypeEnum::Float, 64),
-            'VARCHAR',
-            'TEXT' => new Type(TypeEnum::String, $size ?? PHP_INT_MAX),
-            'DATETIME',
-            'TIMESTAMP' => new Type(TypeEnum::DateTime, $size ?? 0),
-            default => !is_null($size) ? sprintf('%s(%d)', $type, $size) : $size
-        };
-    }
-
     protected function isIdentity(array $column): bool
     {
         $column = array_change_key_case($column, CASE_LOWER);
 
         return $this->true($column['is_identity'] ?? null);
-    }
-
-    protected function true(mixed $value): bool
-    {
-        if (is_null($value)) {
-            return false;
-        }
-
-        return in_array(
-            strtoupper((string) $value),
-            [
-                'YES',
-                'TRUE',
-                '1'
-            ]
-        );
     }
 }

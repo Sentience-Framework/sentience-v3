@@ -60,7 +60,7 @@ class MySQLSchema extends SQLSchema
 
     protected function type(string $type, ?int $size): string|Type
     {
-        return match ($match[1] ?? $match[0] ?? $type) {
+        return match ($type) {
             'TINYINT' => new Type(TypeEnum::Bool),
             'DOUBLE' => new Type(TypeEnum::Float, 64),
             'TEXT' => new Type(TypeEnum::String, $size ?? 65535),
