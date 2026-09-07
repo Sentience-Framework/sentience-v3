@@ -17,13 +17,6 @@ use Sentience\Database\Queries\SelectQuery;
 
 class DB2Schema extends SchemaAbstract
 {
-    public const array REFERENTIAL_ACTIONS = [
-        'A' => ReferentialActionEnum::NoAction,
-        'C' => ReferentialActionEnum::Cascade,
-        'N' => ReferentialActionEnum::SetNull,
-        'R' => 'RESTRICT'
-    ];
-
     public function tables(DatabaseInterface $database, DialectInterface $dialect): array
     {
         $tables = $database->select(['SYSCAT', 'TABLES'])
@@ -177,19 +170,14 @@ class DB2Schema extends SchemaAbstract
             ->fetchAssocs();
 
         return array_map(
-            function (array $foreignKey): ForeignKeyConstraint {
-                $updateRule = strtoupper(trim((string) $foreignKey['update_rule']));
-                $deleteRule = strtoupper(trim((string) $foreignKey['delete_rule']));
-
-                return new ForeignKeyConstraint(
-                    $foreignKey['column_name'],
-                    $foreignKey['reference_table'],
-                    $foreignKey['reference_column'],
-                    $foreignKey['constraint_name'],
-                    static::REFERENTIAL_ACTIONS[$updateRule] ?? $updateRule,
-                    static::REFERENTIAL_ACTIONS[$deleteRule] ?? $deleteRule
-                );
-            },
+            fn(array $foreignKey): ForeignKeyConstraint => new ForeignKeyConstraint(
+                $foreignKey['column_name'],
+                $foreignKey['reference_table'],
+                $foreignKey['reference_column'],
+                $foreignKey['constraint_name'],
+                $this->referentialAction($foreignKey['update_rule']),
+                $this->referentialAction($foreignKey['delete_rule'])
+            ),
             $foreignKeys
         );
     }
@@ -260,6 +248,19 @@ class DB2Schema extends SchemaAbstract
             ->whereEquals('TABSCHEMA', Query::raw('CURRENT SCHEMA'))
             ->whereEquals('TABNAME', $table)
             ->whereEquals('TYPE', $type);
+    }
+
+    protected function referentialAction(?string $rule): null|string|ReferentialActionEnum
+    {
+        $rule = strtoupper(trim((string) $rule));
+
+        return match ($rule) {
+            'A' => ReferentialActionEnum::NoAction,
+            'C' => ReferentialActionEnum::Cascade,
+            'N' => ReferentialActionEnum::SetNull,
+            'R' => ReferentialActionEnum::Restrict,
+            default => $rule
+        };
     }
 
     protected function type(string $type, ?int $size): string|Type

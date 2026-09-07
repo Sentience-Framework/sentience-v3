@@ -12,55 +12,10 @@ use Sentience\Database\Queries\Objects\Index;
 use Sentience\Database\Queries\Objects\Join;
 use Sentience\Database\Queries\Objects\Type;
 use Sentience\Database\Queries\Objects\UniqueConstraint;
-use Sentience\Database\Queries\Query;
 use Sentience\Database\Queries\SelectQuery;
 
 class InformixSchema extends SchemaAbstract
 {
-    public const int INDEX_PARTS = 16;
-    public const int COLUMN_TYPE_NOT_NULL = 256;
-    public const int COLUMN_TYPE_DECIMAL = 5;
-    public const int COLUMN_TYPE_MONEY = 8;
-    public const int COLUMN_TYPE_DATETIME = 10;
-    public const int COLUMN_TYPE_VARCHAR = 13;
-    public const int COLUMN_TYPE_INTERVAL = 14;
-    public const int COLUMN_TYPE_NVARCHAR = 16;
-
-    public const array COLUMN_TYPES = [
-        0 => 'CHAR',
-        1 => 'SMALLINT',
-        2 => 'INTEGER',
-        3 => 'FLOAT',
-        4 => 'SMALLFLOAT',
-        5 => 'DECIMAL',
-        6 => 'SERIAL',
-        7 => 'DATE',
-        8 => 'MONEY',
-        10 => 'DATETIME',
-        11 => 'BYTE',
-        12 => 'TEXT',
-        13 => 'VARCHAR',
-        14 => 'INTERVAL',
-        15 => 'NCHAR',
-        16 => 'NVARCHAR',
-        17 => 'INT8',
-        18 => 'SERIAL8',
-        40 => 'LVARCHAR',
-        41 => 'CLOB',
-        43 => 'LVARCHAR',
-        52 => 'BIGINT',
-        53 => 'BIGSERIAL'
-    ];
-
-    public const array COLUMN_TYPES_IDENTITY = [6, 18, 53];
-    public const array COLUMN_TYPES_STRING = [0, 12, 13, 15, 16, 40, 41, 43];
-
-    public const array REFERENTIAL_ACTIONS = [
-        'C' => ReferentialActionEnum::Cascade,
-        'N' => ReferentialActionEnum::SetNull,
-        'R' => 'RESTRICT'
-    ];
-
     public function tables(DatabaseInterface $database, DialectInterface $dialect): array
     {
         $tables = $database->select('systables')
@@ -104,18 +59,15 @@ class InformixSchema extends SchemaAbstract
         return array_map(
             function (array $column): Column {
                 $columnType = (int) $column['column_type'];
-                $type = $columnType % static::COLUMN_TYPE_NOT_NULL;
+                $type = $this->columnType($columnType % 256);
                 $length = (int) $column['column_length'];
 
                 return new Column(
                     $column['column_name'],
-                    $this->type(
-                        static::COLUMN_TYPES[$type] ?? (string) $type,
-                        $this->size($type, $length)
-                    ),
-                    $columnType >= static::COLUMN_TYPE_NOT_NULL,
+                    $this->type($type, $this->size($type, $length)),
+                    $columnType >= 256,
                     $this->columnDefault($type, $column['default_type'], $column['column_default']),
-                    in_array($type, static::COLUMN_TYPES_IDENTITY)
+                    in_array($type, ['SERIAL', 'SERIAL8', 'BIGSERIAL'])
                 );
             },
             $columns
@@ -155,39 +107,44 @@ class InformixSchema extends SchemaAbstract
 
     public function foreignKeyConstraints(DatabaseInterface $database, DialectInterface $dialect, string $table): array
     {
-        $references = $database->select('sysreferences')
+        $references = $database->select('sysconstraints')
             ->columns([
-                'constraint_name' => ['fk', 'constrname'],
-                'index_name' => ['fk', 'idxname'],
-                'reference_table' => ['systables', 'tabname'],
-                'reference_index_name' => ['pk', 'idxname'],
+                'constraint_name' => ['sysconstraints', 'constrname'],
+                'index_name' => ['sysconstraints', 'idxname'],
+                'reference_constraint_id' => ['sysreferences', 'primary'],
                 'update_rule' => ['sysreferences', 'updrule'],
                 'delete_rule' => ['sysreferences', 'delrule']
             ])
             ->innerJoin(
-                Query::alias('sysconstraints', 'fk'),
+                'sysreferences',
                 fn(Join $join): Join => $join->on(
-                    ['fk', 'constrid'],
-                    ['sysreferences', 'constrid']
+                    ['sysreferences', 'constrid'],
+                    ['sysconstraints', 'constrid']
                 )
             )
-            ->innerJoin(
-                Query::alias('sysconstraints', 'pk'),
-                fn(Join $join): Join => $join->on(
-                    ['pk', 'constrid'],
-                    ['sysreferences', 'primary']
-                )
-            )
+            ->whereEquals(['sysconstraints', 'tabid'], $this->tableId($database, $table))
+            ->whereEquals(['sysconstraints', 'constrtype'], 'R')
+            ->orderByAsc(['sysconstraints', 'constrname'])
+            ->execute()
+            ->fetchAssocs();
+
+        $referenceConstraints = $database->select('sysconstraints')
+            ->columns([
+                'constraint_id' => ['sysconstraints', 'constrid'],
+                'index_name' => ['sysconstraints', 'idxname'],
+                'table_name' => ['systables', 'tabname']
+            ])
             ->innerJoin(
                 'systables',
                 fn(Join $join): Join => $join->on(
                     ['systables', 'tabid'],
-                    ['sysreferences', 'ptabid']
+                    ['sysconstraints', 'tabid']
                 )
             )
-            ->whereEquals(['fk', 'tabid'], $this->tableId($database, $table))
-            ->whereEquals(['fk', 'constrtype'], 'R')
-            ->orderByAsc(['fk', 'constrname'])
+            ->whereIn(
+                ['sysconstraints', 'constrid'],
+                array_column($references, 'reference_constraint_id')
+            )
             ->execute()
             ->fetchAssocs();
 
@@ -199,17 +156,26 @@ class InformixSchema extends SchemaAbstract
         foreach ($references as $reference) {
             $constraintName = trim((string) $reference['constraint_name']);
             $indexName = $reference['index_name'];
-            $referenceTable = trim((string) $reference['reference_table']);
-            $referenceIndexName = $reference['reference_index_name'];
-            $updateRule = strtoupper(trim((string) $reference['update_rule']));
-            $deleteRule = strtoupper(trim((string) $reference['delete_rule']));
+            $updateRule = $reference['update_rule'];
+            $deleteRule = $reference['delete_rule'];
+
+            $referenceConstraint = $this->referenceConstraint(
+                $referenceConstraints,
+                $reference['reference_constraint_id']
+            );
+
+            if (is_null($referenceConstraint)) {
+                continue;
+            }
+
+            $referenceTable = trim((string) $referenceConstraint['table_name']);
 
             if (!array_key_exists($referenceTable, $referenceIndexes)) {
                 $referenceIndexes[$referenceTable] = $this->tableIndexes($database, $referenceTable);
             }
 
             $columns = $indexes[$indexName]['columns'] ?? [];
-            $referenceColumns = $referenceIndexes[$referenceTable][$referenceIndexName]['columns'] ?? [];
+            $referenceColumns = $referenceIndexes[$referenceTable][$referenceConstraint['index_name']]['columns'] ?? [];
 
             foreach ($columns as $index => $column) {
                 if (!array_key_exists($index, $referenceColumns)) {
@@ -221,8 +187,8 @@ class InformixSchema extends SchemaAbstract
                     $referenceTable,
                     $referenceColumns[$index],
                     $constraintName,
-                    static::REFERENTIAL_ACTIONS[$updateRule] ?? $updateRule,
-                    static::REFERENTIAL_ACTIONS[$deleteRule] ?? $deleteRule
+                    $this->referentialAction($updateRule),
+                    $this->referentialAction($deleteRule)
                 );
             }
         }
@@ -245,6 +211,17 @@ class InformixSchema extends SchemaAbstract
         }
 
         return $indexes;
+    }
+
+    protected function referenceConstraint(array $constraints, mixed $constraintId): ?array
+    {
+        foreach ($constraints as $constraint) {
+            if ($constraint['constraint_id'] == $constraintId) {
+                return $constraint;
+            }
+        }
+
+        return null;
     }
 
     protected function tableId(DatabaseInterface $database, string $table): SelectQuery
@@ -334,44 +311,101 @@ class InformixSchema extends SchemaAbstract
     {
         $parts = [];
 
-        for ($part = 1; $part <= static::INDEX_PARTS; $part++) {
+        for ($part = 1; $part <= 16; $part++) {
             $parts[sprintf('part%d', $part)] = sprintf('part%d', $part);
         }
 
         return $parts;
     }
 
-    protected function size(int $type, int $length): ?int
+    protected function columnType(int $type): string
     {
         return match ($type) {
-            static::COLUMN_TYPE_DECIMAL,
-            static::COLUMN_TYPE_MONEY => intdiv($length, 256),
-            static::COLUMN_TYPE_VARCHAR,
-            static::COLUMN_TYPE_NVARCHAR => $length % 256,
-            static::COLUMN_TYPE_DATETIME,
-            static::COLUMN_TYPE_INTERVAL => null,
+            0 => 'CHAR',
+            1 => 'SMALLINT',
+            2 => 'INTEGER',
+            3 => 'FLOAT',
+            4 => 'SMALLFLOAT',
+            5 => 'DECIMAL',
+            6 => 'SERIAL',
+            7 => 'DATE',
+            8 => 'MONEY',
+            10 => 'DATETIME',
+            11 => 'BYTE',
+            12 => 'TEXT',
+            13 => 'VARCHAR',
+            14 => 'INTERVAL',
+            15 => 'NCHAR',
+            16 => 'NVARCHAR',
+            17 => 'INT8',
+            18 => 'SERIAL8',
+            40,
+            43 => 'LVARCHAR',
+            41 => 'CLOB',
+            52 => 'BIGINT',
+            53 => 'BIGSERIAL',
+            default => (string) $type
+        };
+    }
+
+    protected function referentialAction(?string $rule): null|string|ReferentialActionEnum
+    {
+        $rule = strtoupper(trim((string) $rule));
+
+        return match ($rule) {
+            'C' => ReferentialActionEnum::Cascade,
+            'N' => ReferentialActionEnum::SetNull,
+            'R' => ReferentialActionEnum::Restrict,
+            default => $rule
+        };
+    }
+
+    protected function size(string $type, int $length): ?int
+    {
+        return match ($type) {
+            'DECIMAL',
+            'MONEY' => intdiv($length, 256),
+            'VARCHAR',
+            'NVARCHAR' => $length % 256,
+            'BYTE',
+            'TEXT',
+            'CLOB',
+            'DATETIME',
+            'INTERVAL' => null,
             default => $length
         };
     }
 
-    protected function columnDefault(int $type, ?string $defaultType, ?string $default): ?string
+    protected function columnDefault(string $type, ?string $defaultType, ?string $default): ?string
     {
         return match (strtoupper(trim((string) $defaultType))) {
             'C' => 'CURRENT',
             'S' => 'DBSERVERNAME',
             'T' => 'TODAY',
             'U' => 'USER',
-            'L' => in_array($type, static::COLUMN_TYPES_STRING)
-                ? $default
-                : $this->literal($default),
+            'L' => $this->literal($type, $default),
             default => null
         };
     }
 
-    protected function literal(?string $default): ?string
+    protected function literal(string $type, ?string $default): ?string
     {
         if (is_null($default)) {
             return null;
+        }
+
+        $strings = [
+            'CHAR',
+            'NCHAR',
+            'VARCHAR',
+            'NVARCHAR',
+            'LVARCHAR',
+            'TEXT',
+            'CLOB'
+        ];
+
+        if (in_array($type, $strings)) {
+            return $default;
         }
 
         $position = strpos($default, ' ');

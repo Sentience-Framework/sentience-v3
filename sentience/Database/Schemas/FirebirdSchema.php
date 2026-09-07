@@ -17,8 +17,6 @@ use Sentience\Database\Queries\Query;
 
 class FirebirdSchema extends SchemaAbstract
 {
-    public const array FIELD_SUB_TYPES_DECIMAL = [1, 2];
-
     public function tables(DatabaseInterface $database, DialectInterface $dialect): array
     {
         $tables = $database->select('RDB$RELATIONS')
@@ -290,9 +288,11 @@ class FirebirdSchema extends SchemaAbstract
             return 'DECIMAL';
         }
 
-        return in_array($subType, static::FIELD_SUB_TYPES_DECIMAL)
-            ? 'DECIMAL'
-            : $type;
+        return match ($subType) {
+            1,
+            2 => 'DECIMAL',
+            default => $type
+        };
     }
 
     protected function columnDefault(mixed $default): ?string
