@@ -148,12 +148,12 @@ class MySQLDialect extends SQLDialect
 
         $updates = !$insertIgnore
             ? (count($onConflict->updates) == 0
-                ? (function () use ($values): array{
+                ? (function () use ($values): array {
                     $columns = [];
 
                     array_walk(
                         $values,
-                        function (array $values) use (&$columns): void{
+                        function (array $values) use (&$columns): void {
                             foreach (array_keys($values) as $column) {
                                 if (array_key_exists($column, $columns)) {
                                     continue;
@@ -250,11 +250,11 @@ class MySQLDialect extends SQLDialect
             TypeEnum::Bool => 'TINYINT',
             TypeEnum::Float => $size > 32 ? 'DOUBLE' : 'FLOAT',
             TypeEnum::String => match (true) {
-                    $size > 16777215 => 'LONGTEXT',
-                    $size > 65535 => 'MEDIUMTEXT',
-                    $size > 255 => 'TEXT',
-                    default => sprintf('VARCHAR(%d)', $size ?? 255)
-                },
+                $size > 16777215 => 'LONGTEXT',
+                $size > 65535 => 'MEDIUMTEXT',
+                $size > 255 => 'TEXT',
+                default => sprintf('VARCHAR(%d)', $size ?? 255)
+            },
             TypeEnum::DateTime => $size > 0 ? sprintf('DATETIME(%d)', $size) : 'DATETIME',
             default => parent::type($type, $size)
         };

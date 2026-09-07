@@ -19,7 +19,7 @@ class SQLSchema extends SchemaAbstract
         $tables = $database->select(Query::raw('information_schema.tables'))
             ->columns(['table_name' => Query::raw('table_name')])
             ->whereLike(Query::raw('table_type'), 'BASE TABLE', true)
-            ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+            ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
             ->execute()
             ->fetchAssocs();
 
@@ -39,7 +39,7 @@ class SQLSchema extends SchemaAbstract
                 'column_default' => Query::raw('column_default'),
                 Query::raw('information_schema.columns.*')
             ])
-            ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+            ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
             ->whereEquals(Query::raw('table_name'), $table)
             ->orderByAsc(Query::raw('ordinal_position'))
             ->execute()
@@ -66,13 +66,13 @@ class SQLSchema extends SchemaAbstract
     {
         $primaryKeys = $database->select(Query::raw('information_schema.key_column_usage'))
             ->columns(['column_name' => Query::raw('column_name')])
-            ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+            ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
             ->whereEquals(Query::raw('table_name'), $table)
             ->whereIn(
                 Query::raw('constraint_name'),
                 $database->select(Query::raw('information_schema.table_constraints'))
                     ->columns(['constraint_name' => Query::raw('constraint_name')])
-                    ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+                    ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
                     ->whereEquals(Query::raw('table_name'), $table)
                     ->whereContains(Query::raw('constraint_type'), 'PRIMARY', true)
             )
@@ -90,13 +90,13 @@ class SQLSchema extends SchemaAbstract
                 'constraint_name' => Query::raw('constraint_name'),
                 'column_name' => Query::raw('column_name')
             ])
-            ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+            ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
             ->whereEquals(Query::raw('table_name'), $table)
             ->whereIn(
                 Query::raw('constraint_name'),
                 $database->select(Query::raw('information_schema.table_constraints'))
                     ->columns(['constraint_name' => Query::raw('constraint_name')])
-                    ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+                    ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
                     ->whereEquals(Query::raw('table_name'), $table)
                     ->whereContains(Query::raw('constraint_type'), 'UNIQUE', true)
             )
@@ -126,7 +126,7 @@ class SQLSchema extends SchemaAbstract
     public function foreignKeyConstraints(DatabaseInterface $database, DialectInterface $dialect, string $table): array
     {
         $constraints = array_map(
-            fn(array $constraint) => array_change_key_case($constraint, CASE_LOWER),
+            fn (array $constraint) => array_change_key_case($constraint, CASE_LOWER),
             $database->select(Query::raw('information_schema.referential_constraints'))
                 ->columns([
                     'constraint_name' => Query::raw('constraint_name'),
@@ -138,7 +138,7 @@ class SQLSchema extends SchemaAbstract
                     Query::raw('constraint_name'),
                     $database->select(Query::raw('information_schema.table_constraints'))
                         ->columns(['constraint_name' => Query::raw('constraint_name')])
-                        ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+                        ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
                         ->whereEquals(Query::raw('table_name'), $table)
                         ->whereContains(Query::raw('constraint_type'), 'FOREIGN KEY', true)
                 )

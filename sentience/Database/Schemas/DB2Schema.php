@@ -48,7 +48,7 @@ class DB2Schema extends SchemaAbstract
             ->fetchAssocs();
 
         return array_map(
-            fn(array $column): Column => new Column(
+            fn (array $column): Column => new Column(
                 $column['column_name'],
                 $this->type(
                     strtoupper((string) $column['data_type']),
@@ -128,7 +128,7 @@ class DB2Schema extends SchemaAbstract
             ])
             ->innerJoin(
                 Query::alias(['SYSCAT', 'KEYCOLUSE'], 'FK'),
-                fn(Join $join): Join => $join
+                fn (Join $join): Join => $join
                     ->on(
                         ['FK', 'CONSTNAME'],
                         ['SYSCAT', 'REFERENCES', 'CONSTNAME']
@@ -144,7 +144,7 @@ class DB2Schema extends SchemaAbstract
             )
             ->innerJoin(
                 Query::alias(['SYSCAT', 'KEYCOLUSE'], 'PK'),
-                fn(Join $join): Join => $join
+                fn (Join $join): Join => $join
                     ->on(
                         ['PK', 'CONSTNAME'],
                         ['SYSCAT', 'REFERENCES', 'REFKEYNAME']
@@ -170,7 +170,7 @@ class DB2Schema extends SchemaAbstract
             ->fetchAssocs();
 
         return array_map(
-            fn(array $foreignKey): ForeignKeyConstraint => new ForeignKeyConstraint(
+            fn (array $foreignKey): ForeignKeyConstraint => new ForeignKeyConstraint(
                 $foreignKey['column_name'],
                 $foreignKey['reference_table'],
                 $foreignKey['reference_column'],
@@ -192,7 +192,7 @@ class DB2Schema extends SchemaAbstract
             ])
             ->innerJoin(
                 ['SYSCAT', 'INDEXCOLUSE'],
-                fn(Join $join): Join => $join
+                fn (Join $join): Join => $join
                     ->on(
                         ['SYSCAT', 'INDEXCOLUSE', 'INDSCHEMA'],
                         ['SYSCAT', 'INDEXES', 'INDSCHEMA']
@@ -232,7 +232,7 @@ class DB2Schema extends SchemaAbstract
         }
 
         return array_map(
-            fn(string $name): Index => new Index(
+            fn (string $name): Index => new Index(
                 $name,
                 $indexColumns[$name],
                 $indexUnique[$name]

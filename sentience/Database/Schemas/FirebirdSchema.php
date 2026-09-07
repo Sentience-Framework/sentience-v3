@@ -46,14 +46,14 @@ class FirebirdSchema extends SchemaAbstract
             ])
             ->innerJoin(
                 Query::alias('RDB$FIELDS', 'FIELDS'),
-                fn(Join $join): Join => $join->on(
+                fn (Join $join): Join => $join->on(
                     ['FIELDS', 'RDB$FIELD_NAME'],
                     ['RELATION_FIELDS', 'RDB$FIELD_SOURCE']
                 )
             )
             ->leftJoin(
                 Query::alias('RDB$TYPES', 'TYPES'),
-                fn(Join $join): Join => $join
+                fn (Join $join): Join => $join
                     ->on(
                         ['TYPES', 'RDB$TYPE'],
                         ['FIELDS', 'RDB$FIELD_TYPE']
@@ -130,28 +130,28 @@ class FirebirdSchema extends SchemaAbstract
             ])
             ->innerJoin(
                 Query::alias('RDB$REF_CONSTRAINTS', 'REFS'),
-                fn(Join $join): Join => $join->on(
+                fn (Join $join): Join => $join->on(
                     ['REFS', 'RDB$CONSTRAINT_NAME'],
                     ['FK', 'RDB$CONSTRAINT_NAME']
                 )
             )
             ->innerJoin(
                 Query::alias('RDB$RELATION_CONSTRAINTS', 'PK'),
-                fn(Join $join): Join => $join->on(
+                fn (Join $join): Join => $join->on(
                     ['PK', 'RDB$CONSTRAINT_NAME'],
                     ['REFS', 'RDB$CONST_NAME_UQ']
                 )
             )
             ->innerJoin(
                 Query::alias('RDB$INDEX_SEGMENTS', 'FK_SEGMENTS'),
-                fn(Join $join): Join => $join->on(
+                fn (Join $join): Join => $join->on(
                     ['FK_SEGMENTS', 'RDB$INDEX_NAME'],
                     ['FK', 'RDB$INDEX_NAME']
                 )
             )
             ->innerJoin(
                 Query::alias('RDB$INDEX_SEGMENTS', 'PK_SEGMENTS'),
-                fn(Join $join): Join => $join
+                fn (Join $join): Join => $join
                     ->on(
                         ['PK_SEGMENTS', 'RDB$INDEX_NAME'],
                         ['PK', 'RDB$INDEX_NAME']
@@ -196,7 +196,7 @@ class FirebirdSchema extends SchemaAbstract
             ])
             ->innerJoin(
                 'RDB$INDEX_SEGMENTS',
-                fn(Join $join): Join => $join->on(
+                fn (Join $join): Join => $join->on(
                     ['RDB$INDEX_SEGMENTS', 'RDB$INDEX_NAME'],
                     ['RDB$INDICES', 'RDB$INDEX_NAME']
                 )
@@ -237,7 +237,7 @@ class FirebirdSchema extends SchemaAbstract
         }
 
         return array_map(
-            fn(string $name): Index => new Index(
+            fn (string $name): Index => new Index(
                 $name,
                 $indexColumns[$name],
                 $indexUnique[$name]
@@ -255,7 +255,7 @@ class FirebirdSchema extends SchemaAbstract
             ])
             ->innerJoin(
                 'RDB$INDEX_SEGMENTS',
-                fn(Join $join): Join => $join->on(
+                fn (Join $join): Join => $join->on(
                     ['RDB$INDEX_SEGMENTS', 'RDB$INDEX_NAME'],
                     ['RDB$RELATION_CONSTRAINTS', 'RDB$INDEX_NAME']
                 )

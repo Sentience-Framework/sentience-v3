@@ -48,7 +48,7 @@ class SQLServerSchema extends SQLSchema
             ])
             ->innerJoin(
                 ['sys', 'index_columns'],
-                fn(Join $join): Join => $join
+                fn (Join $join): Join => $join
                     ->on(
                         ['sys', 'index_columns', 'object_id'],
                         ['sys', 'indexes', 'object_id']
@@ -60,7 +60,7 @@ class SQLServerSchema extends SQLSchema
             )
             ->innerJoin(
                 ['sys', 'columns'],
-                fn(Join $join): Join => $join
+                fn (Join $join): Join => $join
                     ->on(
                         ['sys', 'columns', 'object_id'],
                         ['sys', 'index_columns', 'object_id']
@@ -104,7 +104,7 @@ class SQLServerSchema extends SQLSchema
         }
 
         return array_map(
-            fn(string $name): Index => new Index(
+            fn (string $name): Index => new Index(
                 $name,
                 $indexColumns[$name],
                 $indexUnique[$name]

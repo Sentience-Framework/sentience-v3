@@ -205,7 +205,7 @@ class OCISchema extends SchemaAbstract
             ])
             ->innerJoin(
                 'USER_IND_COLUMNS',
-                fn(Join $join): Join => $join->on(
+                fn (Join $join): Join => $join->on(
                     ['USER_IND_COLUMNS', 'INDEX_NAME'],
                     ['USER_INDEXES', 'INDEX_NAME']
                 )
@@ -246,7 +246,7 @@ class OCISchema extends SchemaAbstract
         }
 
         return array_map(
-            fn(string $name): Index => new Index(
+            fn (string $name): Index => new Index(
                 $name,
                 $indexColumns[$name],
                 $indexUnique[$name]

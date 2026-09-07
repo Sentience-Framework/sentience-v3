@@ -47,7 +47,7 @@ class SQLiteSchema extends SchemaAbstract
         $columns = $database->query("PRAGMA table_info({$dialect->escapeIdentifier($table)})")->fetchAssocs();
 
         return array_map(
-            fn(array $column): Column => new Column(
+            fn (array $column): Column => new Column(
                 $column['name'],
                 $type(strtoupper($column['type'])),
                 (bool) $column['notnull'],
@@ -85,12 +85,12 @@ class SQLiteSchema extends SchemaAbstract
     {
         $uniqueIndexes = array_filter(
             $this->indexes($database, $dialect, $table),
-            fn(Index $index) => $index->unique
+            fn (Index $index) => $index->unique
         );
 
         return array_values(
             array_map(
-                fn(Index $index) => new UniqueConstraint($index->columns, $index->name),
+                fn (Index $index) => new UniqueConstraint($index->columns, $index->name),
                 $uniqueIndexes
             )
         );

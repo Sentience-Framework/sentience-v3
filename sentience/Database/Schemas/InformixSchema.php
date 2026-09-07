@@ -41,7 +41,7 @@ class InformixSchema extends SchemaAbstract
             ])
             ->leftJoin(
                 'sysdefaults',
-                fn(Join $join): Join => $join
+                fn (Join $join): Join => $join
                     ->on(
                         ['sysdefaults', 'tabid'],
                         ['syscolumns', 'tabid']
@@ -117,7 +117,7 @@ class InformixSchema extends SchemaAbstract
             ])
             ->innerJoin(
                 'sysreferences',
-                fn(Join $join): Join => $join->on(
+                fn (Join $join): Join => $join->on(
                     ['sysreferences', 'constrid'],
                     ['sysconstraints', 'constrid']
                 )
@@ -136,7 +136,7 @@ class InformixSchema extends SchemaAbstract
             ])
             ->innerJoin(
                 'systables',
-                fn(Join $join): Join => $join->on(
+                fn (Join $join): Join => $join->on(
                     ['systables', 'tabid'],
                     ['sysconstraints', 'tabid']
                 )
