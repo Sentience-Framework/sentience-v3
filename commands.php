@@ -111,37 +111,37 @@ return [
 
             Stdio::printLn(
                 Json::encode(
-                    $db->schema()->tables(),
+                    $db->informationSchemaTables(),
                     JSON_PRETTY_PRINT
                 )
             );
             Stdio::printLn(
                 Json::encode(
-                    $db->schema()->columns($table),
+                    $db->informationSchemaColumns($table),
                     JSON_PRETTY_PRINT
                 )
             );
             Stdio::printLn(
                 Json::encode(
-                    $db->schema()->primaryKeys($table),
+                    $db->informationSchemaPrimaryKeys($table),
                     JSON_PRETTY_PRINT
                 )
             );
             Stdio::printLn(
                 Json::encode(
-                    $db->schema()->uniqueConstraints($table),
+                    $db->informationSchemaUniqueConstraints($table),
                     JSON_PRETTY_PRINT
                 )
             );
             Stdio::printLn(
                 Json::encode(
-                    $db->schema()->foreignKeyConstraints($table),
+                    $db->informationSchemaForeignKeyConstraints($table),
                     JSON_PRETTY_PRINT
                 )
             );
             Stdio::printLn(
                 Json::encode(
-                    $db->schema()->indexes($table),
+                    $db->informationSchemaIndexes($table),
                     JSON_PRETTY_PRINT
                 )
             );

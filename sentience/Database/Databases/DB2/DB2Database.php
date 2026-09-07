@@ -37,7 +37,9 @@ class DB2Database extends DatabaseAbstract
 
         $dialect = $driver->dialect($version, $options);
 
-        return new static($adapter, $dialect);
+        $schema = $driver->schema();
+
+        return new static($adapter, $dialect, $schema);
     }
 
     public function sysTables(): array
@@ -67,10 +69,5 @@ class DB2Database extends DatabaseAbstract
             ->orderByAsc('COLNO')
             ->execute()
             ->fetchAssocs();
-    }
-
-    public function schema(): SchemaInterface
-    {
-        return new SQLSchema($this, $this->dialect);
     }
 }

@@ -23,5 +23,5 @@ interface DriverInterface
     ): AdapterInterface;
 
     public function dialect(int|string $version, array $options = []): DialectInterface;
-    public function schema(DatabaseInterface $database, DialectInterface $dialect): SchemaInterface;
+    public function schema(): SchemaInterface;
 }

@@ -2,6 +2,8 @@
 
 namespace Sentience\Database\Schemas;
 
+use Sentience\Database\Databases\DatabaseInterface;
+use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Enums\TypeEnum;
 use Sentience\Database\Queries\Objects\Index;
 use Sentience\Database\Queries\Objects\Join;
@@ -11,9 +13,9 @@ use Sentience\Database\Queries\Query;
 
 class PgSQLSchema extends SQLSchema
 {
-    public function indexes(string $table): array
+    public function indexes(DatabaseInterface $database, DialectInterface $dialect, string $table): array
     {
-        $rows = $this->database->select(Query::alias(['pg_catalog', 'pg_index'], 'ix'))
+        $rows = $database->select(Query::alias(['pg_catalog', 'pg_index'], 'ix'))
             ->columns([
                 'index_name' => ['i', 'relname'],
                 'column_name' => ['a', 'attname'],
@@ -21,15 +23,15 @@ class PgSQLSchema extends SQLSchema
             ])
             ->innerJoin(
                 Query::alias(['pg_catalog', 'pg_class'], 't'),
-                fn (Join $join): Join => $join->on(['t', 'oid'], ['ix', 'indrelid'])
+                fn(Join $join): Join => $join->on(['t', 'oid'], ['ix', 'indrelid'])
             )
             ->innerJoin(
                 Query::alias(['pg_catalog', 'pg_class'], 'i'),
-                fn (Join $join): Join => $join->on(['i', 'oid'], ['ix', 'indexrelid'])
+                fn(Join $join): Join => $join->on(['i', 'oid'], ['ix', 'indexrelid'])
             )
             ->innerJoin(
                 Query::alias(['pg_catalog', 'pg_attribute'], 'a'),
-                fn (Join $join): Join => $join
+                fn(Join $join): Join => $join
                     ->on(['a', 'attrelid'], ['t', 'oid'])
                     ->whereEquals(['a', 'attnum'], Query::raw('any(ix.indkey)'))
             )
@@ -48,7 +50,7 @@ class PgSQLSchema extends SQLSchema
         }
 
         return array_map(
-            fn (string $name, array $index): Index => new Index($name, $index['columns'], $index['unique']),
+            fn(string $name, array $index): Index => new Index($name, $index['columns'], $index['unique']),
             array_keys($indexes),
             array_values($indexes)
         );

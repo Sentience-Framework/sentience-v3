@@ -2,6 +2,8 @@
 
 namespace Sentience\Database\Schemas;
 
+use Sentience\Database\Databases\DatabaseInterface;
+use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Enums\TypeEnum;
 use Sentience\Database\Queries\Objects\Index;
 use Sentience\Database\Queries\Objects\Type;
@@ -10,15 +12,15 @@ use Sentience\Database\Queries\Query;
 
 class MySQLSchema extends SQLSchema
 {
-    public function indexes(string $table): array
+    public function indexes(DatabaseInterface $database, DialectInterface $dialect, string $table): array
     {
-        $indexes = $this->database->select(['information_schema', 'statistics'])
+        $indexes = $database->select(['information_schema', 'statistics'])
             ->columns(['INDEX_NAME', 'COLUMN_NAME', 'NON_UNIQUE'])
             ->whereEquals('TABLE_NAME', $table)
             ->whereNotContains('INDEX_NAME', 'PRIMARY', true)
             ->whereIn(
                 'INDEX_NAME',
-                $this->database->select(['information_schema', 'key_column_usage'])
+                $database->select(['information_schema', 'key_column_usage'])
                     ->columns(['CONSTRAINT_NAME'])
                     ->whereIsNull('REFERENCED_TABLE_NAME')
                     ->whereIsNull('REFERENCED_COLUMN_NAME')
@@ -33,7 +35,7 @@ class MySQLSchema extends SQLSchema
         }
 
         return array_map(
-            fn (array $index): Index => new Index(
+            fn(array $index): Index => new Index(
                 $index['INDEX_NAME'],
                 $indexColumns[$index['INDEX_NAME']],
                 (bool) !$index['NON_UNIQUE']

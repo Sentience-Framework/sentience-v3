@@ -7,7 +7,6 @@ use Sentience\Database\Adapters\AdapterInterface;
 use Sentience\Database\Adapters\MySQLiAdapter;
 use Sentience\Database\Adapters\PDOAdapter;
 use Sentience\Database\Adapters\SQLite3Adapter;
-use Sentience\Database\Databases\DatabaseInterface;
 use Sentience\Database\Dialects\CUBRIDDialect;
 use Sentience\Database\Dialects\DB2Dialect;
 use Sentience\Database\Dialects\DialectInterface;
@@ -59,7 +58,7 @@ enum Driver: string implements DriverInterface
                 static::SQLite => SQLite3Adapter::class,
                 default => PDOAdapter::class
             }
-        : PDOAdapter::class;
+            : PDOAdapter::class;
 
         return new $adapter(
             $this,
@@ -88,14 +87,14 @@ enum Driver: string implements DriverInterface
         };
     }
 
-    public function schema(DatabaseInterface $database, DialectInterface $dialect): SchemaInterface
+    public function schema(): SchemaInterface
     {
         return match ($this) {
             static::MariaDB,
-            static::MySQL => new MySQLSchema($database, $dialect),
-            static::PgSQL => new PgSQLSchema($database, $dialect),
-            static::SQLite => new SQLiteSchema($database, $dialect),
-            default => new SQLSchema($database, $dialect)
+            static::MySQL => new MySQLSchema(),
+            static::PgSQL => new PgSQLSchema(),
+            static::SQLite => new SQLiteSchema(),
+            default => new SQLSchema()
         };
     }
 }

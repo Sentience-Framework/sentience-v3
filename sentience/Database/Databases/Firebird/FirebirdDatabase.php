@@ -38,7 +38,9 @@ class FirebirdDatabase extends DatabaseAbstract
 
         $dialect = $driver->dialect($version, $options);
 
-        return new static($adapter, $dialect);
+        $schema = $driver->schema();
+
+        return new static($adapter, $dialect, $schema);
     }
 
     public function lastInsertId(?string $name = null): null|int|string
@@ -83,10 +85,5 @@ class FirebirdDatabase extends DatabaseAbstract
             ->orderByAsc(Query::raw('R.RDB$FIELD_POSITION'))
             ->execute()
             ->fetchAssocs();
-    }
-
-    public function schema(): SchemaInterface
-    {
-        return new SQLSchema($this, $this->dialect);
     }
 }

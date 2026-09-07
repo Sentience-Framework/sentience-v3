@@ -2,6 +2,8 @@
 
 namespace Sentience\Database\Schemas;
 
+use Sentience\Database\Databases\DatabaseInterface;
+use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Enums\ReferentialActionEnum;
 use Sentience\Database\Queries\Enums\TypeEnum;
 use Sentience\Database\Queries\Objects\Column;
@@ -12,9 +14,9 @@ use Sentience\Database\Queries\Objects\UniqueConstraint;
 
 class SQLiteSchema extends SchemaAbstract
 {
-    public function tables(): array
+    public function tables(DatabaseInterface $database, DialectInterface $dialect): array
     {
-        $tables = $this->database->select('sqlite_master')
+        $tables = $database->select('sqlite_master')
             ->columns(['name'])
             ->whereEquals('type', 'table')
             ->execute()
@@ -23,7 +25,7 @@ class SQLiteSchema extends SchemaAbstract
         return array_column($tables, 'name');
     }
 
-    public function columns(string $table): array
+    public function columns(DatabaseInterface $database, DialectInterface $dialect, string $table): array
     {
         $type = function (string $type): string|Type {
             preg_match('/^(\w+)(?:\((\d+)\))?$/', $type, $match);
@@ -42,10 +44,10 @@ class SQLiteSchema extends SchemaAbstract
             };
         };
 
-        $columns = $this->database->query("PRAGMA table_info({$this->dialect->escapeIdentifier($table)})")->fetchAssocs();
+        $columns = $database->query("PRAGMA table_info({$dialect->escapeIdentifier($table)})")->fetchAssocs();
 
         return array_map(
-            fn (array $column): Column => new Column(
+            fn(array $column): Column => new Column(
                 $column['name'],
                 $type($column['type']),
                 (bool) $column['notnull'],
@@ -56,9 +58,9 @@ class SQLiteSchema extends SchemaAbstract
         );
     }
 
-    public function primaryKeys(string $table): array
+    public function primaryKeys(DatabaseInterface $database, DialectInterface $dialect, string $table): array
     {
-        $rows = $this->database->query("PRAGMA table_info({$this->dialect->escapeIdentifier($table)})")->fetchAssocs();
+        $rows = $database->query("PRAGMA table_info({$dialect->escapeIdentifier($table)})")->fetchAssocs();
 
         $columns = [];
 
@@ -79,27 +81,27 @@ class SQLiteSchema extends SchemaAbstract
         return $columns;
     }
 
-    public function uniqueConstraints(string $table): array
+    public function uniqueConstraints(DatabaseInterface $database, DialectInterface $dialect, string $table): array
     {
         $uniqueIndexes = array_filter(
-            $this->indexes($table),
-            fn (Index $index) => $index->unique
+            $this->indexes($database, $dialect, $table),
+            fn(Index $index) => $index->unique
         );
 
         return array_values(
             array_map(
-                fn (Index $index) => new UniqueConstraint($index->columns, $index->name),
+                fn(Index $index) => new UniqueConstraint($index->columns, $index->name),
                 $uniqueIndexes
             )
         );
     }
 
-    public function foreignKeyConstraints(string $table): array
+    public function foreignKeyConstraints(DatabaseInterface $database, DialectInterface $dialect, string $table): array
     {
-        $foreignKeys = $this->database->query("PRAGMA foreign_key_list({$this->dialect->escapeIdentifier($table)})")->fetchAssocs();
+        $foreignKeys = $database->query("PRAGMA foreign_key_list({$dialect->escapeIdentifier($table)})")->fetchAssocs();
 
         return array_map(
-            fn (array $foreignKey) => new ForeignKeyConstraint(
+            fn(array $foreignKey) => new ForeignKeyConstraint(
                 $foreignKey['from'],
                 $foreignKey['table'],
                 $foreignKey['to'],
@@ -111,18 +113,14 @@ class SQLiteSchema extends SchemaAbstract
         );
     }
 
-    public function indexes(string $table): array
+    public function indexes(DatabaseInterface $database, DialectInterface $dialect, string $table): array
     {
-        $indexes = $this->database->query("PRAGMA index_list({$this->dialect->escapeIdentifier($table)})")->fetchAssocs();
+        $indexes = $database->query("PRAGMA index_list({$dialect->escapeIdentifier($table)})")->fetchAssocs();
 
         return array_map(
-            function (array $index): Index {
+            function (array $index) use ($database): Index {
                 $name = $index['name'];
-                $columns = array_column(
-                    $this->database->query("PRAGMA index_info({$name})")
-                        ->fetchAssocs(),
-                    'name'
-                );
+                $columns = array_column($database->query("PRAGMA index_info({$name})")->fetchAssocs(), 'name');
 
                 return new Index($name, $columns, (bool) $index['unique']);
             },

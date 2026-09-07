@@ -40,7 +40,9 @@ class MySQLDatabase extends DatabaseAbstract
 
         $dialect = $driver->dialect($version, $options);
 
-        return new static($adapter, $dialect);
+        $schema = $driver->schema();
+
+        return new static($adapter, $dialect, $schema);
     }
 
     public static function unixSocket(
@@ -68,7 +70,9 @@ class MySQLDatabase extends DatabaseAbstract
 
         $dialect = $driver->dialect($version, $options);
 
-        return new static($adapter, $dialect);
+        $schema = $driver->schema();
+
+        return new static($adapter, $dialect, $schema);
     }
 
     public function showTables(): array
@@ -96,10 +100,5 @@ class MySQLDatabase extends DatabaseAbstract
         );
 
         return $this->query($query)->fetchAssocs();
-    }
-
-    public function schema(): SchemaInterface
-    {
-        return new SQLSchema($this, $this->dialect);
     }
 }

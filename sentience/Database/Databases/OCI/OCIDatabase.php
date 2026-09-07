@@ -37,7 +37,9 @@ class OCIDatabase extends DatabaseAbstract
 
         $dialect = $driver->dialect($version, $options);
 
-        return new static($adapter, $dialect);
+        $schema = $driver->schema();
+
+        return new static($adapter, $dialect, $schema);
     }
 
     public function userTables(): array
@@ -55,10 +57,5 @@ class OCIDatabase extends DatabaseAbstract
             ->orderByAsc('column_id')
             ->execute()
             ->fetchAssocs();
-    }
-
-    public function schema(): SchemaInterface
-    {
-        return new SQLSchema($this, $this->dialect);
     }
 }

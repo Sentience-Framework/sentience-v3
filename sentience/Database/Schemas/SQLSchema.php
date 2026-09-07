@@ -2,6 +2,8 @@
 
 namespace Sentience\Database\Schemas;
 
+use Sentience\Database\Databases\DatabaseInterface;
+use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Enums\ReferentialActionEnum;
 use Sentience\Database\Queries\Enums\TypeEnum;
 use Sentience\Database\Queries\Objects\Column;
@@ -14,32 +16,32 @@ use Sentience\Database\Queries\Query;
 
 class SQLSchema extends SchemaAbstract
 {
-    public function tables(): array
+    public function tables(DatabaseInterface $database, DialectInterface $dialect): array
     {
-        $tables = $this->database->select(['information_schema', 'tables'])
+        $tables = $database->select(['information_schema', 'tables'])
             ->columns(['table_name' => 'table_name'])
             ->whereLike('table_type', 'BASE TABLE', true)
-            ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+            ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
             ->execute()
             ->fetchAssocs();
 
         return array_column($tables, 'table_name');
     }
 
-    public function columns(string $table): array
+    public function columns(DatabaseInterface $database, DialectInterface $dialect, string $table): array
     {
-        $columns = $this->database->select(['information_schema', 'columns'])
+        $columns = $database->select(['information_schema', 'columns'])
             ->columns([
                 'column_name' => 'column_name',
-                'is_nullable' => 'is_nullable',
-                'column_default' => 'column_default',
                 'data_type' => 'data_type',
                 'character_maximum_length' => 'character_maximum_length',
                 'numeric_precision' => 'numeric_precision',
                 'datetime_precision' => 'datetime_precision',
+                'is_nullable' => 'is_nullable',
+                'column_default' => 'column_default',
                 Query::raw('information_schema.columns.*')
             ])
-            ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+            ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
             ->whereEquals('table_name', $table)
             ->orderByAsc('ordinal_position')
             ->execute()
@@ -47,7 +49,7 @@ class SQLSchema extends SchemaAbstract
 
         return array_map(
             function (array $column): Column {
-                $type = $column['data_type'];
+                $type = strtoupper($column['data_type']);
                 $size = $column['character_maximum_length'] ?? $column['numeric_precision'] ?? $column['datetime_precision'];
 
                 return new Column(
@@ -62,17 +64,17 @@ class SQLSchema extends SchemaAbstract
         );
     }
 
-    public function primaryKeys(string $table): array
+    public function primaryKeys(DatabaseInterface $database, DialectInterface $dialect, string $table): array
     {
-        $primaryKeys = $this->database->select(['information_schema', 'key_column_usage'])
+        $primaryKeys = $database->select(['information_schema', 'key_column_usage'])
             ->columns(['column_name' => 'column_name'])
-            ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+            ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
             ->whereEquals('table_name', $table)
             ->whereIn(
                 'constraint_name',
-                $this->database->select(['information_schema', 'table_constraints'])
+                $database->select(['information_schema', 'table_constraints'])
                     ->columns(['constraint_name'])
-                    ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+                    ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
                     ->whereEquals('table_name', $table)
                     ->whereContains('constraint_type', 'PRIMARY', true)
             )
@@ -83,20 +85,20 @@ class SQLSchema extends SchemaAbstract
         return array_column($primaryKeys, 'column_name');
     }
 
-    public function uniqueConstraints(string $table): array
+    public function uniqueConstraints(DatabaseInterface $database, DialectInterface $dialect, string $table): array
     {
-        $indexes = $this->database->select(['information_schema', 'key_column_usage'])
+        $indexes = $database->select(['information_schema', 'key_column_usage'])
             ->columns([
                 'constraint_name' => 'constraint_name',
                 'column_name' => 'column_name'
             ])
-            ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+            ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
             ->whereEquals('table_name', $table)
             ->whereIn(
                 'constraint_name',
-                $this->database->select(['information_schema', 'table_constraints'])
+                $database->select(['information_schema', 'table_constraints'])
                     ->columns(['constraint_name'])
-                    ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+                    ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
                     ->whereEquals('table_name', $table)
                     ->whereContains('constraint_type', 'UNIQUE', true)
             )
@@ -120,11 +122,11 @@ class SQLSchema extends SchemaAbstract
         return $uniqueConstraints;
     }
 
-    public function foreignKeyConstraints(string $table): array
+    public function foreignKeyConstraints(DatabaseInterface $database, DialectInterface $dialect, string $table): array
     {
         $constraints = array_map(
-            fn (array $constraint) => array_change_key_case($constraint, CASE_LOWER),
-            $this->database->select(['information_schema', 'referential_constraints'])
+            fn(array $constraint) => array_change_key_case($constraint, CASE_LOWER),
+            $database->select(['information_schema', 'referential_constraints'])
                 ->columns([
                     'constraint_name' => 'constraint_name',
                     'unique_constraint_name' => 'unique_constraint_name',
@@ -134,9 +136,9 @@ class SQLSchema extends SchemaAbstract
                 ])
                 ->whereIn(
                     'constraint_name',
-                    $this->database->select(['information_schema', 'table_constraints'])
+                    $database->select(['information_schema', 'table_constraints'])
                         ->columns(['constraint_name'])
-                        ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+                        ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
                         ->whereEquals('table_name', $table)
                         ->whereContains('constraint_type', 'FOREIGN KEY', true)
                 )
@@ -144,7 +146,7 @@ class SQLSchema extends SchemaAbstract
                 ->fetchAssocs()
         );
 
-        $columns = $this->database->select(['information_schema', 'key_column_usage'])
+        $columns = $database->select(['information_schema', 'key_column_usage'])
             ->columns([
                 'constraint_name' => 'constraint_name',
                 'table_name' => 'table_name',
@@ -195,10 +197,10 @@ class SQLSchema extends SchemaAbstract
         return $foreignKeyConstraints;
     }
 
-    public function indexes(string $table): array
+    public function indexes(DatabaseInterface $database, DialectInterface $dialect, string $table): array
     {
-        $uniqueConstraints = $this->uniqueConstraints($table);
-        $foreignKeyConstraints = $this->foreignKeyConstraints($table);
+        $uniqueConstraints = $this->uniqueConstraints($database, $dialect, $table);
+        $foreignKeyConstraints = $this->foreignKeyConstraints($database, $dialect, $table);
 
         $indexes = [];
 
@@ -220,7 +222,7 @@ class SQLSchema extends SchemaAbstract
 
     protected function type(string $type, ?int $size): string|Type
     {
-        return match (strtoupper($type)) {
+        return match ($type) {
             'BOOLEAN',
             'BOOL' => new Type(TypeEnum::Bool),
             'INTEGER',
