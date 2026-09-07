@@ -12,6 +12,11 @@ use Sentience\Database\Dialects\MySQLDialect;
 use Sentience\Database\Dialects\PgSQLDialect;
 use Sentience\Database\Dialects\SQLDialect;
 use Sentience\Database\Dialects\SQLiteDialect;
+use Sentience\Database\Schemas\MySQLSchema;
+use Sentience\Database\Schemas\PgSQLSchema;
+use Sentience\Database\Schemas\SchemaInterface;
+use Sentience\Database\Schemas\SQLiteSchema;
+use Sentience\Database\Schemas\SQLSchema;
 use Sentience\Database\Sockets\SocketAbstract;
 
 enum Driver: string implements DriverInterface
@@ -61,6 +66,17 @@ enum Driver: string implements DriverInterface
             static::PgSQL => new PgSQLDialect($this, $version, $options),
             static::SQLite => new SQLiteDialect($this, $version, $options),
             default => new SQLDialect($this, $version, $options)
+        };
+    }
+
+    public function schema(): SchemaInterface
+    {
+        return match ($this) {
+            static::MariaDB,
+            static::MySQL => new MySQLSchema(),
+            static::PgSQL => new PgSQLSchema(),
+            static::SQLite => new SQLiteSchema(),
+            default => new SQLSchema()
         };
     }
 }

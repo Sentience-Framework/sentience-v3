@@ -5,12 +5,14 @@ namespace Sentience\Database\Queries;
 use Sentience\Database\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Interfaces\Sql;
+use Sentience\Database\Schemas\SchemaInterface;
 
 class QueryFactory
 {
     public function __construct(
         protected DatabaseInterface $database,
         protected DialectInterface $dialect,
+        protected SchemaInterface $schema,
         protected string|array|Sql $table
     ) {
     }
@@ -58,5 +60,30 @@ class QueryFactory
     public function dropIndex(string $name): DropIndexQuery
     {
         return $this->database->dropIndex($this->table, $name);
+    }
+
+    public function columns(): array
+    {
+        return $this->database->informationSchemaColumns($this->table);
+    }
+
+    public function primaryKeys(): array
+    {
+        return $this->database->informationSchemaPrimaryKeys($this->table);
+    }
+
+    public function uniqueConstraints(): array
+    {
+        return $this->database->informationSchemaUniqueConstraints($this->table);
+    }
+
+    public function foreignKeyConstraints(): array
+    {
+        return $this->database->informationSchemaForeignKeyConstraints($this->table);
+    }
+
+    public function indexes(): array
+    {
+        return $this->database->informationSchemaIndexes($this->table);
     }
 }

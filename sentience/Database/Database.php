@@ -22,6 +22,7 @@ use Sentience\Database\Queries\QueryFactory;
 use Sentience\Database\Queries\SelectQuery;
 use Sentience\Database\Queries\UpdateQuery;
 use Sentience\Database\Results\ResultInterface;
+use Sentience\Database\Schemas\SchemaInterface;
 use Sentience\Database\Sockets\SocketAbstract;
 
 class Database implements DatabaseInterface
@@ -48,14 +49,17 @@ class Database implements DatabaseInterface
 
         $dialect = $driver->dialect($version, $options);
 
-        return new static($adapter, $dialect);
+        $schema = $driver->schema();
+
+        return new static($adapter, $dialect, $schema);
     }
 
     protected array $savepoints = [];
 
     public function __construct(
         protected AdapterInterface $adapter,
-        protected DialectInterface $dialect
+        protected DialectInterface $dialect,
+        protected SchemaInterface $schema
     ) {
     }
 
@@ -224,8 +228,38 @@ class Database implements DatabaseInterface
         return new DropIndexQuery($this, $this->dialect, $table, $name);
     }
 
+    public function informationSchemaTables(): array
+    {
+        return $this->schema->tables($this, $this->dialect);
+    }
+
+    public function informationSchemaColumns(string $table): array
+    {
+        return $this->schema->columns($this, $this->dialect, $table);
+    }
+
+    public function informationSchemaPrimaryKeys(string $table): array
+    {
+        return $this->schema->primaryKeys($this, $this->dialect, $table);
+    }
+
+    public function informationSchemaUniqueConstraints(string $table): array
+    {
+        return $this->schema->uniqueConstraints($this, $this->dialect, $table);
+    }
+
+    public function informationSchemaForeignKeyConstraints(string $table): array
+    {
+        return $this->schema->foreignKeyConstraints($this, $this->dialect, $table);
+    }
+
+    public function informationSchemaIndexes(string $table): array
+    {
+        return $this->schema->indexes($this, $this->dialect, $table);
+    }
+
     public function table(string|array|Sql $table): QueryFactory
     {
-        return new QueryFactory($this, $this->dialect, $table);
+        return new QueryFactory($this, $this->dialect, $this->schema, $table);
     }
 }
