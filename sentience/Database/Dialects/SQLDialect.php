@@ -141,7 +141,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn(string $column): string => $this->escapeIdentifier($column),
+                    fn (string $column): string => $this->escapeIdentifier($column),
                     $columns
                 )
             )
@@ -263,7 +263,7 @@ class SQLDialect extends DialectAbstract
                 implode(
                     ', ',
                     array_map(
-                        fn(string|Sql $column): string => $this->escapeIdentifier($column),
+                        fn (string|Sql $column): string => $this->escapeIdentifier($column),
                         $primaryKeys
                     )
                 )
@@ -370,7 +370,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn(string $column): string => $this->escapeIdentifier($column),
+                    fn (string $column): string => $this->escapeIdentifier($column),
                     $columns
                 )
             )
@@ -496,7 +496,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn(string|array|Sql $column): string => $this->escapeIdentifier($column),
+                    fn (string|array|Sql $column): string => $this->escapeIdentifier($column),
                     $distinct
                 )
             )
@@ -852,7 +852,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn(string|array|Sql $column): string => $this->escapeIdentifier($column),
+                    fn (string|array|Sql $column): string => $this->escapeIdentifier($column),
                     $groupBy
                 )
             )
@@ -885,7 +885,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn(OrderBy $orderBy): string => sprintf(
+                    fn (OrderBy $orderBy): string => sprintf(
                         '%s %s',
                         $this->escapeIdentifier($orderBy->column),
                         $orderBy->direction->value
@@ -950,7 +950,7 @@ class SQLDialect extends DialectAbstract
                 implode(
                     ', ',
                     array_map(
-                        fn(string|Sql $column): string => $this->escapeIdentifier($column),
+                        fn (string|Sql $column): string => $this->escapeIdentifier($column),
                         $onConflict->conflict
                     )
                 )
@@ -965,12 +965,12 @@ class SQLDialect extends DialectAbstract
         }
 
         $updates = count($onConflict->updates) == 0
-            ? (function () use ($values): array{
+            ? (function () use ($values): array {
                 $columns = [];
 
                 array_walk(
                     $values,
-                    function (array $values) use (&$columns): void{
+                    function (array $values) use (&$columns): void {
                         foreach (array_keys($values) as $column) {
                             if (array_key_exists($column, $columns)) {
                                 continue;
@@ -1020,7 +1020,7 @@ class SQLDialect extends DialectAbstract
             ? implode(
                 ', ',
                 array_map(
-                    fn(string $column): string => $this->escapeIdentifier($column),
+                    fn (string $column): string => $this->escapeIdentifier($column),
                     $returning
                 )
             )
@@ -1110,7 +1110,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn(string $column): string => $this->escapeIdentifier($column),
+                    fn (string $column): string => $this->escapeIdentifier($column),
                     $uniqueConstraint->columns
                 )
             )
@@ -1202,7 +1202,7 @@ class SQLDialect extends DialectAbstract
             implode(
                 ', ',
                 array_map(
-                    fn(string|array|Sql $column): string => $this->escapeIdentifier($column),
+                    fn (string|array|Sql $column): string => $this->escapeIdentifier($column),
                     $addPrimaryKeys->columns
                 )
             )
@@ -1259,7 +1259,7 @@ class SQLDialect extends DialectAbstract
             ? implode(
                 '.',
                 array_map(
-                    fn(string|array|Sql $identifier): string => $this->escapeIdentifier($identifier),
+                    fn (string|array|Sql $identifier): string => $this->escapeIdentifier($identifier),
                     $identifier
                 )
             )

@@ -5,6 +5,7 @@ namespace Sentience\Database\Queries;
 use Sentience\Database\Databases\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Interfaces\Sql;
+use Sentience\Database\Results\Result;
 use Sentience\Database\Results\ResultInterface;
 
 abstract class IndexQuery extends TableQuery
@@ -29,7 +30,7 @@ abstract class IndexQuery extends TableQuery
         return [];
     }
 
-    protected function indexExists(): bool
+    protected function emulateIndexExists(bool $emulatePrepare): ResultInterface
     {
         $tables = $this->database->informationSchemaTables();
 
@@ -41,10 +42,10 @@ abstract class IndexQuery extends TableQuery
                     continue;
                 }
 
-                return false;
+                return new Result([], []);
             }
         }
 
-        return true;
+        return parent::execute($emulatePrepare);
     }
 }

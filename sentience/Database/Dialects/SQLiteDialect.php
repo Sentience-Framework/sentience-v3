@@ -39,7 +39,7 @@ class SQLiteDialect extends SQLDialect
 
             $primaryKeys = array_filter(
                 $primaryKeys,
-                fn(string $primaryKey): bool => $primaryKey != $column->name
+                fn (string $primaryKey): bool => $primaryKey != $column->name
             );
         }
 
@@ -81,7 +81,7 @@ class SQLiteDialect extends SQLDialect
         if (str_contains($globPattern, '\\')) {
             $globPattern = preg_replace_callback(
                 '/\\\\(.)/su',
-                fn(array $match): string => match ($match[1]) {
+                fn (array $match): string => match ($match[1]) {
                     '%' => '[%]',
                     '_' => '[_]',
                     '\\' => '[\\]',

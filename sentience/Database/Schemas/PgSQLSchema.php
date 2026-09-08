@@ -25,7 +25,7 @@ class PgSQLSchema extends SQLSchema
             ])
             ->innerJoin(
                 ['pg_catalog', 'pg_attribute'],
-                fn(Join $join): Join => $join
+                fn (Join $join): Join => $join
                     ->on(
                         ['pg_catalog', 'pg_attribute', 'attrelid'],
                         ['pg_catalog', 'pg_index', 'indrelid']
@@ -95,7 +95,7 @@ class PgSQLSchema extends SQLSchema
         }
 
         return array_map(
-            fn(string $name): Index => new Index(
+            fn (string $name): Index => new Index(
                 $name,
                 $indexColumns[$name],
                 $indexUnique[$name]
