@@ -45,7 +45,7 @@ class SQLDialect extends DialectAbstract
     public const bool DISTINCT_ON = false;
     public const bool DROP_INDEX_ON_TABLE = false;
     public const bool GENERATED_BY_DEFAULT_AS_IDENTITY = true;
-    public const bool INDEX_EXISTS = true;
+    public const bool INDEX_EXISTS = false;
     public const bool LATERAL = false;
     public const bool ON_CONFLICT = false;
     public const bool RETURNING = false;
