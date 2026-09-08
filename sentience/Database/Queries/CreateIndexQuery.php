@@ -5,6 +5,7 @@ namespace Sentience\Database\Queries;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Traits\ColumnsTrait;
 use Sentience\Database\Queries\Traits\IfNotExistsTrait;
+use Sentience\Database\Results\Result;
 use Sentience\Database\Results\ResultInterface;
 
 class CreateIndexQuery extends IndexQuery
@@ -31,7 +32,11 @@ class CreateIndexQuery extends IndexQuery
             return parent::execute($emulatePrepare);
         }
 
-        return $this->emulateIndexExists($emulatePrepare);
+        if ($this->indexExists()) {
+            return new Result([], []);
+        }
+
+        return parent::execute($emulatePrepare);
     }
 
     public function unique(): static

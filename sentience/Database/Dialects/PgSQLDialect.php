@@ -27,6 +27,7 @@ class PgSQLDialect extends SQLDialect
     ];
     public const bool BOOL = true;
     public const bool DISTINCT_ON = true;
+    public const bool INDEX_EXISTS = true;
 
     protected function buildConditionLike(string &$query, array &$params, Condition $condition): void
     {
