@@ -5,9 +5,11 @@ namespace Sentience\Database\Schemas;
 use Sentience\Database\Databases\DatabaseInterface;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Enums\ReferentialActionEnum;
+use Sentience\Database\Queries\Enums\TypeEnum;
 use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\ForeignKeyConstraint;
 use Sentience\Database\Queries\Objects\Index;
+use Sentience\Database\Queries\Objects\Type;
 use Sentience\Database\Queries\Objects\UniqueConstraint;
 use Sentience\Database\Queries\Objects\WhereGroup;
 use Sentience\Database\Queries\Query;
@@ -19,7 +21,7 @@ class SQLSchema extends SchemaAbstract
         $tables = $database->select(Query::raw('information_schema.tables'))
             ->columns(['table_name' => Query::raw('table_name')])
             ->whereLike(Query::raw('table_type'), 'BASE TABLE', true)
-            ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+            ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
             ->execute()
             ->fetchAssocs();
 
@@ -39,7 +41,7 @@ class SQLSchema extends SchemaAbstract
                 'column_default' => Query::raw('column_default'),
                 Query::raw('information_schema.columns.*')
             ])
-            ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+            ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
             ->whereEquals(Query::raw('table_name'), $table)
             ->orderByAsc(Query::raw('ordinal_position'))
             ->execute()
@@ -66,13 +68,13 @@ class SQLSchema extends SchemaAbstract
     {
         $primaryKeys = $database->select(Query::raw('information_schema.key_column_usage'))
             ->columns(['column_name' => Query::raw('column_name')])
-            ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+            ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
             ->whereEquals(Query::raw('table_name'), $table)
             ->whereIn(
                 Query::raw('constraint_name'),
                 $database->select(Query::raw('information_schema.table_constraints'))
                     ->columns(['constraint_name' => Query::raw('constraint_name')])
-                    ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+                    ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
                     ->whereEquals(Query::raw('table_name'), $table)
                     ->whereContains(Query::raw('constraint_type'), 'PRIMARY', true)
             )
@@ -90,13 +92,13 @@ class SQLSchema extends SchemaAbstract
                 'constraint_name' => Query::raw('constraint_name'),
                 'column_name' => Query::raw('column_name')
             ])
-            ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+            ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
             ->whereEquals(Query::raw('table_name'), $table)
             ->whereIn(
                 Query::raw('constraint_name'),
                 $database->select(Query::raw('information_schema.table_constraints'))
                     ->columns(['constraint_name' => Query::raw('constraint_name')])
-                    ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+                    ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
                     ->whereEquals(Query::raw('table_name'), $table)
                     ->whereContains(Query::raw('constraint_type'), 'UNIQUE', true)
             )
@@ -126,7 +128,7 @@ class SQLSchema extends SchemaAbstract
     public function foreignKeyConstraints(DatabaseInterface $database, DialectInterface $dialect, string $table): array
     {
         $constraints = array_map(
-            fn (array $constraint) => array_change_key_case($constraint, CASE_LOWER),
+            fn(array $constraint) => array_change_key_case($constraint, CASE_LOWER),
             $database->select(Query::raw('information_schema.referential_constraints'))
                 ->columns([
                     'constraint_name' => Query::raw('constraint_name'),
@@ -138,7 +140,7 @@ class SQLSchema extends SchemaAbstract
                     Query::raw('constraint_name'),
                     $database->select(Query::raw('information_schema.table_constraints'))
                         ->columns(['constraint_name' => Query::raw('constraint_name')])
-                        ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+                        ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
                         ->whereEquals(Query::raw('table_name'), $table)
                         ->whereContains(Query::raw('constraint_type'), 'FOREIGN KEY', true)
                 )
@@ -197,24 +199,40 @@ class SQLSchema extends SchemaAbstract
     public function indexes(DatabaseInterface $database, DialectInterface $dialect, string $table): array
     {
         $uniqueConstraints = $this->uniqueConstraints($database, $dialect, $table);
-        $foreignKeyConstraints = $this->foreignKeyConstraints($database, $dialect, $table);
 
-        $indexes = [];
-
-        foreach ($uniqueConstraints as $uniqueConstraint) {
-            $indexes[] = new Index($uniqueConstraint->name, $uniqueConstraint->columns, true);
-        }
-
-        foreach ($foreignKeyConstraints as $foreignKeyConstraint) {
-            $indexes[] = new Index($foreignKeyConstraint->name, [$foreignKeyConstraint->column], false);
-        }
-
-        return $indexes;
+        return array_map(
+            fn(UniqueConstraint $uniqueConstraint): Index => new Index(
+                $uniqueConstraint->name,
+                $uniqueConstraint->columns,
+                true
+            ),
+            $uniqueConstraints
+        );
     }
 
     protected function databaseSchema(WhereGroup $whereGroup): WhereGroup
     {
         return $whereGroup;
+    }
+
+    protected function type(string $type, ?int $size): string|Type
+    {
+        return match ($type) {
+            'BOOLEAN',
+            'BOOL' => new Type(TypeEnum::Bool),
+            'INTEGER',
+            'INT' => new Type(TypeEnum::Int, 32),
+            'BIGINT' => new Type(TypeEnum::Int, 64),
+            'REAL',
+            'FLOAT',
+            'DOUBLE',
+            'DECIMAL' => new Type(TypeEnum::Float, 64),
+            'VARCHAR',
+            'TEXT' => new Type(TypeEnum::String, $size ?? PHP_INT_MAX),
+            'DATETIME',
+            'TIMESTAMP' => new Type(TypeEnum::DateTime, $size ?? 0),
+            default => !is_null($size) ? sprintf('%s(%d)', $type, $size) : $size
+        };
     }
 
     protected function isIdentity(array $column): bool

@@ -40,7 +40,9 @@ class MySQLDialect extends SQLDialect
         "\x1A" => '\\Z',
         "'" => "\\'"
     ];
+    public const bool DROP_INDEX_ON_TABLE = true;
     public const bool GENERATED_BY_DEFAULT_AS_IDENTITY = false;
+    public const bool INDEX_EXISTS = false;
 
     public function createTable(
         bool $ifNotExists,
@@ -68,27 +70,6 @@ class MySQLDialect extends SQLDialect
             $primaryKeys,
             $constraints
         );
-    }
-
-    public function dropIndex(
-        bool $ifExists,
-        string $name,
-        string|array|Sql $table
-    ): QueryWithParams {
-        $queryWithParams = parent::dropIndex(
-            $ifExists,
-            $name,
-            $table
-        );
-
-        $query = $queryWithParams->query;
-        $params = $queryWithParams->params;
-
-        $query .= ' ON';
-
-        $this->buildTable($query, $params, $table);
-
-        return new QueryWithParams($query, $params);
     }
 
     protected function buildConditionLike(string &$query, array &$params, Condition $condition): void
@@ -148,12 +129,12 @@ class MySQLDialect extends SQLDialect
 
         $updates = !$insertIgnore
             ? (count($onConflict->updates) == 0
-                ? (function () use ($values): array {
+                ? (function () use ($values): array{
                     $columns = [];
 
                     array_walk(
                         $values,
-                        function (array $values) use (&$columns): void {
+                        function (array $values) use (&$columns): void{
                             foreach (array_keys($values) as $column) {
                                 if (array_key_exists($column, $columns)) {
                                     continue;
@@ -250,11 +231,11 @@ class MySQLDialect extends SQLDialect
             TypeEnum::Bool => 'TINYINT',
             TypeEnum::Float => $size > 32 ? 'DOUBLE' : 'FLOAT',
             TypeEnum::String => match (true) {
-                $size > 16777215 => 'LONGTEXT',
-                $size > 65535 => 'MEDIUMTEXT',
-                $size > 255 => 'TEXT',
-                default => sprintf('VARCHAR(%d)', $size ?? 255)
-            },
+                    $size > 16777215 => 'LONGTEXT',
+                    $size > 65535 => 'MEDIUMTEXT',
+                    $size > 255 => 'TEXT',
+                    default => sprintf('VARCHAR(%d)', $size ?? 255)
+                },
             TypeEnum::DateTime => $size > 0 ? sprintf('DATETIME(%d)', $size) : 'DATETIME',
             default => parent::type($type, $size)
         };

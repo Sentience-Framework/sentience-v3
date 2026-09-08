@@ -197,7 +197,7 @@ return [
                 ->string('filename', 255, true)
                 ->dateTime('applied_at', 6, true)
                 ->uniqueConstraint(['filename'])
-                // ->foreignKeyConstraint('batch', 'test_fk', 'id', null, ReferentialActionEnum::Cascade, ReferentialActionEnum::NoAction)
+                ->foreignKeyConstraint('batch', 'test_fk', 'id', null, ReferentialActionEnum::Cascade, ReferentialActionEnum::NoAction)
                 ->execute();
 
             $db->createIndex('test_migrations', 'idx_test_migrations')

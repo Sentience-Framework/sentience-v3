@@ -16,7 +16,7 @@ class MySQLSchema extends SQLSchema
     {
         $indexes = $database->select(['INFORMATION_SCHEMA', 'STATISTICS'])
             ->columns(['INDEX_NAME', 'COLUMN_NAME', 'NON_UNIQUE'])
-            ->whereGroup(fn (WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
+            ->whereGroup(fn(WhereGroup $whereGroup): WhereGroup => $this->databaseSchema($whereGroup))
             ->whereEquals('TABLE_NAME', $table)
             ->whereNotContains('INDEX_NAME', 'PRIMARY', true)
             ->execute()
@@ -44,7 +44,7 @@ class MySQLSchema extends SQLSchema
         }
 
         return array_map(
-            fn (string $name): Index => new Index(
+            fn(string $name): Index => new Index(
                 $name,
                 $indexColumns[$name],
                 $indexUnique[$name]
