@@ -27,18 +27,21 @@ class DeleteModelsQuery extends ModelsQueryAbstract
             $reflectionModelProperties = $reflectionModel->getProperties();
 
             $table = $reflectionModel->getTable();
-            // $columns = $reflectionModel->getColumns();
 
             $deleteQuery = $this->database->delete($table);
 
             foreach ($reflectionModelProperties as $reflectionModelProperty) {
+                if (!$reflectionModelProperty->isColumn()) {
+                    continue;
+                }
+
                 if (!$reflectionModelProperty->isInitialized($model)) {
                     continue;
                 }
 
                 $property = $reflectionModelProperty->getProperty();
                 $column = $reflectionModelProperty->getColumn();
-                $value = $this->getValueIfBackedEnum($model->{$property});
+                $value = $this->encodeValue($reflectionModelProperty, $model->{$property});
 
                 if ($reflectionModelProperty->isPrimaryKey()) {
                     $deleteQuery->whereEquals($column, $value);
@@ -46,15 +49,8 @@ class DeleteModelsQuery extends ModelsQueryAbstract
             }
 
             $deleteQuery->whereGroup(fn (): ConditionGroup => (new ConditionGroup(ChainEnum::And, false))->addConditions($this->where));
-            // $deleteQuery->returning($columns);
 
-            $result = $deleteQuery->execute($emulatePrepare);
-
-            // $deletedRow = $result->fetchAssoc();
-
-            // if ($deletedRow) {
-            //     $this->mapAssocToModel($model, $deletedRow);
-            // }
+            $deleteQuery->execute($emulatePrepare);
         }
 
         return $this->models;

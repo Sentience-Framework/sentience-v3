@@ -8,4 +8,5 @@ use Attribute;
 class HasMany extends Relation
 {
     public const string M_TO_R_JOIN_REGEX_PATTERN = '/(.+)\-\<(.+)/';
+    public const bool TO_MANY = true;
 }

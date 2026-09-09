@@ -2,24 +2,20 @@
 
 namespace Src\Models;
 
-use Sentience\ORM\Models\Attributes\Columns\AutoIncrement;
 use Sentience\ORM\Models\Attributes\Columns\Column;
-use Sentience\ORM\Models\Attributes\Relations\ManyToMany;
+use Sentience\ORM\Models\Attributes\Columns\Json;
 use Sentience\ORM\Models\Attributes\Table\PrimaryKeys;
 use Sentience\ORM\Models\Attributes\Table\Table;
 use Sentience\ORM\Models\Model;
 
-#[Table('publishers')]
+#[Table('bad_casts')]
 #[PrimaryKeys(['id'])]
-class Publisher extends Model
+class BadCastModel extends Model
 {
     #[Column('id')]
-    #[AutoIncrement]
     public int $id;
 
     #[Column('name')]
+    #[Json]
     public string $name;
-
-    #[ManyToMany(Book::class, 'id-<publisherId:bookId>-id', BookPublisher::class)]
-    public array $books;
 }

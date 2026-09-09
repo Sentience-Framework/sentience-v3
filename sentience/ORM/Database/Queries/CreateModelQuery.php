@@ -49,10 +49,21 @@ class CreateModelQuery extends ModelsQueryAbstract
             $propertyAllowsNull = $reflectionModelProperty->allowsNull();
             $propertyDefaultValue = $reflectionModelProperty->getDefaultValue();
 
-            $defaultValue = $this->getValueIfBackedEnum($propertyDefaultValue);
+            $defaultValue = $this->encodeValue($reflectionModelProperty, $propertyDefaultValue);
 
             if ($reflectionModelProperty->isAutoIncrement()) {
                 $query->identity($column, 64);
+
+                continue;
+            }
+
+            if ($reflectionModelProperty->getCast()) {
+                $query->string(
+                    $column,
+                    $this->getTextSizeForColumn($reflectionModelProperty),
+                    !$propertyAllowsNull,
+                    $defaultValue
+                );
 
                 continue;
             }

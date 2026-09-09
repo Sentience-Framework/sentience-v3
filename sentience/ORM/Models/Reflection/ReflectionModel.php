@@ -30,6 +30,11 @@ class ReflectionModel
         return $this->reflectionClass->getShortName();
     }
 
+    public function hasProperty(string $property): bool
+    {
+        return $this->reflectionClass->hasProperty($property);
+    }
+
     public function getProperty(string $property): ReflectionModelProperty
     {
         return new ReflectionModelProperty(
@@ -82,7 +87,7 @@ class ReflectionModel
     {
         $attributes = $this->reflectionClass->getAttributes(PrimaryKeys::class);
 
-        return !Arrays::empty($attributes) ? $attributes[0]?->newInstance()->columns : null;
+        return !Arrays::empty($attributes) ? $attributes[0]?->newInstance()->columns : [];
     }
 
     public function getUniqueConstraint(): ?UniqueConstraint

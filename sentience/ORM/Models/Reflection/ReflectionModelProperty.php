@@ -7,8 +7,11 @@ use ReflectionProperty;
 use Sentience\Helpers\Arrays;
 use Sentience\Helpers\Strings;
 use Sentience\ORM\Models\Attributes\Columns\AutoIncrement;
+use Sentience\ORM\Models\Attributes\Columns\Cast;
 use Sentience\ORM\Models\Attributes\Columns\Column;
+use Sentience\ORM\Models\Attributes\Columns\Json;
 use Sentience\ORM\Models\Attributes\Relations\Relation;
+use Sentience\ORM\Models\Exceptions\CastException;
 use Sentience\ORM\Models\Exceptions\MultipleTypesException;
 use Sentience\ORM\Models\Model;
 
@@ -28,7 +31,7 @@ class ReflectionModelProperty
         return $this->reflectionProperty->getName();
     }
 
-    public function getValue(Model $model): string
+    public function getValue(Model $model): mixed
     {
         return $this->reflectionProperty->getValue($model);
     }
@@ -101,6 +104,29 @@ class ReflectionModelProperty
     public function isAutoIncrement(): bool
     {
         return !Arrays::empty($this->reflectionProperty->getAttributes(AutoIncrement::class));
+    }
+
+    public function getCast(): ?Cast
+    {
+        $castAttributes = $this->reflectionProperty->getAttributes(Cast::class);
+
+        if (!Arrays::empty($castAttributes)) {
+            return $castAttributes[0]->newInstance();
+        }
+
+        $jsonAttributes = $this->reflectionProperty->getAttributes(Json::class);
+
+        if (Arrays::empty($jsonAttributes)) {
+            return null;
+        }
+
+        $type = $this->getType();
+
+        return match ($type) {
+            'array' => new Cast([Json::class, 'encode'], [Json::class, 'decodeToArray']),
+            'object' => new Cast([Json::class, 'encode'], [Json::class, 'decodeToObject']),
+            default => throw new CastException('%s only casts array and object properties, %s is %s', Json::class, $this->getProperty(), $type)
+        };
     }
 
     public function getRelation(): ?Relation

@@ -30,13 +30,16 @@ class UpdateModelsQuery extends ModelsQueryAbstract
             $reflectionModelProperties = $reflectionModel->getProperties();
 
             $table = $reflectionModel->getTable();
-            // $columns = $reflectionModel->getColumns();
 
             $updateQuery = $this->database->update($table);
 
             $values = [];
 
             foreach ($reflectionModelProperties as $reflectionModelProperty) {
+                if (!$reflectionModelProperty->isColumn()) {
+                    continue;
+                }
+
                 if (!$reflectionModelProperty->isInitialized($model)) {
                     continue;
                 }
@@ -51,22 +54,13 @@ class UpdateModelsQuery extends ModelsQueryAbstract
                     continue;
                 }
 
-                $values[$column] = $this->getValueIfBackedEnum($value);
+                $values[$column] = $this->encodeValue($reflectionModelProperty, $value);
             }
 
             $updateQuery->set([...$values, ...$this->updates]);
             $updateQuery->whereGroup(fn (): ConditionGroup => (new ConditionGroup(ChainEnum::And, false))->addConditions($this->where));
-            // $updateQuery->returning($columns);
 
-            $result = $updateQuery->execute($emulatePrepare);
-
-            // $updatedRow = $result->fetchAssoc();
-
-            // if ($updatedRow) {
-            //     $this->mapAssocToModel($model, $updatedRow);
-
-            //     continue;
-            // }
+            $updateQuery->execute($emulatePrepare);
         }
 
         return $this->models;

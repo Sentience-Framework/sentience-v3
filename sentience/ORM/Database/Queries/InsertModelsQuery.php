@@ -35,6 +35,10 @@ class InsertModelsQuery extends ModelsQueryAbstract
             $values = [];
 
             foreach ($reflectionModelProperties as $reflectionModelProperty) {
+                if (!$reflectionModelProperty->isColumn()) {
+                    continue;
+                }
+
                 $column = $reflectionModelProperty->getColumn();
 
                 if ($reflectionModelProperty->isPrimaryKey() && $reflectionModelProperty->isAutoIncrement()) {
@@ -53,7 +57,7 @@ class InsertModelsQuery extends ModelsQueryAbstract
 
                 $property = $reflectionModelProperty->getProperty();
 
-                $values[$column] = $this->getValueIfBackedEnum($model->{$property});
+                $values[$column] = $this->encodeValue($reflectionModelProperty, $model->{$property});
             }
 
             $insertQuery->values($values);
@@ -95,22 +99,6 @@ class InsertModelsQuery extends ModelsQueryAbstract
 
                 continue;
             }
-
-            // $lastInsertId = $this->database->lastInsertId();
-
-            // if ($lastInsertId) {
-            //     foreach ($reflectionModelProperties as $reflectionModelProperty) {
-            //         if (!$reflectionModelProperty->isAutoIncrement()) {
-            //             continue;
-            //         }
-
-            //         $property = $reflectionModelProperty->getProperty();
-
-            //         $model->{$property} = $lastInsertId;
-
-            //         break;
-            //     }
-            // }
         }
 
         return $this->models;

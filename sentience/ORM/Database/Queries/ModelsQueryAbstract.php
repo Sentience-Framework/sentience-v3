@@ -43,6 +43,10 @@ abstract class ModelsQueryAbstract implements ModelsQueryInterface
         $reflectionModelProperties = $reflectionModel->getProperties();
 
         foreach ($reflectionModelProperties as $reflectionModelProperty) {
+            if (!$reflectionModelProperty->isColumn()) {
+                continue;
+            }
+
             $column = $reflectionModelProperty->getColumn();
 
             if (!array_key_exists($column, $assoc)) {
@@ -60,6 +64,14 @@ abstract class ModelsQueryAbstract implements ModelsQueryInterface
                 continue;
             }
 
+            $cast = $reflectionModelProperty->getCast();
+
+            if ($cast) {
+                $model->{$property} = ($cast->decode)($value);
+
+                continue;
+            }
+
             $model->{$property} = match ($type) {
                 'bool' => $this->dialect->parseBool($value),
                 'int' => (int) $value,
@@ -73,6 +85,21 @@ abstract class ModelsQueryAbstract implements ModelsQueryInterface
         }
 
         return $model;
+    }
+
+    protected function encodeValue(ReflectionModelProperty $reflectionModelProperty, mixed $value): mixed
+    {
+        if (is_null($value)) {
+            return null;
+        }
+
+        $cast = $reflectionModelProperty->getCast();
+
+        if ($cast) {
+            return ($cast->encode)($value);
+        }
+
+        return $this->getValueIfBackedEnum($value);
     }
 
     protected function getValueIfBackedEnum(mixed $value): mixed

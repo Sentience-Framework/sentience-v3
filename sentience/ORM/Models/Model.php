@@ -47,9 +47,7 @@ class Model implements JsonSerializable
             $column = $reflectionModelProperty->getColumn();
             $value = $this->{$property};
 
-            $values[$column] = $value;
-
-            $values[$column] = is_subclass_of($value, DateTimeInterface::class)
+            $values[$column] = $value instanceof DateTimeInterface
                 ? $value->format('Y-m-d\TH:i:s.v\Z')
                 : $value;
         }

@@ -9,6 +9,7 @@ use Sentience\Exceptions\RelationException;
 abstract class Relation
 {
     public const string M_TO_R_JOIN_REGEX_PATTERN = '//';
+    public const bool TO_MANY = false;
 
     public function __construct(public string $model, protected string $mToRJoin)
     {
@@ -23,5 +24,19 @@ abstract class Relation
         }
 
         return array_slice($matches, 1);
+    }
+
+    public function getModelProperty(): string
+    {
+        $parsedMToRJoin = $this->parseMToRJoin();
+
+        return reset($parsedMToRJoin);
+    }
+
+    public function getRelationProperty(): string
+    {
+        $parsedMToRJoin = $this->parseMToRJoin();
+
+        return end($parsedMToRJoin);
     }
 }

@@ -106,6 +106,11 @@ return [
     ),
 
     Command::register(
+        'relations',
+        [ExampleController::class, 'relations']
+    ),
+
+    Command::register(
         'test',
         function (DB $db): void {
             $table = 'migrations';
