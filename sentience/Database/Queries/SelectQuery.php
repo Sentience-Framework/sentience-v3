@@ -33,11 +33,6 @@ class SelectQuery extends TableQuery
     use UnionTrait;
     use WhereTrait;
 
-    public function __construct(DatabaseInterface $database, DialectInterface $dialect, string|array|Alias|Sql|SubQuery $table)
-    {
-        parent::__construct($database, $dialect, $table);
-    }
-
     public function toQueryWithParams(): QueryWithParams
     {
         return $this->dialect->select(
