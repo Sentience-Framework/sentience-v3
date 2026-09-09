@@ -53,7 +53,7 @@ class PgSQLSchema extends SQLSchema
                     )
                     ->whereEquals(
                         ['pg_catalog', 'pg_attribute', 'attnum'],
-                        Query::raw('ANY(pg_catalog.pg_index.indkey)')
+                        Query::raw('ANY (pg_catalog.pg_index.indkey)')
                     )
             )
             ->whereEquals(['table_class', 'relname'], $table)
