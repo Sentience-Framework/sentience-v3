@@ -218,10 +218,8 @@ class SQLSchema extends SchemaAbstract
     protected function type(string $type, ?int $size): string|Type
     {
         return match ($type) {
-            'BOOLEAN',
-            'BOOL' => new Type(TypeEnum::Bool),
-            'INTEGER',
-            'INT' => new Type(TypeEnum::Int, 32),
+            'BOOLEAN' => new Type(TypeEnum::Bool),
+            'INTEGER' => new Type(TypeEnum::Int, 32),
             'BIGINT' => new Type(TypeEnum::Int, 64),
             'REAL',
             'FLOAT',
