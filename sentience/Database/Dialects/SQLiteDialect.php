@@ -232,4 +232,9 @@ class SQLiteDialect extends SQLDialect
     {
         return $this->version >= 33500;
     }
+
+    public function tableExists(): bool
+    {
+        return $this->version >= 30300;
+    }
 }

@@ -142,4 +142,9 @@ class PgSQLDialect extends SQLDialect
     {
         return $this->version >= 802;
     }
+
+    public function tableExists(): bool
+    {
+        return $this->version >= 901;
+    }
 }
