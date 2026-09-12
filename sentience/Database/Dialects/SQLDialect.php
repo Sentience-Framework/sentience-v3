@@ -1131,9 +1131,21 @@ class SQLDialect extends DialectAbstract
     {
         $sql = sprintf(
             'FOREIGN KEY (%s) REFERENCES %s (%s)',
-            $foreignKeyConstraint->column,
+            implode(
+                ', ',
+                array_map(
+                    fn (string|array|Sql $column): string => $this->escapeIdentifier($column),
+                    $foreignKeyConstraint->columns
+                )
+            ),
             $foreignKeyConstraint->referenceTable,
-            $foreignKeyConstraint->referenceColumn
+            implode(
+                ', ',
+                array_map(
+                    fn (string|array|Sql $column): string => $this->escapeIdentifier($column),
+                    $foreignKeyConstraint->referenceColumns
+                )
+            )
         );
 
         if ($foreignKeyConstraint->name) {
@@ -1146,14 +1158,14 @@ class SQLDialect extends DialectAbstract
 
         if ($foreignKeyConstraint->onUpdate) {
             $sql .= ' ON UPDATE ';
-            $sql .= (string) is_subclass_of($foreignKeyConstraint->onUpdate, BackedEnum::class)
+            $sql .= is_subclass_of($foreignKeyConstraint->onUpdate, BackedEnum::class)
                 ? $foreignKeyConstraint->onUpdate->value
                 : $foreignKeyConstraint->onUpdate;
         }
 
         if ($foreignKeyConstraint->onDelete) {
             $sql .= ' ON DELETE ';
-            $sql .= (string) is_subclass_of($foreignKeyConstraint->onDelete, BackedEnum::class)
+            $sql .= is_subclass_of($foreignKeyConstraint->onDelete, BackedEnum::class)
                 ? $foreignKeyConstraint->onDelete->value
                 : $foreignKeyConstraint->onDelete;
         }
