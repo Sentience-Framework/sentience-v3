@@ -50,6 +50,7 @@ class SQLDialect extends DialectAbstract
     public const bool ON_CONFLICT = false;
     public const bool RETURNING = false;
     public const bool SAVEPOINTS = true;
+    public const bool TABLE_EXISTS = false;
 
     public function select(
         ?array $distinct,
@@ -241,7 +242,7 @@ class SQLDialect extends DialectAbstract
         $query = 'CREATE TABLE';
         $params = [];
 
-        if ($ifNotExists) {
+        if ($ifNotExists && $this->tableExists()) {
             $query .= ' IF NOT EXISTS';
         }
 
@@ -325,7 +326,7 @@ class SQLDialect extends DialectAbstract
         $query = 'DROP TABLE';
         $params = [];
 
-        if ($ifExists) {
+        if ($ifExists && $this->tableExists()) {
             $query .= ' IF EXISTS';
         }
 
@@ -1437,5 +1438,10 @@ class SQLDialect extends DialectAbstract
     public function savepoints(): bool
     {
         return static::SAVEPOINTS;
+    }
+
+    public function tableExists(): bool
+    {
+        return static::TABLE_EXISTS;
     }
 }

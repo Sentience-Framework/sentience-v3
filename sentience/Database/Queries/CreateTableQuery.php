@@ -13,9 +13,10 @@ use Sentience\Database\Queries\Objects\Type;
 use Sentience\Database\Queries\Traits\ConstraintsTrait;
 use Sentience\Database\Queries\Traits\IfNotExistsTrait;
 use Sentience\Database\Queries\Traits\PrimaryKeysTrait;
+use Sentience\Database\Results\Result;
 use Sentience\Database\Results\ResultInterface;
 
-class CreateTableQuery extends TableQuery
+class CreateTableQuery extends SchemaQuery
 {
     use ConstraintsTrait;
     use IfNotExistsTrait;
@@ -46,6 +47,14 @@ class CreateTableQuery extends TableQuery
 
     public function execute(bool $emulatePrepare = false): ResultInterface
     {
+        if (!$this->ifNotExists || $this->dialect->tableExists()) {
+            return parent::execute($emulatePrepare);
+        }
+
+        if ($this->tableExists()) {
+            return new Result([], []);
+        }
+
         return parent::execute($emulatePrepare);
     }
 

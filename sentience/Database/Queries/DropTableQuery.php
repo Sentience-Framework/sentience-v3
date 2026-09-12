@@ -7,9 +7,10 @@ use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Interfaces\Sql;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Traits\IfExistsTrait;
+use Sentience\Database\Results\Result;
 use Sentience\Database\Results\ResultInterface;
 
-class DropTableQuery extends TableQuery
+class DropTableQuery extends SchemaQuery
 {
     use IfExistsTrait;
 
@@ -33,6 +34,14 @@ class DropTableQuery extends TableQuery
 
     public function execute(bool $emulatePrepare = false): ResultInterface
     {
+        if (!$this->ifExists || $this->dialect->tableExists()) {
+            return parent::execute($emulatePrepare);
+        }
+
+        if (!$this->tableExists()) {
+            return new Result([], []);
+        }
+
         return parent::execute($emulatePrepare);
     }
 }
