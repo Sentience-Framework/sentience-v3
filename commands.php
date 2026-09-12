@@ -183,25 +183,50 @@ return [
     Command::register(
         'information_schema',
         function (DB $db): void {
-            $table = 'test_migrations';
+            $table = 'books';
 
-            $db->createTable('test_fk')
-                ->ifNotExists()
+            $db->dropTable('books')->ifExists()->execute();
+            $db->dropTable('authors')->ifExists()->execute();
+            $db->dropTable('publishers')->ifExists()->execute();
+
+            $db->createTable('publishers')
                 ->identity('id')
+                ->string('name')
                 ->execute();
 
-            $db->createTable('test_migrations')
-                ->ifNotExists()
+            $db->createTable('authors')
                 ->identity('id')
-                ->int('batch', 64, true)
-                ->string('filename', 255, true)
-                ->dateTime('applied_at', 6, true)
-                ->uniqueConstraint(['filename'])
-                ->foreignKeyConstraint('batch', 'test_fk', 'id', null, ReferentialActionEnum::Cascade, ReferentialActionEnum::NoAction)
+                ->string('name')
+                ->uniqueConstraint(['id', 'name'])
                 ->execute();
 
-            $db->createIndex('test_migrations', 'idx_test_migrations')
-                ->columns(['filename', 'applied_at'])
+            $db->createTable('books')
+                ->identity('id')
+                ->string('name')
+                ->int('author_id')
+                ->string('author_name')
+                ->int('publisher_id')
+                ->uniqueConstraint(['name'])
+                ->foreignKeyConstraint(
+                    ['author_id', 'author_name'],
+                    'authors',
+                    ['id', 'name'],
+                    'author_fk',
+                    ReferentialActionEnum::Cascade,
+                    ReferentialActionEnum::NoAction
+                )
+                ->foreignKeyConstraint(
+                    'publisher_id',
+                    'publishers',
+                    'id',
+                    'publisher_fk',
+                    ReferentialActionEnum::Cascade,
+                    ReferentialActionEnum::SetNull
+                )
+                ->execute();
+
+            $db->createIndex('books', 'idx_books')
+                ->columns(['name', 'author_id'])
                 ->execute();
 
             Stdio::printLn('Tables:');
@@ -227,9 +252,10 @@ return [
             Stdio::printLn('Indexes:');
             Stdio::printLn(Json::encode($db->informationSchemaIndexes($table), JSON_PRETTY_PRINT));
 
-            $db->dropIndex('test_migrations', 'idx_test_migrations')->ifExists()->execute();
-            $db->dropTable('test_migrations')->execute();
-            $db->dropTable('test_fk')->execute();
+            $db->dropIndex('books', 'idx_books')->ifExists()->execute();
+            $db->dropTable('books')->ifExists()->execute();
+            $db->dropTable('authors')->ifExists()->execute();
+            $db->dropTable('publishers')->ifExists()->execute();
         }
     )
 ];

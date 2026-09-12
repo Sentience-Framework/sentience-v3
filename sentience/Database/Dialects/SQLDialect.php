@@ -50,6 +50,7 @@ class SQLDialect extends DialectAbstract
     public const bool ON_CONFLICT = false;
     public const bool RETURNING = false;
     public const bool SAVEPOINTS = true;
+    public const bool TABLE_EXISTS = false;
 
     public function select(
         ?array $distinct,
@@ -1131,9 +1132,21 @@ class SQLDialect extends DialectAbstract
     {
         $sql = sprintf(
             'FOREIGN KEY (%s) REFERENCES %s (%s)',
-            $foreignKeyConstraint->column,
+            implode(
+                ', ',
+                array_map(
+                    fn (string|array|Sql $column): string => $this->escapeIdentifier($column),
+                    $foreignKeyConstraint->columns
+                )
+            ),
             $foreignKeyConstraint->referenceTable,
-            $foreignKeyConstraint->referenceColumn
+            implode(
+                ', ',
+                array_map(
+                    fn (string|array|Sql $column): string => $this->escapeIdentifier($column),
+                    $foreignKeyConstraint->referenceColumns
+                )
+            )
         );
 
         if ($foreignKeyConstraint->name) {
@@ -1425,5 +1438,10 @@ class SQLDialect extends DialectAbstract
     public function savepoints(): bool
     {
         return static::SAVEPOINTS;
+    }
+
+    public function tableExists(): bool
+    {
+        return static::TABLE_EXISTS;
     }
 }
