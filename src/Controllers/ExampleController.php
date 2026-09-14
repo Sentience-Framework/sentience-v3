@@ -325,7 +325,6 @@ class ExampleController extends Controller
 
             $db->updateModels($models)
                 ->updateColumn('applied_at', Query::now())
-                ->whereLike('column', 'filename%')
                 ->execute($emulatePrepare);
 
             $db->deleteModels($models)
