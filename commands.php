@@ -185,9 +185,9 @@ return [
         function (DB $db): void {
             $table = 'books';
 
-            $db->dropTable('books')->ifExists()->execute();
-            $db->dropTable('authors')->ifExists()->execute();
-            $db->dropTable('publishers')->ifExists()->execute();
+            $db->dropTable('books')->ifExists()->emulateIfExists()->execute();
+            $db->dropTable('authors')->ifExists()->emulateIfExists()->execute();
+            $db->dropTable('publishers')->ifExists()->emulateIfExists()->execute();
 
             $db->createTable('publishers')
                 ->identity('id')
