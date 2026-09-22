@@ -37,7 +37,7 @@ interface DialectInterface
 
     public function update(
         string|array|Sql $table,
-        array $updates,
+        array $set,
         array $where,
         ?array $returning
     ): QueryWithParams;
@@ -63,6 +63,20 @@ interface DialectInterface
 
     public function dropTable(
         bool $ifExists,
+        string|array|Sql $table
+    ): QueryWithParams;
+
+    public function createIndex(
+        bool $unique,
+        bool $ifNotExists,
+        string $name,
+        string|array|Sql $table,
+        array $columns
+    ): QueryWithParams;
+
+    public function dropIndex(
+        bool $ifExists,
+        string $name,
         string|array|Sql $table
     ): QueryWithParams;
 
@@ -99,11 +113,13 @@ interface DialectInterface
     public function parseBool(null|bool|int|float|string $bool): bool;
     public function parseDateTime(string $string): ?DateTime;
     public function type(TypeEnum $type, ?int $size = null): string;
-    public function bool(): bool;
+    public function boolean(): bool;
     public function distinctOn(): bool;
     public function generatedByDefaultAsIdentity(): bool;
+    public function indexExists(): bool;
     public function lateral(): bool;
     public function onConflict(): bool;
     public function returning(): bool;
     public function savepoints(): bool;
+    public function tableExists(): bool;
 }

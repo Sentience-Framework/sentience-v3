@@ -10,7 +10,7 @@ use Sentience\Database\Queries\Traits\ReturningTrait;
 use Sentience\Database\Queries\Traits\WhereTrait;
 use Sentience\Database\Results\ResultInterface;
 
-class DeleteQuery extends Query
+class DeleteQuery extends TableQuery
 {
     use ReturningTrait;
     use WhereTrait;

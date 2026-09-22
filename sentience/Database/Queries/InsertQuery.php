@@ -16,7 +16,7 @@ use Sentience\Database\Queries\Traits\ValuesTrait;
 use Sentience\Database\Results\Result;
 use Sentience\Database\Results\ResultInterface;
 
-class InsertQuery extends Query
+class InsertQuery extends TableQuery
 {
     use LastInsertIdTrait;
     use OnConflictTrait;
@@ -50,10 +50,12 @@ class InsertQuery extends Query
 
     public function execute(bool $emulatePrepare = false): array|ResultInterface
     {
-        if (!$this->onConflict || !$this->emulateOnConflict && $this->dialect->onConflict()) {
-            return $this->emulateReturning
-                ? $this->insert($this->values, $emulatePrepare)
-                : parent::execute($emulatePrepare);
+        if (!$this->onConflict && is_null($this->returning)) {
+            return parent::execute($emulatePrepare);
+        }
+
+        if (!$this->emulateOnConflict && $this->dialect->onConflict()) {
+            return $this->insert($this->values, $emulatePrepare);
         }
 
         $callback = function (bool $emulatePrepare): array|ResultInterface {
@@ -67,7 +69,7 @@ class InsertQuery extends Query
         };
 
         return $this->emulateOnConflictInTransaction
-            ? $this->database->transaction(fn (): array => $callback($emulatePrepare))
+            ? $this->database->transaction(fn (): array|ResultInterface => $callback($emulatePrepare))
             : $callback($emulatePrepare);
     }
 
@@ -136,17 +138,17 @@ class InsertQuery extends Query
 
     protected function insert(array $values, bool $emulatePrepare): ResultInterface
     {
-        $result = $this->database->queryWithParams(
-            $this->dialect->insert(
-                $this->table,
-                $values,
-                null,
-                !$this->emulateReturning ? $this->returning : null,
-                $this->lastInsertId
-            )
+        $queryWithParams = $this->dialect->insert(
+            $this->table,
+            $values,
+            !$this->emulateOnConflict ? $this->onConflict : null,
+            !$this->emulateReturning ? $this->returning : null,
+            $this->lastInsertId
         );
 
-        if (!$this->lastInsertId || is_null($this->returning) || !$this->emulateReturning && $this->dialect->returning()) {
+        $result = $this->database->queryWithParams($queryWithParams);
+
+        if (!$this->lastInsertId || is_null($this->returning) || (!$this->emulateReturning && $this->dialect->returning())) {
             return $result;
         }
 
@@ -176,7 +178,7 @@ class InsertQuery extends Query
             ? (count($this->onConflict->updates) > 0 ? $this->onConflict->updates : $values)
             : $conflict;
 
-        $updateQuery->updates($updates);
+        $updateQuery->set($updates);
 
         foreach ($conflict as $column => $value) {
             $updateQuery->whereEquals($column, $value);
@@ -188,7 +190,7 @@ class InsertQuery extends Query
 
         $result = $updateQuery->execute($emulatePrepare);
 
-        if (is_null($this->returning) || !$this->emulateReturning && $this->dialect->returning()) {
+        if (is_null($this->returning) || (!$this->emulateReturning && $this->dialect->returning())) {
             return $result;
         }
 

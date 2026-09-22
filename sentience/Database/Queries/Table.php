@@ -9,12 +9,14 @@ use Sentience\Database\Queries\Interfaces\Sql;
 use Sentience\Database\Queries\Objects\WhereGroup;
 use Sentience\Database\Results\Result;
 use Sentience\Database\Results\ResultInterface;
+use Sentience\Database\Schemas\SchemaInterface;
 
 class Table
 {
     public function __construct(
         protected DatabaseInterface $database,
         protected DialectInterface $dialect,
+        protected SchemaInterface $schema,
         protected string|array|Sql $table
     ) {
     }
@@ -97,7 +99,7 @@ class Table
 
     public function update(array $values): UpdateQuery
     {
-        return $this->database->update($this->table)->updates($values);
+        return $this->database->update($this->table)->set($values);
     }
 
     public function delete(): DeleteQuery
@@ -147,16 +149,39 @@ class Table
         return $this->drop()->ifExists();
     }
 
+    public function createIndex(string $name): CreateIndexQuery
+    {
+        return $this->database->createIndex($this->table, $name);
+    }
+
+    public function dropIndex(string $name): DropIndexQuery
+    {
+        return $this->database->dropIndex($this->table, $name);
+    }
+
     public function columns(): array
     {
-        $columns = $this->select()
-            ->limit(0)
-            ->execute()
-            ->columns();
+        return $this->database->informationSchemaColumns($this->table);
+    }
 
-        return !array_is_list($columns)
-            ? array_keys($columns)
-            : $columns;
+    public function primaryKeys(): array
+    {
+        return $this->database->informationSchemaPrimaryKeys($this->table);
+    }
+
+    public function uniqueConstraints(): array
+    {
+        return $this->database->informationSchemaUniqueConstraints($this->table);
+    }
+
+    public function foreignKeyConstraints(): array
+    {
+        return $this->database->informationSchemaForeignKeyConstraints($this->table);
+    }
+
+    public function indexes(): array
+    {
+        return $this->database->informationSchemaIndexes($this->table);
     }
 
     public function isEmpty(): bool
@@ -168,7 +193,10 @@ class Table
     {
         $table = $from instanceof self ? $from : $this->database->table($from);
 
-        $columns = $table->columns();
+        $columns = $this->select()
+            ->limit(0)
+            ->execute()
+            ->columns();
 
         $result = $table->select()->execute($emulatePrepare);
 
@@ -201,7 +229,10 @@ class Table
     {
         $table = $to instanceof self ? $to : $this->database->table($to);
 
-        $columns = $table->columns();
+        $columns = $table->select()
+            ->limit(0)
+            ->execute()
+            ->columns();
 
         $result = $this->select()->execute();
 

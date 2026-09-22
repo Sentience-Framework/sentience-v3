@@ -9,7 +9,7 @@ use Throwable;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
 use Sentience\Database\DriverInterface;
-use Sentience\Database\Exceptions\DriverException;
+use Sentience\Database\Exceptions\AdapterException;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Results\PDOResult;
 use Sentience\Database\Sockets\NetworkSocket;
@@ -89,11 +89,11 @@ class PDOAdapter extends AdapterAbstract
         }
 
         if (!$socket) {
-            throw new DriverException('this driver requires a socket');
+            throw new AdapterException('this driver requires a socket');
         }
 
         if ($socket instanceof UnixSocket && !in_array($driver, [Driver::MariaDB, Driver::MySQL, Driver::PgSQL])) {
-            throw new DriverException('this driver requires a network socket');
+            throw new AdapterException('this driver requires a network socket');
         }
 
         if ($driver == Driver::CUBRID) {
@@ -265,25 +265,31 @@ class PDOAdapter extends AdapterAbstract
                 $createFunctions = $options[static::OPTIONS_SQLITE_CREATE_FUNCTIONS] ?? [];
 
                 if (!array_key_exists(static::REGEXP_FUNCTION, $createFunctions)) {
-                    [$this->pdo, $method](
-                        static::REGEXP_FUNCTION,
-                        fn (string $value, string $pattern): bool => $this->regexpFunction(
-                            $value,
-                            $pattern
-                        ),
-                        2
-                    );
+                    try {
+                        [$this->pdo, $method](
+                            static::REGEXP_FUNCTION,
+                            fn (string $value, string $pattern): bool => $this->regexpFunction(
+                                $value,
+                                $pattern
+                            ),
+                            2
+                        );
+                    } catch (Throwable $exception) {
+                    }
                 }
 
                 if (!array_key_exists(static::REGEXP_LIKE_FUNCTION, $createFunctions)) {
-                    [$this->pdo, $method](
-                        static::REGEXP_LIKE_FUNCTION,
-                        fn (string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction(
-                            $value,
-                            $pattern,
-                            $flags
-                        )
-                    );
+                    try {
+                        [$this->pdo, $method](
+                            static::REGEXP_LIKE_FUNCTION,
+                            fn (string $value, string $pattern, string $flags = ''): bool => $this->regexpLikeFunction(
+                                $value,
+                                $pattern,
+                                $flags
+                            )
+                        );
+                    } catch (Throwable $exception) {
+                    }
                 }
 
                 foreach ($createFunctions as $function => $callback) {

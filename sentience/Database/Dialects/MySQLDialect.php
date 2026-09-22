@@ -40,7 +40,10 @@ class MySQLDialect extends SQLDialect
         "\x1A" => '\\Z',
         "'" => "\\'"
     ];
+    public const bool BOOLEAN = false;
+    public const bool DROP_INDEX_ON_TABLE = true;
     public const bool GENERATED_BY_DEFAULT_AS_IDENTITY = false;
+    public const bool TABLE_EXISTS = true;
 
     public function createTable(
         bool $ifNotExists,
@@ -260,5 +263,10 @@ class MySQLDialect extends SQLDialect
         }
 
         return $this->version >= 100500;
+    }
+
+    public function tableExists(): bool
+    {
+        return $this->version >= 32300;
     }
 }

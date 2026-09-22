@@ -2,21 +2,13 @@
 
 namespace Sentience\Database\Queries;
 
-use Sentience\Database\Databases\DatabaseInterface;
-use Sentience\Database\Dialects\DialectInterface;
-use Sentience\Database\Queries\Interfaces\Sql;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Traits\AltersTrait;
 use Sentience\Database\Results\ResultInterface;
 
-class AlterTableQuery extends Query
+class AlterTableQuery extends SchemaQuery
 {
     use AltersTrait;
-
-    public function __construct(DatabaseInterface $database, DialectInterface $dialect, string|array|Sql $table)
-    {
-        parent::__construct($database, $dialect, $table);
-    }
 
     public function toQueryWithParams(): array
     {
@@ -47,10 +39,5 @@ class AlterTableQuery extends Query
             ),
             $queriesWithParams
         );
-    }
-
-    public function explain(bool $emulatePrepare = false): array
-    {
-        return [];
     }
 }

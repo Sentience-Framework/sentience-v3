@@ -25,8 +25,9 @@ class PgSQLDialect extends SQLDialect
         "\f" => '\\f',
         "\v" => '\\v'
     ];
-    public const bool BOOL = true;
     public const bool DISTINCT_ON = true;
+    public const bool INDEX_EXISTS = true;
+    public const bool TABLE_EXISTS = true;
 
     protected function buildConditionLike(string &$query, array &$params, Condition $condition): void
     {
@@ -65,12 +66,13 @@ class PgSQLDialect extends SQLDialect
             return parent::buildColumn($column);
         }
 
-        if (!$this->generatedByDefaultAsIdentity() || $this->options[static::OPTIONS_USE_SERIALS] ?? false) {
+        if (!$this->generatedByDefaultAsIdentity() || ($this->options[static::OPTIONS_USE_SERIALS] ?? false)) {
+            $type = $column->type instanceof Type ? $this->type($column->type->type, $column->type->size) : $column->type;
             $typeIsUppercase = (bool) preg_match('/[A-Z]/', $column->type);
 
             $serialColumn = new Column(
                 $column->name,
-                match (strtoupper($column->type)) {
+                match (strtoupper($type)) {
                     'SMALLINT',
                     'INTEGER',
                     'INT',
@@ -78,7 +80,7 @@ class PgSQLDialect extends SQLDialect
                     'INT4' => $typeIsUppercase ? 'SERIAL' : 'serial',
                     'BIGINT',
                     'INT8' => $typeIsUppercase ? 'BIGSERIAL' : 'bigserial',
-                    default => $column->type
+                    default => $type
                 },
                 $column->notNull,
                 $column->default,
@@ -119,6 +121,11 @@ class PgSQLDialect extends SQLDialect
         return $this->version >= 1700;
     }
 
+    public function indexExists(): bool
+    {
+        return $this->version >= 905;
+    }
+
     public function lateral(): bool
     {
         return $this->version >= 903;
@@ -132,5 +139,10 @@ class PgSQLDialect extends SQLDialect
     public function returning(): bool
     {
         return $this->version >= 802;
+    }
+
+    public function tableExists(): bool
+    {
+        return $this->version >= 901;
     }
 }

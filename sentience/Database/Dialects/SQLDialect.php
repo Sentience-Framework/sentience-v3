@@ -28,6 +28,7 @@ use Sentience\Database\Queries\Objects\OrderBy;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Objects\RenameColumn;
 use Sentience\Database\Queries\Objects\SubQuery;
+use Sentience\Database\Queries\Objects\Type;
 use Sentience\Database\Queries\Objects\UniqueConstraint;
 use Sentience\Database\Queries\Query;
 use Sentience\Database\Queries\SelectQuery;
@@ -40,13 +41,16 @@ class SQLDialect extends DialectAbstract
     public const string ESCAPE_IDENTIFIER = '"';
     public const string ESCAPE_STRING = "'";
     public const array ESCAPE_CHARS = ["\0" => ''];
-    public const bool BOOL = false;
+    public const bool BOOLEAN = true;
     public const bool DISTINCT_ON = false;
+    public const bool DROP_INDEX_ON_TABLE = false;
     public const bool GENERATED_BY_DEFAULT_AS_IDENTITY = true;
-    public const bool LATERAL = false;
+    public const bool INDEX_EXISTS = false;
+    public const bool LATERAL = true;
     public const bool ON_CONFLICT = false;
     public const bool RETURNING = false;
     public const bool SAVEPOINTS = true;
+    public const bool TABLE_EXISTS = false;
 
     public function select(
         ?array $distinct,
@@ -172,11 +176,11 @@ class SQLDialect extends DialectAbstract
 
     public function update(
         string|array|Sql $table,
-        array $updates,
+        array $set,
         array $where,
         ?array $returning
     ): QueryWithParams {
-        if (count($updates) == 0) {
+        if (count($set) == 0) {
             throw new QueryException('no updates specified');
         }
 
@@ -198,8 +202,8 @@ class SQLDialect extends DialectAbstract
                         : $this->buildQuestionMarks($params, $value)
                     );
                 },
-                $updates,
-                array_keys($updates)
+                $set,
+                array_keys($set)
             )
         );
 
@@ -327,6 +331,75 @@ class SQLDialect extends DialectAbstract
         }
 
         $this->buildTable($query, $params, $table);
+
+        return new QueryWithParams($query, $params);
+    }
+
+    public function createIndex(
+        bool $unique,
+        bool $ifNotExists,
+        string $name,
+        string|array|Sql $table,
+        array $columns
+    ): QueryWithParams {
+        if (count($columns) == 0) {
+            throw new QueryException('no columns specified');
+        }
+
+        $query = 'CREATE';
+        $params = [];
+
+        if ($unique) {
+            $query .= ' UNIQUE';
+        }
+
+        $query .= ' INDEX';
+
+        if ($ifNotExists) {
+            $query .= ' IF NOT EXISTS';
+        }
+
+        $query .= ' ';
+        $query .= $this->escapeIdentifier($name);
+
+        $query .= ' ON';
+
+        $this->buildTable($query, $params, $table);
+
+        $query .= sprintf(
+            ' (%s)',
+            implode(
+                ', ',
+                array_map(
+                    fn (string $column): string => $this->escapeIdentifier($column),
+                    $columns
+                )
+            )
+        );
+
+        return new QueryWithParams($query, $params);
+    }
+
+    public function dropIndex(
+        bool $ifExists,
+        string $name,
+        string|array|Sql $table
+    ): QueryWithParams {
+        $query = 'DROP INDEX';
+        $params = [];
+
+        if ($ifExists && $this->indexExists()) {
+            $query .= ' IF EXISTS';
+        }
+
+        $query .= ' ';
+        $query .= $this->escapeIdentifier($name);
+
+        if (static::DROP_INDEX_ON_TABLE) {
+            $query .= ' ON';
+
+            $this->buildTable($query, $params, $table);
+        }
 
         return new QueryWithParams($query, $params);
     }
@@ -558,7 +631,7 @@ class SQLDialect extends DialectAbstract
         };
     }
 
-    protected function buildConditionOperator(string &$query, array &$params, string|array $identifier, string|BackedEnum $operator, null|bool|int|float|string|array|DateTimeInterface|SelectQuery|Sql $value): void
+    protected function buildConditionOperator(string &$query, array &$params, string|array|Sql $identifier, string|BackedEnum $operator, null|bool|int|float|string|array|DateTimeInterface|SelectQuery|Sql $value): void
     {
         $query .= sprintf(
             '%s %s %s',
@@ -985,14 +1058,14 @@ class SQLDialect extends DialectAbstract
         return '?';
     }
 
-    protected function buildSelectQuery(array &$params, SelectQuery $selectQuery): string
+    protected function buildSelectQuery(array &$params, SelectQuery $selectQuery, bool $parentheses = true): string
     {
         $queryWithParams = $selectQuery->toQueryWithParams();
 
         array_push($params, ...$queryWithParams->params);
 
         return sprintf(
-            '(%s)',
+            $parentheses ? '(%s)' : '%s',
             $queryWithParams->query
         );
     }
@@ -1009,7 +1082,7 @@ class SQLDialect extends DialectAbstract
         $sql = sprintf(
             '%s %s',
             $this->escapeIdentifier($column->name),
-            $column->type
+            $column->type instanceof Type ? $this->type($column->type->type, $column->type->size) : $column->type
         );
 
         if ($column->generatedByDefaultAsIdentity && $this->generatedByDefaultAsIdentity()) {
@@ -1059,9 +1132,21 @@ class SQLDialect extends DialectAbstract
     {
         $sql = sprintf(
             'FOREIGN KEY (%s) REFERENCES %s (%s)',
-            $foreignKeyConstraint->column,
+            implode(
+                ', ',
+                array_map(
+                    fn (string|array|Sql $column): string => $this->escapeIdentifier($column),
+                    $foreignKeyConstraint->columns
+                )
+            ),
             $foreignKeyConstraint->referenceTable,
-            $foreignKeyConstraint->referenceColumn
+            implode(
+                ', ',
+                array_map(
+                    fn (string|array|Sql $column): string => $this->escapeIdentifier($column),
+                    $foreignKeyConstraint->referenceColumns
+                )
+            )
         );
 
         if ($foreignKeyConstraint->name) {
@@ -1072,11 +1157,18 @@ class SQLDialect extends DialectAbstract
             );
         }
 
-        foreach ($foreignKeyConstraint->referentialActions as $referentialAction) {
-            $sql .= ' ';
-            $sql .= (string) is_subclass_of($referentialAction, BackedEnum::class)
-                ? $referentialAction->value
-                : $referentialAction;
+        if ($foreignKeyConstraint->onUpdate) {
+            $sql .= ' ON UPDATE ';
+            $sql .= (string) is_subclass_of($foreignKeyConstraint->onUpdate, BackedEnum::class)
+                ? $foreignKeyConstraint->onUpdate->value
+                : $foreignKeyConstraint->onUpdate;
+        }
+
+        if ($foreignKeyConstraint->onDelete) {
+            $sql .= ' ON DELETE ';
+            $sql .= (string) is_subclass_of($foreignKeyConstraint->onDelete, BackedEnum::class)
+                ? $foreignKeyConstraint->onDelete->value
+                : $foreignKeyConstraint->onDelete;
         }
 
         return $sql;
@@ -1227,7 +1319,7 @@ class SQLDialect extends DialectAbstract
         }
 
         if (is_bool($value)) {
-            if ($this->bool()) {
+            if ($this->boolean()) {
                 return $value ? 'TRUE' : 'FALSE';
             }
 
@@ -1263,7 +1355,7 @@ class SQLDialect extends DialectAbstract
 
     public function castBool(bool $bool): null|bool|int|float|string
     {
-        return !$this->bool()
+        return !$this->boolean()
             ? ($bool ? 1 : 0)
             : $bool;
     }
@@ -1300,7 +1392,7 @@ class SQLDialect extends DialectAbstract
     public function type(TypeEnum $type, ?int $size = null): string
     {
         return match ($type) {
-            TypeEnum::Bool => $this->bool() ? 'BOOLEAN' : 'INTEGER',
+            TypeEnum::Bool => $this->boolean() ? 'BOOLEAN' : 'INTEGER',
             TypeEnum::Int => $size > 32 ? 'BIGINT' : 'INTEGER',
             TypeEnum::Float => $size > 32 ? 'DECIMAL(30, 15)' : 'DECIMAL(15, 7)',
             TypeEnum::String => $size > 255 ? 'TEXT' : sprintf('VARCHAR(%d)', $size ?? 255),
@@ -1308,9 +1400,9 @@ class SQLDialect extends DialectAbstract
         };
     }
 
-    public function bool(): bool
+    public function boolean(): bool
     {
-        return static::BOOL;
+        return static::BOOLEAN;
     }
 
     public function distinctOn(): bool
@@ -1321,6 +1413,11 @@ class SQLDialect extends DialectAbstract
     public function generatedByDefaultAsIdentity(): bool
     {
         return static::GENERATED_BY_DEFAULT_AS_IDENTITY;
+    }
+
+    public function indexExists(): bool
+    {
+        return static::INDEX_EXISTS;
     }
 
     public function lateral(): bool
@@ -1341,5 +1438,10 @@ class SQLDialect extends DialectAbstract
     public function savepoints(): bool
     {
         return static::SAVEPOINTS;
+    }
+
+    public function tableExists(): bool
+    {
+        return static::TABLE_EXISTS;
     }
 }

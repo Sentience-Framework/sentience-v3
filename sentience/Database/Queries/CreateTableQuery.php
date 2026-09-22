@@ -3,34 +3,31 @@
 namespace Sentience\Database\Queries;
 
 use DateTimeInterface;
-use Sentience\Database\Databases\DatabaseInterface;
-use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Queries\Enums\TypeEnum;
 use Sentience\Database\Queries\Interfaces\Sql;
 use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Queries\Objects\Type;
 use Sentience\Database\Queries\Traits\ConstraintsTrait;
+use Sentience\Database\Queries\Traits\EmulateIfNotExistsTrait;
 use Sentience\Database\Queries\Traits\IfNotExistsTrait;
 use Sentience\Database\Queries\Traits\PrimaryKeysTrait;
+use Sentience\Database\Results\Result;
 use Sentience\Database\Results\ResultInterface;
 
-class CreateTableQuery extends Query
+class CreateTableQuery extends SchemaQuery
 {
     use ConstraintsTrait;
+    use EmulateIfNotExistsTrait;
     use IfNotExistsTrait;
     use PrimaryKeysTrait;
 
     protected array $columns = [];
 
-    public function __construct(DatabaseInterface $database, DialectInterface $dialect, string|array|Sql $table)
-    {
-        parent::__construct($database, $dialect, $table);
-    }
-
     public function toQueryWithParams(): QueryWithParams
     {
         return $this->dialect->createTable(
-            $this->ifNotExists,
+            !$this->emulateIfNotExists ? $this->ifNotExists : false,
             $this->table,
             $this->columns,
             $this->primaryKeys,
@@ -45,15 +42,18 @@ class CreateTableQuery extends Query
 
     public function execute(bool $emulatePrepare = false): ResultInterface
     {
+        if (!$this->ifNotExists || (!$this->emulateIfNotExists && $this->dialect->tableExists())) {
+            return parent::execute($emulatePrepare);
+        }
+
+        if ($this->tableExists()) {
+            return new Result([], []);
+        }
+
         return parent::execute($emulatePrepare);
     }
 
-    public function explain(bool $emulatePrepare = false): array
-    {
-        return [];
-    }
-
-    public function column(string $name, string $type, bool $notNull = false, null|bool|int|float|string|DateTimeInterface|Sql $default = null, bool $generatedByDefaultAsIdentity = false): static
+    public function column(string $name, string|Type $type, bool $notNull = false, null|bool|int|float|string|DateTimeInterface|Sql $default = null, bool $generatedByDefaultAsIdentity = false): static
     {
         $this->columns[] = new Column($name, $type, $notNull, $default, $generatedByDefaultAsIdentity);
 
@@ -76,22 +76,22 @@ class CreateTableQuery extends Query
 
     public function bool(string $name, bool $notNull = false, null|bool|Sql $default = null): static
     {
-        return $this->column($name, $this->dialect->type(TypeEnum::Bool), $notNull, $default);
+        return $this->column($name, new Type(TypeEnum::Bool), $notNull, $default);
     }
 
     public function int(string $name, int $bits = 64, bool $notNull = false, null|int|Sql $default = null, bool $generatedByDefaultAsIdentity = false): static
     {
-        return $this->column($name, $this->dialect->type(TypeEnum::Int, $bits), $notNull, $default, $generatedByDefaultAsIdentity);
+        return $this->column($name, new Type(TypeEnum::Int, $bits), $notNull, $default, $generatedByDefaultAsIdentity);
     }
 
     public function float(string $name, int $bits = 64, bool $notNull = false, null|int|float|DateTimeInterface|Sql $default = null): static
     {
-        return $this->column($name, $this->dialect->type(TypeEnum::Float, $bits), $notNull, $default);
+        return $this->column($name, new Type(TypeEnum::Float, $bits), $notNull, $default);
     }
 
     public function string(string $name, int $size = 255, bool $notNull = false, null|string|Sql $default = null): static
     {
-        return $this->column($name, $this->dialect->type(TypeEnum::String, $size), $notNull, $default);
+        return $this->column($name, new Type(TypeEnum::String, $size), $notNull, $default);
     }
 
     public function text(string $name, bool $notNull = false, null|string|Sql $default = null): static
@@ -101,6 +101,6 @@ class CreateTableQuery extends Query
 
     public function dateTime(string $name, int $size = 6, bool $notNull = false, null|DateTimeInterface|Sql $default = null): static
     {
-        return $this->column($name, $this->dialect->type(TypeEnum::DateTime, $size), $notNull, $default);
+        return $this->column($name, new Type(TypeEnum::DateTime, $size), $notNull, $default);
     }
 }

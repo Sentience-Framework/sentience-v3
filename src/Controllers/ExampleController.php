@@ -183,7 +183,7 @@ class ExampleController extends Controller
             ->toSql();
 
         $queries[] = $db->update('table_1')
-            ->updates([
+            ->set([
                 'column1' => Query::now(),
                 'column2' => true,
                 'column3' => false,
@@ -228,7 +228,7 @@ class ExampleController extends Controller
             ->column('column2', 'varchar(255)')
             ->primaryKeys(['primary_key'])
             ->uniqueConstraint(['column1', 'column2'])
-            ->foreignKeyConstraint('column1', 'table_2', 'reference_column', 'fk_table_1', [ReferentialActionEnum::OnUpdateNoAction])
+            ->foreignKeyConstraint('column1', 'table_2', 'reference_column', 'fk_table_1', ReferentialActionEnum::NoAction)
             ->constraint('UNIQUE "test" COLUMNS ("column1", "column2")')
             ->toSql();
 
@@ -249,6 +249,16 @@ class ExampleController extends Controller
         );
 
         $queries[] = $db->dropTable('table_1')
+            ->ifExists()
+            ->toSql();
+
+        $queries[] = $db->createIndex('indexable_table', 'index')
+            ->ifNotExists()
+            ->unique()
+            ->columns(['column1', 'column2'])
+            ->toSql();
+
+        $queries[] = $db->dropIndex('indexable_table', 'index')
             ->ifExists()
             ->toSql();
 
@@ -445,7 +455,8 @@ class ExampleController extends Controller
                 'authors',
                 'id',
                 'author_fk',
-                [ReferentialActionEnum::OnDeleteSetNull]
+                null,
+                ReferentialActionEnum::SetNull
             )
             ->execute();
     }

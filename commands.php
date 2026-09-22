@@ -1,8 +1,10 @@
 <?php
 
-use Sentience\Database\Queries\Query;
+use Sentience\Database\Queries\Enums\ReferentialActionEnum;
+use Sentience\Helpers\Json;
 use Sentience\ORM\Database\DB;
 use Sentience\Routers\Command;
+use Sentience\Sentience\Stdio;
 use Src\Controllers\AiController;
 use Src\Controllers\DevToolsController;
 use Src\Controllers\ExampleController;
@@ -107,32 +109,44 @@ return [
     Command::register(
         'test',
         function (DB $db): void {
-            $db->insert('migrations')
-                ->values(
-                    [
-                        'filename' => 'test1',
-                        'batch' => 1,
-                        'applied_at' => Query::now()
-                    ],
-                    [
-                        'filename' => 'test2',
-                        'batch' => 1,
-                        'applied_at' => Query::now()
-                    ],
-                    [
-                        'filename' => 'test3',
-                        'batch' => 1,
-                        'applied_at' => Query::now()
-                    ],
-                    [
-                        'filename' => 'test4',
-                        'batch' => 1,
-                        'applied_at' => Query::now()
-                    ]
+            $table = 'migrations';
+
+            Stdio::printLn(
+                Json::encode(
+                    $db->informationSchemaTables(),
+                    JSON_PRETTY_PRINT
                 )
-                ->onConflictDoUpdate(['filename'])
-                ->emulateOnConflict('id')
-                ->execute();
+            );
+            Stdio::printLn(
+                Json::encode(
+                    $db->informationSchemaColumns($table),
+                    JSON_PRETTY_PRINT
+                )
+            );
+            Stdio::printLn(
+                Json::encode(
+                    $db->informationSchemaPrimaryKeys($table),
+                    JSON_PRETTY_PRINT
+                )
+            );
+            Stdio::printLn(
+                Json::encode(
+                    $db->informationSchemaUniqueConstraints($table),
+                    JSON_PRETTY_PRINT
+                )
+            );
+            Stdio::printLn(
+                Json::encode(
+                    $db->informationSchemaForeignKeyConstraints($table),
+                    JSON_PRETTY_PRINT
+                )
+            );
+            Stdio::printLn(
+                Json::encode(
+                    $db->informationSchemaIndexes($table),
+                    JSON_PRETTY_PRINT
+                )
+            );
         }
     ),
 
@@ -171,4 +185,83 @@ return [
         'ai',
         [AiController::class, 'ai']
     ),
+
+    Command::register(
+        'information_schema',
+        function (DB $db): void {
+            $table = 'books';
+
+            $db->dropTable('books')->ifExists()->emulateIfExists()->execute();
+            $db->dropTable('authors')->ifExists()->emulateIfExists()->execute();
+            $db->dropTable('publishers')->ifExists()->emulateIfExists()->execute();
+
+            $db->createTable('publishers')
+                ->identity('id')
+                ->string('name')
+                ->execute();
+
+            $db->createTable('authors')
+                ->identity('id')
+                ->string('name')
+                ->uniqueConstraint(['id', 'name'])
+                ->execute();
+
+            $db->createTable('books')
+                ->identity('id')
+                ->string('name')
+                ->int('author_id')
+                ->string('author_name')
+                ->int('publisher_id')
+                ->uniqueConstraint(['name'])
+                ->foreignKeyConstraint(
+                    ['author_id', 'author_name'],
+                    'authors',
+                    ['id', 'name'],
+                    'author_fk',
+                    ReferentialActionEnum::Cascade,
+                    ReferentialActionEnum::NoAction
+                )
+                ->foreignKeyConstraint(
+                    'publisher_id',
+                    'publishers',
+                    'id',
+                    'publisher_fk',
+                    ReferentialActionEnum::Cascade,
+                    ReferentialActionEnum::SetNull
+                )
+                ->execute();
+
+            $db->createIndex('books', 'idx_books')
+                ->columns(['name', 'author_id'])
+                ->execute();
+
+            Stdio::printLn('Tables:');
+            Stdio::printLn(Json::encode($db->informationSchemaTables(), JSON_PRETTY_PRINT));
+
+            Stdio::print(PHP_EOL);
+            Stdio::printLn('Columns:');
+            Stdio::printLn(Json::encode($db->informationSchemaColumns($table), JSON_PRETTY_PRINT));
+
+            Stdio::print(PHP_EOL);
+            Stdio::printLn('Primary keys:');
+            Stdio::printLn(Json::encode($db->informationSchemaPrimaryKeys($table), JSON_PRETTY_PRINT));
+
+            Stdio::print(PHP_EOL);
+            Stdio::printLn('Unique constraints:');
+            Stdio::printLn(Json::encode($db->informationSchemaUniqueConstraints($table), JSON_PRETTY_PRINT));
+
+            Stdio::print(PHP_EOL);
+            Stdio::printLn('Foreign key constraints:');
+            Stdio::printLn(Json::encode($db->informationSchemaForeignKeyConstraints($table), JSON_PRETTY_PRINT));
+
+            Stdio::print(PHP_EOL);
+            Stdio::printLn('Indexes:');
+            Stdio::printLn(Json::encode($db->informationSchemaIndexes($table), JSON_PRETTY_PRINT));
+
+            $db->dropIndex('books', 'idx_books')->ifExists()->execute();
+            $db->dropTable('books')->ifExists()->execute();
+            $db->dropTable('authors')->ifExists()->execute();
+            $db->dropTable('publishers')->ifExists()->execute();
+        }
+    )
 ];
