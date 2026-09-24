@@ -89,13 +89,13 @@ class CreateTableQuery extends SchemaQuery
         return $this->column($name, new Type(TypeEnum::Float, $bits), $notNull, $default);
     }
 
-    public function string(string $name, int $size = 255, bool $notNull = false, null|string|Sql $default = null): static
+    public function string(string $name, int $length = 255, bool $notNull = false, null|string|Sql $default = null): static
     {
-        return $this->column($name, new Type(TypeEnum::String, $size), $notNull, $default);
+        return $this->column($name, new Type(TypeEnum::String, $length), $notNull, $default);
     }
 
-    public function dateTime(string $name, int $size = 6, bool $notNull = false, null|DateTimeInterface|Sql $default = null): static
+    public function dateTime(string $name, int $precision = 6, bool $notNull = false, null|DateTimeInterface|Sql $default = null): static
     {
-        return $this->column($name, new Type(TypeEnum::DateTime, $size), $notNull, $default);
+        return $this->column($name, new Type(TypeEnum::DateTime, $precision), $notNull, $default);
     }
 }

@@ -113,13 +113,13 @@ trait AltersTrait
         return $this->addColumn($name, new Type(TypeEnum::Float, $bits), $notNull, $default);
     }
 
-    public function addString(string $name, int $size = 255, bool $notNull = false, null|string|Sql $default = null): static
+    public function addString(string $name, int $length = 255, bool $notNull = false, null|string|Sql $default = null): static
     {
-        return $this->addColumn($name, new Type(TypeEnum::String, $size), $notNull, $default);
+        return $this->addColumn($name, new Type(TypeEnum::String, $length), $notNull, $default);
     }
 
-    public function addDateTime(string $name, int $size = 6, bool $notNull = false, null|DateTimeInterface|Sql $default = null): static
+    public function addDateTime(string $name, int $precision = 6, bool $notNull = false, null|DateTimeInterface|Sql $default = null): static
     {
-        return $this->addColumn($name, new Type(TypeEnum::DateTime, $size), $notNull, $default);
+        return $this->addColumn($name, new Type(TypeEnum::DateTime, $precision), $notNull, $default);
     }
 }
