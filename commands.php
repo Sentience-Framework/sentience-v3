@@ -227,7 +227,11 @@ return [
 
             $db->createIndex('books', 'idx_books')
                 ->columns(['name', 'author_id'])
+                ->whereIsNotNull('author_id')
                 ->execute();
+
+            Stdio::printLn('Schemas:');
+            Stdio::printLn(Json::encode($db->informationSchemaSchemas(), JSON_PRETTY_PRINT));
 
             Stdio::printLn('Tables:');
             Stdio::printLn(Json::encode($db->informationSchemaTables(), JSON_PRETTY_PRINT));
