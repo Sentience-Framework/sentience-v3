@@ -21,6 +21,7 @@ use Sentience\Database\Queries\Objects\UniqueConstraint;
 
 class SQLiteDialect extends SQLDialect
 {
+    public const string OPTIONS_STRICT = 'strict';
     public const string OPTIONS_USE_REGEXP = 'use_regexp';
 
     public const bool BOOLEAN = false;
@@ -47,13 +48,19 @@ class SQLiteDialect extends SQLDialect
             );
         }
 
-        return parent::createTable(
+        $queryWithParams = parent::createTable(
             $ifNotExists,
             $table,
             $columns,
             $primaryKeys,
             $constraints
         );
+
+        if ($this->options[static::OPTIONS_STRICT] ?? false) {
+            $queryWithParams->query .= ' STRICT';
+        }
+
+        return $queryWithParams;
     }
 
     protected function buildConditionLike(string &$query, array &$params, Condition $condition): void
