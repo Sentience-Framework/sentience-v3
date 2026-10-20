@@ -3,6 +3,11 @@
 namespace Sentience\Database\Queries;
 
 use DateTimeInterface;
+use Sentience\Database\Queries\Columns\BoolColumn;
+use Sentience\Database\Queries\Columns\DateTimeColumn;
+use Sentience\Database\Queries\Columns\FloatColumn;
+use Sentience\Database\Queries\Columns\IntColumn;
+use Sentience\Database\Queries\Columns\StringColumn;
 use Sentience\Database\Queries\Enums\TypeEnum;
 use Sentience\Database\Queries\Interfaces\Sql;
 use Sentience\Database\Queries\Objects\Column;
@@ -51,6 +56,31 @@ class CreateTableQuery extends SchemaQuery
         }
 
         return parent::execute($emulatePrepare);
+    }
+
+    public function columns(array $columns): static
+    {
+        foreach ($columns as $name => $column) {
+            match (true) {
+                $column instanceof BoolColumn => $this->bool($name, $column->notNull, $column->default),
+                $column instanceof IntColumn => $this->int($name, $column->size, $column->notNull, $column->default),
+                $column instanceof FloatColumn => $this->float($name, $column->size, $column->notNull, $column->default),
+                $column instanceof StringColumn => $this->string($name, $column->size, $column->notNull, $column->default),
+                $column instanceof DateTimeColumn => $this->dateTime($name, $column->size, $column->notNull, $column->default),
+                default => array_push(
+                    $this->columns,
+                    Query::raw(
+                        sprintf(
+                            '%s %s',
+                            $this->dialect->escapeIdentifier($name),
+                            ltrim($column)
+                        )
+                    )
+                )
+            };
+        }
+
+        return $this;
     }
 
     public function column(string $name, string|Type $type, bool $notNull = false, null|bool|int|float|string|DateTimeInterface|Sql $default = null, bool $generatedByDefaultAsIdentity = false): static

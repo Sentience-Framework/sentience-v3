@@ -4,6 +4,8 @@ namespace Src\Controllers;
 
 use Sentience\Abstracts\Controller;
 use Sentience\Database\Databases\SQLite\SQLiteDatabase;
+use Sentience\Database\Queries\Columns\IntColumn;
+use Sentience\Database\Queries\Columns\StringColumn;
 use Sentience\Database\Queries\Enums\ReferentialActionEnum;
 use Sentience\Database\Queries\Objects\HavingGroup;
 use Sentience\Database\Queries\Objects\Join;
@@ -223,6 +225,11 @@ class ExampleController extends Controller
 
         $queries[] = $db->createTable('table_1')
             ->ifNotExists()
+            ->columns([
+                'id' => new IntColumn(),
+                'name' => new StringColumn(),
+                'raw_column' => 'INT8 NOT NULL CHECK(raw_column IN (1, 2, 3, 4))'
+            ])
             ->column('primary_key', 'int', true, null, true)
             ->column('column1', 'bigint', true)
             ->column('column2', 'varchar(255)')
