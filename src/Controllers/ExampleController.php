@@ -127,7 +127,7 @@ class ExampleController extends Controller
                     ->orwhereIsNull('column3')
             )
             ->where('DATE(`created_at`) > :date OR DATE(`created_at`) < :date', [':date' => Query::now()])
-            ->wheref('DATE(`updated_at`) > %s OR DATE(`updated_at`) < %s', Query::now(), Query::now())
+            ->wheref('DATE(`updated_at`) > %%%s OR DATE(`updated_at`) < %s', Query::now(), Query::now())
             ->whereGroup(
                 fn (WhereGroup $group) => $group
                     ->whereIn('column4', [1, 2, 3, 4])
