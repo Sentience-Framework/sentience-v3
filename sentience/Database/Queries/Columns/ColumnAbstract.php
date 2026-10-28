@@ -3,6 +3,7 @@
 namespace Sentience\Database\Queries\Columns;
 
 use Sentience\Database\Queries\Interfaces\Sql;
+use Sentience\Database\Queries\Objects\Type;
 
 abstract class ColumnAbstract
 {
@@ -13,4 +14,6 @@ abstract class ColumnAbstract
         public bool $generatedByDefaultAsIdentity
     ) {
     }
+
+    abstract public function type(): string|Type;
 }

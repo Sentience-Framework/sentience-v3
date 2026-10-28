@@ -2,7 +2,9 @@
 
 namespace Sentience\Database\Queries\Columns;
 
+use Sentience\Database\Queries\Enums\TypeEnum;
 use Sentience\Database\Queries\Interfaces\Sql;
+use Sentience\Database\Queries\Objects\Type;
 
 class FloatColumn extends ColumnAbstract
 {
@@ -12,5 +14,10 @@ class FloatColumn extends ColumnAbstract
         null|float|Sql $default = null
     ) {
         parent::__construct($bits, $notNull, $default, false);
+    }
+
+    public function type(): string|Type
+    {
+        return new Type(TypeEnum::Float, $this->size);
     }
 }

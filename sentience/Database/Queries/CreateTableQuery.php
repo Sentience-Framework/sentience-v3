@@ -4,6 +4,7 @@ namespace Sentience\Database\Queries;
 
 use DateTimeInterface;
 use Sentience\Database\Queries\Columns\BoolColumn;
+use Sentience\Database\Queries\Columns\ColumnAbstract;
 use Sentience\Database\Queries\Columns\DateTimeColumn;
 use Sentience\Database\Queries\Columns\FloatColumn;
 use Sentience\Database\Queries\Columns\IntColumn;
@@ -67,13 +68,14 @@ class CreateTableQuery extends SchemaQuery
                 $column instanceof FloatColumn => $this->float($name, $column->size, $column->notNull, $column->default),
                 $column instanceof StringColumn => $this->string($name, $column->size, $column->notNull, $column->default),
                 $column instanceof DateTimeColumn => $this->dateTime($name, $column->size, $column->notNull, $column->default),
+                $column instanceof ColumnAbstract => $this->column($name, $column->type(), $column->notNull, $column->default, $column->generatedByDefaultAsIdentity),
                 default => array_push(
                     $this->columns,
                     Query::raw(
                         sprintf(
                             '%s %s',
                             $this->dialect->escapeIdentifier($name),
-                            ltrim($column)
+                            $column instanceof Sql ? $column->rawSql($this->dialect) : ltrim($column)
                         )
                     )
                 )

@@ -2,7 +2,9 @@
 
 namespace Sentience\Database\Queries\Columns;
 
+use Sentience\Database\Queries\Enums\TypeEnum;
 use Sentience\Database\Queries\Interfaces\Sql;
+use Sentience\Database\Queries\Objects\Type;
 
 class IntColumn extends ColumnAbstract
 {
@@ -13,5 +15,10 @@ class IntColumn extends ColumnAbstract
         bool $generatedByDefaultAsIdentity = false
     ) {
         parent::__construct($bits, $notNull, $default, $generatedByDefaultAsIdentity);
+    }
+
+    public function type(): string|Type
+    {
+        return new Type(TypeEnum::Int, $this->size);
     }
 }
