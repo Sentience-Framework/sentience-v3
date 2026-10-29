@@ -13,6 +13,11 @@ abstract class SchemaQuery extends TableQuery
         parent::__construct($database, $dialect, $table);
     }
 
+    public function execute(bool $emulatePrepare = false): mixed
+    {
+        return parent::execute(true);
+    }
+
     protected function tableExists(): bool
     {
         $end = function (string|array|Sql $table) use (&$end): string|Sql {

@@ -24,11 +24,6 @@ abstract class IndexQuery extends SchemaQuery
         return parent::execute($emulatePrepare);
     }
 
-    public function explain(bool $emulatePrepare = false): array
-    {
-        return [];
-    }
-
     protected function indexExists(): bool
     {
         $tables = $this->database->informationSchemaTables();
