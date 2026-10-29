@@ -7,6 +7,8 @@ use Sentience\Database\Databases\SQLite\SQLiteDatabase;
 use Sentience\Database\Queries\Columns\IntColumn;
 use Sentience\Database\Queries\Columns\StringColumn;
 use Sentience\Database\Queries\Enums\ReferentialActionEnum;
+use Sentience\Database\Queries\Objects\AddCheckConstraint;
+use Sentience\Database\Queries\Objects\CheckConstraint;
 use Sentience\Database\Queries\Objects\HavingGroup;
 use Sentience\Database\Queries\Objects\Join;
 use Sentience\Database\Queries\Objects\WhereGroup;
@@ -236,6 +238,7 @@ class ExampleController extends Controller
             ->primaryKeys(['primary_key'])
             ->uniqueConstraint(['column1', 'column2'])
             ->foreignKeyConstraint('column1', 'table_2', 'reference_column', 'fk_table_1', ReferentialActionEnum::NoAction)
+            ->checkConstraint(fn (CheckConstraint $checkConstraint): CheckConstraint => $checkConstraint->whereEquals('column1', 1), 'check_constraint')
             ->constraint('UNIQUE "test" COLUMNS ("column1", "column2")')
             ->toSql();
 
@@ -251,6 +254,7 @@ class ExampleController extends Controller
                 // ->addPrimaryKeys(['pk'])
                 // ->addUniqueConstraint(['column1', 'column2'], 'unique_constraint')
                 // ->addForeignKeyConstraint('column4', 'reference_table', 'reference_column')
+                ->addCheckConstraint(fn (AddCheckConstraint $checkConstraint): AddCheckConstraint => $checkConstraint->whereEquals('column1', 1))
                 // ->dropConstraint('unique_constraint')
                 ->toSql()
         );
