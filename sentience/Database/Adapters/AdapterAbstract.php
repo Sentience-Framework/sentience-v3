@@ -75,11 +75,12 @@ abstract class AdapterAbstract implements AdapterInterface
 
     protected function sqliteForeignKeys(bool $foreignKeys): void
     {
-        if (!$foreignKeys) {
-            return;
-        }
-
-        $this->exec('PRAGMA foreign_keys = ON');
+        $this->exec(
+            sprintf(
+                'PRAGMA foreign_keys = %s',
+                $foreignKeys ? 'ON' : 'OFF'
+            )
+        );
     }
 
     protected function sqliteCaseSensitiveLike(bool $caseSensitiveLike): void
@@ -91,12 +92,8 @@ abstract class AdapterAbstract implements AdapterInterface
         $this->exec('PRAGMA case_sensitive_like = ON');
     }
 
-    protected function sqliteOptimize(bool $optimize): void
+    protected function sqliteOptimize(): void
     {
-        if (!$optimize) {
-            return;
-        }
-
         $this->exec('PRAGMA optimize');
     }
 
