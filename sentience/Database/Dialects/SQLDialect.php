@@ -197,16 +197,8 @@ class SQLDialect extends DialectAbstract
         }
 
         if (count($primaryKeys) > 0) {
-            $query .= sprintf(
-                ', PRIMARY KEY (%s)',
-                implode(
-                    ', ',
-                    array_map(
-                        fn (string|Sql $column): string => $this->escapeIdentifier($column),
-                        $primaryKeys
-                    )
-                )
-            );
+            $query .= ', ';
+            $query .= $this->buildPrimaryKeys($primaryKeys);
         }
 
         foreach ($constraints as $constraint) {
@@ -1117,6 +1109,20 @@ class SQLDialect extends DialectAbstract
         return $sql;
     }
 
+    protected function buildPrimaryKeys(array $primaryKeys): string
+    {
+        return sprintf(
+            'PRIMARY KEY (%s)',
+            implode(
+                ', ',
+                array_map(
+                    fn (string|Sql $column): string => $this->escapeIdentifier($column),
+                    $primaryKeys
+                )
+            )
+        );
+    }
+
     protected function buildUniqueConstraint(UniqueConstraint $uniqueConstraint): string
     {
         $sql = sprintf(
@@ -1249,14 +1255,8 @@ class SQLDialect extends DialectAbstract
     protected function buildAlterTableAddPrimaryKeys(PrimaryKeys $primaryKeys): string
     {
         return sprintf(
-            'ADD PRIMARY KEY (%s)',
-            implode(
-                ', ',
-                array_map(
-                    fn (string|array|Sql $column): string => $this->escapeIdentifier($column),
-                    $primaryKeys->columns
-                )
-            )
+            'ADD %s',
+            $this->buildPrimaryKeys($primaryKeys->columns)
         );
     }
 
