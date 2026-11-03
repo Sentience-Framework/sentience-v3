@@ -185,13 +185,17 @@ class ExampleController extends Controller
                 'column1' => Query::now(),
                 'column2' => true,
                 'column3' => false,
-                'column4' => Query::raw('column1 + 1')
+                'column4' => Query::raw('column1 + 1'),
+                'column5' => 'Quotes \'"`'
             ])
             ->values([
                 'column4' => Query::raw('column1 + 1'),
                 'column1' => Query::now(),
                 'column3' => false
 
+            ])
+            ->defaults([
+                'column5' => 'default value'
             ])
             ->onConflictDoUpdate(['id'], [])
             // ->onConflictDoNothing(['id'])

@@ -9,7 +9,6 @@ use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Objects\Type;
 use Sentience\Database\Queries\Traits\ConstraintsTrait;
-use Sentience\Database\Queries\Traits\EmulateIfNotExistsTrait;
 use Sentience\Database\Queries\Traits\IfNotExistsTrait;
 use Sentience\Database\Queries\Traits\PrimaryKeysTrait;
 use Sentience\Database\Results\Result;
@@ -18,7 +17,6 @@ use Sentience\Database\Results\ResultInterface;
 class CreateTableQuery extends SchemaQuery
 {
     use ConstraintsTrait;
-    use EmulateIfNotExistsTrait;
     use IfNotExistsTrait;
     use PrimaryKeysTrait;
 
