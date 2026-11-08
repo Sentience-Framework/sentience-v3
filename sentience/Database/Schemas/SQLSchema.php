@@ -16,6 +16,16 @@ use Sentience\Database\Queries\Query;
 
 class SQLSchema extends SchemaAbstract
 {
+    public function schemas(DatabaseInterface $database, DialectInterface $dialect): array
+    {
+        $schemas = $database->select(Query::raw('information_schema.schemata'))
+            ->columns(['schema_name' => Query::raw('schema_name')])
+            ->execute()
+            ->fetchAssocs();
+
+        return array_column($schemas, 'schema_name');
+    }
+
     public function tables(DatabaseInterface $database, DialectInterface $dialect): array
     {
         $tables = $database->select(Query::raw('information_schema.tables'))
@@ -270,7 +280,7 @@ class SQLSchema extends SchemaAbstract
             'TEXT' => new Type(TypeEnum::String, $size ?? PHP_INT_MAX),
             'DATETIME',
             'TIMESTAMP' => new Type(TypeEnum::DateTime, $size ?? 0),
-            default => !is_null($size) ? sprintf('%s(%d)', $type, $size) : $size
+            default => !is_null($size) ? sprintf('%s(%d)', $type, $size) : $type
         };
     }
 

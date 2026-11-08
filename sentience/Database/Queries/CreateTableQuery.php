@@ -3,13 +3,18 @@
 namespace Sentience\Database\Queries;
 
 use DateTimeInterface;
+use Sentience\Database\Queries\Columns\BoolColumn;
+use Sentience\Database\Queries\Columns\ColumnAbstract;
+use Sentience\Database\Queries\Columns\DateTimeColumn;
+use Sentience\Database\Queries\Columns\FloatColumn;
+use Sentience\Database\Queries\Columns\IntColumn;
+use Sentience\Database\Queries\Columns\StringColumn;
 use Sentience\Database\Queries\Enums\TypeEnum;
 use Sentience\Database\Queries\Interfaces\Sql;
 use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Objects\Type;
 use Sentience\Database\Queries\Traits\ConstraintsTrait;
-use Sentience\Database\Queries\Traits\EmulateIfNotExistsTrait;
 use Sentience\Database\Queries\Traits\IfNotExistsTrait;
 use Sentience\Database\Queries\Traits\PrimaryKeysTrait;
 use Sentience\Database\Results\Result;
@@ -18,7 +23,6 @@ use Sentience\Database\Results\ResultInterface;
 class CreateTableQuery extends SchemaQuery
 {
     use ConstraintsTrait;
-    use EmulateIfNotExistsTrait;
     use IfNotExistsTrait;
     use PrimaryKeysTrait;
 
@@ -51,6 +55,32 @@ class CreateTableQuery extends SchemaQuery
         }
 
         return parent::execute($emulatePrepare);
+    }
+
+    public function columns(array $columns): static
+    {
+        foreach ($columns as $name => $column) {
+            match (true) {
+                $column instanceof BoolColumn => $this->bool($name, $column->notNull, $column->default),
+                $column instanceof IntColumn => $this->int($name, $column->size, $column->notNull, $column->default, $column->generatedByDefaultAsIdentity),
+                $column instanceof FloatColumn => $this->float($name, $column->size, $column->notNull, $column->default),
+                $column instanceof StringColumn => $this->string($name, $column->size, $column->notNull, $column->default),
+                $column instanceof DateTimeColumn => $this->dateTime($name, $column->size, $column->notNull, $column->default),
+                $column instanceof ColumnAbstract => $this->column($name, $column->type(), $column->notNull, $column->default, $column->generatedByDefaultAsIdentity),
+                default => array_push(
+                    $this->columns,
+                    Query::raw(
+                        sprintf(
+                            '%s %s',
+                            $this->dialect->escapeIdentifier($name),
+                            $column instanceof Sql ? $column->rawSql($this->dialect) : ltrim($column)
+                        )
+                    )
+                )
+            };
+        }
+
+        return $this;
     }
 
     public function column(string $name, string|Type $type, bool $notNull = false, null|bool|int|float|string|DateTimeInterface|Sql $default = null, bool $generatedByDefaultAsIdentity = false): static
@@ -89,9 +119,9 @@ class CreateTableQuery extends SchemaQuery
         return $this->column($name, new Type(TypeEnum::Float, $bits), $notNull, $default);
     }
 
-    public function string(string $name, int $size = 255, bool $notNull = false, null|string|Sql $default = null): static
+    public function string(string $name, int $length = 255, bool $notNull = false, null|string|Sql $default = null): static
     {
-        return $this->column($name, new Type(TypeEnum::String, $size), $notNull, $default);
+        return $this->column($name, new Type(TypeEnum::String, $length), $notNull, $default);
     }
 
     public function text(string $name, bool $notNull = false, null|string|Sql $default = null): static
@@ -99,8 +129,8 @@ class CreateTableQuery extends SchemaQuery
         return $this->string($name, PHP_INT_MAX, $notNull, $default);
     }
 
-    public function dateTime(string $name, int $size = 6, bool $notNull = false, null|DateTimeInterface|Sql $default = null): static
+    public function dateTime(string $name, int $precision = 6, bool $notNull = false, null|DateTimeInterface|Sql $default = null): static
     {
-        return $this->column($name, new Type(TypeEnum::DateTime, $size), $notNull, $default);
+        return $this->column($name, new Type(TypeEnum::DateTime, $precision), $notNull, $default);
     }
 }

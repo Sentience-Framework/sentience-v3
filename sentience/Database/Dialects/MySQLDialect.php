@@ -10,9 +10,11 @@ use Sentience\Database\Queries\Interfaces\Sql;
 use Sentience\Database\Queries\Objects\AlterColumn;
 use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\Condition;
+use Sentience\Database\Queries\Objects\CurrentTimestamp;
 use Sentience\Database\Queries\Objects\DropConstraint;
 use Sentience\Database\Queries\Objects\OnConflict;
 use Sentience\Database\Queries\Objects\QueryWithParams;
+use Sentience\Database\Queries\Objects\Type;
 use Sentience\Database\Queries\Query;
 use Sentience\Database\Queries\SelectQuery;
 
@@ -36,9 +38,8 @@ class MySQLDialect extends SQLDialect
         "\r" => '\\r',
         "\t" => '\\t',
         "\0" => '\\0',
-        "\b" => '\\b',
-        "\x1A" => '\\Z',
-        "'" => "\\'"
+        "\x08" => '\\b',
+        "\x1A" => '\\Z'
     ];
     public const bool BOOLEAN = false;
     public const bool DROP_INDEX_ON_TABLE = true;
@@ -53,6 +54,10 @@ class MySQLDialect extends SQLDialect
         array $constraints
     ): QueryWithParams {
         foreach ($columns as $column) {
+            if ($column instanceof Sql) {
+                continue;
+            }
+
             if (!$column->generatedByDefaultAsIdentity) {
                 continue;
             }
@@ -120,7 +125,7 @@ class MySQLDialect extends SQLDialect
             return;
         }
 
-        $insertIgnore = is_null($onConflict->updates);
+        $insertIgnore = is_null($onConflict->set);
 
         if ($insertIgnore && !$lastInsertId) {
             $query = substr_replace($query, 'INSERT IGNORE', 0, 6);
@@ -128,8 +133,8 @@ class MySQLDialect extends SQLDialect
             return;
         }
 
-        $updates = !$insertIgnore
-            ? (count($onConflict->updates) == 0
+        $set = !$insertIgnore
+            ? (count($onConflict->set) == 0
                 ? (function () use ($values): array {
                     $columns = [];
 
@@ -153,11 +158,11 @@ class MySQLDialect extends SQLDialect
 
                     return $columns;
                 })()
-                : $onConflict->updates)
+                : $onConflict->set)
             : [];
 
         if ($lastInsertId) {
-            $updates[$lastInsertId] = Query::raw(
+            $set[$lastInsertId] = Query::raw(
                 sprintf(
                     'last_insert_id(%s)',
                     $this->escapeIdentifier($lastInsertId)
@@ -179,8 +184,8 @@ class MySQLDialect extends SQLDialect
                             : $this->buildQuestionMarks($params, $value)
                         );
                     },
-                    $updates,
-                    array_keys($updates)
+                    $set,
+                    array_keys($set)
                 )
             )
         );
@@ -197,7 +202,17 @@ class MySQLDialect extends SQLDialect
 
     protected function buildColumn(Column $column): string
     {
-        $sql = parent::buildColumn($column);
+        $sql = $column->type instanceof Type && $column->type->size > 0 && $column->default instanceof CurrentTimestamp
+            ? parent::buildColumn(
+                new Column(
+                    $column->name,
+                    $column->type,
+                    $column->notNull,
+                    Query::currentTimestamp($column->type->size),
+                    $column->generatedByDefaultAsIdentity
+                )
+            )
+            : parent::buildColumn($column);
 
         if ($column->generatedByDefaultAsIdentity) {
             $sql .= ' AUTO_INCREMENT';

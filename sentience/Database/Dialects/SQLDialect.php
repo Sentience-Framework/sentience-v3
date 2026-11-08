@@ -12,12 +12,9 @@ use Sentience\Database\Queries\Enums\JoinEnum;
 use Sentience\Database\Queries\Enums\TypeEnum;
 use Sentience\Database\Queries\Interfaces\ConditionGroup;
 use Sentience\Database\Queries\Interfaces\Sql;
-use Sentience\Database\Queries\Objects\AddColumn;
-use Sentience\Database\Queries\Objects\AddForeignKeyConstraint;
-use Sentience\Database\Queries\Objects\AddPrimaryKeys;
-use Sentience\Database\Queries\Objects\AddUniqueConstraint;
 use Sentience\Database\Queries\Objects\Alias;
 use Sentience\Database\Queries\Objects\AlterColumn;
+use Sentience\Database\Queries\Objects\CheckConstraint;
 use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\Condition;
 use Sentience\Database\Queries\Objects\DropColumn;
@@ -25,6 +22,7 @@ use Sentience\Database\Queries\Objects\DropConstraint;
 use Sentience\Database\Queries\Objects\ForeignKeyConstraint;
 use Sentience\Database\Queries\Objects\OnConflict;
 use Sentience\Database\Queries\Objects\OrderBy;
+use Sentience\Database\Queries\Objects\PrimaryKeys;
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Objects\RenameColumn;
 use Sentience\Database\Queries\Objects\SubQuery;
@@ -69,31 +67,8 @@ class SQLDialect extends DialectAbstract
         $params = [];
 
         $this->buildDistinct($query, $distinct);
-
-        $query .= ' ';
-        $query .= count($columns) > 0
-            ? implode(
-                ', ',
-                array_map(
-                    function (string|array|Alias|SelectQuery|Sql|SubQuery $column) use (&$params): string {
-                        if ($column instanceof SelectQuery) {
-                            return $this->buildSelectQuery($params, $column);
-                        }
-
-                        if ($column instanceof SubQuery) {
-                            $column = $this->subQueryToAlias($params, $column);
-                        }
-
-                        return $this->escapeIdentifier($column);
-                    },
-                    $columns
-                )
-            )
-            : '*';
-
-        $query .= ' FROM';
-
-        $this->buildTable($query, $params, $table);
+        $this->buildColumns($query, $params, $columns);
+        $this->buildFrom($query, $params, $table);
         $this->buildJoins($query, $params, $joins);
         $this->buildWhere($query, $params, $where);
         $this->buildGroupBy($query, $groupBy);
@@ -109,6 +84,7 @@ class SQLDialect extends DialectAbstract
     public function insert(
         string|array|Sql $table,
         array $values,
+        array $defaults,
         ?OnConflict $onConflict,
         ?array $returning,
         ?string $lastInsertId
@@ -148,26 +124,7 @@ class SQLDialect extends DialectAbstract
             )
         );
 
-        $query .= ' VALUES';
-
-        array_walk(
-            $values,
-            function (array $values, int $index) use (&$query, &$params, $columns): void {
-                foreach ($columns as $column) {
-                    $value = !array_key_exists($column, $values)
-                        ? Query::raw('DEFAULT')
-                        : $values[$column];
-
-                    unset($values[$column]);
-
-                    $values[$column] = $value;
-                }
-
-                $query .= $index > 0 ? ', ' : ' ';
-                $query .= $this->buildQuestionMarks($params, $values);
-            }
-        );
-
+        $this->buildValues($query, $params, $columns, $values, $defaults);
         $this->buildOnConflict($query, $params, $onConflict, $values, $lastInsertId);
         $this->buildReturning($query, $returning);
 
@@ -188,25 +145,7 @@ class SQLDialect extends DialectAbstract
         $params = [];
 
         $this->buildTable($query, $params, $table);
-
-        $query .= ' SET ';
-        $query .= implode(
-            ', ',
-            array_map(
-                function (null|bool|int|float|string|DateTimeInterface|SelectQuery|Sql $value, string $key) use (&$params): string {
-                    return sprintf(
-                        '%s = %s',
-                        $this->escapeIdentifier($key),
-                        $value instanceof SelectQuery
-                        ? $this->buildSelectQuery($params, $value)
-                        : $this->buildQuestionMarks($params, $value)
-                    );
-                },
-                $set,
-                array_keys($set)
-            )
-        );
-
+        $this->buildSet($query, $params, $set);
         $this->buildWhere($query, $params, $where);
         $this->buildReturning($query, $returning);
 
@@ -218,10 +157,10 @@ class SQLDialect extends DialectAbstract
         array $where,
         ?array $returning
     ): QueryWithParams {
-        $query = 'DELETE FROM';
+        $query = 'DELETE';
         $params = [];
 
-        $this->buildTable($query, $params, $table);
+        $this->buildFrom($query, $params, $table);
         $this->buildWhere($query, $params, $where);
         $this->buildReturning($query, $returning);
 
@@ -255,20 +194,18 @@ class SQLDialect extends DialectAbstract
                 $query .= ', ';
             }
 
+            if ($column instanceof Sql) {
+                $query .= $column->rawSql($this);
+
+                continue;
+            }
+
             $query .= $this->buildColumn($column);
         }
 
         if (count($primaryKeys) > 0) {
-            $query .= sprintf(
-                ', PRIMARY KEY (%s)',
-                implode(
-                    ', ',
-                    array_map(
-                        fn (string|Sql $column): string => $this->escapeIdentifier($column),
-                        $primaryKeys
-                    )
-                )
-            );
+            $query .= ', ';
+            $query .= $this->buildPrimaryKeys($primaryKeys);
         }
 
         foreach ($constraints as $constraint) {
@@ -276,6 +213,7 @@ class SQLDialect extends DialectAbstract
             $query .= match (true) {
                 $constraint instanceof UniqueConstraint => $this->buildUniqueConstraint($constraint),
                 $constraint instanceof ForeignKeyConstraint => $this->buildForeignKeyConstraint($constraint),
+                $constraint instanceof CheckConstraint => $this->buildCheckConstraint($params, $constraint),
                 default => $constraint->rawSql($this)
             };
         }
@@ -302,13 +240,14 @@ class SQLDialect extends DialectAbstract
 
                 $query .= ' ';
                 $query .= match (true) {
-                    $alter instanceof AddColumn => $this->buildAlterTableAddColumn($alter),
+                    $alter instanceof Column => $this->buildAlterTableAddColumn($alter),
                     $alter instanceof AlterColumn => $this->buildAlterTableAlterColumn($alter),
                     $alter instanceof RenameColumn => $this->buildAlterTableRenameColumn($alter),
                     $alter instanceof DropColumn => $this->buildAlterTableDropColumn($alter),
-                    $alter instanceof AddPrimaryKeys => $this->buildAlterTableAddPrimaryKeys($alter),
-                    $alter instanceof AddUniqueConstraint => $this->buildAlterTableAddUniqueConstraint($alter),
-                    $alter instanceof AddForeignKeyConstraint => $this->buildAlterTableAddForeignKeyConstraint($alter),
+                    $alter instanceof PrimaryKeys => $this->buildAlterTableAddPrimaryKeys($alter),
+                    $alter instanceof UniqueConstraint => $this->buildAlterTableAddUniqueConstraint($alter),
+                    $alter instanceof ForeignKeyConstraint => $this->buildAlterTableAddForeignKeyConstraint($alter),
+                    $alter instanceof CheckConstraint => $this->buildAlterTableAddCheckConstraint($params, $alter),
                     $alter instanceof DropConstraint => $this->buildAlterTableDropConstraint($alter),
                     default => $alter->rawSql($this)
                 };
@@ -340,7 +279,8 @@ class SQLDialect extends DialectAbstract
         bool $ifNotExists,
         string $name,
         string|array|Sql $table,
-        array $columns
+        array $columns,
+        array $where
     ): QueryWithParams {
         if (count($columns) == 0) {
             throw new QueryException('no columns specified');
@@ -376,6 +316,8 @@ class SQLDialect extends DialectAbstract
                 )
             )
         );
+
+        $this->buildWhere($query, $params, $where);
 
         return new QueryWithParams($query, $params);
     }
@@ -476,6 +418,17 @@ class SQLDialect extends DialectAbstract
         );
     }
 
+    protected function buildTable(string &$query, &$params, string|array|Alias|Sql|SubQuery $table): void
+    {
+        $query .= ' ';
+
+        if ($table instanceof SubQuery) {
+            $table = $this->subQueryToAlias($params, $table);
+        }
+
+        $query .= $this->escapeIdentifier($table);
+    }
+
     protected function buildDistinct(string &$query, ?array $distinct): void
     {
         if (is_null($distinct)) {
@@ -504,15 +457,36 @@ class SQLDialect extends DialectAbstract
         );
     }
 
-    protected function buildTable(string &$query, &$params, string|array|Alias|Sql|SubQuery $table): void
+    protected function buildColumns(string &$query, &$params, array $columns): void
     {
         $query .= ' ';
 
-        if ($table instanceof SubQuery) {
-            $table = $this->subQueryToAlias($params, $table);
-        }
+        $query .= count($columns) > 0
+            ? implode(
+                ', ',
+                array_map(
+                    function (string|array|Alias|SelectQuery|Sql|SubQuery $column) use (&$params): string {
+                        if ($column instanceof SelectQuery) {
+                            return $this->buildSelectQuery($params, $column);
+                        }
 
-        $query .= $this->escapeIdentifier($table);
+                        if ($column instanceof SubQuery) {
+                            $column = $this->subQueryToAlias($params, $column);
+                        }
+
+                        return $this->escapeIdentifier($column);
+                    },
+                    $columns
+                )
+            )
+            : '*';
+    }
+
+    protected function buildFrom(string &$query, &$params, string|array|Alias|Sql|SubQuery $table): void
+    {
+        $query .= ' FROM';
+
+        $this->buildTable($query, $params, $table);
     }
 
     protected function buildJoins(string &$query, array &$params, array $joins): void
@@ -548,19 +522,25 @@ class SQLDialect extends DialectAbstract
                 JoinEnum::InnerJoin,
                 JoinEnum::InnerJoinLateral => $this->buildInnerJoin($query, $params, $join->join, $table, $join->conditions()),
                 JoinEnum::CrossJoin,
-                JoinEnum::CrossJoinLateral => $this->buildCrossJoin($query, $params, $join->join, $table, $join->conditions()),
+                JoinEnum::CrossJoinLateral => $this->buildCrossJoin($query, $params, $join->join, $table),
                 default => $this->buildJoin($query, $params, $join->join, $table, $join->conditions())
             };
         }
     }
 
-    protected function buildJoin(string &$query, array &$params, string|JoinEnum $join, string|array|Alias|Sql $table, array $conditions): void
+    protected function buildJoin(string &$query, array &$params, string|JoinEnum $join, string|array|Alias|Sql $table, ?array $conditions): void
     {
         $query .= sprintf(
-            '%s %s ON ',
+            '%s %s',
             $join instanceof JoinEnum ? $join->value : $join,
             $this->escapeIdentifier($table)
         );
+
+        if (is_null($conditions)) {
+            return;
+        }
+
+        $query .= ' ON ';
 
         if (count($conditions) == 0) {
             $query .= $this->castToQuery(true);
@@ -585,9 +565,9 @@ class SQLDialect extends DialectAbstract
         $this->buildJoin($query, $params, $join, $table, $conditions);
     }
 
-    protected function buildCrossJoin(string &$query, array &$params, JoinEnum $join, string|array|Alias|Sql $table, array $conditions): void
+    protected function buildCrossJoin(string &$query, array &$params, JoinEnum $join, string|array|Alias|Sql $table): void
     {
-        $this->buildJoin($query, $params, $join, $table, $conditions);
+        $this->buildJoin($query, $params, $join, $table, null);
     }
 
     protected function buildWhere(string &$query, array &$params, array $where): void
@@ -934,6 +914,29 @@ class SQLDialect extends DialectAbstract
         }
     }
 
+    protected function buildValues(string &$query, array &$params, array $columns, array $values, array $defaults): void
+    {
+        $query .= ' VALUES';
+
+        array_walk(
+            $values,
+            function (array $values, int $index) use (&$query, &$params, $columns, $defaults): void {
+                foreach ($columns as $column) {
+                    $value = !array_key_exists($column, $values)
+                        ? $defaults[$column] ?? Query::raw('DEFAULT')
+                        : $values[$column];
+
+                    unset($values[$column]);
+
+                    $values[$column] = $value;
+                }
+
+                $query .= $index > 0 ? ', ' : ' ';
+                $query .= $this->buildQuestionMarks($params, $values);
+            }
+        );
+    }
+
     protected function buildOnConflict(string &$query, array &$params, ?OnConflict $onConflict, array $values, ?string $lastInsertId): void
     {
         if (!$this->onConflict()) {
@@ -959,13 +962,13 @@ class SQLDialect extends DialectAbstract
 
         $query .= sprintf(' ON CONFLICT %s DO ', $conflict);
 
-        if (is_null($onConflict->updates)) {
+        if (is_null($onConflict->set)) {
             $query .= 'NOTHING';
 
             return;
         }
 
-        $updates = count($onConflict->updates) == 0
+        $set = count($onConflict->set) == 0
             ? (function () use ($values): array {
                 $columns = [];
 
@@ -977,34 +980,21 @@ class SQLDialect extends DialectAbstract
                                 continue;
                             }
 
-                            $columns[$column] = Query::identifier(['excluded', $column]);
+                            $columns[$column] = Query::identifier([
+                                Query::raw('excluded'),
+                                $column
+                            ]);
                         }
                     }
                 );
 
                 return $columns;
             })()
-            : $onConflict->updates;
+            : $onConflict->set;
 
-        $query .= sprintf(
-            'UPDATE SET %s',
-            implode(
-                ', ',
-                array_map(
-                    function (null|bool|int|float|string|DateTimeInterface|SelectQuery|Sql $value, string $key) use (&$params): string {
-                        return sprintf(
-                            '%s = %s',
-                            $this->escapeIdentifier($key),
-                            $value instanceof SelectQuery
-                            ? $this->buildSelectQuery($params, $value)
-                            : $this->buildQuestionMarks($params, $value)
-                        );
-                    },
-                    $updates,
-                    array_keys($updates)
-                )
-            )
-        );
+        $query .= 'UPDATE';
+
+        $this->buildSet($query, $params, $set);
     }
 
     protected function buildReturning(string &$query, ?array $returning): void
@@ -1028,6 +1018,28 @@ class SQLDialect extends DialectAbstract
             : '*';
 
         $query .= " RETURNING {$columns}";
+    }
+
+    protected function buildSet(string &$query, array &$params, array $set): void
+    {
+        $query .= ' SET ';
+
+        $query .= implode(
+            ', ',
+            array_map(
+                function (null|bool|int|float|string|DateTimeInterface|SelectQuery|Sql $value, string $key) use (&$params): string {
+                    return sprintf(
+                        '%s = %s',
+                        $this->escapeIdentifier($key),
+                        $value instanceof SelectQuery
+                        ? $this->buildSelectQuery($params, $value)
+                        : $this->buildQuestionMarks($params, $value)
+                    );
+                },
+                $set,
+                array_keys($set)
+            )
+        );
     }
 
     protected function buildQuestionMarks(array &$params, null|bool|int|float|string|array|DateTimeInterface|Sql $value, bool $parentheses = true, string $separator = ', '): string
@@ -1104,6 +1116,29 @@ class SQLDialect extends DialectAbstract
         return $sql;
     }
 
+    protected function buildPrimaryKeys(array $primaryKeys): string
+    {
+        return sprintf(
+            'PRIMARY KEY (%s)',
+            implode(
+                ', ',
+                array_map(
+                    fn (string|Sql $column): string => $this->escapeIdentifier($column),
+                    $primaryKeys
+                )
+            )
+        );
+    }
+
+    protected function buildConstraint(string $name, string $sql): string
+    {
+        return sprintf(
+            'CONSTRAINT %s %s',
+            $this->escapeIdentifier($name),
+            $sql
+        );
+    }
+
     protected function buildUniqueConstraint(UniqueConstraint $uniqueConstraint): string
     {
         $sql = sprintf(
@@ -1117,15 +1152,9 @@ class SQLDialect extends DialectAbstract
             )
         );
 
-        if ($uniqueConstraint->name) {
-            return sprintf(
-                'CONSTRAINT %s %s',
-                $this->escapeIdentifier($uniqueConstraint->name),
-                $sql
-            );
-        }
-
-        return $sql;
+        return $uniqueConstraint->name
+            ? $this->buildConstraint($uniqueConstraint->name, $sql)
+            : $sql;
     }
 
     protected function buildForeignKeyConstraint(ForeignKeyConstraint $foreignKeyConstraint): string
@@ -1139,7 +1168,7 @@ class SQLDialect extends DialectAbstract
                     $foreignKeyConstraint->columns
                 )
             ),
-            $foreignKeyConstraint->referenceTable,
+            $this->escapeIdentifier($foreignKeyConstraint->referenceTable),
             implode(
                 ', ',
                 array_map(
@@ -1149,37 +1178,52 @@ class SQLDialect extends DialectAbstract
             )
         );
 
-        if ($foreignKeyConstraint->name) {
-            $sql = sprintf(
-                'CONSTRAINT %s %s',
-                $this->escapeIdentifier($foreignKeyConstraint->name),
-                $sql
-            );
-        }
-
         if ($foreignKeyConstraint->onUpdate) {
             $sql .= ' ON UPDATE ';
-            $sql .= (string) is_subclass_of($foreignKeyConstraint->onUpdate, BackedEnum::class)
+            $sql .= is_subclass_of($foreignKeyConstraint->onUpdate, BackedEnum::class)
                 ? $foreignKeyConstraint->onUpdate->value
                 : $foreignKeyConstraint->onUpdate;
         }
 
         if ($foreignKeyConstraint->onDelete) {
             $sql .= ' ON DELETE ';
-            $sql .= (string) is_subclass_of($foreignKeyConstraint->onDelete, BackedEnum::class)
+            $sql .= is_subclass_of($foreignKeyConstraint->onDelete, BackedEnum::class)
                 ? $foreignKeyConstraint->onDelete->value
                 : $foreignKeyConstraint->onDelete;
         }
 
-        return $sql;
+        return $foreignKeyConstraint->name
+            ? $this->buildConstraint($foreignKeyConstraint->name, $sql)
+            : $sql;
     }
 
-    protected function buildAlterTableAddColumn(AddColumn $addColumn): string
+    protected function buildCheckConstraint(array &$params, CheckConstraint $checkConstraint): string
     {
-        return sprintf(
-            'ADD COLUMN %s',
-            $this->buildColumn($addColumn)
-        );
+        $sql = 'CHECK (';
+
+        $conditions = $checkConstraint->conditions();
+
+        foreach ($conditions as $index => $condition) {
+            $condition instanceof Condition
+                ? $this->buildCondition($sql, $params, $index, $condition)
+                : $this->buildConditionGroup($sql, $params, $index, $condition);
+        }
+
+        $sql .= ')';
+
+        return $checkConstraint->name
+            ? $this->buildConstraint($checkConstraint->name, $sql)
+            : $sql;
+    }
+
+    protected function buildAlterTableAdd(string $sql): string
+    {
+        return sprintf('ADD %s', $sql);
+    }
+
+    protected function buildAlterTableAddColumn(Column $column): string
+    {
+        return $this->buildAlterTableAdd($this->buildColumn($column));
     }
 
     protected function buildAlterTableAlterColumn(AlterColumn $alterColumn): string
@@ -1208,34 +1252,24 @@ class SQLDialect extends DialectAbstract
         );
     }
 
-    protected function buildAlterTableAddPrimaryKeys(AddPrimaryKeys $addPrimaryKeys): string
+    protected function buildAlterTableAddPrimaryKeys(PrimaryKeys $primaryKeys): string
     {
-        return sprintf(
-            'ADD PRIMARY KEY (%s)',
-            implode(
-                ', ',
-                array_map(
-                    fn (string|array|Sql $column): string => $this->escapeIdentifier($column),
-                    $addPrimaryKeys->columns
-                )
-            )
-        );
+        return $this->buildAlterTableAdd($this->buildPrimaryKeys($primaryKeys->columns));
     }
 
-    protected function buildAlterTableAddUniqueConstraint(AddUniqueConstraint $addUniqueConstraint): string
+    protected function buildAlterTableAddUniqueConstraint(UniqueConstraint $uniqueConstraint): string
     {
-        return sprintf(
-            'ADD %s',
-            $this->buildUniqueConstraint($addUniqueConstraint)
-        );
+        return $this->buildAlterTableAdd($this->buildUniqueConstraint($uniqueConstraint));
     }
 
-    protected function buildAlterTableAddForeignKeyConstraint(AddForeignKeyConstraint $addForeignKeyConstraint): string
+    protected function buildAlterTableAddForeignKeyConstraint(ForeignKeyConstraint $foreignKeyConstraint): string
     {
-        return sprintf(
-            'ADD %s',
-            $this->buildForeignKeyConstraint($addForeignKeyConstraint)
-        );
+        return $this->buildAlterTableAdd($this->buildForeignKeyConstraint($foreignKeyConstraint));
+    }
+
+    protected function buildAlterTableAddCheckConstraint(array &$params, CheckConstraint $checkConstraint): string
+    {
+        return $this->buildAlterTableAdd($this->buildCheckConstraint($params, $checkConstraint));
     }
 
     protected function buildAlterTableDropConstraint(DropConstraint $dropConstraint): string
@@ -1292,7 +1326,7 @@ class SQLDialect extends DialectAbstract
                 ...static::ESCAPE_CHARS,
                 $char => static::ESCAPE_ANSI
                     ? sprintf('%s%s', $char, $char)
-                    : sprintf('\\%s', $char, $char)
+                    : sprintf('\\%s', $char)
             ]
         );
 

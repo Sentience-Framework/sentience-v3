@@ -4,7 +4,10 @@ namespace Src\Controllers;
 
 use Sentience\Abstracts\Controller;
 use Sentience\Database\Databases\SQLite\SQLiteDatabase;
+use Sentience\Database\Queries\Columns\IntColumn;
+use Sentience\Database\Queries\Columns\StringColumn;
 use Sentience\Database\Queries\Enums\ReferentialActionEnum;
+use Sentience\Database\Queries\Objects\CheckConstraint;
 use Sentience\Database\Queries\Objects\HavingGroup;
 use Sentience\Database\Queries\Objects\Join;
 use Sentience\Database\Queries\Objects\WhereGroup;
@@ -127,7 +130,7 @@ class ExampleController extends Controller
                     ->orwhereIsNull('column3')
             )
             ->where('DATE(`created_at`) > :date OR DATE(`created_at`) < :date', [':date' => Query::now()])
-            ->wheref('DATE(`updated_at`) > %s OR DATE(`updated_at`) < %s', Query::now(), Query::now())
+            ->wheref('DATE(`updated_at`) > %%%s OR DATE(`updated_at`) < %s', Query::now(), Query::now())
             ->whereGroup(
                 fn (WhereGroup $group) => $group
                     ->whereIn('column4', [1, 2, 3, 4])
@@ -169,12 +172,16 @@ class ExampleController extends Controller
                 'column1' => Query::now(),
                 'column2' => true,
                 'column3' => false,
-                'column4' => Query::raw('column1 + 1')
+                'column4' => Query::raw('column1 + 1'),
+                'column5' => 'Quotes \'"`'
             ])
             ->values([
                 'column3' => false,
                 'column4' => Query::raw('column1 + 1'),
                 'column1' => Query::now()
+            ])
+            ->defaults([
+                'column5' => 'default value'
             ])
             ->onConflictDoUpdate(['id'], [])
             // ->onConflictDoNothing(['id'])
@@ -223,12 +230,18 @@ class ExampleController extends Controller
 
         $queries[] = $db->createTable('table_1')
             ->ifNotExists()
+            ->columns([
+                'id' => new IntColumn(),
+                'name' => new StringColumn(),
+                'raw_column' => 'INT8 NOT NULL CHECK(raw_column IN (1, 2, 3, 4))'
+            ])
             ->column('primary_key', 'int', true, null, true)
             ->column('column1', 'bigint', true)
             ->column('column2', 'varchar(255)')
             ->primaryKeys(['primary_key'])
             ->uniqueConstraint(['column1', 'column2'])
             ->foreignKeyConstraint('column1', 'table_2', 'reference_column', 'fk_table_1', ReferentialActionEnum::NoAction)
+            ->checkConstraint(fn (CheckConstraint $checkConstraint): CheckConstraint => $checkConstraint->whereEquals('column1', 1), 'check_constraint')
             ->constraint('UNIQUE "test" COLUMNS ("column1", "column2")')
             ->toSql();
 
@@ -244,6 +257,7 @@ class ExampleController extends Controller
                 // ->addPrimaryKeys(['pk'])
                 // ->addUniqueConstraint(['column1', 'column2'], 'unique_constraint')
                 // ->addForeignKeyConstraint('column4', 'reference_table', 'reference_column')
+                ->addCheckConstraint(fn (CheckConstraint $checkConstraint): CheckConstraint => $checkConstraint->whereEquals('column1', 1))
                 // ->dropConstraint('unique_constraint')
                 ->toSql()
         );

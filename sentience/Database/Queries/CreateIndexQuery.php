@@ -4,16 +4,16 @@ namespace Sentience\Database\Queries;
 
 use Sentience\Database\Queries\Objects\QueryWithParams;
 use Sentience\Database\Queries\Traits\ColumnsTrait;
-use Sentience\Database\Queries\Traits\EmulateIfNotExistsTrait;
 use Sentience\Database\Queries\Traits\IfNotExistsTrait;
+use Sentience\Database\Queries\Traits\WhereTrait;
 use Sentience\Database\Results\Result;
 use Sentience\Database\Results\ResultInterface;
 
 class CreateIndexQuery extends IndexQuery
 {
     use ColumnsTrait;
-    use EmulateIfNotExistsTrait;
     use IfNotExistsTrait;
+    use WhereTrait;
 
     protected bool $unique = false;
 
@@ -24,7 +24,8 @@ class CreateIndexQuery extends IndexQuery
             !$this->emulateIfNotExists ? $this->ifNotExists : false,
             $this->name,
             $this->table,
-            $this->columns
+            $this->columns,
+            $this->where
         );
     }
 

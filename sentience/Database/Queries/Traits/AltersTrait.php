@@ -6,15 +6,16 @@ use DateTimeInterface;
 use Sentience\Database\Queries\Enums\ReferentialActionEnum;
 use Sentience\Database\Queries\Enums\TypeEnum;
 use Sentience\Database\Queries\Interfaces\Sql;
-use Sentience\Database\Queries\Objects\AddColumn;
-use Sentience\Database\Queries\Objects\AddForeignKeyConstraint;
-use Sentience\Database\Queries\Objects\AddPrimaryKeys;
-use Sentience\Database\Queries\Objects\AddUniqueConstraint;
 use Sentience\Database\Queries\Objects\AlterColumn;
+use Sentience\Database\Queries\Objects\CheckConstraint;
+use Sentience\Database\Queries\Objects\Column;
 use Sentience\Database\Queries\Objects\DropColumn;
 use Sentience\Database\Queries\Objects\DropConstraint;
+use Sentience\Database\Queries\Objects\ForeignKeyConstraint;
+use Sentience\Database\Queries\Objects\PrimaryKeys;
 use Sentience\Database\Queries\Objects\RenameColumn;
 use Sentience\Database\Queries\Objects\Type;
+use Sentience\Database\Queries\Objects\UniqueConstraint;
 use Sentience\Database\Queries\Query;
 
 trait AltersTrait
@@ -23,7 +24,7 @@ trait AltersTrait
 
     public function addColumn(string $name, string|Type $type, bool $notNull = false, null|bool|int|float|string|DateTimeInterface|Sql $default = null, bool $generatedByDefaultAsIdentity = false): static
     {
-        $this->alters[] = new AddColumn($name, $type, $notNull, $default, $generatedByDefaultAsIdentity);
+        $this->alters[] = new Column($name, $type, $notNull, $default, $generatedByDefaultAsIdentity);
 
         return $this;
     }
@@ -51,21 +52,40 @@ trait AltersTrait
 
     public function addPrimaryKeys(string|array $columns): static
     {
-        $this->alters[] = new AddPrimaryKeys((array) $columns);
+        $this->alters[] = new PrimaryKeys((array) $columns);
 
         return $this;
     }
 
     public function addUniqueConstraint(array $columns, ?string $name = null): static
     {
-        $this->alters[] = new AddUniqueConstraint($columns, $name);
+        $this->alters[] = new UniqueConstraint($columns, $name);
 
         return $this;
     }
 
     public function addForeignKeyConstraint(string|array $columns, string $referenceTable, string|array $referenceColumns, ?string $name = null, null|string|ReferentialActionEnum $onUpdate = null, null|string|ReferentialActionEnum $onDelete = null): static
     {
-        $this->alters[] = new AddForeignKeyConstraint((array) $columns, $referenceTable, (array) $referenceColumns, $name, $onUpdate, $onDelete);
+        $this->alters[] = new ForeignKeyConstraint((array) $columns, $referenceTable, (array) $referenceColumns, $name, $onUpdate, $onDelete);
+
+        return $this;
+    }
+
+    public function addCheckConstraint(callable $check, ?string $name = null): static
+    {
+        $checkConstraint = new CheckConstraint($name);
+
+        $checkConstraint = $check($checkConstraint) ?? $checkConstraint;
+
+        if (!($checkConstraint instanceof CheckConstraints)) {
+            return $this;
+        }
+
+        if (count($checkConstraint->conditions()) == 0) {
+            return $this;
+        }
+
+        $this->alters[] = $checkConstraint;
 
         return $this;
     }
@@ -113,9 +133,9 @@ trait AltersTrait
         return $this->addColumn($name, new Type(TypeEnum::Float, $bits), $notNull, $default);
     }
 
-    public function addString(string $name, int $size = 255, bool $notNull = false, null|string|Sql $default = null): static
+    public function addString(string $name, int $length = 255, bool $notNull = false, null|string|Sql $default = null): static
     {
-        return $this->addColumn($name, new Type(TypeEnum::String, $size), $notNull, $default);
+        return $this->addColumn($name, new Type(TypeEnum::String, $length), $notNull, $default);
     }
 
     public function addText(string $name, bool $notNull = false, null|string|Sql $default = null): static
@@ -123,8 +143,8 @@ trait AltersTrait
         return $this->addString($name, PHP_INT_MAX, $notNull, $default);
     }
 
-    public function addDateTime(string $name, int $size = 6, bool $notNull = false, null|DateTimeInterface|Sql $default = null): static
+    public function addDateTime(string $name, int $precision = 6, bool $notNull = false, null|DateTimeInterface|Sql $default = null): static
     {
-        return $this->addColumn($name, new Type(TypeEnum::DateTime, $size), $notNull, $default);
+        return $this->addColumn($name, new Type(TypeEnum::DateTime, $precision), $notNull, $default);
     }
 }

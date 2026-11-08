@@ -33,31 +33,46 @@ abstract class ResultAbstract implements ResultInterface
             return null;
         }
 
-        return $this->assocToObject(
-            new $class(...$constructorArgs),
-            $assoc
-        );
-    }
+        $object = new $class(...$constructorArgs);
 
-    public function fetchObjects(string $class = 'stdClass', array $constructorArgs = []): array
-    {
-        $assocs = $this->fetchAssocs();
-
-        return array_map(
-            fn (array $assoc): object => $this->assocToObject(
-                new $class(...$constructorArgs),
-                $assoc
-            ),
-            $assocs
-        );
-    }
-
-    protected function assocToObject(object $object, array $assoc): object
-    {
         foreach ($assoc as $key => $value) {
             $object->{$key} = $value;
         }
 
         return $object;
+    }
+
+    public function fetchObjects(string $class = 'stdClass', array $constructorArgs = []): array
+    {
+        $objects = [];
+
+        while (true) {
+            $object = $this->fetchObject($class, $constructorArgs);
+
+            if (is_null($object)) {
+                break;
+            }
+
+            $objects[] = $object;
+        }
+
+        return $objects;
+    }
+
+    public function fetchAssocs(): array
+    {
+        $assocs = [];
+
+        while (true) {
+            $assoc = $this->fetchAssoc();
+
+            if (is_null($assoc)) {
+                break;
+            }
+
+            $assocs[] = $assoc;
+        }
+
+        return $assocs;
     }
 }

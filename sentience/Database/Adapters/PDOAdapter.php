@@ -4,7 +4,6 @@ namespace Sentience\Database\Adapters;
 
 use Closure;
 use PDO;
-use PDOStatement;
 use Throwable;
 use Sentience\Database\Dialects\DialectInterface;
 use Sentience\Database\Driver;
@@ -402,9 +401,11 @@ class PDOAdapter extends AdapterAbstract
                 default => PDO::PARAM_STR
             };
 
-            ((bool) preg_match('/^[0-9]+$/', (string) $key))
-                ? $this->bindValue($pdoStatement, $key, $value, $type)
-                : $this->bindParam($pdoStatement, $key, $value, $type);
+            (function (null|bool|int|float|string $value) use ($pdoStatement, $key, $type) {
+                ((bool) preg_match('/^[0-9]+$/', (string) $key))
+                    ? $pdoStatement->bindValue($key + 1, $value, $type)
+                    : $pdoStatement->bindParam($key, $value, $type);
+            })($value);
         }
 
         try {
@@ -485,20 +486,10 @@ class PDOAdapter extends AdapterAbstract
         $this->pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
     }
 
-    protected function bindValue(PDOStatement $pdoStatement, int $key, null|bool|int|float|string $value, int $type): void
-    {
-        $pdoStatement->bindValue($key + 1, $value, $type);
-    }
-
-    protected function bindParam(PDOStatement $pdoStatement, string $key, null|bool|int|float|string $value, int $type): void
-    {
-        $pdoStatement->bindParam($key, $value, $type);
-    }
-
     public function __destruct()
     {
-        if ($this->driver == Driver::SQLite) {
-            $this->sqliteOptimize($this->options[static::OPTIONS_SQLITE_OPTIMIZE] ?? false);
+        if ($this->driver == Driver::SQLite && ($this->options[static::OPTIONS_SQLITE_OPTIMIZE] ?? false)) {
+            $this->sqliteOptimize();
         }
     }
 }

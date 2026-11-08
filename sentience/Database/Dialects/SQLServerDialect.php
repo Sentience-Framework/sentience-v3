@@ -29,6 +29,10 @@ class SQLServerDialect extends SQLDialect
         array $constraints
     ): QueryWithParams {
         foreach ($columns as $column) {
+            if ($column instanceof Sql) {
+                continue;
+            }
+
             if ($column->generatedByDefaultAsIdentity && !in_array($column->name, $primaryKeys)) {
                 $primaryKeys[] = $column->name;
             }
@@ -95,9 +99,9 @@ class SQLServerDialect extends SQLDialect
         $this->buildJoin($query, $params, $join == JoinEnum::InnerJoinLateral ? 'CROSS APPLY' : $join, $table, $conditions);
     }
 
-    protected function buildCrossJoin(string &$query, array &$params, JoinEnum $join, string|array|Alias|Sql $table, array $conditions): void
+    protected function buildCrossJoin(string &$query, array &$params, JoinEnum $join, string|array|Alias|Sql $table): void
     {
-        $this->buildJoin($query, $params, $join == JoinEnum::CrossJoinLateral ? 'CROSS APPLY' : $join, $table, $conditions);
+        $this->buildJoin($query, $params, $join == JoinEnum::CrossJoinLateral ? 'CROSS APPLY' : $join, $table, null);
     }
 
     protected function buildConditionRegex(string &$query, array &$params, Condition $condition): void
