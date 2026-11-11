@@ -116,8 +116,8 @@ class ResponseGenerator implements IteratorAggregate
             $this->tools,
             $this->maxTokens,
             $this->maxReasoningTokens,
-            $this->structuredOutput,
-            $this->structuredOutputLegacy,
+            null,
+            false,
             $this->stream
         );
     }

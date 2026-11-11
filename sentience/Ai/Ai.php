@@ -31,8 +31,7 @@ class Ai
     ) {
         $this->api = match ($api) {
             Api::OpenAI,
-            Api::OpenAICompatible,
-            Api::OpenRouter => new OpenAIApi($baseUri, $apiKey),
+            Api::OpenAICompatible => new OpenAIApi($baseUri, $apiKey),
             Api::Anthropic => new AnthropicApi($baseUri, $apiKey),
             Api::AnthropicCompatible => new AnthropicCompatibleApi($baseUri, $apiKey)
         };

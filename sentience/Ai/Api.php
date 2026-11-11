@@ -8,5 +8,4 @@ enum Api: string
     case OpenAICompatible = 'openai_compatible';
     case Anthropic = 'anthropic';
     case AnthropicCompatible = 'anthropic_compatible';
-    case OpenRouter = 'openrouter';
 }

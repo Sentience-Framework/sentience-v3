@@ -45,7 +45,7 @@ class AiController extends Controller
 
         $prompt->withTool(
             'get_weather_info',
-            fn(string $city): string => $this->getWeatherInfo($city)
+            fn (string $city): string => $this->getWeatherInfo($city)
         );
 
         $prompt->withStream();
@@ -83,37 +83,37 @@ class AiController extends Controller
             }
         }
 
-        // $responses = $responses
-        //     ->continue('Can you write all sumaries and weathers in Dutch')
-        //     ->withStructuredOutput(
-        //         Schema::object([
-        //             'files' => Schema::array(
-        //                 Schema::object([
-        //                     'filetype' => Schema::string(),
-        //                     'contents_summary_in_dutch' => Schema::string()
-        //                 ])
-        //             ),
-        //             'weather_in_dutch' => Schema::string()
-        //         ])
-        //     )
-        //     ->execute();
+        $responses = $responses
+            ->continue('Can you write all sumaries and weathers in Dutch')
+            ->withStructuredOutput(
+                Schema::object([
+                    'files' => Schema::array(
+                        Schema::object([
+                            'filetype' => Schema::string(),
+                            'contents_summary_in_dutch' => Schema::string()
+                        ])
+                    ),
+                    'weather_in_dutch' => Schema::string()
+                ])
+            )
+            ->execute();
 
-        // foreach ($responses as $response) {
-        //     while ($response->read()) {
-        //         Stdio::printLn(
-        //             Json::encode(
-        //                 [
-        //                     'content' => $response->getContent(),
-        //                     'reasoning' => $response->getReasoningContent(),
-        //                     'tool_calls' => $response->getToolCalls(),
-        //                     'finish_reason' => $response->getFinishReason(),
-        //                     'structured_output' => $response->getStructuredOutput()
-        //                 ],
-        //                 JSON_PRETTY_PRINT
-        //             )
-        //         );
-        //     }
-        // }
+        foreach ($responses as $response) {
+            while ($response->read()) {
+                Stdio::printLn(
+                    Json::encode(
+                        [
+                            'content' => $response->getContent(),
+                            'reasoning' => $response->getReasoningContent(),
+                            'tool_calls' => $response->getToolCalls(),
+                            'finish_reason' => $response->getFinishReason(),
+                            'structured_output' => $response->getStructuredOutput()
+                        ],
+                        JSON_PRETTY_PRINT
+                    )
+                );
+            }
+        }
     }
 
     public function getWeatherInfo(string $city): string

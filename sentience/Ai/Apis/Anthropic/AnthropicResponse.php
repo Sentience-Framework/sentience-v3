@@ -127,7 +127,7 @@ class AnthropicResponse extends ResponseAbstract
             if (!empty($this->toolCallData)) {
                 $this->toolCalls = array_values(
                     array_map(
-                        fn(array $toolCallData) => new ToolCall(
+                        fn (array $toolCallData) => new ToolCall(
                             $toolCallData['id'] ?? '',
                             $toolCallData['name'] ?? '',
                             is_array(json_decode($toolCallData['input_json'], true))
