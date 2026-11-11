@@ -32,14 +32,15 @@ class OpenAIApi extends ApiAbstract
         int $maxTokens,
         int $maxReasoningTokens,
         ?Schemable $structuredOutput,
+        bool $structuredOutputLegacy,
         bool $stream
     ): ResponseInterface {
         if ($systemPrompt) {
             array_unshift($messages, new SystemMessage($systemPrompt));
         }
 
-        if ($structuredOutput) {
-            array_unshift($messages, $this->buildStructuredOutputMessage($structuredOutput));
+        if ($structuredOutputLegacy && $structuredOutput) {
+            array_unshift($messages, $this->buildLegacyStructuredOutputMessage($structuredOutput));
         }
 
         $response = $this->client->post(
@@ -52,8 +53,16 @@ class OpenAIApi extends ApiAbstract
                         $messages
                     ),
                     'tools' => $this->buildToolsSchema($tools),
+                    'response_format' => $structuredOutput ? [
+                        'type' => 'json_schema',
+                        'json_schema' => [
+                            'name' => 'response',
+                            'strict' => true,
+                            'schema' => $structuredOutput->schema()
+                        ]
+                    ] : null,
                     'max_tokens' => $maxTokens + $maxReasoningTokens,
-                    'stream' => $stream
+                    'stream' => true
                 ]),
                 'stream' => true
             ]

@@ -21,14 +21,14 @@ class AiController extends Controller
     {
         $ai = Ai::connect(
             Api::OpenAI,
-            // Api::Anthropic,
+            // Api::AnthropicCompatible,
             'http://localhost:1234',
             'abcdefgh12345678'
         );
 
         $prompt = $ai->prompt(
             // 'qwen3.6-35b-a3b-mtp',
-            'google/gemma-4-e4b',
+            'gemma-4-e4b-it-qat',
             // 'granite-4.1-8b',
             'Review the provided files and summarize their contents, and give me the weather for Amsterdam. If a file is a picture, describe the contents of the image'
         );
@@ -83,37 +83,37 @@ class AiController extends Controller
             }
         }
 
-        $responses = $responses
-            ->continue('Can you write all sumaries and weathers in Dutch')
-            ->withStructuredOutput(
-                Schema::object([
-                    'files' => Schema::array(
-                        Schema::object([
-                            'filetype' => Schema::string(),
-                            'contents_summary_in_dutch' => Schema::string()
-                        ])
-                    ),
-                    'weather_in_dutch' => Schema::string()
-                ])
-            )
-            ->execute();
+        // $responses = $responses
+        //     ->continue('Can you write all sumaries and weathers in Dutch')
+        //     ->withStructuredOutput(
+        //         Schema::object([
+        //             'files' => Schema::array(
+        //                 Schema::object([
+        //                     'filetype' => Schema::string(),
+        //                     'contents_summary_in_dutch' => Schema::string()
+        //                 ])
+        //             ),
+        //             'weather_in_dutch' => Schema::string()
+        //         ])
+        //     )
+        //     ->execute();
 
-        foreach ($responses as $response) {
-            while ($response->read()) {
-                Stdio::printLn(
-                    Json::encode(
-                        [
-                            'content' => $response->getContent(),
-                            'reasoning' => $response->getReasoningContent(),
-                            'tool_calls' => $response->getToolCalls(),
-                            'finish_reason' => $response->getFinishReason(),
-                            'structured_output' => $response->getStructuredOutput()
-                        ],
-                        JSON_PRETTY_PRINT
-                    )
-                );
-            }
-        }
+        // foreach ($responses as $response) {
+        //     while ($response->read()) {
+        //         Stdio::printLn(
+        //             Json::encode(
+        //                 [
+        //                     'content' => $response->getContent(),
+        //                     'reasoning' => $response->getReasoningContent(),
+        //                     'tool_calls' => $response->getToolCalls(),
+        //                     'finish_reason' => $response->getFinishReason(),
+        //                     'structured_output' => $response->getStructuredOutput()
+        //                 ],
+        //                 JSON_PRETTY_PRINT
+        //             )
+        //         );
+        //     }
+        // }
     }
 
     public function getWeatherInfo(string $city): string

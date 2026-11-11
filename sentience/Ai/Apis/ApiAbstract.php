@@ -4,6 +4,7 @@ namespace Sentience\Ai\Apis;
 
 use GuzzleHttp\Client;
 use Sentience\Ai\Attachments\Base64Attachment;
+use Sentience\Ai\Messages\MessageInterface;
 use Sentience\Ai\Messages\SystemMessage;
 use Sentience\Ai\Schema\Schemable;
 
@@ -99,7 +100,7 @@ abstract class ApiAbstract implements ApiInterface
         return $models;
     }
 
-    protected function buildStructuredOutputMessage(Schemable $schema): SystemMessage
+    protected function buildLegacyStructuredOutputMessage(Schemable $schema): MessageInterface
     {
         return new SystemMessage(
             'The final response to the user should only be in minified JSON (no spaces or \n newlines). '

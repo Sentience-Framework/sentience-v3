@@ -23,6 +23,7 @@ class Prompt
         protected int $maxTokens = 1048578,
         protected int $maxReasoningTokens = 1048578,
         protected ?Schemable $structuredOutput = null,
+        protected bool $structuredOutputLegacy = false,
         protected bool $stream = false
     ) {
     }
@@ -100,9 +101,10 @@ class Prompt
         return $this;
     }
 
-    public function withStructuredOutput(ObjectType $schema): static
+    public function withStructuredOutput(ObjectType $schema, bool $legacy = false): static
     {
         $this->structuredOutput = $schema;
+        $this->structuredOutputLegacy = $legacy;
 
         return $this;
     }
@@ -127,6 +129,7 @@ class Prompt
             $this->maxTokens,
             $this->maxReasoningTokens,
             $this->structuredOutput,
+            $this->structuredOutputLegacy,
             $this->stream
         );
     }
