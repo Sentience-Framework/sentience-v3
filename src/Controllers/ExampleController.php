@@ -270,6 +270,8 @@ class ExampleController extends Controller
             ->ifNotExists()
             ->unique()
             ->columns(['column1', 'column2'])
+            ->whereIn('column1', [false, true, 2, 3, 4, '5'])
+            ->orWhereIn('column2', ['6', '7', '8', 9])
             ->toSql();
 
         $queries[] = $db->dropIndex('indexable_table', 'index')
