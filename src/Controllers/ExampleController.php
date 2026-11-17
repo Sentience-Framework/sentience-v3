@@ -230,10 +230,10 @@ class ExampleController extends Controller
 
         $queries[] = $db->createTable('table_1')
             ->ifNotExists()
-            ->column('primary_key', 'BIGINT', false, null, true)
-            ->column('column1', 'INTEGER', true)
-            ->column('column2', 'VARCHAR(255)')
-            ->column('column2', 'DATETIME(6)')
+            ->int('primary_key', 64, false, null, true)
+            ->int('column1', 32, true)
+            ->string('column2')
+            ->dateTime('column3')
             ->primaryKeys(['primary_key'])
             ->uniqueConstraint(['column1', 'column2'], 'uq')
             ->foreignKeyConstraint('column1', 'table_2', 'reference_column', 'fk_table_1', ReferentialActionEnum::NoAction)
@@ -244,7 +244,7 @@ class ExampleController extends Controller
         $queries[] = implode(
             PHP_EOL,
             $db->table('table_1')->alter()
-                ->addColumn('column3', 'INT')
+                ->addInt('column3')
                 ->addColumn('columnDateTimeFunc', 'DATETIME', true, Query::raw('now()'))
                 // ->alterColumn('column3', 'TEXT AUTO_INCREMENT')
                 ->renameColumn('column3', 'column4')
