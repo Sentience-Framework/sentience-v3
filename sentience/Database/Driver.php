@@ -21,6 +21,8 @@ use Sentience\Database\Sockets\SocketAbstract;
 
 enum Driver: string implements DriverInterface
 {
+    public const string PDO = 'pdo';
+
     case MariaDB = 'mariadb';
     case MySQL = 'mysql';
     case PgSQL = 'pgsql';
@@ -31,15 +33,9 @@ enum Driver: string implements DriverInterface
         return $this->value;
     }
 
-    public function adapter(
-        string $name,
-        ?SocketAbstract $socket,
-        array $queries,
-        array $options,
-        ?Closure $debug,
-        bool $usePDOAdapter = false
-    ): AdapterInterface {
-        $adapter = !$usePDOAdapter
+    public function adapter(string $name, ?SocketAbstract $socket, array $queries, array $options, ?Closure $debug): AdapterInterface
+    {
+        $adapter = !((bool) ($options[self::PDO] ?? false))
             ? match ($this) {
                 static::MariaDB,
                 static::MySQL => MySQLiAdapter::class,

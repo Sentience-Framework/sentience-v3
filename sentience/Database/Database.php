@@ -40,9 +40,8 @@ class Database implements DatabaseInterface
             $name,
             $socket,
             $queries,
-            $options,
-            $debug,
-            $usePDOAdapter
+            [...$options, Driver::PDO => $usePDOAdapter],
+            $debug
         );
 
         $version = $adapter->version();
