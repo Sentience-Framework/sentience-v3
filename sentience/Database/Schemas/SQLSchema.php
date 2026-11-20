@@ -59,7 +59,7 @@ class SQLSchema extends SchemaAbstract
 
         return array_map(
             function (array $column): Column {
-                $type = $column['data_type'];
+                $type = strtolower($column['data_type']);
                 $size = $column['character_maximum_length'] ?? $column['numeric_precision'] ?? $column['datetime_precision'];
 
                 return new Column(
